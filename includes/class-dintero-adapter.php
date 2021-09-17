@@ -20,10 +20,13 @@ class Dintero_Adapter
         return array(
             'Content-type'  => 'application/json; charset=utf-8',
             'Accept'        => 'application/json',
-            'User-Agent' => 'Dintero.Checkout.Woocomerce.1.2.1 (+https://github.com/Dintero/Dintero.Checkout.Woocomerce)',
+            'User-Agent' => sprintf(
+                'Dintero.Checkout.Woocomerce.%s (+https://github.com/Dintero/Dintero.Checkout.Woocomerce),',
+                WCDHP()->get_version()
+            ),
             'Dintero-System-Name' => 'woocommerce',
             'Dintero-System-Version' =>  WC()->version,
-            'Dintero-System-Plugin-Name' => 'Dintero.Checkout.WooCommerce',
+            'Dintero-System-Plugin-Name' => 'Dintero.Checkout.WooCommerce.V2',
             'Dintero-System-Plugin-Version' => WCDHP()->get_version(),
         );
     }
@@ -53,6 +56,19 @@ class Dintero_Adapter
     }
 
     /**
+     * @param string $json
+     * @return array
+     */
+    protected function decode($json)
+    {
+        try {
+            return Dintero_Serializer::instance()->unserialize($json);
+        } catch (Exception $e) {
+            return ['error' => __('Could not decode response.')];
+        }
+    }
+
+    /**
      * @return false|string
      */
     public function get_access_token()
@@ -66,13 +82,12 @@ class Dintero_Adapter
                 'audience'   => sprintf('%s/accounts/%s', self::API_ENDPOINT, $account_id),
             )));
 
-        $response = json_decode(
+        $response = $this->decode(
             wp_remote_retrieve_body(
                 _wp_http_get_object()->post(
-                    sprintf('%s/accounts/%s/auth/token', self::API_ENDPOINT, $account_id),
+                    $this->endpoint(sprintf('/accounts/%s/auth/token', $account_id)),
                     Dintero_Request_Builder::instance()->build($request))
-            ),
-            true
+            )
         );
 
         return isset($response['access_token']) ? $response['access_token'] : false;
@@ -90,7 +105,7 @@ class Dintero_Adapter
             Dintero_Request_Builder::instance()->build($request)
         );
 
-        return json_decode(wp_remote_retrieve_body($response), true);
+        return $this->decode( wp_remote_retrieve_body($response));
     }
 
     /**
@@ -105,7 +120,7 @@ class Dintero_Adapter
             Dintero_Request_Builder::instance()->build($request)
         );
 
-        return json_decode(wp_remote_retrieve_body( $response ), true );
+        return $this->decode( wp_remote_retrieve_body( $response ) );
     }
 
     /**
@@ -125,7 +140,7 @@ class Dintero_Adapter
             $this->endpoint(sprintf('/transactions/%s', $transaction_id)),
             $payload
         );
-        return json_decode(wp_remote_retrieve_body( $response ), true );
+        return $this->decode( wp_remote_retrieve_body( $response ) );
     }
 
     /**
@@ -142,7 +157,7 @@ class Dintero_Adapter
             $this->endpoint(sprintf('/transactions/%s/capture', $transaction_id)),
             $payload
         );
-        return json_decode(wp_remote_retrieve_body( $response ), true );
+        return $this->decode( wp_remote_retrieve_body( $response ) );
     }
 
     /**
@@ -159,7 +174,7 @@ class Dintero_Adapter
             $this->endpoint(sprintf('/transactions/%s/refund', $transaction_id)),
             $payload
         );
-        return json_decode(wp_remote_retrieve_body($response), true);
+        return $this->decode( wp_remote_retrieve_body($response) );
     }
 
     /**
@@ -175,7 +190,7 @@ class Dintero_Adapter
             $this->endpoint(sprintf('/transactions/%s/void', $transaction_id)),
             $payload
         );
-        return json_decode(wp_remote_retrieve_body($response), true);
+        return $this->decode( wp_remote_retrieve_body($response) );
     }
 
     /**
@@ -194,6 +209,6 @@ class Dintero_Adapter
             Dintero_Request_Builder::instance()->build($request)
         );
 
-        return json_decode(wp_remote_retrieve_body($response), true);
+        return $this->decode( wp_remote_retrieve_body($response) );
     }
 }

@@ -2,13 +2,13 @@
 /**
 Plugin Name: Dintero Checkout
 Description: Dintero Checkout - Express Checkout
-Version:     2021.08.19
+Version:     2.0.0
 Author:      Dintero
 Author URI:  mailto:integration@dintero.com
-Text Domain: dintero-hp
+Text Domain: dintero-checkout-v2
 Domain Path: /languages
  *
- * @package /dintero-hp
+ * @package /dintero-checkout
  */
 
 defined( 'ABSPATH' ) || exit;

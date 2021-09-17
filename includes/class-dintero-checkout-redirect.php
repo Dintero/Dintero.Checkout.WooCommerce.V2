@@ -45,6 +45,7 @@ class Dintero_Checkout_Redirect extends Dintero_Checkout_Abstract
             'profile_id' => Dintero::instance()->config()->get('profile_id'),
             'metadata' => array(
                 'woo_customer_id' => WC()->session->get_customer_id(),
+                'woo_initiated_by' => 'redirect',
             )
         );
 

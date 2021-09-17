@@ -48,6 +48,9 @@ final class Dintero
 		wc_doing_it_wrong( __FUNCTION__, __( 'Cloning is forbidden.', 'woocommerce' ), '2.1' );
 	}
 
+    /**
+     * Wakeup
+     */
 	public function __wakeup() {
 		wc_doing_it_wrong( __FUNCTION__, __( 'Unserializing instances of this class is forbidden.', 'woocommerce' ), '2.1' );
 	}

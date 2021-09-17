@@ -47,7 +47,7 @@ class Dintero_Payment_Gateway extends WC_Payment_Gateway
         $this->form_fields = array(
             'enabled'                          => array(
                 'title'       => __( 'Enable/Disable' ),
-                'label'       => __( 'Enable Dintero Hosted Page Gateway' ),
+                'label'       => __( 'Enable Dintero Checkout V2 Page Gateway' ),
                 'type'        => 'checkbox',
                 'description' => '',
                 'default'     => 'no'
@@ -98,7 +98,7 @@ class Dintero_Payment_Gateway extends WC_Payment_Gateway
             'profile_id'                  => array(
                 'title'       => __( 'Payment Profile ID' ),
                 'type'        => 'text',
-                'description' => __( 'Test payment window profile ID. Found under (SETTINGS >> Payment windows) in Dintero Backoffice.' ),
+                'description' => __( 'Payment window profile ID. Found under (SETTINGS >> Payment windows) in Dintero Backoffice.' ),
                 'default'     => '',
                 'desc_tip'    => true,
             ),
@@ -106,14 +106,6 @@ class Dintero_Payment_Gateway extends WC_Payment_Gateway
                 'title'       => __( 'Checkout' ),
                 'type'        => 'title',
                 'description' => __( 'Checkout settings.' )
-            ),
-            'callback_verification'            => array(
-                'title'       => __( 'Callback URL Verification' ),
-                'label'       => __( 'Enable Callback URL Server-to-Server Verification' ),
-                'type'        => 'checkbox',
-                'description' => __( 'Enabling this will send callback URL to the API and verify the transaction when a callback request received. Disabling this will verify the transaction using parameters returned to the return page.' ),
-                'default'     => 'yes',
-                'desc_tip'    => true
             ),
             'checkout_logo_width'              => array(
                 'title'       => __( 'Dintero Checkout Logo Width (in pixels)' ),
@@ -150,39 +142,9 @@ class Dintero_Payment_Gateway extends WC_Payment_Gateway
                 'description' => __( 'Select a status which the payment will be manually captured if the order status changed to it.' ),
                 'desc_tip'    => true
             ),
-            'additional_manual_capture_status' => array(
-                'title'       => __( 'Order status is changed to (additional): ' ),
-                'type'        => 'select',
-                'options'     => ( array(
-                        - 1 => '--- Disable Additional Manual Capture Order Status ---'
-                    ) + wc_get_order_statuses() ),
-                'default'     => -1,
-                'description' => __( 'Select an additional status which the payment will be manually captured if the order status changed to it.' ),
-                'desc_tip'    => true
-            ),
             'cancel_refund_settings'           => array(
                 'title'       => __( 'Cancel or refund order when:' ),
                 'type'        => 'title'
-            ),
-            'additional_cancel_status'         => array(
-                'title'       => __( 'Order status is changed to:' ),
-                'type'        => 'select',
-                'options'     => ( array(
-                        - 1 => '--- Disable Additional Cancellation Order Status ---'
-                    ) + wc_get_order_statuses() ),
-                'default'     => - 1,
-                'description' => __( 'Select an additional status that will be used to cancel the order. Status "Cancelled" will be always used to cancel the order.' ),
-                'desc_tip'    => true
-            ),
-            'additional_refund_status'         => array(
-                'title'       => __( 'Order status is changed to (additional): ' ),
-                'type'        => 'select',
-                'options'     => ( array(
-                        - 1 => '--- Disable Additional Refund Order Status ---'
-                    ) + wc_get_order_statuses() ),
-                'default'     => - 1,
-                'description' => __( 'Select an additional status that will be used to refund the order payment. Status "Refunded" will be always used to refund the order payment.' ),
-                'desc_tip'    => true
             ),
             'branding_title'                => array(
                 'title'       => __( 'Branding:' ),
@@ -219,6 +181,9 @@ class Dintero_Payment_Gateway extends WC_Payment_Gateway
         return '';
     }
 
+    /**
+     * @return string
+     */
     protected function get_icon_checkout()
     {
         return '';
@@ -243,5 +208,4 @@ class Dintero_Payment_Gateway extends WC_Payment_Gateway
     {
         return $this->payment_processor->refund(wc_get_order($order_id), $amount);
     }
-
 }
