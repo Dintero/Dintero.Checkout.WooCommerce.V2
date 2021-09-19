@@ -1,9 +1,19 @@
 <?php
+/**
+ * Interface For Dintero checkout types
+ *
+ * @package Dintero
+ */
 
-interface Dintero_Checkout_Interface
-{
-    /**
-     * @return array
-     */
-    public function process();
+/**
+ * Interface for Dintero checkout types
+ */
+interface Dintero_Checkout_Interface {
+
+	/**
+	 * Processing payment
+	 *
+	 * @return array
+	 */
+	public function process();
 }
