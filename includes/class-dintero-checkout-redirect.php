@@ -18,7 +18,7 @@ class Dintero_Checkout_Redirect extends Dintero_Checkout_Abstract {
 	 * @return array|mixed|string
 	 */
 	public function process() {
-		$order_tax_amount = absint( strval( floatval( $this->order->get_total_tax() ) * 100 ) );
+		$order_tax_amount = $this->converter()->get_order_tax_amount( $this->order );
 		$items            = $this->helper()->prepare_items_from_order( $this->order );
 
 		$payload = array(

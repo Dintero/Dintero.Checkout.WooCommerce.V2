@@ -68,6 +68,14 @@ abstract class Dintero_Checkout_Abstract
 	}
 
 	/**
+	 * @return Dintero_Converter
+	 */
+	protected function converter()
+	{
+		return Dintero_Converter::instance();
+	}
+
+	/**
 	 * Capturing transaction
 	 *
 	 * @return bool
