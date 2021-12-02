@@ -227,32 +227,18 @@ final class Dintero {
 	 * @return array Filtered links.
 	 */
 	public function plugin_action_links( $links ) {
-		$setting_link = $this->get_setting_link();
-		$plugin_links = array(
-			'<a href="' . $setting_link . '">' . __( 'Settings', 'dintero-checkout-v2' ) . '</a>',
-		);
-
-		return array_merge( $plugin_links, $links );
-	}
-
-	/**
-	 * Get setting link.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string Setting link
-	 */
-	public function get_setting_link() {
-		$section_slug = 'dintero-checkout-v2';
-
 		$params = array(
 			'page'    => 'wc-settings',
 			'tab'     => 'checkout',
-			'section' => $section_slug,
+			'section' => 'dintero-checkout-v2',
 		);
 
 		$admin_url = add_query_arg( $params, 'admin.php' );
-		return $admin_url;
+		$plugin_links = array(
+			'<a href="' . $admin_url . '">' . __( 'Settings', 'dintero-checkout-v2' ) . '</a>',
+		);
+
+		return array_merge( $plugin_links, $links );
 	}
 
 	/**
