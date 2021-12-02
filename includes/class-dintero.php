@@ -30,7 +30,7 @@ final class Dintero {
 	 *
 	 * @var string
 	 */
-	protected $app_id = 'dintero';
+	protected $app_id = 'dintero-checkout-v2';
 
 	/**
 	 * Plugin directory
@@ -161,6 +161,7 @@ final class Dintero {
 	public function init_hooks() {
 		add_action( 'dintero_payment_gateway_init_after', array( $this, 'init_config' ) );
 		add_filter( 'woocommerce_payment_gateways', array( $this, 'register_payment_method' ) );
+		add_filter( 'plugin_action_links_' . plugin_basename(DINTERO_CHECKOUT_PLUGIN_FILE), array( $this, 'plugin_action_links' ) );
 
 		add_action( 'woocommerce_cancelled_order', array( $this, 'cancel_order' ) );
 		add_action( 'woocommerce_order_status_changed', array( new Dintero_Status_Processor(), 'process_status_change' ), 10, 3 );
@@ -209,13 +210,49 @@ final class Dintero {
 			// @codingStandardsIgnoreStart
 			_doing_it_wrong(
 				__FUNCTION__,
-				__( 'Config is not initialized yet.', 'dintero' ),
+				__( 'Config is not initialized yet.', 'dintero-checkout-v2' ),
 				$this->version
 			);
 			// @codingStandardsIgnoreEnd
 		}
 
 		return $this->config;
+	}
+
+	/**
+	 * Adds plugin action links
+	 *
+	 * @param array $links Plugin action link before filtering.
+	 *
+	 * @return array Filtered links.
+	 */
+	public function plugin_action_links( $links ) {
+		$setting_link = $this->get_setting_link();
+		$plugin_links = array(
+			'<a href="' . $setting_link . '">' . __( 'Settings', 'dintero-checkout-v2' ) . '</a>',
+		);
+
+		return array_merge( $plugin_links, $links );
+	}
+
+	/**
+	 * Get setting link.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string Setting link
+	 */
+	public function get_setting_link() {
+		$section_slug = 'dintero-checkout-v2';
+
+		$params = array(
+			'page'    => 'wc-settings',
+			'tab'     => 'checkout',
+			'section' => $section_slug,
+		);
+
+		$admin_url = add_query_arg( $params, 'admin.php' );
+		return $admin_url;
 	}
 
 	/**

@@ -15,12 +15,12 @@ class Dintero_Request_Builder {
 	/**
 	 * Singletone
 	 *
-	 * @var null|Dintero_HP_Request_Builder
+	 * @var null|Dintero_Request_Builder
 	 */
 	protected static $instance = null;
 
 	/**
-	 * Dintero_HP_Request_Builder constructor.
+	 * Dintero_Request_Builder constructor.
 	 */
 	private function __construct() {
 	}
@@ -34,7 +34,7 @@ class Dintero_Request_Builder {
 	/**
 	 * Instantiating request builder
 	 *
-	 * @return Dintero_HP_Request_Builder
+	 * @return Dintero_Request_Builder
 	 */
 	public static function instance() {
 		if ( null === self::$instance ) {
