@@ -2,8 +2,8 @@
 /**
  * Fired during plugin deactivation
  *
- * @package    dintero-hp
- * @subpackage dintero-hp/includes
+ * @package    dintero-checkout-v2
+ * @subpackage dintero-checkout-v2/includes
  */
 
 /**
@@ -26,8 +26,8 @@ class Dintero_Deactivator {
 		}
 		// Unregister plugin settings on deactivation.
 		unregister_setting(
-			'dintero_hp',
-			'dintero_hp_option'
+			'dintero_checkout',
+			'dintero_checkout_option'
 		);
 	}
 }

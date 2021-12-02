@@ -32,12 +32,12 @@ class Dintero_Adapter {
 			'Accept'                        => 'application/json',
 			'User-Agent'                    => sprintf(
 				'Dintero.Checkout.Woocomerce.%s (+https://github.com/Dintero/Dintero.Checkout.Woocomerce),',
-				WCDHP()->get_version()
+				DINTERO_WC()->get_version()
 			),
 			'Dintero-System-Name'           => 'woocommerce',
 			'Dintero-System-Version'        => WC()->version,
 			'Dintero-System-Plugin-Name'    => 'Dintero.Checkout.WooCommerce.V2',
-			'Dintero-System-Plugin-Version' => WCDHP()->get_version(),
+			'Dintero-System-Plugin-Version' => DINTERO_WC()->get_version(),
 		);
 	}
 
@@ -90,12 +90,12 @@ class Dintero_Adapter {
 	 * @return false|string
 	 */
 	public function get_access_token() {
-		$account_id  = WCDHP()->config()->is( 'test_mode' ) ? 'T' : 'P';
-		$account_id .= WCDHP()->config()->get( 'account_id' );
+		$account_id  = DINTERO_WC()->config()->is( 'test_mode' ) ? 'T' : 'P';
+		$account_id .= DINTERO_WC()->config()->get( 'account_id' );
 		$request     = $this->init_request()
 			->set_auth_params(
-				WCDHP()->config()->get( 'client_id' ),
-				WCDHP()->config()->get( 'client_secret' )
+				DINTERO_WC()->config()->get( 'client_id' ),
+				DINTERO_WC()->config()->get( 'client_secret' )
 			)
 			->set_body(
 				wp_json_encode(

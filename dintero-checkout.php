@@ -1,6 +1,6 @@
 <?php
 /**
-Plugin Name: Dintero Checkout
+Plugin Name: Dintero Checkout V2
 Description: Dintero Checkout - Express Checkout
 Version:     2.0.0
 Author:      Dintero
@@ -8,16 +8,16 @@ Author URI:  mailto:integration@dintero.com
 Text Domain: dintero-checkout-v2
 Domain Path: /languages
  *
- * @package /dintero-checkout
+ * @package /dintero-checkout-v2
  */
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'DINTERO_HP_VERSION', '2021.09.03' );
+define( 'DINTERO_CHECKOUT_VERSION', '2.0.0' );
 
 
-if ( ! defined( 'DHP_PLUGIN_FILE' ) ) {
-	define( 'DHP_PLUGIN_FILE', __FILE__ );
+if ( ! defined( 'DINTERO_CHECKOUT_PLUGIN_FILE' ) ) {
+	define( 'DINTERO_CHECKOUT_PLUGIN_FILE', __FILE__ );
 }
 
 spl_autoload_register( 'dintero_autoloader' );
@@ -52,12 +52,12 @@ Dintero::instance()->run(
  *
  * @return Dintero|null
  */
-function WCDHP() {
+function DINTERO_WC() {
 	return Dintero::instance();
 }
 
 // Global for backwards compatibility.
-$GLOBALS['woocommerce-dintero'] = WCDHP();
+$GLOBALS['woocommerce-dintero-checkout-v2'] = DINTERO_WC();
 
 // @codingStandardsIgnoreEnd
 

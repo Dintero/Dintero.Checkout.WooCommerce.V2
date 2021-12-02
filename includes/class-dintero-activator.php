@@ -26,6 +26,6 @@ class Dintero_Activator {
 		$default = array(
 			// options should be here.
 		);
-		update_option( 'dintero_hp_option', $default );
+		update_option( 'dintero_checkout_option', $default );
 	}
 }

@@ -30,7 +30,7 @@ class Dintero_Payment_Gateway extends WC_Payment_Gateway {
 		$this->id                 = Dintero::instance()->get_app_id();
 		$this->has_fields         = false;
 		$this->method_title       = __( 'Dintero' );
-		$this->method_description = __( 'Redirect customers to Dintero hosted page.' );
+		$this->method_description = __( 'Dintero Checkout embedded or redirected' );
 		$this->init_form_fields();
 		$this->init_settings();
 		$this->supports = array(
@@ -86,6 +86,10 @@ class Dintero_Payment_Gateway extends WC_Payment_Gateway {
 				'description' => __( 'Put the payment gateway in test mode using client test credentials.' ),
 				'default'     => 'yes',
 				'desc_tip'    => true,
+			),
+			'client' 		  		  => array(
+				'title' => 'API Keys',
+				'type'  => 'Title'
 			),
 			'account_id'              => array(
 				'title'       => __( 'Account ID' ),
