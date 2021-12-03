@@ -49,6 +49,8 @@ class Dintero_Payment_Gateway extends WC_Payment_Gateway {
 			)
 		);
 
+		add_action( 'admin_enqueue_scripts', array( $this, 'init_admin_scripts' ) );
+
 		// initializing payment processor.
 		$this->payment_processor = new Dintero_Payment_Processor( $this );
 	}
@@ -235,5 +237,31 @@ class Dintero_Payment_Gateway extends WC_Payment_Gateway {
 	 */
 	public function process_refund( $order_id, $amount = null, $reason = '' ) {
 		return $this->payment_processor->refund( wc_get_order( $order_id ), $amount );
+	}
+
+	/**
+	 * Add admin scripts.
+	 *
+	 * @param string $hook Add admin scripts.
+	 *
+	 * @hook init_admin_scripts
+	 */
+	public function init_admin_scripts( $hook ) {
+		if ( 'woocommerce_page_wc-settings' !== $hook ) {
+			return;
+		}
+		$section = filter_input( INPUT_GET, 'section', FILTER_SANITIZE_STRING );
+
+		if ( empty( $section ) || 'dintero-checkout-v2' !== $section ) {
+			return;
+		}
+		wp_register_script(
+			'dintero-checkout-v2_admin',
+			plugins_url( 'assets/js/dintero-checkout-v2-admin.js', DINTERO_CHECKOUT_PLUGIN_FILE ),
+			array(),
+			DINTERO_CHECKOUT_VERSION,
+			false
+		);
+		wp_enqueue_script('dintero-checkout-v2_admin');
 	}
 }
