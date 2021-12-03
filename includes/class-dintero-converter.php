@@ -34,6 +34,6 @@ class Dintero_Converter {
 
 	public function get_order_tax_amount($order)
 	{
-		return absint( strval( floatval( $order->get_total_tax() ) * 100 ) )
+		return absint( strval( floatval( $order->get_total_tax() ) * 100 ) );
 	}
 }

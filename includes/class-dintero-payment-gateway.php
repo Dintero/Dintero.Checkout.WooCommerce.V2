@@ -89,6 +89,14 @@ class Dintero_Payment_Gateway extends WC_Payment_Gateway {
 				'default'     => 'yes',
 				'desc_tip'    => true,
 			),
+			'debug_logging'               => array(
+				'title'       => __( 'Debug logging' ),
+				'label'       => __( 'Enable debug logging' ),
+				'type'        => 'checkbox',
+				'description' => __( 'Will log errors.' ),
+				'default'     => 'yes',
+				'desc_tip'    => true,
+			),
 			'client' 		  		  => array(
 				'title' => 'API Keys',
 				'type'  => 'Title'

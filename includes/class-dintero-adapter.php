@@ -114,7 +114,8 @@ class Dintero_Adapter {
 				)
 			)
 		);
-
+		$log = Dintero_Logger::format_log('unknown', 'access_token', 'Get access token', array(), $response, 200);
+		Dintero_Logger::log($log);
 		return isset( $response['access_token'] ) ? $response['access_token'] : false;
 	}
 
@@ -237,6 +238,11 @@ class Dintero_Adapter {
 			Dintero_Request_Builder::instance()->build( $request )
 		);
 
-		return $this->decode( wp_remote_retrieve_body( $response ) );
+		$response_json = $this->decode( wp_remote_retrieve_body( $response ) );
+		$code = wp_remote_retrieve_response_code( $response );
+		$log = Dintero_Logger::format_log('unknown', 'dintero.init_session', 'Create session', $payload, $response_json, $code);
+		Dintero_Logger::log($log);
+
+		return $response_json;
 	}
 }
