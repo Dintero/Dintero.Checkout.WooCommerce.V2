@@ -71,7 +71,6 @@ jQuery( function($) {
 		validateNotEmpty(this, "Account ID must not be empty");
 	});
 	clientIdField.on('change', function() {
-		console.log("changes");
 		validateNotEmpty(this, "Client ID must not be empty");
 	});
 	clientSecretField.on('change', function() {
