@@ -1,7 +1,7 @@
 <?php //phpcs:ignore
 /**
  * Plugin Name: Dintero Checkout for WooCommerce
- * Plugin URI: @TODO: Add plugin URI
+ * Plugin URI: https://krokedil.com/
  * Description: Dintero Checkout for WooCommerce.
  * Author: Krokedil
  * Author URI: https://krokedil.com/
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'DINTERO_CHECKOUT_VERSION', '1.0.0' );
+define( 'DINTERO_CHECKOUT_VERSION', '0.1.0' );
 define( 'DINTERO_CHECKOUT_URL', untrailingslashit( plugins_url( '/', __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
 
@@ -74,9 +74,27 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * Class constructor.
 		 */
 		public function __construct() {
-			load_plugin_textdomain( 'dintero-checkout-for-woocommerce', false, plugin_basename( __DIR__ ) . '/languages' );
+			add_action( 'plugin_loaded', array( $this, 'init' ) );
 			add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'plugin_action_links' ) );
 		}
+
+		/**
+		 * Initialize the payment gateway.
+		 *
+		 * @return void
+		 */
+		public function init() {
+			if ( ! class_exists( 'WC_Payment_Gateway' ) ) {
+				return;
+			}
+
+			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-settings-fields.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-gateway.php';
+
+			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateways' ) );
+			load_plugin_textdomain( 'dintero-checkout-for-woocommerce', false, plugin_basename( __DIR__ ) . '/languages' );
+		}
+
 
 		/**
 		 * Add plugin action links.
@@ -87,7 +105,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 		public function plugin_action_links( $links ) {
 			$settings_link = $this->get_settings_link();
 			$plugin_links  = array(
-				'<a href="' . $settings_link . '">' . __( 'Settings', 'dintero-for-woocommerce' ) . '</a>',
+				'<a href="' . $settings_link . '">' . __( 'Settings', 'dintero-checkout-for-woocommerce' ) . '</a>',
 			);
 
 			return array_merge( $plugin_links, $links );
@@ -110,6 +128,18 @@ if ( ! class_exists( 'Dintero' ) ) {
 			// admin url
 			return esc_url( add_query_arg( $params, 'admin.php' ) );
 		}
+
+		/**
+		 * Add the gateways to WooCommerce.
+		 *
+		 * @param array Payment methods.
+		 * @return array Payment methods with Dintero added.
+		 */
+		public function add_gateways( $methods ) {
+			$methods[] = 'Dintero_Gateway';
+
+			return $methods;
+		}
 	}
 
 	Dintero::get_instance();
@@ -122,6 +152,6 @@ if ( ! class_exists( 'Dintero' ) ) {
  *
  * @return Dintero
  */
-function Dintero() {                  // phpcs:ignore WordPress.NamingConventions.ValidFunctionName
+function Dintero() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName
 	return Dintero::get_instance();
 }
