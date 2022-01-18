@@ -1,6 +1,7 @@
 <?php //phpcs:ignore
 /**
  * Plugin Name: Dintero Checkout for WooCommerce
+ * Plugin URI: @TODO: Add plugin URI
  * Description: Dintero Checkout for WooCommerce.
  * Author: Krokedil
  * Author URI: https://krokedil.com/
@@ -8,8 +9,8 @@
  * Text Domain: dintero-checkout-for-woocommerce
  * Domain Path: /languages
  *
- * WC requires at least: 4.0.0
  * WC tested up to: 5.2.2
+ * WC tested up to: @TODO:
  *
  * Copyright (c) 2022 Krokedil
  *
@@ -73,7 +74,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * Class constructor.
 		 */
 		public function __construct() {
-			load_plugin_textdomain( 'dintero-checkout-for-woocommerce', false, plugin_basename( __DIR__ ) . '/languages' );
+			 load_plugin_textdomain( 'dintero-checkout-for-woocommerce', false, plugin_basename( __DIR__ ) . '/languages' );
 			add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'plugin_action_links' ) );
 		}
 
@@ -121,6 +122,6 @@ if ( ! class_exists( 'Dintero' ) ) {
  *
  * @return Dintero
  */
-function Dintero() {              // phpcs:ignore WordPress.NamingConventions.ValidFunctionName
+function Dintero() {                 // phpcs:ignore WordPress.NamingConventions.ValidFunctionName
 	return Dintero::get_instance();
 }
