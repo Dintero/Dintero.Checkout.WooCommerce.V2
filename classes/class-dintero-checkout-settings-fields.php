@@ -52,7 +52,7 @@ class Dintero_Settings_Fields {
 					'autocomplete' => 'off',
 				),
 			),
-			'testmode'                   => array(
+			'test_mode'                  => array(
 				'title'       => __( 'Test mode', 'dintero-checkout-for-woocommerce' ),
 				'label'       => __( 'Enable Test Mode', 'dintero-checkout-for-woocommerce' ),
 				'type'        => 'checkbox',

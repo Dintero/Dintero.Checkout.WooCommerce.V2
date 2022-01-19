@@ -91,6 +91,8 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-settings-fields.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-gateway.php';
 
+			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/class-dintero-checkout-request.php';
+
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateways' ) );
 			load_plugin_textdomain( 'dintero-checkout-for-woocommerce', false, plugin_basename( __DIR__ ) . '/languages' );
 		}

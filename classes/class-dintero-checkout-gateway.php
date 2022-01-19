@@ -5,6 +5,11 @@
  * @package Dintero_Checkout/Classes
  */
 
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class Dintero_Gateway
  */
