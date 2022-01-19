@@ -1,0 +1,16 @@
+{
+    "name": "krokedil/dintero-checkout-for-woocommerce",
+    "description": "Dintero Checkout For WooCommerce",
+    "authors": [
+        {
+            "name": "krokedil",
+            "email": "info@krokedil.se"
+        }
+    ],
+    "require": {
+        "php": ">=8.0"
+    },
+    "require-dev": {
+        "wp-coding-standards/wpcs": "^2.3"
+    }
+}
