@@ -90,6 +90,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-settings-fields.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-gateway.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-logger.php';
 
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/class-dintero-checkout-request.php';
 

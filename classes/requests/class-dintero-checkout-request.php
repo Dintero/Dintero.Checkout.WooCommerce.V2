@@ -33,6 +33,7 @@ abstract class Dintero_Checkout_Request {
 	 */
 	public function __construct() {
 		$this->load_settings();
+		// TODO: Used for testing purposes only.
 		$this->get_access_token();
 	}
 
