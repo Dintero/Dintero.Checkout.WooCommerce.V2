@@ -29,6 +29,9 @@ define( 'DINTERO_CHECKOUT_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) 
 
 if ( ! class_exists( 'Dintero' ) ) {
 
+	/**
+	 * Class Dintero.
+	 */
 	class Dintero {
 
 		/**
@@ -92,6 +95,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-gateway.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-logger.php';
 
+			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/helpers/class-dintero-checkout-cart.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/class-dintero-checkout-request.php';
 
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateways' ) );
@@ -120,7 +124,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * @return string Settings link
 		 */
 		public function get_settings_link() {
-			$section_slug = 'dintero';
+			$section_slug = 'dintero_checkout';
 
 			$params = array(
 				'page'    => 'wc-settings',
@@ -139,7 +143,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * @return array Payment methods with Dintero added.
 		 */
 		public function add_gateways( $methods ) {
-			$methods[] = 'Dintero_Gateway';
+			$methods[] = 'Dintero_Checkout_Gateway';
 
 			return $methods;
 		}

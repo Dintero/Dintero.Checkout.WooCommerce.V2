@@ -28,7 +28,7 @@ class Dintero_Logger {
 	 * @return void
 	 */
 	public static function log( $data ) {
-		$settings = get_option( 'woocommerce_dintero_settings', array() );
+		$settings = get_option( 'woocommerce_dintero_checkout_settings', array() );
 		if ( 'yes' === $settings['logging'] ) {
 			$message = self::format_data( $data );
 			if ( empty( self::$log ) ) {

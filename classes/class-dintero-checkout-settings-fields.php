@@ -98,7 +98,7 @@ class Dintero_Settings_Fields {
 			),
 		);
 
-		return apply_filters( 'dintero_settings', $settings );
+		return apply_filters( 'dintero_checkout_settings', $settings );
 	}
 
 }

@@ -43,7 +43,7 @@ abstract class Dintero_Checkout_Request {
 	 * @return void
 	 */
 	protected function load_settings() {
-		$this->settings = get_option( 'woocommerce_dintero_settings' );
+		$this->settings = get_option( 'woocommerce_dintero_checkout_settings' );
 	}
 
 	/**
