@@ -74,6 +74,13 @@ abstract class Dintero_Checkout_Request {
 	 * @return string|WP_Error An access token string on success or WP_Error on failure.
 	 */
 	private function get_access_token() {
+
+		// Check if the token has expired (or been deleted before expiration).
+		$access_token = get_transient( 'dintero_checkout_access_token' );
+		if ( $access_token ) {
+			return $access_token;
+		}
+
 		$request_url = 'https://checkout.dintero.com/v1/accounts/' . ( 'yes' === $this->settings['test_mode'] ? 'T' : 'P' ) . $this->settings['account_id'] . '/auth/token';
 
 		$request_args = array(
@@ -99,7 +106,9 @@ abstract class Dintero_Checkout_Request {
 		);
 
 		if ( ! is_wp_error( $response ) ) {
-			return $response['token_type'] . ' ' . $response['access_token'];
+			$access_token = $response['token_type'] . ' ' . $response['access_token'];
+			set_transient( 'dintero_checkout_access_token', $access_token, $response['expires_in'] );
+			return $access_token;
 		}
 
 		return $response;
