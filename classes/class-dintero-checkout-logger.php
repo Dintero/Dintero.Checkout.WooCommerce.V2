@@ -77,7 +77,7 @@ class Dintero_Logger {
 				'body' => $response,
 				'code' => $code,
 			),
-			'timestamp'      => date( ' Y-m-d H:i:s' ), //phpcs:ignore
+			'timestamp'      => current_time( ' Y-m-d H:i:s' ),
 			'plugin_version' => DINTERO_CHECKOUT_VERSION,
 			'php_version'    => phpversion(),
 			'wc_version'     => WC()->version,
