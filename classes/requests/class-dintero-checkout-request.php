@@ -61,9 +61,7 @@ abstract class Dintero_Checkout_Request {
 	 * @return array Required request headers.
 	 */
 	protected function get_headers() {
-
 		return array(
-			'Authorization' => $this->get_access_token(),
 			'Authorization'                 => $this->get_access_token(),
 			'Content-Type'                  => 'application/json; charset=utf-8',
 			'Accept'                        => 'application/json',

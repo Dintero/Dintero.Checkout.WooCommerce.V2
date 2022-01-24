@@ -65,5 +65,22 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		public function is_available() {
 			return ! ( 'yes' !== $this->enabled );
 		}
+
+		/**
+		 * Process the payment and return the result.
+		 *
+		 * @param int $order_id WooCommerced order id.
+		 * @return array An associative array containing the success status and redirect URl.
+		 */
+		public function process_payment( $order_id ) {
+			$order = wc_get_order( $order_id );
+			$cart  = new Dintero_Checkout_Cart();
+			$cart->order( $order_id );
+
+			return array(
+				'result'   => 'success',
+				'redirect' => $order->get_checkout_order_received_url(),
+			);
+		}
 	}
 }
