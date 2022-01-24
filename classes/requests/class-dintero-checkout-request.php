@@ -64,7 +64,13 @@ abstract class Dintero_Checkout_Request {
 
 		return array(
 			'Authorization' => $this->get_access_token(),
-			'Content-Type'  => 'application/json',
+			'Authorization'                 => $this->get_access_token(),
+			'Content-Type'                  => 'application/json; charset=utf-8',
+			'Accept'                        => 'application/json',
+			'Dintero-System-Name'           => 'woocommerce',
+			'Dintero-System-Version'        => WC()->version,
+			'Dintero-System-Plugin-Name'    => 'Dintero.Checkout.WooCommerce.V2',
+			'Dintero-System-Plugin-Version' => DINTERO_CHECKOUT_VERSION,
 		);
 	}
 
@@ -86,7 +92,8 @@ abstract class Dintero_Checkout_Request {
 		$request_args = array(
 			'headers' => array(
 				'Authorization' => $this->calculate_auth(),
-				'Content-Type'  => 'application/json',
+				'Content-Type'  => 'application/json; charset=utf-8',
+				'Accept'        => 'application/json',
 			),
 			'body'    => json_encode(
 				array(
