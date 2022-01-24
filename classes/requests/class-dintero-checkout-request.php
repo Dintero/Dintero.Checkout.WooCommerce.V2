@@ -71,7 +71,7 @@ abstract class Dintero_Checkout_Request {
 	/**
 	 * Generate access token.
 	 *
-	 * @return string|WP_Error An access token string on success or WP_Error on failure.
+	 * @return string|array An access token string on success or an associative array on failure. Check for is_error index.
 	 */
 	private function get_access_token() {
 
@@ -104,10 +104,13 @@ abstract class Dintero_Checkout_Request {
 			$request_args,
 			$request_url
 		);
+		Dintero_Logger::log(
+			Dintero_Logger::format( '', 'POST', 'Generate new access token', $response['request'], $response['result'], $response['code'], $request_url )
+		);
 
-		if ( ! is_wp_error( $response ) ) {
-			$access_token = $response['token_type'] . ' ' . $response['access_token'];
-			set_transient( 'dintero_checkout_access_token', $access_token, $response['expires_in'] );
+		if ( ! $response['is_error'] ) {
+			$access_token = $response['result']['token_type'] . ' ' . $response['result']['access_token'];
+			set_transient( 'dintero_checkout_access_token', $access_token, $response['result']['expires_in'] );
 			return $access_token;
 		}
 
@@ -117,20 +120,24 @@ abstract class Dintero_Checkout_Request {
 	/**
 	 * Validates the API request.
 	 *
-	 * @param object $response The received response from the HTTP request.
-	 * @param array  $request_args The header and payload (if any).
-	 * @param string $request_url The request URL.
-	 * @return mixed The body as an associative array on success or WP_Error on failure.
+	 * @param array|WP_Error $response The received response from the HTTP request.
+	 * @param array          $request_args The header and payload (if applicable).
+	 * @param string         $request_url The request URL.
+	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function process_response( $response, $request_args = array(), $request_url = '' ) {
 		if ( is_wp_error( $response ) ) {
-			return $response;
+			return array(
+				'code'         => $response->get_error_code(),
+				'result'       => $response->get_error_message(),
+				'request_data' => $request_args,
+				'is_error'     => true,
+			);
 		}
 
 		// The request succeeded, check for API errors.
 		$code = wp_remote_retrieve_response_code( $response );
 		if ( $code < 200 || $code > 200 ) {
-			$data          = 'Request URL: ' . $request_url . ' - ' . wp_json_encode( $request_args );
 			$error_message = '';
 
 			if ( ! is_null( json_decode( $response['body'], true ) ) ) {
@@ -141,10 +148,20 @@ abstract class Dintero_Checkout_Request {
 				}
 			}
 
-			return new WP_Error( $code, $response['body'], $error_message, $data );
+			return array(
+				'code'     => $code,
+				'result'   => $error_message,
+				'request'  => $request_args,
+				'is_error' => true,
+			);
 		}
 
 		// All good.
-		return json_decode( wp_remote_retrieve_body( $response ), true );
+		return array(
+			'code'     => $code,
+			'result'   => json_decode( wp_remote_retrieve_body( $response ), true ),
+			'request'  => $request_args,
+			'is_error' => false,
+		);
 	}
 }
