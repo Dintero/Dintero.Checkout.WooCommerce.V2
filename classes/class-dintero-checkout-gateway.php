@@ -65,6 +65,5 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		public function is_available() {
 			return ! ( 'yes' !== $this->enabled );
 		}
-		}
 	}
 }
