@@ -82,6 +82,31 @@ class Dintero_Logger {
 			'php_version'    => phpversion(),
 			'wc_version'     => WC()->version,
 			'wp_version'     => get_bloginfo( 'version' ),
+			'stack'          => self::stacktrace(),
 		);
+	}
+
+	/**
+	 * Get the stacktrace.
+	 *
+	 * @return array
+	 */
+	public static function stacktrace() {
+		$debug_data = debug_backtrace(); // phpcs:ignore 
+		$stack      = array();
+		foreach ( $debug_data as $data ) {
+			$extra_data = '';
+			if ( ! in_array( $data['function'], array( 'get_stack', 'format_log' ), true ) ) {
+				if ( in_array( $data['function'], array( 'do_action', 'apply_filters' ), true ) ) {
+					if ( isset( $data['object'] ) ) {
+						$priority   = $data['object']->current_priority();
+						$name       = key( $data['object']->current() );
+						$extra_data = $name . ' : ' . $priority;
+					}
+				}
+			}
+			$stack[] = $data['function'] . $extra_data;
+		}
+		return $stack;
 	}
 }
