@@ -31,7 +31,6 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 					'refunds',
 				)
 			);
-			$this->has_fields         = false;
 			$this->init_form_fields();
 			$this->init_settings();
 			$this->title       = $this->get_option( 'title' );
@@ -39,6 +38,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			$this->enabled     = $this->get_option( 'enabled' );
 			$this->test_mode   = 'yes' === $this->get_option( 'test_mode' );
 			$this->logging     = 'yes' === $this->get_option( 'logging' );
+			$this->has_fields  = false;
 			add_action(
 				'woocommerce_update_options_payment_gateways_' . $this->id,
 				array(
@@ -63,7 +63,8 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return boolean
 		 */
 		public function is_available() {
-			return ( 'yes' !== $this->enabled );
+			return ! ( 'yes' !== $this->enabled );
+		}
 		}
 	}
 }
