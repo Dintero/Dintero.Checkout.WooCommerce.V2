@@ -24,7 +24,7 @@ class Dintero_Logger {
 	/**
 	 * Logs a single event.
 	 *
-	 * @param string $data The data to log.
+	 * @param array $data The data to log.
 	 * @return void
 	 */
 	public static function log( $data ) {
@@ -34,8 +34,22 @@ class Dintero_Logger {
 				self::$log = new WC_Logger();
 			}
 
-			self::$log->add( 'dintero-checkout-for-woocommerce', wp_json_encode( $data ) );
+			self::$log->add( 'dintero-checkout-for-woocommerce', wp_json_encode( self::decode_body( $data ) ) );
 		}
+	}
+
+	/**
+	 * Decode the JSON body for easier reading.
+	 *
+	 * @param array $data
+	 * @return array The same data with the body (if available) JSON decoded.
+	 */
+	public static function decode_body( $data ) {
+		if ( isset( $data['request']['body'] ) ) {
+			$data['request']['body'] = json_decode( $data['request']['body'] );
+		}
+
+		return $data;
 	}
 
 	/**
