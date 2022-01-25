@@ -1,4 +1,4 @@
-<?php
+<?php //phpcs:ignore
 /**
  * API Class file.
  *
@@ -14,54 +14,48 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Class for handling Dintero API requests.
  */
-abstract class Dintero_API {
+class Dintero_Checkout_API {
 
 	/**
 	 * Create a new Dintero session.
 	 *
-	 * @param string $dintero_id The Dintero order id.
-	 * @return mixed
+	 * @param string $order_id WooCommerce order id.
+	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
-	abstract public function create_session( $dintero_id );
+	public function create_session( $order_id ) {
+		$session = new Dintero_Checkout_Create_Session();
+		return $session->create( $order_id );
+	}
 
 	/**
 	 * Retrieve information about a WooCommerce order at Dintero.
 	 *
 	 * @param string $dintero_id The Dintero order id.
-	 * @return mixed
+	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
-	abstract public function get_order( $dintero_id);
+	public function get_order( $dintero_id ) {
+		// TODO: to implement.
+	}
 
 	/**
 	 * Update the state of the order in WooCommerce to match Dintero's.
 	 *
-	 * @param string $dintero_id The Dintero order id.
 	 * @param string $order_id The WooCommerce order id.
+	 * @param string $dintero_id The Dintero order id.
 	 *
-	 * @return mixed
+	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
-	abstract public function update_order( $dintero_id, $order_id);
+	public function update_order( $order_id, $dintero_id ) {
+		// TODO: to implement.
+	}
 
 	/**
 	 * Acknowledge that the order was completed.
 	 *
-	 * @param string $dintero_id The Dintero order id.
-	 * @return mixed
+	 * @param string $order_id WooCommerce Order.
+	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
-	abstract public function acknowledge( $dintero_id);
-
-	/**
-	 * Check if the request resulted in an API error.
-	 *
-	 * @param object $response The API response object.
-	 * @return object|WP_Error The same response object on success or WP_Error on failure.
-	 */
-	private function check_for_api_error( $response ) {
-		if ( is_wp_error( $response ) ) {
-			// @TODO: print_error_message
-			error_log( var_export( 'TODO: print_error_message - ' . __FILE__ . ': ' . __LINE__, true ) );
-		}
-
-		return $response;
+	public function acknowledge( $order_id ) {
+		// TODO: to implement.
 	}
 }

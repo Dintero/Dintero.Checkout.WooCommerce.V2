@@ -5,7 +5,6 @@
  * @package Dintero_Checkout/Classes
  */
 
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -73,12 +72,11 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return array An associative array containing the success status and redirect URl.
 		 */
 		public function process_payment( $order_id ) {
-			$order = wc_get_order( $order_id );
-			$cart  = new Dintero_Checkout_Cart();
-			$cart->order( $order_id );
+			$order    = wc_get_order( $order_id );
+			$response = Dintero()->api->create_session( $order_id );
 
 			return array(
-				'result'   => 'success',
+				'result'   => ( $response['is_error'] ) ? 'error' : 'success',
 				'redirect' => $order->get_checkout_order_received_url(),
 			);
 		}
