@@ -30,28 +30,12 @@ class Dintero_Logger {
 	public static function log( $data ) {
 		$settings = get_option( 'woocommerce_dintero_checkout_settings', array() );
 		if ( 'yes' === $settings['logging'] ) {
-			$message = self::format_data( $data );
 			if ( empty( self::$log ) ) {
 				self::$log = new WC_Logger();
 			}
 
-			self::$log->add( 'dintero-checkout-for-woocommerce', wp_json_encode( $message ) );
+			self::$log->add( 'dintero-checkout-for-woocommerce', wp_json_encode( $data ) );
 		}
-	}
-
-	/**
-	 * Formats the log data to prevent JSON error.
-	 *
-	 * @param string $data A possibly JSON encoded response.
-	 * @return string The same data or the same data with JSON decoded.
-	 */
-	public static function format_data( $data ) {
-		if ( isset( $data['request']['body'] ) ) {
-			$body                    = json_decode( $data['request']['body'], true );
-			$data['request']['body'] = $body;
-		}
-
-		return $data;
 	}
 
 	/**
