@@ -29,13 +29,25 @@ abstract class Dintero_Checkout_Request {
 	protected $settings;
 
 	/**
-	 * Class constructor.
+	 * The request HTTP method.
+	 *
+	 * @var string
 	 */
-	public function __construct() {
-		$this->load_settings();
-		// TODO: Used for testing purposes only.
-		$this->get_access_token();
-	}
+	protected $request_method;
+
+	/**
+	 * The request URL.
+	 *
+	 * @var string
+	 */
+	protected $request_url;
+
+	/**
+	 * The request data.
+	 *
+	 * @var array
+	 */
+	protected $request_args;
 
 	/**
 	 * Retrieve the Dintero Checkout plugin settings.
@@ -44,6 +56,15 @@ abstract class Dintero_Checkout_Request {
 	 */
 	protected function load_settings() {
 		$this->settings = get_option( 'woocommerce_dintero_checkout_settings' );
+	}
+
+	/**
+	 * Retrieve the environment flag
+	 *
+	 * @return string T for test mode or P for production mode.
+	 */
+	protected function environment() {
+		return ( 'yes' === $this->settings['test_mode'] ) ? 'T' : 'P';
 	}
 
 	/**
@@ -85,9 +106,10 @@ abstract class Dintero_Checkout_Request {
 			return $access_token;
 		}
 
-		$request_url = 'https://checkout.dintero.com/v1/accounts/' . ( 'yes' === $this->settings['test_mode'] ? 'T' : 'P' ) . $this->settings['account_id'] . '/auth/token';
+		$this->request_url    = 'https://checkout.dintero.com/v1/accounts/' . $this->environment() . $this->settings['account_id'] . '/auth/token';
+		$this->request_method = 'POST';
 
-		$request_args = array(
+		$this->request_args = array(
 			'headers' => array(
 				'Authorization' => $this->calculate_auth(),
 				'Content-Type'  => 'application/json; charset=utf-8',
@@ -96,21 +118,14 @@ abstract class Dintero_Checkout_Request {
 			'body'    => json_encode(
 				array(
 					'grant_type' => 'client_credentials',
-					'audience'   => 'https://api.dintero.com/v1/accounts/' . ( 'yes' === $this->settings['test_mode'] ? 'T' : 'P' ) . $this->settings['account_id'],
+					'audience'   => 'https://api.dintero.com/v1/accounts/' . $this->environment() . $this->settings['account_id'],
 				)
 			),
 		);
 
-		$response = $this->process_response(
-			wp_remote_post(
-				$request_url,
-				$request_args
-			),
-			$request_args,
-			$request_url
-		);
+		$response = $this->request();
 		Dintero_Logger::log(
-			Dintero_Logger::format( '', 'POST', 'Generate new access token', $response['request'], $response['result'], $response['code'], $request_url )
+			Dintero_Logger::format( '', $this->request_method, 'Generate new access token', $response['request'], $response['result'], $response['code'], $this->request_url )
 		);
 
 		if ( ! $response['is_error'] ) {
@@ -130,12 +145,12 @@ abstract class Dintero_Checkout_Request {
 	 * @param string         $request_url The request URL.
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
-	public function process_response( $response, $request_args = array(), $request_url = '' ) {
+	public function process_response( $response ) {
 		if ( is_wp_error( $response ) ) {
 			return array(
 				'code'         => $response->get_error_code(),
 				'result'       => $response->get_error_message(),
-				'request_data' => $request_args,
+				'request_data' => $this->request_args,
 				'is_error'     => true,
 			);
 		}
@@ -148,15 +163,15 @@ abstract class Dintero_Checkout_Request {
 			if ( ! is_null( json_decode( $response['body'], true ) ) ) {
 				$errors = json_decode( $response['body'], true );
 
-				foreach ( $errors['error_messages'] as $error ) {
-					$error_message .= ' ' . $error;
+				foreach ( $errors as $error ) {
+					$error_message .= $error['message'];
 				}
 			}
 
 			return array(
 				'code'     => $code,
 				'result'   => $error_message,
-				'request'  => $request_args,
+				'request'  => $this->request_args,
 				'is_error' => true,
 			);
 		}
@@ -165,8 +180,32 @@ abstract class Dintero_Checkout_Request {
 		return array(
 			'code'     => $code,
 			'result'   => json_decode( wp_remote_retrieve_body( $response ), true ),
-			'request'  => $request_args,
+			'request'  => $this->request_args,
 			'is_error' => false,
 		);
+	}
+
+	/**
+	 * Issue request.
+	 *
+	 * @return array An associative array on success and failure. Check for is_error index.
+	 */
+	public function request() {
+		if ( 'post' === strtolower( $this->request_method ) ) {
+			return $this->process_response(
+				wp_remote_post(
+					$this->request_url,
+					$this->request_args
+				),
+			);
+		}
+
+		return $this->process_response(
+			wp_remote_request(
+				$this->request_url,
+				$this->request_args
+			),
+		);
+
 	}
 }
