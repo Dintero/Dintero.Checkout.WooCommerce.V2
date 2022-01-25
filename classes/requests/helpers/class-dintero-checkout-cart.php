@@ -43,7 +43,7 @@ class Dintero_Checkout_Cart {
 			'currency'             => get_woocommerce_currency(),
 			'merchant_reference'   => $order->get_order_number(),
 			'vat_amount'           => $order->get_total_tax() * 100,
-			'merchant_reference_2' => $order->get_id(),
+			'merchant_reference_2' => strval( $order->get_id() ),
 			'billing_address'      => $this->billing_address( $order ),
 			'items'                => $this->order_items( $order ),
 		);
