@@ -151,22 +151,16 @@ abstract class Dintero_Checkout_Request {
 		// The request succeeded, check for API errors.
 		$code = wp_remote_retrieve_response_code( $response );
 		if ( $code < 200 || $code > 200 ) {
-			$error_message = '';
-
 			if ( ! is_null( json_decode( $response['body'], true ) ) ) {
-				$errors = json_decode( $response['body'], true );
+				$errors = json_decode( $response['body'], true )['error'];
 
-				foreach ( $errors as $error ) {
-					$error_message .= $error['message'];
-				}
+				return array(
+					'code'     => $code,
+					'result'   => $errors,
+					'request'  => $this->request_args,
+					'is_error' => true,
+				);
 			}
-
-			return array(
-				'code'     => $code,
-				'result'   => $error_message,
-				'request'  => $this->request_args,
-				'is_error' => true,
-			);
 		}
 
 		// All good.
