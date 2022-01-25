@@ -15,13 +15,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 abstract class Dintero_Checkout_Request {
 
 	/**
-	 * The request method type.
-	 *
-	 * @var string
-	 */
-	protected $method;
-
-	/**
 	 * The plugin settings.
 	 *
 	 * @var array
@@ -148,10 +141,10 @@ abstract class Dintero_Checkout_Request {
 	public function process_response( $response ) {
 		if ( is_wp_error( $response ) ) {
 			return array(
-				'code'         => $response->get_error_code(),
-				'result'       => $response->get_error_message(),
-				'request_data' => $this->request_args,
-				'is_error'     => true,
+				'code'     => $response->get_error_code(),
+				'result'   => $response->get_error_message(),
+				'request'  => $this->request_args,
+				'is_error' => true,
 			);
 		}
 
