@@ -66,11 +66,15 @@ class Dintero_Checkout_Cart {
 		$order_items = array();
 
 		$cart = WC()->cart->get_cart();
+
+		// The line_id is used to uniquely identify each item (local to this order).
+		$line_id = 0;
 		foreach ( $cart as $item ) {
 			$product = ( $item['variation_id'] ) ? wc_get_product( $item['variation_id'] ) : wc_get_product( $item['product_id'] );
 
 			$order_items[] = array(
 				'id'          => $product->get_sku() ?? $product->get_id(),
+				'line_id'     => strval( $line_id++ ),
 				'description' => $product->get_description(),
 				'quantity'    => $item['quantity'],
 				'amount'      => $item['line_total'] * 100,
