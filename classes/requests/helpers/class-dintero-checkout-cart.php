@@ -23,10 +23,10 @@ class Dintero_Checkout_Cart {
 	public function order( $order_id ) {
 		$order = wc_get_order( $order_id );
 		return array(
-			'order'      => $this->order_lines( $order ),
 			'url'        => array(
 				'return_url' => $order->get_checkout_order_received_url(),
 			),
+			'order'      => $this->order_lines( $order ),
 			'profile_id' => get_option( 'woocommerce_dintero_checkout_settings' )['profile_id'],
 		);
 	}
@@ -37,7 +37,7 @@ class Dintero_Checkout_Cart {
 	 * @param WC_Order $order WooCommerce Order.
 	 * @return array An associative array of the cart items.
 	 */
-	private function order_lines( $order ) {
+	public function order_lines( $order ) {
 		$order_lines = array(
 			'amount'               => $order->get_total() * 100,
 			'currency'             => get_woocommerce_currency(),
@@ -94,7 +94,7 @@ class Dintero_Checkout_Cart {
 		$shipping_option = array(
 			'id'       => $selected_option_id,
 			'line_id'  => $selected_option_id,
-			'amount'   => number_format( $selected_shipping_option->get_cost() * 100, 0, '', '' ),
+			'amount'   => $selected_shipping_option->get_cost() * 100,
 			'operator' => '',
 			'title'    => $selected_shipping_option->get_label(),
 		);
