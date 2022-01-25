@@ -145,9 +145,12 @@ class Dintero_Checkout_Cart {
 			'postal_code'    => $order->get_shipping_postcode(),
 			'postal_place'   => $order->get_shipping_city(),
 			'country'        => $order->get_shipping_country(),
-			'phone_number'   => $order->get_shipping_phone(),
 			'email'          => $order->get_billing_email(),
 		);
+
+		// Check if a shipping phone number exist.
+		$phone                            = $order->get_shipping_phone();
+		$shipping_address['phone_number'] = ( ! empty( $phone ) ) ? $phone : $order->get_billing_phone();
 
 		foreach ( $shipping_address as $key => $information ) {
 			$billing_address[ $key ] = sanitize_text_field( (string) $information );
