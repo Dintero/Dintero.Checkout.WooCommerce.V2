@@ -39,7 +39,7 @@ class Dintero_Checkout_Cart {
 	 */
 	public function order_lines( $order ) {
 		$order_lines = array(
-			'amount'               => floatval( number_format( $order->get_total() * 100, 0, '', '' ) ),
+			'amount'               => intval( number_format( $order->get_total() * 100, 0, '', '' ) ),
 			'currency'             => get_woocommerce_currency(),
 			'merchant_reference'   => $order->get_order_number(),
 			'vat_amount'           => $order->get_total_tax() * 100,
@@ -78,13 +78,18 @@ class Dintero_Checkout_Cart {
 		foreach ( $cart as $item ) {
 			$product = ( $item['variation_id'] ) ? wc_get_product( $item['variation_id'] ) : wc_get_product( $item['product_id'] );
 
-			$order_items[] = array(
+			$order_item = array(
 				'id'          => $product->get_sku() ?? $product->get_id(),
 				'line_id'     => strval( $line_id++ ),
 				'description' => $product->get_description(),
 				'quantity'    => $item['quantity'],
 				'amount'      => intval( number_format( $item['line_total'] * 100, 0, '', '' ) ),
+				'vat_amount'  => intval( number_format( $item['line_subtotal_tax'] * 100, 0, '', '' ) ),
+				'vat'         => ( $product->is_taxable() ) ? reset( WC_Tax::get_base_tax_rates( $product->get_tax_class() ) )['rate'] : 0,
 			);
+
+			$order_item['amount'] += $order_item['vat_amount'];
+			$order_items[]         = $order_item;
 		}
 
 		return $order_items;
@@ -133,12 +138,16 @@ class Dintero_Checkout_Cart {
 		$selected_shipping_option = WC()->shipping->get_packages()['0']['rates'][ $selected_option_id ];
 
 		$shipping_option = array(
-			'id'       => $selected_option_id,
-			'line_id'  => $selected_option_id,
-			'amount'   => $selected_shipping_option->get_cost() * 100,
-			'operator' => '',
-			'title'    => $selected_shipping_option->get_label(),
+			'id'         => $selected_option_id,
+			'line_id'    => $selected_option_id,
+			'amount'     => $selected_shipping_option->get_cost() * 100,
+			'operator'   => '',
+			'title'      => $selected_shipping_option->get_label(),
+			'vat_amount' => ( 0 === intval( $selected_shipping_option->get_shipping_tax() ) ) ? 0 : intval( number_format( $selected_shipping_option->get_shipping_tax() * 100, 0, '', '' ) ),
+			'vat'        => ( 0 === intval( $selected_shipping_option->get_cost() ) ) ? 0 : intval( number_format( ( $selected_shipping_option->get_shipping_tax() / $selected_shipping_option->get_cost() ) * 100, 0, '', '' ) ),
 		);
+
+		$shipping_option['amount'] += $shipping_option['vat_amount'];
 
 		return $shipping_option;
 	}
