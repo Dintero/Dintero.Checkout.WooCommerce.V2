@@ -72,12 +72,11 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return array An associative array containing the success status and redirect URl.
 		 */
 		public function process_payment( $order_id ) {
-			$order    = wc_get_order( $order_id );
-			$response = Dintero()->api->create_session( $order_id );
+			$session = Dintero()->api->create_session( $order_id );
 
 			return array(
-				'result'   => ( $response['is_error'] ) ? 'error' : 'success',
-				'redirect' => $order->get_checkout_order_received_url(),
+				'result'   => ( $session['is_error'] ) ? 'error' : 'success',
+				'redirect' => $session['result']['url'],
 			);
 		}
 	}
