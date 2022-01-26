@@ -76,21 +76,22 @@ abstract class Dintero_Checkout_Request {
 	 */
 	protected function get_headers() {
 		return array(
-			'Authorization'                 => $this->get_access_token(),
-			'Content-Type'                  => 'application/json; charset=utf-8',
-			'Accept'                        => 'application/json',
-			'Dintero-System-Name'           => 'woocommerce',
-			'Dintero-System-Version'        => WC()->version,
-			'Dintero-System-Plugin-Name'    => 'Dintero.Checkout.WooCommerce.V2',
-			'Dintero-System-Plugin-Version' => DINTERO_CHECKOUT_VERSION,
+			'authorization'                 => $this->get_access_token(),
+			'content-type'                  => 'application/json; charset=utf-8',
+			'accept'                        => 'application/json',
+			'dintero-system-name'           => 'woocommerce',
+			'dintero-system-version'        => WC()->version,
+			'dintero-system-plugin-vame'    => 'Dintero.Checkout.WooCommerce.V2',
+			'dintero-system-plugin-version' => DINTERO_CHECKOUT_VERSION,
 		);
 	}
 
-	/**
-	 * Generate access token.
-	 *
-	 * @return string|array An access token string on success or an associative array on failure. Check for is_error index.
-	 */
+
+	 /**
+	  * Generate access token.
+	  *
+	  * @return string|array An access token string on success or an associative array on failure. Check for is_error index.
+	  */
 	private function get_access_token() {
 
 		// Check if the token has expired (or been deleted before expiration).
@@ -178,21 +179,14 @@ abstract class Dintero_Checkout_Request {
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function request() {
-		if ( 'post' === strtolower( $this->request_method ) ) {
-			return $this->process_response(
-				wp_remote_post(
-					$this->request_url,
-					$this->request_args
-				),
-			);
-		}
+
+		$this->request_args['method'] = strtoupper( $this->request_method );
 
 		return $this->process_response(
 			wp_remote_request(
 				$this->request_url,
 				$this->request_args
-			),
+			)
 		);
-
 	}
 }
