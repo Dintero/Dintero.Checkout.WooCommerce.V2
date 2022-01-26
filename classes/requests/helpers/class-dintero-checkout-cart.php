@@ -77,7 +77,7 @@ class Dintero_Checkout_Cart {
 				'line_id'     => strval( $line_id++ ),
 				'description' => $product->get_description(),
 				'quantity'    => $item['quantity'],
-				'amount'      => $item['line_total'] * 100,
+				'amount'      => intval( number_format( $item['line_total'] * 100, 0, '', '' ) ),
 			);
 		}
 
