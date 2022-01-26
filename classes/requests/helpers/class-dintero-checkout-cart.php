@@ -53,6 +53,12 @@ class Dintero_Checkout_Cart {
 			$order_lines['shipping_option']  = $this->shipping_option( $order );
 		}
 
+		if ( ! empty( WC()->cart->get_coupons() ) ) {
+			$discount                      = $this->discount_items();
+			$order_lines['discount_lines'] = $discount['discount_lines'];
+			$order_lines['discount_codes'] = $discount['discount_codes'];
+		}
+
 		return $order_lines;
 	}
 
@@ -82,6 +88,37 @@ class Dintero_Checkout_Cart {
 		}
 
 		return $order_items;
+	}
+
+	/**
+	 * Retrieve all the discount items.
+	 *
+	 * @param WC_Order $order WooCommerce Order.
+	 * @return array An associative array representing the discount items and codes.
+	 */
+	private function discount_items() {
+		$discount_items = array();
+		$discount_codes = array();
+
+		// The line_id is used to uniquely identify each item (local to this order).
+		$line_id = 0;
+		foreach ( WC()->cart->get_coupons() as $coupon_code => $coupon ) {
+			$discount_items[] = array(
+				'amount'        => intval( number_format( $coupon->get_amount() * 100, 0, '', '' ) ),
+				'discount_id'   => $coupon_code,
+				'discount_type' => 'manual',
+				'description'   => $coupon->get_description(),
+				'line_id'       => $line_id,
+			);
+
+			$discount_codes[] = $coupon_code;
+
+		}
+
+		return array(
+			'discount_lines' => $discount_items,
+			'discount_codes' => $discount_codes,
+		);
 	}
 
 	/**
