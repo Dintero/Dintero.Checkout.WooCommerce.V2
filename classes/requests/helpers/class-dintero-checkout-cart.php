@@ -39,7 +39,7 @@ class Dintero_Checkout_Cart {
 	 */
 	public function order_lines( $order ) {
 		$order_lines = array(
-			'amount'               => $order->get_total() * 100,
+			'amount'               => floatval( number_format( $order->get_total() * 100, 0, '', '' ) ),
 			'currency'             => get_woocommerce_currency(),
 			'merchant_reference'   => $order->get_order_number(),
 			'vat_amount'           => $order->get_total_tax() * 100,
