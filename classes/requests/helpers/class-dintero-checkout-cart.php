@@ -84,7 +84,7 @@ class Dintero_Checkout_Cart {
 				'description' => $product->get_description(),
 				'quantity'    => $item['quantity'],
 				'amount'      => intval( number_format( $item['line_total'] * 100, 0, '', '' ) ),
-				'vat_amount'  => intval( number_format( $item['line_subtotal_tax'] * 100, 0, '', '' ) ),
+				'vat_amount'  => intval( number_format( $item['line_tax'] * 100, 0, '', '' ) ),
 				'vat'         => ( $product->is_taxable() ) ? reset( WC_Tax::get_base_tax_rates( $product->get_tax_class() ) )['rate'] : 0,
 			);
 
