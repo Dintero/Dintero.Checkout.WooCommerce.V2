@@ -142,7 +142,7 @@ class Dintero_Checkout_Cart {
 		$shipping_option = array(
 			'id'         => $selected_option_id,
 			'line_id'    => $selected_option_id,
-			'amount'     => $selected_shipping_option->get_cost() * 100,
+			'amount'     => intval( number_format( $selected_shipping_option->get_cost() * 100, 0, '', '' ) ),
 			'operator'   => '',
 			'title'      => $selected_shipping_option->get_label(),
 			'vat_amount' => ( 0 === intval( $selected_shipping_option->get_shipping_tax() ) ) ? 0 : intval( number_format( $selected_shipping_option->get_shipping_tax() * 100, 0, '', '' ) ),
