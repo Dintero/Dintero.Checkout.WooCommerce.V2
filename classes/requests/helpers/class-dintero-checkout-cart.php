@@ -108,14 +108,16 @@ class Dintero_Checkout_Cart {
 		// The line_id is used to uniquely identify each item (local to this order).
 		$line_id = 0;
 		foreach ( WC()->cart->get_coupons() as $coupon_code => $coupon ) {
-			$discount_items[] = array(
+			$discount_item            = array(
 				'amount'        => intval( number_format( $coupon->get_amount() * 100, 0, '', '' ) ),
 				'discount_id'   => $coupon_code,
 				'discount_type' => 'manual',
 				'description'   => $coupon->get_description(),
-				'line_id'       => $line_id,
+				'line_id'       => $line_id++,
 			);
+			$discount_item['amount'] += intval( number_format( WC()->cart->get_coupon_discount_tax_amount( $coupon_code ) * 100, 0, '', '' ) );
 
+			$discount_items[] = $discount_item;
 			$discount_codes[] = $coupon_code;
 
 		}
