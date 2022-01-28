@@ -85,7 +85,7 @@ class Dintero_Checkout_Cart {
 			$order_item = array(
 				'id'          => $product->get_sku() ?? $product->get_id(),
 				'line_id'     => strval( $line_id++ ),
-				'description' => $product->get_description(),
+				'description' => $product->get_name(),
 				'quantity'    => $item['quantity'],
 				'amount'      => intval( number_format( $item['line_total'] * 100, 0, '', '' ) ),
 				'vat_amount'  => intval( number_format( $item['line_tax'] * 100, 0, '', '' ) ),
@@ -102,7 +102,6 @@ class Dintero_Checkout_Cart {
 	/**
 	 * Retrieve all the discount items.
 	 *
-	 * @param WC_Order $order WooCommerce Order.
 	 * @return array An associative array representing the discount items and codes.
 	 */
 	private function discount_items() {
