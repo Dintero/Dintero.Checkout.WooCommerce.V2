@@ -59,6 +59,10 @@ class Dintero_Checkout_Cart {
 			$order_lines['discount_codes'] = $discount['discount_codes'];
 		}
 
+		if ( ! empty( WC()->cart->get_fees() ) ) {
+			$order_lines['items'] = array_merge( $order_lines['items'], $this->fee_items( $order ) );
+		}
+
 		return $order_lines;
 	}
 
@@ -126,6 +130,34 @@ class Dintero_Checkout_Cart {
 			'discount_lines' => $discount_items,
 			'discount_codes' => $discount_codes,
 		);
+	}
+
+	/**
+	 * Retrieve all the fee items.
+	 *
+	 * @param WC_Order $order WooCommerce Order.
+	 * @return array An associative array representing the fee items.
+	 */
+	private function fee_items( $order ) {
+		$fee_items = array();
+
+		$line_id = 0;
+		foreach ( $order->get_fees() as $fee ) {
+			$fee_item = array(
+				'id'          => 'fee_' . $line_id,
+				'line_id'     => 'fee_' . strval( $line_id++ ),
+				'description' => $fee->get_name(),
+				'quantity'    => $fee->get_quantity(),
+				'amount'      => intval( number_format( $fee->get_total() * 100, 0, '', '' ) ),
+				'vat_amount'  => intval( number_format( $fee->get_total_tax() * 100, 0, '', '' ) ),
+			);
+
+			$fee_item['amount'] += $fee_item['vat_amount'];
+			$fee_item['vat']     = ( ! empty( $fee_item['vat_amount'] ) ) ? intval( number_format( $fee_item['vat_amount'] / $fee_item['amount'] * 100, 0, '', '' ) ) : 0;
+			$fee_items[]         = $fee_item;
+		}
+
+		return $fee_items;
 	}
 
 	/**
