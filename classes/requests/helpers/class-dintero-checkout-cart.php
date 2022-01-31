@@ -15,6 +15,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Dintero_Checkout_Cart {
 
 	/**
+	 * All the products in the cart, but may contain other items that behave similar to products (used by third-part plugins).
+	 *
+	 * @var array
+	 */
+	private $products = array();
+
+	/**
+	 * All the discounts (if any) applied to the cart.
+	 *
+	 * @var array
+	 */
+	private $discounts = array(
+		'discount_lines' => array(),
+		'discount_codes' => array(),
+	);
+
+	/**
+	 * The selected shipping option, and information related to it.
+	 *
+	 * @var array
+	 */
+	private $shipping = array();
+
+	/**
+	 * All the fees applied to the cart.
+	 *
+	 * @var array
+	 */
+	private $fees = array();
+
+	/**
 	 * Create the Dintero expected order object.
 	 *
 	 * @param int $order_id WooCommerce order id.
@@ -45,22 +76,26 @@ class Dintero_Checkout_Cart {
 			'vat_amount'           => $order->get_total_tax() * 100,
 			'merchant_reference_2' => strval( $order->get_id() ),
 			'billing_address'      => $this->billing_address( $order ),
-			'items'                => $this->order_items( $order ),
 		);
 
+		$this->order_items( $order );
+		$order_lines['items'] = $this->products;
+
 		if ( WC()->cart->needs_shipping() ) {
+			$this->shipping_option( $order );
 			$order_lines['shipping_address'] = $this->shipping_address( $order );
-			$order_lines['shipping_option']  = $this->shipping_option( $order );
+			$order_lines['shipping_option']  = $this->shipping;
 		}
 
 		if ( ! empty( WC()->cart->get_coupons() ) ) {
-			$discount                      = $this->discount_items();
-			$order_lines['discount_lines'] = $discount['discount_lines'];
-			$order_lines['discount_codes'] = $discount['discount_codes'];
+			$this->discount_items();
+			$order_lines['discount_lines'] = $this->discounts['discount_lines'];
+			$order_lines['discount_codes'] = $this->discounts['discount_codes'];
 		}
 
 		if ( ! empty( WC()->cart->get_fees() ) ) {
-			$order_lines['items'] = array_merge( $order_lines['items'], $this->fee_items( $order ) );
+			$this->fee_items( $order );
+			$order_lines['items'] = array_merge( $order_lines['items'], $this->fees );
 		}
 
 		return $order_lines;
@@ -69,16 +104,13 @@ class Dintero_Checkout_Cart {
 	/**
 	 * Retrieve all the cart items (excluding shipping).
 	 *
-	 * @param WC_Order $order WooCommerce Order.
-	 * @return array An associative array representing the cart items (without shipping options).
+	 * @return void Populates $this->products.
 	 */
-	private function order_items( $order ) {
-		$order_items = array();
-
+	private function order_items() {
 		$cart = WC()->cart->get_cart();
 
-		// The line_id is used to uniquely identify each item (local to this order).
-		$line_id = 0;
+		// The line_id is used to uniquely identify each item (local to this order). It suffices to to use count.
+		$line_id = count( $this->products );
 		foreach ( $cart as $item ) {
 			$product = ( $item['variation_id'] ) ? wc_get_product( $item['variation_id'] ) : wc_get_product( $item['product_id'] );
 
@@ -93,23 +125,20 @@ class Dintero_Checkout_Cart {
 			);
 
 			$order_item['amount'] += $order_item['vat_amount'];
-			$order_items[]         = $order_item;
+			$this->products[]      = $order_item;
 		}
 
-		return $order_items;
 	}
 
 	/**
 	 * Retrieve all the discount items.
 	 *
-	 * @return array An associative array representing the discount items and codes.
+	 * @return void Populates $this->discounts.
 	 */
 	private function discount_items() {
-		$discount_items = array();
-		$discount_codes = array();
 
 		// The line_id is used to uniquely identify each item (local to this order).
-		$line_id = 0;
+		$line_id = ( isset( $this->discounts['discount_items'] ) ) ? count( $this->discounts['discount_items'] ) : 0;
 		foreach ( WC()->cart->get_coupons() as $coupon_code => $coupon ) {
 			$discount_item            = array(
 				'amount'        => intval( number_format( $coupon->get_amount() * 100, 0, '', '' ) ),
@@ -120,26 +149,21 @@ class Dintero_Checkout_Cart {
 			);
 			$discount_item['amount'] += intval( number_format( WC()->cart->get_coupon_discount_tax_amount( $coupon_code ) * 100, 0, '', '' ) );
 
-			$discount_items[] = $discount_item;
-			$discount_codes[] = $coupon_code;
+			array_push( $this->discounts['discount_lines'], $discount_item );
+			array_push( $this->discounts['discount_codes'], $coupon_code );
 
 		}
-
-		return array(
-			'discount_lines' => $discount_items,
-			'discount_codes' => $discount_codes,
-		);
 	}
 
 	/**
 	 * Retrieve all the fee items.
 	 *
 	 * @param WC_Order $order WooCommerce Order.
-	 * @return array An associative array representing the fee items.
+	 * @return void Populates $this->fees.
 	 */
 	private function fee_items( $order ) {
-		$fee_items = array();
 
+		// The line_id is used to uniquely identify each item (local to this order).
 		$line_id = 0;
 		foreach ( $order->get_fees() as $fee ) {
 			$fee_item = array(
@@ -153,19 +177,16 @@ class Dintero_Checkout_Cart {
 
 			$fee_item['amount'] += $fee_item['vat_amount'];
 			$fee_item['vat']     = ( ! empty( $fee_item['vat_amount'] ) ) ? intval( number_format( $fee_item['vat_amount'] / $fee_item['amount'] * 100, 0, '', '' ) ) : 0;
-			$fee_items[]         = $fee_item;
+			$this->fees[]        = $fee_item;
 		}
-
-		return $fee_items;
 	}
 
 	/**
 	 * Retrieve all the shipping options.
 	 *
-	 * @param WC_Order $order WooCommerce Order.
-	 * @return array An associative array representing the selected shipping option.
+	 * @return void Populates $this->shipping.
 	 */
-	private function shipping_option( $order ) {
+	private function shipping_option() {
 
 		$selected_option_id       = WC()->session->get( 'chosen_shipping_methods' )[0];
 		$selected_shipping_option = WC()->shipping->get_packages()['0']['rates'][ $selected_option_id ];
@@ -181,8 +202,7 @@ class Dintero_Checkout_Cart {
 		);
 
 		$shipping_option['amount'] += $shipping_option['vat_amount'];
-
-		return $shipping_option;
+		$this->shipping             = $shipping_option;
 	}
 
 	/**
