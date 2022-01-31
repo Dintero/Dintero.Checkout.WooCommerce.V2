@@ -65,6 +65,8 @@ class Dintero_Logger {
 	 * @return array A formatted associative array.
 	 */
 	public static function format( $dintero_id, $method, $title, $request_args, $response, $code, $request_url ) {
+		$user_agent = filter_input( INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_ADD_SLASHES ) ?? 'Not available';
+
 		return array(
 			'id'             => $dintero_id,
 			'type'           => $method,
@@ -80,6 +82,7 @@ class Dintero_Logger {
 			'php_version'    => phpversion(),
 			'wc_version'     => WC()->version,
 			'wp_version'     => get_bloginfo( 'version' ),
+			'user_agent'     => $user_agent,
 			'stack'          => self::stacktrace(),
 		);
 	}
