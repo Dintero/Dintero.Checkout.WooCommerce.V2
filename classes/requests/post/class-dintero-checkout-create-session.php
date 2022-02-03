@@ -38,7 +38,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request {
 			'body'    => json_encode(
 				array(
 					'url'        => array(
-						'return_url' => $order->get_checkout_order_received_url(),
+						'return_url' => add_query_arg( 'gateway', 'dintero', home_url() ),
 					),
 					'order'      => ( new Dintero_Checkout_Cart() )->cart( $order_id ),
 					'profile_id' => get_option( 'woocommerce_dintero_checkout_settings' )['profile_id'],

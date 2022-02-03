@@ -73,6 +73,11 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 */
 		public function process_payment( $order_id ) {
 			$session = Dintero()->api->create_session( $order_id );
+			$order   = wc_get_order( $order_id );
+
+			if ( ! $session['is_error'] ) {
+				$order->add_order_note( __( 'Customer redirect to Dintero payment page.', 'dintero-checkout-for-woocommerce' ) );
+			}
 
 			return array(
 				'result'   => ( $session['is_error'] ) ? 'error' : 'success',
