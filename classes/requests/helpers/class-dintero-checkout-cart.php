@@ -114,8 +114,12 @@ class Dintero_Checkout_Cart {
 				'quantity'    => $item['quantity'],
 				'amount'      => intval( number_format( $item['line_total'] * 100, 0, '', '' ) ),
 				'vat_amount'  => intval( number_format( $item['line_tax'] * 100, 0, '', '' ) ),
-				'vat'         => ( $product->is_taxable() ) ? reset( WC_Tax::get_base_tax_rates( $product->get_tax_class() ) )['rate'] : 0,
 			);
+
+			if ( $product->is_taxable() ) {
+				$tax_rate          = WC_TAX::get_base_tax_rates( $product->get_tax_class() );
+				$order_item['vat'] = empty( $tax_rate ) ? 0 : reset( $tax_rate )['rate'];
+			}
 
 			$order_item['amount'] += $order_item['vat_amount'];
 			$this->products[]      = $order_item;
