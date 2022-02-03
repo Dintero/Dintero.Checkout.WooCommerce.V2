@@ -65,9 +65,9 @@ class Dintero_Checkout_Cart {
 		$order_lines = array(
 			'amount'               => intval( number_format( $order->get_total() * 100, 0, '', '' ) ),
 			'currency'             => get_woocommerce_currency(),
-			'merchant_reference'   => $order->get_order_number(),
+			'merchant_reference'   => strval( $order->get_id() ),
 			'vat_amount'           => $order->get_total_tax() * 100,
-			'merchant_reference_2' => strval( $order->get_id() ),
+			'merchant_reference_2' => $order->get_order_number(),
 			'billing_address'      => $this->billing_address( $order ),
 		);
 
