@@ -46,20 +46,13 @@ class Dintero_Checkout_Cart {
 	private $fees = array();
 
 	/**
-	 * Create the Dintero expected order object.
+	 * Retrieve the cart items to be passed on to Dintero.
 	 *
-	 * @param int $order_id WooCommerce order id.
-	 * @return array An associative array representation of Dintero expected order object.
+	 * @param int $order_id order id.
+	 * @return array An associative array representation of the expected Dintero cart object.
 	 */
-	public function order( $order_id ) {
-		$order = wc_get_order( $order_id );
-		return array(
-			'url'        => array(
-				'return_url' => $order->get_checkout_order_received_url(),
-			),
-			'order'      => $this->order_lines( $order ),
-			'profile_id' => get_option( 'woocommerce_dintero_checkout_settings' )['profile_id'],
-		);
+	public function cart( $order_id ) {
+		return $this->order_lines( wc_get_order( $order_id ) );
 	}
 
 	/**

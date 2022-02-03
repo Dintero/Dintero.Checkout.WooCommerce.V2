@@ -31,11 +31,22 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request {
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function create( $order_id ) {
+		$order = wc_get_order( $order_id );
+
 		$this->request_args = array(
 			'headers' => $this->get_headers(),
-			'body'    => json_encode( ( new Dintero_Checkout_Cart() )->order( $order_id ) ),
+			'body'    => json_encode(
+				array(
+					'url'        => array(
+						'return_url' => $order->get_checkout_order_received_url(),
+					),
+					'order'      => ( new Dintero_Checkout_Cart() )->cart( $order_id ),
+					'profile_id' => get_option( 'woocommerce_dintero_checkout_settings' )['profile_id'],
+				)
+			),
 		);
 		$response           = $this->request();
+
 		Dintero_Logger::log(
 			Dintero_Logger::format( '', $this->request_method, 'Create new Dintero session', $response['request'], $response['result'], $response['code'], $this->request_url )
 		);
