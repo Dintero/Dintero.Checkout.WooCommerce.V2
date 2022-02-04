@@ -42,6 +42,13 @@ if ( ! class_exists( 'Dintero' ) ) {
 		public $api;
 
 		/**
+		 * Reference to the order management class.
+		 *
+		 * @var Dintero_Checkout_Order_Management
+		 */
+		public $order_management;
+
+		/**
 		 * The reference the *Singleton* instance of this class.
 		 *
 		 * @var Dintero $instance
@@ -103,12 +110,15 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-logger.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-api.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-confirmation.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-order-management.php';
 
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/class-dintero-checkout-request.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-create-session.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-cancel-order.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/helpers/class-dintero-checkout-cart.php';
 
-			$this->api = new Dintero_Checkout_API();
+			$this->api              = new Dintero_Checkout_API();
+			$this->order_management = new Dintero_Checkout_Order_Management();
 
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateways' ) );
 			load_plugin_textdomain( 'dintero-checkout-for-woocommerce', false, plugin_basename( __DIR__ ) . '/languages' );
