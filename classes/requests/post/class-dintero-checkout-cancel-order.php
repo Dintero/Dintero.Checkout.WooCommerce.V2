@@ -9,6 +9,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Class for cancelling order (both from WooCommerce and Dintero).
+ */
 class Dintero_Checkout_Cancel_Order extends Dintero_Checkout_Request {
 
 	/**

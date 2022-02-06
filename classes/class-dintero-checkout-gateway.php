@@ -76,7 +76,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			$order   = wc_get_order( $order_id );
 
 			if ( ! $session['is_error'] ) {
-				$order->add_order_note( __( 'Customer redirect to Dintero payment page.', 'dintero-checkout-for-woocommerce' ) );
+				$order->add_order_note( __( 'Customer redirected to Dintero payment page.', 'dintero-checkout-for-woocommerce' ) );
 			}
 
 			return array(

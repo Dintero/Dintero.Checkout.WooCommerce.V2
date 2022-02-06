@@ -28,13 +28,14 @@ class Dintero_Checkout_API {
 	}
 
 	/**
-	 * Retrieve information about a WooCommerce order at Dintero.
+	 * Retrieve information about a WooCommerce order from Dintero.
 	 *
 	 * @param string $dintero_id The Dintero order id.
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function get_order( $dintero_id ) {
-		// TODO: to implement.
+		$order = new Dintero_Checkout_Get_Order();
+		return $order->get_order( $dintero_id );
 	}
 
 	/**

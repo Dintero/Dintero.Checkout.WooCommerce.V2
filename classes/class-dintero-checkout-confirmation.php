@@ -51,8 +51,8 @@ class Dintero_Checkout_Redirect {
 				case 'failed':
 					$note = __( 'The transaction was rejected by Dintero, or an error occurred during transaction processing.', 'dintero-checkout-for-woocommerce' );
 					break;
-				case 'cancelled':
-					$note = __( 'Customer cancelled the checkout payment.', 'dintero-checkout-for-woocommerce' );
+				case 'canceled':
+					$note = __( 'Customer canceled the checkout payment.', 'dintero-checkout-for-woocommerce' );
 					break;
 			}
 			$order->add_order_note( $note );
@@ -75,7 +75,7 @@ class Dintero_Checkout_Redirect {
 		update_post_meta( $order_id, '_transaction_id', $transaction_id );
 
 		// translators: %s The Dintero transaction ID.
-		$order->add_order_note( sprintf( __( 'Payment via Dintero Checkout. Order ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
+		$order->add_order_note( sprintf( __( 'Payment via Dintero Checkout. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
 		$order->set_status( 'processing' );
 		$order->save();
 
