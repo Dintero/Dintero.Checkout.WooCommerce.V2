@@ -70,7 +70,6 @@ class Dintero_Checkout_Order_Management {
 			$response = Dintero()->api->capture_order( $order->get_transaction_id(), $order_id );
 
 			if ( $response['is_error'] ) {
-				// translators: the error code, the error message.
 				$order->update_status( 'on-hold', ucfirst( $response['result']['message'] . '.' ) );
 				return;
 			}
@@ -78,7 +77,7 @@ class Dintero_Checkout_Order_Management {
 			$order->add_order_note( sprintf( __( 'The Dintero order successfully captured. Captured amount: %1$.2f %2$s.', 'dintero-checkout-for-woocommerce' ), substr_replace( $response['result']['amount'], wc_get_price_decimal_separator(), -2, 0 ), $response['result']['currency'] ) );
 		}
 
-		update_post_meta( $order_id, $this->status['captured'], 'yes', true );
+		update_post_meta( $order_id, $this->status['captured'], current_time( ' Y-m-d H:i:s' ) );
 	}
 
 	/**
@@ -119,7 +118,7 @@ class Dintero_Checkout_Order_Management {
 		}
 
 		$order->add_order_note( __( 'The Dintero order is canceled.', 'dintero-checkout-for-woocommerce' ) );
-		update_post_meta( $order_id, $this->status['canceled'], 'yes', true );
+		update_post_meta( $order_id, $this->status['canceled'], current_time( ' Y-m-d H:i:s' ) );
 	}
 
 	public function refund_order( $order_id ) {
