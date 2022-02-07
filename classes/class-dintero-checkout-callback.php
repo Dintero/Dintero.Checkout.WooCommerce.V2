@@ -80,19 +80,21 @@ class Dintero_Checkout_Callback {
 				case 'CAPTURE':
 					Dintero_Logger::log( sprintf( 'CALLBACK [%s]: The status for the order id %d (transaction id: %s) was changed to CAPTURE in the back office.', $event, $merchant_reference, $transaction_id ) );
 					if ( ! Dintero()->order_management->is_captured( $merchant_reference, true ) ) {
-						$order->update_status( 'completed', __( 'The order was captured per request from Dintero.', 'dintero-checkout-for-woocommerce' ) );
+						$order->add_order_note( __( 'The order was CAPTURED per request from Dintero.', 'dintero-checkout-for-woocommerce' ) );
 					}
 					break;
 
 				case 'REFUND':
 					Dintero_Logger::log( sprintf( 'CALLBACK [%s]: The status for the order id %d (transaction id: %s) was changed to REFUND in the back office.', $event, $merchant_reference, $transaction_id ) );
-					$order->update_status( 'refunded', __( 'The order was refunded per request from Dintero.', 'dintero-checkout-for-woocommerce' ) );
+					if ( ! Dintero()->order_management->is_refunded( $merchant_reference, true ) ) {
+						$order->add_order_note( __( 'The order was REFUNDED per request from Dintero.', 'dintero-checkout-for-woocommerce' ) );
+					}
 					break;
 
 				case 'VOID':
 					Dintero_Logger::log( sprintf( 'CALLBACK [%s]: The status for the order id %d (transaction id: %s) was changed to VOID in the back office.', $event, $merchant_reference, $transaction_id ) );
 					if ( ! Dintero()->order_management->is_canceled( $merchant_reference, false ) ) {
-						$order->update_status( 'cancelled', __( 'The order was canceled per request from Dintero.', 'dintero-checkout-for-woocommerce' ) );
+						$order->update_status( 'cancelled', __( 'The order was CANCELED per request from Dintero.', 'dintero-checkout-for-woocommerce' ) );
 					}
 					break;
 

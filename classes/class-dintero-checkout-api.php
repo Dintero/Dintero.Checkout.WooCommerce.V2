@@ -62,6 +62,17 @@ class Dintero_Checkout_API {
 	}
 
 	/**
+	 * Set the Dintero order to refunded.
+	 *
+	 * @param string $dintero_id The Dintero transaction id.
+	 * @return array An associative array on success and failure. Check for is_error index.
+	 */
+	public function refund_order( $dintero_id, $order_id ) {
+		$refund = new Dintero_Checkout_Refund_Order();
+		return $refund->refund( $dintero_id, $order_id );
+	}
+
+	/**
 	 * Update the state of the order in WooCommerce to match Dintero's.
 	 *
 	 * @param string $dintero_id The Dintero transaction id.

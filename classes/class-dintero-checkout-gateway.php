@@ -84,5 +84,17 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				'redirect' => $session['result']['url'],
 			);
 		}
+
+		/**
+		 * Process the refund request.
+		 *
+		 * @param int    $order_id The WooCommerce order id.
+		 * @param float  $amount The amount to refund.
+		 * @param string $reason The reason for the refund.
+		 * @return void
+		 */
+		public function process_refund( $order_id, $amount = null, $reason = '' ) {
+			return Dintero()->order_management->refund_order( $order_id );
+		}
 	}
 }
