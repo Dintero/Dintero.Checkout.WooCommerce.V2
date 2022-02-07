@@ -25,29 +25,12 @@ class Dintero_Checkout_Order_Management {
 	);
 
 	/**
-	 * An instance of the capture order management.
-	 *
-	 * @var Dintero_Checkout_Capture_Order
-	 */
-	private $capture;
-
-	/**
-	 * An instance of the cancel order management.
-	 *
-	 * @var Dintero_Checkout_Cancel_Order
-	 */
-	private $cancel;
-
-	/**
 	 * Class constructor.
 	 */
 	public function __construct() {
 		add_action( 'woocommerce_order_status_cancelled', array( $this, 'cancel_order' ) );
 		add_action( 'woocommerce_order_status_completed', array( $this, 'capture_order' ) );
 		add_action( 'woocommerce_order_status_refund', array( $this, 'refund_order' ) );
-
-		$this->capture = new Dintero_Checkout_Capture_Order();
-		$this->cancel  = new Dintero_Checkout_Cancel_Order();
 	}
 
 	/**
@@ -84,7 +67,7 @@ class Dintero_Checkout_Order_Management {
 		}
 
 		if ( ! $this->is_captured( $order_id ) ) {
-			$response = $this->capture->capture( $order->get_transaction_id(), $order_id );
+			$response = Dintero()->api->capture_order( $order->get_transaction_id(), $order_id );
 
 			if ( $response['is_error'] ) {
 				// translators: the error code, the error message.
@@ -127,7 +110,7 @@ class Dintero_Checkout_Order_Management {
 		}
 
 		if ( ! $this->is_canceled( $order_id ) ) {
-			$response = $this->cancel->cancel( $order->get_transaction_id() );
+			$response = Dintero()->api->cancel_order( $order->get_transaction_id() );
 
 			if ( $response['is_error'] ) {
 				$order->update_status( 'on-hold', ucfirst( $response['result']['message'] . '.' ) );

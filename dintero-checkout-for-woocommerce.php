@@ -37,7 +37,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 		/**
 		 * Reference to the API class.
 		 *
-		 * @var Dintero_API $api
+		 * @var Dintero_Checkout_API $api
 		 */
 		public $api;
 
