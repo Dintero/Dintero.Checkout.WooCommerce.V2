@@ -147,14 +147,15 @@ class Dintero_Checkout_Order_Management {
 	/**
 	 * Whether the order has already been captured.
 	 *
-	 * @param int $order_id The WooCommerce order id.
+	 * @param int     $order_id The WooCommerce order id.
+	 * @param boolean $backoffice Whether the order is captured in WooCommerce (rather than through the backoffice).
 	 * @return boolean TRUE if already captured otherwise FALSE.
 	 */
-	public function is_captured( $order_id ) {
+	public function is_captured( $order_id, $backoffice = false ) {
 		$order         = wc_get_order( $order_id );
 		$dintero_order = Dintero()->api->get_order( $order->get_transaction_id() );
 
-		if ( ! $dintero_order['is_error'] ) {
+		if ( ! $dintero_order['is_error'] && ! $backoffice ) {
 			return ( 'CAPTURED' === $dintero_order['result']['status'] );
 		}
 
@@ -164,16 +165,18 @@ class Dintero_Checkout_Order_Management {
 	/**
 	 * Whether the order has already been canceled.
 	 *
-	 * @param int $order_id The WooCommerce order id.
+	 * @param int     $order_id The WooCommerce order id.
+	 * @param boolean $backoffice Whether the order is canceled in WooCommerce (rather than through the backoffice).
 	 * @return boolean TRUE if already canceled otherwise FALSE.
 	 */
-	public function is_canceled( $order_id ) {
+	public function is_canceled( $order_id, $backoffice = false ) {
 		$order         = wc_get_order( $order_id );
 		$dintero_order = Dintero()->api->get_order( $order->get_transaction_id() );
 
-		if ( ! $dintero_order['is_error'] ) {
+		if ( ! $dintero_order['is_error'] && ! $backoffice ) {
 			return ( 'AUTHORIZATION_VOIDED' === $dintero_order['result']['status'] );
 		}
+
 		return ! empty( get_post_meta( $order_id, $this->status['canceled'], true ) );
 	}
 
