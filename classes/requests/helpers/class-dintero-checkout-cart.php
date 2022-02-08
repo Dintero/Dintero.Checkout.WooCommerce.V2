@@ -102,14 +102,14 @@ class Dintero_Checkout_Cart {
 	private function order_items() {
 		$cart = WC()->cart->get_cart();
 
-		// The line_id is used to uniquely identify each item (local to this order). It suffices to to use count.
-		$line_id = count( $this->products );
 		foreach ( $cart as $item ) {
 			$product = ( $item['variation_id'] ) ? wc_get_product( $item['variation_id'] ) : wc_get_product( $item['product_id'] );
+			$id      = $product->get_sku() ?? $product->get_id();
 
 			$order_item = array(
-				'id'          => $product->get_sku() ?? $product->get_id(),
-				'line_id'     => strval( $line_id++ ),
+				/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
+				'id'          => strval( $id ),
+				'line_id'     => strval( $id ),
 				'description' => $product->get_name(),
 				'quantity'    => $item['quantity'],
 				'amount'      => intval( number_format( $item['line_total'] * 100, 0, '', '' ) ),
@@ -134,15 +134,14 @@ class Dintero_Checkout_Cart {
 	 */
 	private function discount_items() {
 
-		// The line_id is used to uniquely identify each item (local to this order).
-		$line_id = ( isset( $this->discounts['discount_items'] ) ) ? count( $this->discounts['discount_items'] ) : 0;
 		foreach ( WC()->cart->get_coupons() as $coupon_code => $coupon ) {
 			$discount_item            = array(
 				'amount'        => intval( number_format( $coupon->get_amount() * 100, 0, '', '' ) ),
-				'discount_id'   => $coupon_code,
+				'discount_id'   => strval( $coupon_code ),
 				'discount_type' => 'manual',
 				'description'   => $coupon->get_description(),
-				'line_id'       => $line_id++,
+				/* line_id must be an integer. */
+				'line_id'       => $coupon->get_id(),
 			);
 			$discount_item['amount'] += intval( number_format( WC()->cart->get_coupon_discount_tax_amount( $coupon_code ) * 100, 0, '', '' ) );
 
@@ -160,12 +159,11 @@ class Dintero_Checkout_Cart {
 	 */
 	private function fee_items( $order ) {
 
-		// The line_id is used to uniquely identify each item (local to this order).
-		$line_id = 0;
 		foreach ( $order->get_fees() as $fee ) {
 			$fee_item = array(
-				'id'          => 'fee_' . $line_id,
-				'line_id'     => 'fee_' . strval( $line_id++ ),
+				/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
+				'id'          => strval( $fee->get_id() ),
+				'line_id'     => strval( $fee->get_id() ),
 				'description' => $fee->get_name(),
 				'quantity'    => $fee->get_quantity(),
 				'amount'      => intval( number_format( $fee->get_total() * 100, 0, '', '' ) ),
@@ -189,6 +187,7 @@ class Dintero_Checkout_Cart {
 		$selected_shipping_option = WC()->shipping->get_packages()['0']['rates'][ $selected_option_id ];
 
 		$shipping_option = array(
+			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
 			'id'         => $selected_option_id,
 			'line_id'    => $selected_option_id,
 			'amount'     => intval( number_format( $selected_shipping_option->get_cost() * 100, 0, '', '' ) ),

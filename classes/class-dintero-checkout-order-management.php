@@ -20,9 +20,10 @@ class Dintero_Checkout_Order_Management {
 	 * @var array
 	 */
 	private $status = array(
-		'captured' => '_wc_dintero_captured',
-		'canceled' => '_wc_dintero_canceled',
-		'refunded' => '_wc_dintero_refunded',
+		'captured'           => '_wc_dintero_captured',
+		'canceled'           => '_wc_dintero_canceled',
+		'refunded'           => '_wc_dintero_refunded',
+		'partially_refunded' => '_wc_dintero_partially_refunded',
 	);
 
 	/**
@@ -135,7 +136,7 @@ class Dintero_Checkout_Order_Management {
 	 * Refunds the Dintero order that the WooCommerce order corresponds to.
 	 *
 	 * @param int $order_id The WooCommerce order id.
-	 * @return void
+	 * @return boolean|null TRUE on success, FALSE on unrecoverable failure, and null if not relevant or valid.
 	 */
 	public function refund_order( $order_id ) {
 		$order = wc_get_order( $order_id );
@@ -155,12 +156,17 @@ class Dintero_Checkout_Order_Management {
 		}
 
 		if ( ! get_post_meta( $order_id, $this->status['captured'], true ) ) {
-			$order->add_order_note( __( 'The Dintero order has not been captured and can therefore not be refunded.', 'dintero-checkout-for-woocommerce' ) );
+			$order->add_order_note( __( 'There is nothing to refund. The order has not yet been captured in WooCommerce.', 'dintero-checkout-for-woocommerce' ) );
 			return;
 		}
 
 		if ( get_post_meta( $order_id, $this->status['canceled'], true ) ) {
-			$order->add_order_note( __( 'The Dintero order is already canceled.', 'dintero-checkout-for-woocommerce' ) );
+			$order->add_order_note( __( 'The Dintero order cannot be refunded since it is canceled.', 'dintero-checkout-for-woocommerce' ) );
+			return;
+		}
+
+		if ( get_post_meta( $order_id, $this->status['refunded'], true ) ) {
+			$order->add_order_note( __( 'The Dintero order has already been refunded.', 'dintero-chekcout-for-woocommerce' ) );
 			return;
 		}
 
@@ -168,13 +174,20 @@ class Dintero_Checkout_Order_Management {
 			$response = Dintero()->api->refund_order( $order->get_transaction_id(), $order_id );
 
 			if ( $response['is_error'] ) {
-				$order->update_status( 'on-hold', ucfirst( $response['result']['message'] . '.' ) );
-				return;
+				$order->add_order_note( ucfirst( $response['result']['message'] ) . ': ' . $response['result']['code'] . '.' );
+				$order->update_status( 'on-hold' );
+				return false;
 			}
 		}
 
-		$order->add_order_note( __( 'The Dintero order is refunded.', 'dintero-checkout-for-woocommerce' ) );
-		update_post_meta( $order_id, $this->status['refunded'], current_time( ' Y-m-d H:i:s' ) );
+		if ( $this->is_partially_refunded( $order_id ) ) {
+			$order->add_order_note( __( 'The Dintero order has been partially refunded.', 'dintero-checkout-for-woocommerce' ) );
+			update_post_meta( $order_id, $this->status['partially_refunded'], current_time( ' Y-m-d H:i:s' ) );
+
+		} else {
+			$order->add_order_note( __( 'The Dintero order has been refunded.', 'dintero-checkout-for-woocommerce' ) );
+			update_post_meta( $order_id, $this->status['refunded'], current_time( ' Y-m-d H:i:s' ) );
+		}
 
 		return true;
 	}
@@ -215,6 +228,13 @@ class Dintero_Checkout_Order_Management {
 		return ! empty( get_post_meta( $order_id, $this->status['canceled'], true ) );
 	}
 
+	/**
+	 * Whether the order has already been fully refunded.
+	 *
+	 * @param int     $order_id The WooCommerce order id.
+	 * @param boolean $backoffice Whether the order is fully refunded in WooCommerce (rather than through the backoffice).
+	 * @return  True if fully refunded otherwise FALSE.
+	 */
 	public function is_refunded( $order_id, $backoffice = false ) {
 		$order         = wc_get_order( $order_id );
 		$dintero_order = Dintero()->api->get_order( $order->get_transaction_id() );
@@ -224,5 +244,16 @@ class Dintero_Checkout_Order_Management {
 		}
 
 		return ! empty( get_post_meta( $order_id, $this->status['refunded'], true ) );
+	}
+
+	public function is_partially_refunded( $order_id ) {
+		$order = wc_get_order( $order_id );
+
+		$total_refund_amount = 0;
+		foreach ( $order->get_refunds() as $refund ) {
+			$total_refund_amount += $refund->get_refund_amount();
+		}
+
+		return ( $order->get_total() > $total_refund_amount );
 	}
 }

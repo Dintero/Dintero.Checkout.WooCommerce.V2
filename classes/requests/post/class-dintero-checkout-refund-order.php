@@ -33,17 +33,23 @@ class Dintero_Checkout_Refund_Order extends Dintero_Checkout_Request {
 		$this->request_url  = 'https://checkout.dintero.com/v1/transactions/' . $dintero_id . '/refund';
 		$this->request_args = array(
 			'headers' => $this->get_headers(),
-			'body'    => json_encode(
+			'body'    =>
 				array(
 					'amount'            => intval( number_format( $order->get_total() * 100, 0, '', '' ) ),
 					'capture_reference' => strval( $order_id ),
-				)
-			),
+				),
 		);
-		$response           = $this->request();
+
+		$items                                = ( new Dintero_Checkout_Order( $order_id ) )->items();
+		$this->request_args['body']['amount'] = $items['total_amount'];
+		$this->request_args['body']['reason'] = $items['reason'];
+		$this->request_args['body']['items']  = $items['items'];
+
+		$this->request_args['body'] = json_encode( $this->request_args['body'] );
+		$response                   = $this->request();
 
 		Dintero_Logger::log(
-			Dintero_Logger::format( $dintero_id, $this->request_method, 'Capture order', $response['request'], $response['result'], $response['code'], $this->request_url )
+			Dintero_Logger::format( $dintero_id, $this->request_method, 'Refund Dintero order', $response['request'], $response['result'], $response['code'], $this->request_url )
 		);
 
 		return $response;
