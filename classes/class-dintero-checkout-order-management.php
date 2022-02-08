@@ -236,7 +236,7 @@ class Dintero_Checkout_Order_Management {
 	 *
 	 * @param int     $order_id The WooCommerce order id.
 	 * @param boolean $backoffice Whether the order is fully refunded in WooCommerce (rather than through the backoffice).
-	 * @return  True if fully refunded otherwise FALSE.
+	 * @return  TRUE if fully refunded otherwise FALSE.
 	 */
 	public function is_refunded( $order_id, $backoffice = false ) {
 		$order         = wc_get_order( $order_id );
@@ -249,6 +249,12 @@ class Dintero_Checkout_Order_Management {
 		return ! empty( get_post_meta( $order_id, $this->status['refunded'], true ) );
 	}
 
+	/**
+	 * Whether the order has been partially refunded.
+	 *
+	 * @param int $order_id The WooCommerce order id.
+	 * @return boolean TRUE if partially refunded otherwise FALSE.
+	 */
 	public function is_partially_refunded( $order_id ) {
 		$order = wc_get_order( $order_id );
 
