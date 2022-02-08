@@ -76,9 +76,11 @@ class Dintero_Checkout_Order_Management {
 			$response = Dintero()->api->capture_order( $order->get_transaction_id(), $order_id );
 
 			if ( $response['is_error'] ) {
-				$order->update_status( 'on-hold', ucfirst( $response['result']['message'] . '.' ) );
+				$order->add_order_note( ucfirst( $response['result']['message'] ) . ': ' . $response['result']['code'] . '.' );
+				$order->update_status( 'on-hold' );
 				return;
 			}
+
 			// translators: the amount, the currency.
 			$order->add_order_note( sprintf( __( 'The Dintero order successfully captured. Captured amount: %1$.2f %2$s.', 'dintero-checkout-for-woocommerce' ), substr_replace( $response['result']['amount'], wc_get_price_decimal_separator(), -2, 0 ), $response['result']['currency'] ) );
 		}
@@ -123,7 +125,8 @@ class Dintero_Checkout_Order_Management {
 			$response = Dintero()->api->cancel_order( $order->get_transaction_id() );
 
 			if ( $response['is_error'] ) {
-				$order->update_status( 'on-hold', ucfirst( $response['result']['message'] . '.' ) );
+				$order->add_order_note( ucfirst( $response['result']['message'] ) . ': ' . $response['result']['code'] . '.' );
+				$order->update_status( 'on-hold' );
 				return;
 			}
 		}
