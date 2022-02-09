@@ -55,7 +55,7 @@ class Dintero_Checkout_Order {
 		return array(
 			'total_amount' => $this->total_amount,
 			'items'        => $this->items,
-			'reason'       => strval( $this->order()->get_reason() ?? '' ),
+			'reason'       => ( method_exists( $this->order(), 'get_reason' ) ) ? strval( $this->order()->get_reason() ) : '',
 		);
 	}
 
@@ -67,10 +67,12 @@ class Dintero_Checkout_Order {
 	private function order() {
 		$order = wc_get_order( $this->order_id );
 
-		/* The current refund is always the first in the array but its index is not zero-based. */
-		$index = array_key_first( $order->get_refunds() );
-		if ( null !== $index ) {
-			return $order->get_refunds()[ $index ];
+		if ( ! $order->has_status( 'completed' ) ) {
+			/* The current refund is always the first in the array but its index is not zero-based. */
+			$index = array_key_first( $order->get_refunds() );
+			if ( null !== $index ) {
+				return $order->get_refunds()[ $index ];
+			}
 		}
 
 		return $order;

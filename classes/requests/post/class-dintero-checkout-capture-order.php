@@ -33,18 +33,20 @@ class Dintero_Checkout_Capture_Order extends Dintero_Checkout_Request {
 		$this->request_url  = 'https://checkout.dintero.com/v1/transactions/' . $dintero_id . '/capture';
 		$this->request_args = array(
 			'headers' => $this->get_headers(),
-			'body'    => json_encode(
-				array(
-					'amount'            => intval( number_format( $order->get_total() * 100, 0, '', '' ) ),
-					'capture_reference' => strval( $order_id ),
-					/* TODO: Add the 'items' field which is required for certain payment methods. */
-				)
-			),
 		);
-		$response = $this->request();
+
+		$items                      = ( new Dintero_Checkout_Order( $order_id ) )->items();
+		$this->request_args['body'] = array(
+			'capture_reference' => strval( $order_id ),
+			'amount'            => $items['total_amount'],
+			'items'             => $items['items'],
+
+		);
+		$this->request_args['body'] = json_encode( $this->request_args['body'] );
+		$response                   = $this->request();
 
 		Dintero_Logger::log(
-			Dintero_Logger::format( $dintero_id, $this->request_method, 'Capture order', $response['request'], $response['result'], $response['code'], $this->request_url )
+			Dintero_Logger::format( $dintero_id, $this->request_method, 'Capture Dintero order', $response['request'], $response['result'], $response['code'], $this->request_url )
 		);
 
 		return $response;
