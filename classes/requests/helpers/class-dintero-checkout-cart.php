@@ -160,11 +160,12 @@ class Dintero_Checkout_Cart {
 	private function fee_items( $order ) {
 
 		foreach ( $order->get_fees() as $fee ) {
+			$name     = $fee->get_name();
 			$fee_item = array(
 				/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
-				'id'          => strval( $fee->get_id() ),
-				'line_id'     => strval( $fee->get_id() ),
-				'description' => $fee->get_name(),
+				'id'          => $name,
+				'line_id'     => $name,
+				'description' => $name,
 				'quantity'    => $fee->get_quantity(),
 				'amount'      => intval( number_format( $fee->get_total() * 100, 0, '', '' ) ),
 				'vat_amount'  => intval( number_format( $fee->get_total_tax() * 100, 0, '', '' ) ),

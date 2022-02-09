@@ -117,11 +117,12 @@ class Dintero_Checkout_Order {
 	private function fee_items() {
 
 		foreach ( $this->order()->get_fees() as $fee ) {
+			$name     = $fee->get_name();
 			$fee_item = array(
 				/* NOTE: The id and line_id must match the same id and line_id in session creation. */
-				'id'          => strval( $fee->get_id() ),
-				'line_id'     => strval( $fee->get_id() ),
-				'description' => $fee->get_name(),
+				'id'          => $name,
+				'line_id'     => $name,
+				'description' => $name,
 				'quantity'    => $fee->get_quantity(),
 				'amount'      => absint( number_format( $fee->get_total() * 100, 0, '', '' ) ),
 				'vat_amount'  => absint( number_format( $fee->get_total_tax() * 100, 0, '', '' ) ),
@@ -148,9 +149,10 @@ class Dintero_Checkout_Order {
 		}
 
 		$shipping_method = $this->order()->get_shipping_methods()[ $first_available ];
+		$shipping_id     = $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id();
 		$shipping_option = array(
-			'id'          => strval( $shipping_method->get_id() ),
-			'line_id'     => strval( $shipping_method->get_id() ),
+			'id'          => strval( $shipping_id ),
+			'line_id'     => strval( $shipping_id ),
 			'amount'      => absint( number_format( $shipping_method->get_total() * 100, 0, '', '' ) ),
 			'description' => $shipping_method->get_name(),
 			'quantity'    => $shipping_method->get_quantity(),
