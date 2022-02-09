@@ -260,7 +260,7 @@ class Dintero_Checkout_Order_Management {
 
 		$total_refund_amount = 0;
 		foreach ( $order->get_refunds() as $refund ) {
-			$total_refund_amount += $refund->get_refund_amount();
+			$total_refund_amount += $refund->get_amount();
 		}
 
 		return ( $order->get_total() > $total_refund_amount );
