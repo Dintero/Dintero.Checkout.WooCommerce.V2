@@ -80,10 +80,15 @@ class Dintero_Checkout_Order_Management {
 				$order->update_status( 'on-hold' );
 				return;
 			}
-		}
 
-		// translators: the amount, the currency.
-		$order->add_order_note( sprintf( __( 'The Dintero order successfully captured. Captured amount: %1$.2f %2$s.', 'dintero-checkout-for-woocommerce' ), substr_replace( $response['result']['amount'], wc_get_price_decimal_separator(), -2, 0 ), $response['result']['currency'] ) );
+			if ( $response['result']['amount'] > 0 ) {
+				// translators: the amount, the currency.
+				$order->add_order_note( sprintf( __( 'The Dintero order was successfully captured. Captured amount: %1$.2f %2$s.', 'dintero-checkout-for-woocommerce' ), substr_replace( $response['result']['amount'], wc_get_price_decimal_separator(), -2, 0 ), $response['result']['currency'] ) );
+
+			} else {
+				$order->add_order_note( sprintf( __( 'The Dintero order was successfully captured.', 'dintero-checkout-for-woocommerce' ) ) );
+			}
+		}
 
 		update_post_meta( $order_id, $this->status['captured'], current_time( ' Y-m-d H:i:s' ) );
 	}
