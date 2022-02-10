@@ -35,7 +35,7 @@ class Dintero_Checkout_Get_Order extends Dintero_Checkout_Request {
 		$response           = $this->request();
 
 		Dintero_Logger::log(
-			Dintero_Logger::format( $dintero_id, $this->request_method, 'Get order information', $response['request'], $response['result'], $response['code'], $this->request_url )
+			Dintero_Logger::format( $dintero_id, $this->request_method, 'Get Dintero order information', $response['request'], $response['result'], $response['code'], $this->request_url )
 		);
 
 		return $response;

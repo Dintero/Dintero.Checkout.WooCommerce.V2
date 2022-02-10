@@ -70,7 +70,7 @@ class Dintero_Checkout_Redirect {
 				wc_add_notice( $note, 'error' );
 			}
 
-			Dintero_Logger::log( sprintf( 'RETURN [%s]: %s WC order id: %d: %s', $note, $error, $order_id ) );
+			Dintero_Logger::log( sprintf( 'RETURN [%s]: %s WC order id: %s.', $error, $note, $order_id ) );
 			wp_redirect( wc_get_checkout_url() );
 			exit;
 		}
@@ -78,6 +78,7 @@ class Dintero_Checkout_Redirect {
 		// The 'transaction_id' is only set if the transaction was completed successfully.
 		$transaction_id = filter_input( INPUT_GET, 'transaction_id', FILTER_SANITIZE_STRING );
 		if ( empty( $transaction_id ) ) {
+			Dintero_Logger::log( 'RETURN: The merchant reference was found, and no error event was set, but the transaction ID is missing. Exiting.' );
 			return;
 		}
 
@@ -102,6 +103,7 @@ class Dintero_Checkout_Redirect {
 			),
 		);
 
+		Dintero_Logger::log( sprintf( 'RETURN: Redirecting customer to thank-you page. WC order id: %s (transaction ID: %s).', $order_id, $transaction_id ) );
 		exit;
 	}
 
