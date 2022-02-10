@@ -44,20 +44,33 @@ class Dintero_Checkout_Redirect {
 		if ( ! empty( $error ) ) {
 			$order = wc_get_order( $order_id );
 
+			$show_in_checkout = false;
 			switch ( $error ) {
 				case 'authorization':
-					$note = __( 'Customer failed to authorize the payment.', 'dintero-checkout-for-woocommerce' );
+					$note = __( 'The customer failed to authorize the payment.', 'dintero-checkout-for-woocommerce' );
 					break;
 				case 'failed':
-					$note = __( 'The transaction was rejected by Dintero, or an error occurred during transaction processing.', 'dintero-checkout-for-woocommerce' );
+					$note             = __( 'The transaction was rejected by Dintero, or an error occurred during transaction processing.', 'dintero-checkout-for-woocommerce' );
+					$show_in_checkout = true;
 					break;
-				case 'canceled':
-					$note = __( 'Customer canceled the checkout payment.', 'dintero-checkout-for-woocommerce' );
+				case 'cancelled':
+					$note = __( 'The customer canceled the checkout payment.', 'dintero-checkout-for-woocommerce' );
+					break;
+				case 'captured':
+					$note = __( 'The transaction capture operation failed during auto-capture.', 'dintero-checkout-for-woocommerce' );
+					break;
+				default:
+					$note = 'Unknown event.';
 					break;
 			}
-			$order->add_order_note( $note );
-			wc_add_notice( $note, 'error' );
+			if ( $note ) {
+				$order->add_order_note( $note );
+			}
+			if ( $show_in_checkout ) {
+				wc_add_notice( $note, 'error' );
+			}
 
+			Dintero_Logger::log( sprintf( 'RETURN [%s]: %s WC order id: %d: %s', $note, $error, $order_id ) );
 			wp_redirect( wc_get_checkout_url() );
 			exit;
 		}

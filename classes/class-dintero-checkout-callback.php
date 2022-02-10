@@ -59,7 +59,31 @@ class Dintero_Checkout_Callback {
 		// If the 'error' query parameter exist, the 'transaction_id' is not sent. We need to handle the error.
 		$order = wc_get_order( $merchant_reference );
 		if ( empty( $transaction_id ) && ! empty( $error ) ) {
-			Dintero_Logger::log( sprintf( 'CALLBACK [error]: WC order id: %d: %s', $merchant_reference, json_encode( $error ) ) );
+
+			$show_on_order_page = true;
+			switch ( $error ) {
+				case 'authorization':
+					$note = 'The customer failed to authorize the payment.';
+					break;
+				case 'failed':
+					$note = 'The transaction was rejected by Dintero, or an error occurred during transaction processing.';
+					break;
+				case 'cancelled':
+					$note = 'The customer canceled the checkout payment.';
+					break;
+				case 'captured':
+					$note = 'The transaction capture operation failed during auto-capture.';
+					break;
+				default:
+					$note               = 'Unknown event.';
+					$show_on_order_page = false;
+					break;
+			}
+
+			Dintero_Logger::log( sprintf( 'CALLBACK [%s]: %s WC order id: %d: %s', $note, $error, $merchant_reference ) );
+			if ( $show_on_order_page ) {
+				$order->add_order_note( $note );
+			}
 
 			return;
 		}
@@ -77,6 +101,7 @@ class Dintero_Checkout_Callback {
 		if ( ! empty( $event ) ) {
 			switch ( $event ) {
 
+				/* Dintero does not trigger these events for for partial actions (e.g., partial refund). */
 				case 'CAPTURE':
 					Dintero_Logger::log( sprintf( 'CALLBACK [%s]: The status for the order id %d (transaction id: %s) was changed to CAPTURE in the back office.', $event, $merchant_reference, $transaction_id ) );
 					if ( ! Dintero()->order_management->is_captured( $merchant_reference, true ) ) {
