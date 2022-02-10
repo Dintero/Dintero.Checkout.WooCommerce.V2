@@ -32,7 +32,7 @@ class Dintero_Checkout_Cart {
 	);
 
 	/**
-	 * The selected shipping options, and information related to it.
+	 * The selected shipping options, and information related to them.
 	 *
 	 * @var array
 	 */
@@ -82,7 +82,7 @@ class Dintero_Checkout_Cart {
 			if ( count( $this->shipping ) > 1 ) {
 				$order_lines['items'] = array_merge( $order_lines['items'], $this->shipping );
 			} else {
-				$order_lines['shipping_option'] = $this->shipping;
+				$order_lines['shipping_option'] = $this->shipping[0];
 			}
 		}
 
@@ -191,7 +191,12 @@ class Dintero_Checkout_Cart {
 	private function shipping_option() {
 
 		$shipping_ids   = WC()->session->get( 'chosen_shipping_methods' );
-		$shipping_rates = WC()->shipping()->get_packages()['0']['rates'];
+		$shipping_rates = WC()->shipping->get_packages()[0]['rates'];
+
+		$is_multiple_shipping = ( count( WC()->shipping->get_packages() ) > 1 );
+		if ( ! $is_multiple_shipping ) {
+			$shipping_ids = array( $shipping_ids[0] );
+		}
 
 		foreach ( $shipping_ids as  $shipping_id ) {
 
@@ -209,7 +214,7 @@ class Dintero_Checkout_Cart {
 			);
 
 			// Dintero needs to know this is an order with multiple shipping options by setting the 'type'.
-			if ( count( $shipping_ids ) > 1 ) {
+			if ( $is_multiple_shipping ) {
 				// FIXME: This ENUM has not yet been added in production by Dintero. We'll omit it for now per agreement.
 				// $shipping_option['type'] = 'shipping';
 
