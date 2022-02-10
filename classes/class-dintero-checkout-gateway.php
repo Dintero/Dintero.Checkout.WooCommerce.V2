@@ -75,12 +75,15 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			$session = Dintero()->api->create_session( $order_id );
 			$order   = wc_get_order( $order_id );
 
-			if ( ! $session['is_error'] ) {
-				$order->add_order_note( __( 'Customer redirected to Dintero payment page.', 'dintero-checkout-for-woocommerce' ) );
+			if ( $session['is_error'] ) {
+				return array(
+					'result' => 'error',
+				);
 			}
 
+			$order->add_order_note( __( 'Customer redirected to Dintero payment page.', 'dintero-checkout-for-woocommerce' ) );
 			return array(
-				'result'   => ( $session['is_error'] ) ? 'error' : 'success',
+				'result'   => 'success',
 				'redirect' => $session['result']['url'],
 			);
 		}
