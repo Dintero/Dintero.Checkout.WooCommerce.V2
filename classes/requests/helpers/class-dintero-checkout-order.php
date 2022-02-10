@@ -144,27 +144,28 @@ class Dintero_Checkout_Order {
 	 */
 	private function shipping_option() {
 
-		// TODO: Add support for multiple shipping lines.
-		$first_available = array_key_first( $this->order()->get_shipping_methods() );
-		if ( null === $first_available ) {
-			return;
+		$shipping_methods = $this->order()->get_shipping_methods();
+		foreach ( $shipping_methods as $shipping_method ) {
+
+			$shipping_id     = $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id();
+			$shipping_option = array(
+				'id'          => strval( $shipping_id ),
+				'line_id'     => strval( $shipping_id ),
+				'amount'      => absint( number_format( $shipping_method->get_total() * 100, 0, '', '' ) ),
+				'description' => $shipping_method->get_name(),
+				'quantity'    => $shipping_method->get_quantity(),
+				'vat_amount'  => absint( number_format( $shipping_method->get_total_tax() * 100, 0, '', '' ) ),
+				'vat'         => ( 0 === absint( $shipping_method->get_total_tax() ) ) ? 0 : intval( number_format( ( $shipping_method->get_total_tax() / $shipping_method->get_total() ) * 100, 0, '', '' ) ),
+			);
+
+			// Dintero needs to know this is an order with multiple shipping options by setting the 'type'. */
+			// FIXME: This ENUM has not yet been added in production by Dintero. We'll omit it for now per agreement
+			// $shipping_option['type'] = 'shipping';
+
+			$shipping_option['amount'] += $shipping_option['vat_amount'];
+			$this->total_amount        += $shipping_option['amount'];
+			$this->items[]              = $shipping_option;
 		}
-
-		$shipping_method = $this->order()->get_shipping_methods()[ $first_available ];
-		$shipping_id     = $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id();
-		$shipping_option = array(
-			'id'          => strval( $shipping_id ),
-			'line_id'     => strval( $shipping_id ),
-			'amount'      => absint( number_format( $shipping_method->get_total() * 100, 0, '', '' ) ),
-			'description' => $shipping_method->get_name(),
-			'quantity'    => $shipping_method->get_quantity(),
-			'vat_amount'  => absint( number_format( $shipping_method->get_total_tax() * 100, 0, '', '' ) ),
-			'vat'         => ( 0 === absint( $shipping_method->get_total_tax() ) ) ? 0 : intval( number_format( ( $shipping_method->get_total_tax() / $shipping_method->get_total() ) * 100, 0, '', '' ) ),
-		);
-
-		$shipping_option['amount'] += $shipping_option['vat_amount'];
-		$this->total_amount        += $shipping_option['amount'];
-		$this->items[]              = $shipping_option;
 	}
 
 }

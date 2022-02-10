@@ -32,7 +32,7 @@ class Dintero_Checkout_Cart {
 	);
 
 	/**
-	 * The selected shipping option, and information related to it.
+	 * The selected shipping options, and information related to it.
 	 *
 	 * @var array
 	 */
@@ -77,7 +77,13 @@ class Dintero_Checkout_Cart {
 		if ( WC()->cart->needs_shipping() ) {
 			$this->shipping_option( $order );
 			$order_lines['shipping_address'] = $this->shipping_address( $order );
-			$order_lines['shipping_option']  = $this->shipping;
+
+			/* Undocumented: If more than one shipping line, set 'shipping_option' to undefined, and add the shipping methods accordingly to 'items'. */
+			if ( count( $this->shipping ) > 1 ) {
+				$order_lines['items'] = array_merge( $order_lines['items'], $this->shipping );
+			} else {
+				$order_lines['shipping_option'] = $this->shipping;
+			}
 		}
 
 		if ( ! empty( WC()->cart->get_coupons() ) ) {
@@ -184,22 +190,37 @@ class Dintero_Checkout_Cart {
 	 */
 	private function shipping_option() {
 
-		$selected_option_id       = WC()->session->get( 'chosen_shipping_methods' )[0];
-		$selected_shipping_option = WC()->shipping->get_packages()['0']['rates'][ $selected_option_id ];
+		$shipping_ids   = WC()->session->get( 'chosen_shipping_methods' );
+		$shipping_rates = WC()->shipping()->get_packages()['0']['rates'];
 
-		$shipping_option = array(
-			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
-			'id'         => $selected_option_id,
-			'line_id'    => $selected_option_id,
-			'amount'     => intval( number_format( $selected_shipping_option->get_cost() * 100, 0, '', '' ) ),
-			'operator'   => '',
-			'title'      => $selected_shipping_option->get_label(),
-			'vat_amount' => ( 0 === intval( $selected_shipping_option->get_shipping_tax() ) ) ? 0 : intval( number_format( $selected_shipping_option->get_shipping_tax() * 100, 0, '', '' ) ),
-			'vat'        => ( 0 === intval( $selected_shipping_option->get_cost() ) ) ? 0 : intval( number_format( ( $selected_shipping_option->get_shipping_tax() / $selected_shipping_option->get_cost() ) * 100, 0, '', '' ) ),
-		);
+		foreach ( $shipping_ids as  $shipping_id ) {
 
-		$shipping_option['amount'] += $shipping_option['vat_amount'];
-		$this->shipping             = $shipping_option;
+			$shipping_method = $shipping_rates[ $shipping_id ];
+			$shipping_option = array(
+				/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
+				'id'          => $shipping_id,
+				'line_id'     => $shipping_id,
+				'amount'      => intval( number_format( $shipping_method->get_cost() * 100, 0, '', '' ) ),
+				'operator'    => '',
+				'description' => '',
+				'title'       => $shipping_method->get_label(),
+				'vat_amount'  => ( 0 === intval( $shipping_method->get_shipping_tax() ) ) ? 0 : intval( number_format( $shipping_method->get_shipping_tax() * 100, 0, '', '' ) ),
+				'vat'         => ( 0 === intval( $shipping_method->get_cost() ) ) ? 0 : intval( number_format( ( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ) * 100, 0, '', '' ) ),
+			);
+
+			// Dintero needs to know this is an order with multiple shipping options by setting the 'type'.
+			if ( count( $shipping_ids ) > 1 ) {
+				// FIXME: This ENUM has not yet been added in production by Dintero. We'll omit it for now per agreement.
+				// $shipping_option['type'] = 'shipping';
+
+				/* Since the shipping will be added to the list of products, it needs a quantity. */
+				$shipping_option['quantity'] = 1;
+			}
+
+			$shipping_option['amount'] += $shipping_option['vat_amount'];
+			$this->shipping[]           = $shipping_option;
+		}
+
 	}
 
 	/**
