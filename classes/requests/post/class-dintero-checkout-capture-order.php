@@ -1,6 +1,6 @@
 <?php //phpcs:ignore
 /**
- * Class for capturing the Dintero order from WooCommerce.
+ * Class for capturing the Dintero order from within WooCommerce.
  *
  * @package Dintero_Checkout/Classes/Requests/Post
  */
@@ -29,7 +29,6 @@ class Dintero_Checkout_Capture_Order extends Dintero_Checkout_Request {
 	 * @return boolean An associative array on success and failure. Check for is_error index.
 	 */
 	public function capture( $dintero_id, $order_id ) {
-		$order              = wc_get_order( $order_id );
 		$this->request_url  = 'https://checkout.dintero.com/v1/transactions/' . $dintero_id . '/capture';
 		$this->request_args = array(
 			'headers' => $this->get_headers(),

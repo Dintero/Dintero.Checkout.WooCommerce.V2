@@ -1,6 +1,6 @@
 <?php //phpcs:ignore
 /**
- * API Class file.
+ * Class for issuing API request.
  *
  * @package Dintero_Checkout/Classes
  */

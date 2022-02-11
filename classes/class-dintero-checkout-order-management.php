@@ -1,6 +1,6 @@
 <?php //phpcs:ignore
 /**
- * Order management class file.
+ * Class for handling for handling order management request from within WooCommerce.
  *
  * @package Dintero_Checkout/Classes
  */

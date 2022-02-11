@@ -58,6 +58,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 		/**
 		 * Returns the *Singleton* instance of this class.
 		 *
+		 * @static
 		 * @return Dintero The *Singleton* instance.
 		 */
 		public static function get_instance() {

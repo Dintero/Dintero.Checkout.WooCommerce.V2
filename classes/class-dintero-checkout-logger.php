@@ -1,6 +1,6 @@
 <?php
 /**
- * Logger class file.
+ * Class for handling logging to the WC log.
  *
  * @package Dintero_Checkout/Classes
  */
@@ -24,6 +24,7 @@ class Dintero_Logger {
 	/**
 	 * Logs a single event.
 	 *
+	 * @static
 	 * @param array $data The data to log.
 	 * @return void
 	 */
@@ -41,6 +42,7 @@ class Dintero_Logger {
 	/**
 	 * Decode the JSON body for easier reading.
 	 *
+	 * @static
 	 * @param array $data
 	 * @return array The same data with the body (if available) JSON decoded.
 	 */
@@ -55,6 +57,7 @@ class Dintero_Logger {
 	/**
 	 * Reformat the data for logging purpose.
 	 *
+	 * @static
 	 * @param string $dintero_id The Dintero order id.
 	 * @param string $method The HTTP method.
 	 * @param string $title The name of the this log entry.
@@ -90,6 +93,7 @@ class Dintero_Logger {
 	/**
 	 * Get the stacktrace.
 	 *
+	 * @static
 	 * @return array
 	 */
 	public static function stacktrace() {

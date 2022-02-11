@@ -1,6 +1,6 @@
 <?php //phpcs:ignore
 /**
- * Class for canceling the Dintero order from WooCommerce.
+ * Class for canceling the Dintero order from within WooCommerce.
  *
  * @package Dintero_Checkout/Classes/Requests/Post
  */

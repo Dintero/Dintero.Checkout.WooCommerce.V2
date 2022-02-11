@@ -17,6 +17,7 @@ class Dintero_Checkout_Callback {
 	/**
 	 * The reference to the *Singleton* instance of this class.
 	 *
+	 * @static
 	 * @var $instance Dintero_Checkout_Callback.
 	 */
 	private static $instance;
@@ -24,6 +25,7 @@ class Dintero_Checkout_Callback {
 	/**
 	 * Return the *Singleton* instance of this class.
 	 *
+	 * @static
 	 * @return Dintero_Checkout_Callback The *Singleton* instance.
 	 */
 	public static function get_instance() {

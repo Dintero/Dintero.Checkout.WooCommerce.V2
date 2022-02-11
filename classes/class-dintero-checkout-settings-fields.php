@@ -17,7 +17,8 @@ class Dintero_Settings_Fields {
 	/**
 	 * Returns the settings fields.
 	 *
-	 * $return array List of filtered setting fields.
+	 * @static
+	 * @return array List of filtered setting fields.
 	 */
 	public static function setting_fields() {
 		$settings = array(

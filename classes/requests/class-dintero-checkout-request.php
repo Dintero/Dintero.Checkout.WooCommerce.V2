@@ -1,6 +1,6 @@
 <?php
 /**
- * Main request class.
+ * Parent request class intended to be used for GET and POST requests.
  *
  * @package Dintero_Checkout/Classes/Requests
  */
