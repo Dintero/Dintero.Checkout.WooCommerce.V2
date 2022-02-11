@@ -111,6 +111,11 @@ class Dintero_Checkout_Order_Management {
 			return;
 		}
 
+		if ( empty( $order->get_transaction_id() ) ) {
+			$order->add_order_note( __( 'The order is missing a transaction ID.', 'dintero-chekcout-for-woocommerce' ) );
+			return;
+		}
+
 		if ( get_post_meta( $order_id, $this->status['captured'], true ) ) {
 			$order->add_order_note( __( 'The Dintero order has been captured, and can therefore no longer be canceled.', 'dintero-checkout-for-woocommerce' ) );
 			return;
@@ -208,11 +213,14 @@ class Dintero_Checkout_Order_Management {
 	 * @return boolean TRUE if already captured otherwise FALSE.
 	 */
 	public function is_captured( $order_id, $backoffice = false ) {
-		$order         = wc_get_order( $order_id );
-		$dintero_order = Dintero()->api->get_order( $order->get_transaction_id() );
+		$order = wc_get_order( $order_id );
 
-		if ( ! $dintero_order['is_error'] && ! $backoffice ) {
-			return ( 'CAPTURED' === $dintero_order['result']['status'] );
+		if ( ! empty( $order->get_transaction_id() ) ) {
+			$dintero_order = Dintero()->api->get_order( $order->get_transaction_id() );
+
+			if ( ! $dintero_order['is_error'] && ! $backoffice ) {
+				return ( 'CAPTURED' === $dintero_order['result']['status'] );
+			}
 		}
 
 		return ! empty( get_post_meta( $order_id, $this->status['captured'], true ) );
@@ -226,11 +234,14 @@ class Dintero_Checkout_Order_Management {
 	 * @return boolean TRUE if already canceled otherwise FALSE.
 	 */
 	public function is_canceled( $order_id, $backoffice = false ) {
-		$order         = wc_get_order( $order_id );
-		$dintero_order = Dintero()->api->get_order( $order->get_transaction_id() );
+		$order = wc_get_order( $order_id );
 
-		if ( ! $dintero_order['is_error'] && ! $backoffice ) {
-			return ( 'AUTHORIZATION_VOIDED' === $dintero_order['result']['status'] );
+		if ( ! empty( $order->get_transaction_id() ) ) {
+			$dintero_order = Dintero()->api->get_order( $order->get_transaction_id() );
+
+			if ( ! $dintero_order['is_error'] && ! $backoffice ) {
+				return ( 'AUTHORIZATION_VOIDED' === $dintero_order['result']['status'] );
+			}
 		}
 
 		return ! empty( get_post_meta( $order_id, $this->status['canceled'], true ) );
@@ -244,11 +255,14 @@ class Dintero_Checkout_Order_Management {
 	 * @return  TRUE if fully refunded otherwise FALSE.
 	 */
 	public function is_refunded( $order_id, $backoffice = false ) {
-		$order         = wc_get_order( $order_id );
-		$dintero_order = Dintero()->api->get_order( $order->get_transaction_id() );
+		$order = wc_get_order( $order_id );
 
-		if ( ! $dintero_order['is_error'] && ! $backoffice ) {
-			return ( 'REFUNDED' === $dintero_order['result']['status'] );
+		if ( ! empty( $order->get_transaction_id() ) ) {
+			$dintero_order = Dintero()->api->get_order( $order->get_transaction_id() );
+
+			if ( ! $dintero_order['is_error'] && ! $backoffice ) {
+				return ( 'REFUNDED' === $dintero_order['result']['status'] );
+			}
 		}
 
 		return ! empty( get_post_meta( $order_id, $this->status['refunded'], true ) );
