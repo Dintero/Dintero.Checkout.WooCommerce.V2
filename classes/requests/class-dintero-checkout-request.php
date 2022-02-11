@@ -124,7 +124,7 @@ abstract class Dintero_Checkout_Request {
 
 		if ( ! $response['is_error'] ) {
 			$access_token = $response['result']['token_type'] . ' ' . $response['result']['access_token'];
-			set_transient( 'dintero_checkout_access_token', $access_token, $response['result']['expires_in'] );
+			set_transient( 'dintero_checkout_access_token', $access_token, absint( $response['result']['expires_in'] - 300 /* seconds */ ) );
 			return $access_token;
 		}
 
