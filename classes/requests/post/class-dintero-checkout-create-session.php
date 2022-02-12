@@ -31,12 +31,19 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request {
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function create( $order_id ) {
+		$order              = wc_get_order( $order_id );
 		$this->request_args = array(
 			'headers' => $this->get_headers(),
 			'body'    =>
 				array(
 					'url'        => array(
-						'return_url' => add_query_arg( 'gateway', 'dintero', home_url() ),
+						'return_url' => add_query_arg(
+							array(
+								'gateway' => 'dintero',
+								'key'     => $order->get_order_key(),
+							),
+							home_url()
+						),
 					),
 					'order'      => ( new Dintero_Checkout_Cart() )->cart( $order_id ),
 					'profile_id' => get_option( 'woocommerce_dintero_checkout_settings' )['profile_id'],
@@ -45,7 +52,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request {
 
 		// Callbacks require a public HTTP URL.
 		if ( ! Dintero_Checkout_Callback::is_localhost() ) {
-			$this->request_args['body']['url']['callback_url'] = Dintero_Checkout_Callback::callback_url();
+			$this->request_args['body']['url']['callback_url'] = Dintero_Checkout_Callback::callback_url( $order->get_order_key() );
 		}
 
 		$this->request_args['body'] = json_encode( $this->request_args['body'] );

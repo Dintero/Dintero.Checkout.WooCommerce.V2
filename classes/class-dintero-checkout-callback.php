@@ -15,28 +15,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Dintero_Checkout_Callback {
 
 	/**
-	 * The reference to the *Singleton* instance of this class.
-	 *
-	 * @static
-	 * @var $instance Dintero_Checkout_Callback.
-	 */
-	private static $instance;
-
-	/**
-	 * Return the *Singleton* instance of this class.
-	 *
-	 * @static
-	 * @return Dintero_Checkout_Callback The *Singleton* instance.
-	 */
-	public static function get_instance() {
-		if ( null === self::$instance ) {
-			self::$instance = new self();
-		}
-
-		return self::$instance;
-	}
-
-	/**
 	 * Register callback action.
 	 */
 	public function __construct() {
@@ -52,14 +30,22 @@ class Dintero_Checkout_Callback {
 		$transaction_id = filter_input( INPUT_GET, 'transaction_id', FILTER_SANITIZE_STRING );
 		$error          = filter_input( INPUT_GET, 'error', FILTER_SANITIZE_STRING );
 
-		// The merchant reference is the WC order id. It should always exist in the callback.
-		$merchant_reference = filter_input( INPUT_GET, 'merchant_reference', FILTER_SANITIZE_STRING );
-		if ( empty( $merchant_reference ) ) {
+		/* If the 'order_key' does not exist, we cannot identify the WC order. */
+		$order_key = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_STRING );
+		if ( empty( $order_key ) ) {
+			Dintero_Logger::log( sprintf( 'CALLBACK [order_key]: No order key was found (transaction ID: %s). Cannot identify the WC order. ', ( $transaction_id ) ? $transaction_id : 'Not available' ) );
 			return;
 		}
 
+		$order_id = wc_get_order_id_by_order_key( $order_key );
+		if ( empty( $order_id ) ) {
+			Dintero_Logger::log( sprintf( 'CALLBACK [order_key]: Failed to retrieve the order id from the order key (transaction ID: %s).', ( $transaction_id ) ? $transaction_id : 'Not available' ) );
+			return;
+		}
+
+		$order = wc_get_order( $order_id );
+
 		// If the 'error' query parameter exist, the 'transaction_id' is not sent. We need to handle the error.
-		$order = wc_get_order( $merchant_reference );
 		if ( empty( $transaction_id ) && ! empty( $error ) ) {
 
 			$show_on_order_page = true;
@@ -77,12 +63,12 @@ class Dintero_Checkout_Callback {
 					$note = 'The transaction capture operation failed during auto-capture.';
 					break;
 				default:
-					$note               = 'Unknown event.';
+					$note               = 'Unknown event. ' . json_encode( filter_var_array( $_GET, FILTER_SANITIZE_STRING ) ) . '.';
 					$show_on_order_page = false;
 					break;
 			}
 
-			Dintero_Logger::log( sprintf( 'CALLBACK [%s]: %s WC order id: %s: %s.', $note, $error, $merchant_reference ) );
+			Dintero_Logger::log( sprintf( 'CALLBACK [%s]: %s WC order id: %s.', $error, $note, $order_id ) );
 			if ( $show_on_order_page ) {
 				$order->add_order_note( $note );
 			}
@@ -93,7 +79,7 @@ class Dintero_Checkout_Callback {
 		// Check if the order exist in WooCommerce.
 		if ( empty( $order ) ) {
 			$event = filter_input( INPUT_GET, 'event', FILTER_SANITIZE_STRING );
-			Dintero_Logger::log( sprintf( 'CALLBACK%s: WC ERROR: No order with the WC id %s (transaction id: %s) could be found.', ( empty( $event ) ) ? '' : " [$event]", $merchant_reference, $transaction_id ) );
+			Dintero_Logger::log( sprintf( 'CALLBACK%s: WC ERROR: No order with the WC id %s (transaction id: %s) could be found.', ( empty( $event ) ) ? '' : " [$event]", $order_id, $transaction_id ) );
 
 			return;
 		}
@@ -105,28 +91,28 @@ class Dintero_Checkout_Callback {
 
 				/* Dintero does not trigger these events for for partial actions (e.g., partial refund). */
 				case 'CAPTURE':
-					Dintero_Logger::log( sprintf( 'CALLBACK [%s]: The status for the WC order id %s (transaction id: %s) was changed to CAPTURE in the back office.', $event, $merchant_reference, $transaction_id ) );
-					if ( ! Dintero()->order_management->is_captured( $merchant_reference, true ) ) {
+					Dintero_Logger::log( sprintf( 'CALLBACK [%s]: The status for the WC order id %s (transaction id: %s) was changed to CAPTURE in the back office.', $event, $order_id, $transaction_id ) );
+					if ( ! Dintero()->order_management->is_captured( $order_id, true ) ) {
 						$order->add_order_note( __( 'The order was CAPTURED in the Dintero backoffice.', 'dintero-checkout-for-woocommerce' ) );
 					}
 					break;
 
 				case 'REFUND':
-					Dintero_Logger::log( sprintf( 'CALLBACK [%s]: The status for the WC order id %s (transaction id: %s) was changed to REFUND (or PARTIALLY REFUNDED) in the back office.', $event, $merchant_reference, $transaction_id ) );
-					if ( ! Dintero()->order_management->is_refunded( $merchant_reference, true ) ) {
+					Dintero_Logger::log( sprintf( 'CALLBACK [%s]: The status for the WC order id %s (transaction id: %s) was changed to REFUND (or PARTIALLY REFUNDED) in the back office.', $event, $order_id, $transaction_id ) );
+					if ( ! Dintero()->order_management->is_refunded( $order_id, true ) ) {
 						$order->add_order_note( __( 'The order was REFUNDED in the Dintero backoffice.', 'dintero-checkout-for-woocommerce' ) );
 					}
 					break;
 
 				case 'VOID':
-					Dintero_Logger::log( sprintf( 'CALLBACK [%s]: The status for the WC order id %s (transaction id: %s) was changed to VOID in the back office.', $event, $merchant_reference, $transaction_id ) );
-					if ( ! Dintero()->order_management->is_canceled( $merchant_reference, false ) ) {
+					Dintero_Logger::log( sprintf( 'CALLBACK [%s]: The status for the WC order id %s (transaction id: %s) was changed to VOID in the back office.', $event, $order_id, $transaction_id ) );
+					if ( ! Dintero()->order_management->is_canceled( $order_id, false ) ) {
 						$order->update_status( 'cancelled', __( 'The order was CANCELED in the Dintero backoffice.', 'dintero-checkout-for-woocommerce' ) );
 					}
 					break;
 
 				default:
-					Dintero_Logger::log( sprintf( 'CALLBACK [%s] ignored for WC order id: %s (transaction id: %s).', $event, $merchant_reference, $transaction_id ) );
+					Dintero_Logger::log( sprintf( 'CALLBACK [%s] ignored for WC order id: %s (transaction id: %s).', $event, $order_id, $transaction_id ) );
 					break;
 			}
 
@@ -135,7 +121,7 @@ class Dintero_Checkout_Callback {
 
 		// At this point, the 'event' query parameter does not exist which means the order was completed through WooCommerce.
 		if ( 'dintero_checkout' === $order->get_payment_method() && empty( $order->get_transaction_id() ) ) {
-			Dintero_Logger::log( sprintf( 'CALLBACK [CREATE]: The customer might have closed the browser or never returned during payment processing. Order ID: %s (transaction ID: %s).', $merchant_reference, $transaction_id ) );
+			Dintero_Logger::log( sprintf( 'CALLBACK [CREATE]: The customer might have closed the browser or never returned during payment processing. Order ID: %s (transaction ID: %s).', $order_id, $transaction_id ) );
 			$order->set_transaction_id( $transaction_id );
 			$order->payment_complete();
 
@@ -147,9 +133,10 @@ class Dintero_Checkout_Callback {
 	/**
 	 * Retrieve the callback URL.
 	 *
+	 * @static
 	 * @return string The callback URL (relative to the home URL).
 	 */
-	public static function callback_url() {
+	public static function callback_url( $order_key ) {
 		// Events to listen to when they happen in the back office.
 		$events = '&report_event=CAPTURE&report_event=REFUND&report_event=VOID';
 
@@ -158,7 +145,7 @@ class Dintero_Checkout_Callback {
 			array(
 				'delay_callback' => 5, /* seconds. */
 				'report_error'   => true,
-				'includes'       => 'session',
+				'key'            => $order_key,
 			),
 			home_url( '/wc-api/dintero_callback/' )
 		) . $events;
@@ -173,7 +160,4 @@ class Dintero_Checkout_Callback {
 		return ( isset( $_SERVER['REMOTE_ADDR'] ) && in_array( $_SERVER['REMOTE_ADDR'], array( '127.0.0.1', '::1' ), true ) || isset( $_SERVER['HTTP_HOST'] ) && 'localhost' === substr( wp_unslash( $_SERVER['HTTP_HOST'] ), 0, 9 ) );
 	}
 
-}
-
-// Instantiate this class.
-Dintero_Checkout_Callback::get_instance();
+} new Dintero_Checkout_Callback();
