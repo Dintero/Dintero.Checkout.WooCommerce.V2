@@ -31,8 +31,8 @@ class Dintero_Checkout_Order_Management {
 	 * Class constructor.
 	 */
 	public function __construct() {
-		add_action( 'woocommerce_order_status_cancelled', array( $this, 'cancel_order' ) );
 		add_action( 'woocommerce_order_status_completed', array( $this, 'capture_order' ) );
+		add_action( 'woocommerce_order_status_cancelled', array( $this, 'cancel_order' ) );
 	}
 
 	/**
@@ -86,10 +86,16 @@ class Dintero_Checkout_Order_Management {
 
 			if ( $response['result']['amount'] > 0 ) {
 				// translators: the amount, the currency.
-				$order->add_order_note( sprintf( __( 'The Dintero order was successfully captured. Captured amount: %1$.2f %2$s.', 'dintero-checkout-for-woocommerce' ), substr_replace( $response['result']['amount'], wc_get_price_decimal_separator(), -2, 0 ), $response['result']['currency'] ) );
+				$order->add_order_note(
+					sprintf(
+						__( 'The Dintero order has been captured. Captured amount: %1$.2f %2$s.', 'dintero-checkout-for-woocommerce' ),
+						substr_replace( $response['result']['amount'], wc_get_price_decimal_separator(), -2, 0 ),
+						$response['result']['currency']
+					)
+				);
 
 			} else {
-				$order->add_order_note( sprintf( __( 'The Dintero order was successfully captured.', 'dintero-checkout-for-woocommerce' ) ) );
+				$order->add_order_note( sprintf( __( 'The Dintero order has been captured.', 'dintero-checkout-for-woocommerce' ) ) );
 			}
 		}
 
@@ -151,7 +157,7 @@ class Dintero_Checkout_Order_Management {
 			}
 		}
 
-		$order->add_order_note( __( 'The Dintero order is canceled.', 'dintero-checkout-for-woocommerce' ) );
+		$order->add_order_note( __( 'The Dintero order has been canceled.', 'dintero-checkout-for-woocommerce' ) );
 		update_post_meta( $order_id, $this->status['canceled'], current_time( ' Y-m-d H:i:s' ) );
 	}
 
@@ -198,7 +204,6 @@ class Dintero_Checkout_Order_Management {
 
 			if ( $response['is_error'] ) {
 				$order->add_order_note( ucfirst( $response['result']['message'] ) . ': ' . $response['result']['code'] . '.' );
-				$order->update_status( 'on-hold' );
 				return;
 			}
 		}
