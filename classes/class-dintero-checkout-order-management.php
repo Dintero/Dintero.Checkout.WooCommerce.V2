@@ -15,6 +15,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Dintero_Checkout_Order_Management {
 
 	/**
+	 * The reference the *Singleton* instance of this class.
+	 *
+	 * @var Dintero $instance
+	 */
+	private static $instance;
+
+		/**
+		 * Returns the *Singleton* instance of this class.
+		 *
+		 * @static
+		 * @return Dintero The *Singleton* instance.
+		 */
+	public static function get_instance() {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+
+		return self::$instance;
+	}
+
+	/**
 	 * The meta fields used for indicating status.
 	 *
 	 * @var array

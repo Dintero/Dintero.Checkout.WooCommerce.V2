@@ -124,7 +124,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/helpers/class-dintero-checkout-order.php';
 
 			$this->api              = new Dintero_Checkout_API();
-			$this->order_management = new Dintero_Checkout_Order_Management();
+			$this->order_management = Dintero_Checkout_Order_Management::get_instance();
 
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateways' ) );
 			load_plugin_textdomain( 'dintero-checkout-for-woocommerce', false, plugin_basename( __DIR__ ) . '/languages' );
