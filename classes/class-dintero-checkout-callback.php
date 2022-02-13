@@ -122,7 +122,7 @@ class Dintero_Checkout_Callback {
 		// Check if the order is set to on-hold, awaiting authorization.
 		$dintero_order = Dintero()->api->get_order( $transaction_id );
 		$is_authorized = ( 'AUTHORIZED' === $dintero_order['result']['status'] );
-		if ( $is_authorized && ( 'on-hold' === $order->get_status() || get_post_meta( $order_id, '_dintero_on_hold', true ) ) ) {
+		if ( $is_authorized && get_post_meta( $order_id, '_dintero_on_hold', true ) ) {
 			$order->add_order_note( __( 'The order has been authorized by Dintero.', 'dintero-checkout-for-woocommerce' ) );
 			$order->set_status( 'processing' );
 			$order->save();
@@ -136,7 +136,7 @@ class Dintero_Checkout_Callback {
 		}
 
 		$is_failed = ( 'FAILED' === $dintero_order['result']['status'] );
-		if ( $is_failed && ( 'on-hold' === $order->get_status() || get_post_meta( $order_id, '_dintero_on_hold', true ) ) ) {
+		if ( $is_failed && get_post_meta( $order_id, '_dintero_on_hold', true ) ) {
 			$order->add_order_note( __( 'The order was not approved by Dintero.', 'dintero-checkout-for-woocommerce' ) );
 			$order->set_status( 'failed' );
 			$order->save();
