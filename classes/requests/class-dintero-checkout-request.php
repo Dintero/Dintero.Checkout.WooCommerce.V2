@@ -100,10 +100,9 @@ abstract class Dintero_Checkout_Request {
 			return $access_token;
 		}
 
-		$this->request_url    = 'https://checkout.dintero.com/v1/accounts/' . $this->environment() . $this->settings['account_id'] . '/auth/token';
-		$this->request_method = 'POST';
-
-		$this->request_args = array(
+		$request_url  = 'https://checkout.dintero.com/v1/accounts/' . $this->environment() . $this->settings['account_id'] . '/auth/token';
+		$request_args = array(
+			'method'  => 'POST',
 			'headers' => array(
 				'Authorization' => $this->calculate_auth(),
 				'Content-Type'  => 'application/json; charset=utf-8',
@@ -117,14 +116,19 @@ abstract class Dintero_Checkout_Request {
 			),
 		);
 
-		$response = $this->request();
+		$response = $this->process_response(
+			wp_remote_request(
+				$request_url,
+				$request_args,
+			)
+		);
 		Dintero_Logger::log(
-			Dintero_Logger::format( '', $this->request_method, 'Generate new access token', $response['request'], $response['result'], $response['code'], $this->request_url )
+			Dintero_Logger::format( '', 'POST', 'Generate new access token', $response['request'], $response['result'], $response['code'], $request_url )
 		);
 
 		if ( ! $response['is_error'] ) {
 			$access_token = $response['result']['token_type'] . ' ' . $response['result']['access_token'];
-			set_transient( 'dintero_checkout_access_token', $access_token, absint( $response['result']['expires_in'] - 300 /* seconds */ ) );
+			set_transient( 'dintero_checkout_access_token', $access_token, absint( $response['result']['expires_in'] ) );
 			return $access_token;
 		}
 
