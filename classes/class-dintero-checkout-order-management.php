@@ -45,7 +45,7 @@ class Dintero_Checkout_Order_Management {
 		'canceled'           => '_wc_dintero_canceled',
 		'refunded'           => '_wc_dintero_refunded',
 		'partially_refunded' => '_wc_dintero_partially_refunded',
-		'on-hold'            => '_dintero_on_hold',
+		'on_hold'            => '_dintero_on_hold',
 	);
 
 	/**
@@ -75,7 +75,7 @@ class Dintero_Checkout_Order_Management {
 		}
 
 		// An unauthorized order cannot be captured. Check if the order requires further authorization.
-		if ( get_post_meta( $order_id, $this->status['on-hold'], true ) ) {
+		if ( get_post_meta( $order_id, $this->status['on_hold'], true ) ) {
 			$order->add_order_note( __( 'The order must be authorized by Dintero before it can be captured.', 'dintero-checkout-for-woocommerce' ) );
 			$order->update_status( 'on-hold' );
 			return;
@@ -142,7 +142,7 @@ class Dintero_Checkout_Order_Management {
 		}
 
 		// An unauthorized order cannot be canceled. Check if the order requires further authorization.
-		if ( get_post_meta( $order_id, $this->status['on-hold'], true ) ) {
+		if ( get_post_meta( $order_id, $this->status['on_hold'], true ) ) {
 			$order->add_order_note( __( 'The order must be authorized by Dintero before it can be canceled.', 'dintero-checkout-for-woocommerce' ) );
 			$order->update_status( 'on-hold' );
 			return;
