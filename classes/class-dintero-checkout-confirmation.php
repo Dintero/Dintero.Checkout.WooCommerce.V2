@@ -87,7 +87,7 @@ class Dintero_Checkout_Redirect {
 				wc_add_notice( $note, 'error' );
 			}
 
-			Dintero_Logger::log( sprintf( 'RETURN ERROR [%s]: %s WC order id: %s.', $error, $note, $order_id ) );
+			Dintero_Logger::log( sprintf( 'RETURN ERROR [%s]: %s WC order id: %s / %s.', $error, $note, $order_id, $merchant_reference ) );
 			wp_redirect( wc_get_checkout_url() );
 			exit;
 		}
@@ -96,7 +96,7 @@ class Dintero_Checkout_Redirect {
 		$transaction_id = filter_input( INPUT_GET, 'transaction_id', FILTER_SANITIZE_STRING );
 		if ( empty( $transaction_id ) ) {
 			Dintero_Logger::log(
-				sprintf( 'RETURN ERROR [transaction_id]: The transaction ID is missing for WC order %s. Redirecting customer back to checkout page.', $order_id )
+				sprintf( 'RETURN ERROR [transaction_id]: The transaction ID is missing for WC order %s / %s. Redirecting customer back to checkout page.', $order_id, $merchant_reference )
 			);
 
 			wc_add_notice( __( 'Something went wrong (transaction id).', 'dintero-checkout-for-woocommerce' ), 'error' );
@@ -115,7 +115,7 @@ class Dintero_Checkout_Redirect {
 
 			update_post_meta( $order_id, '_dintero_on_hold', $transaction_id );
 
-			Dintero_Logger::log( sprintf( 'RETURN [%s]: The WC order %s (transaction ID: %s) will require further authorization from Dintero.', $dintero_order['result']['status'], $order_id, $transaction_id ) );
+			Dintero_Logger::log( sprintf( 'RETURN [%s]: The WC order %s / %s (transaction ID: %s) will require further authorization from Dintero.', $dintero_order['result']['status'], $order_id, $merchant_reference, $transaction_id ) );
 		} else {
 
 			// translators: %s the Dintero transaction ID.
@@ -137,7 +137,7 @@ class Dintero_Checkout_Redirect {
 			),
 		);
 
-		Dintero_Logger::log( sprintf( 'RETURN [success]: The WC order %s (transaction ID: %s) was placed succesfully. Redirecting customer to thank-you page.', $order_id, $transaction_id ) );
+		Dintero_Logger::log( sprintf( 'RETURN [success]: The WC order %s / %s (transaction ID: %s) was placed succesfully. Redirecting customer to thank-you page.', $order_id, $merchant_reference, $transaction_id ) );
 		exit;
 	}
 
