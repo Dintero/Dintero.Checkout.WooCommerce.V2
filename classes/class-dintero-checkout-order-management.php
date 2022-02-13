@@ -96,6 +96,7 @@ class Dintero_Checkout_Order_Management {
 			return;
 		}
 
+		// Check if the Dintero order has been captured in the back-office.
 		if ( ! $this->is_captured( $order_id ) ) {
 			$response = Dintero()->api->capture_order( $order->get_transaction_id(), $order_id );
 
@@ -107,19 +108,23 @@ class Dintero_Checkout_Order_Management {
 
 			if ( $response['result']['amount'] > 0 ) {
 				// translators: the amount, the currency.
-				$order->add_order_note(
-					sprintf(
-						__( 'The Dintero order has been captured. Captured amount: %1$.2f %2$s.', 'dintero-checkout-for-woocommerce' ),
-						substr_replace( $response['result']['amount'], wc_get_price_decimal_separator(), -2, 0 ),
-						$response['result']['currency']
-					)
+				$note = sprintf(
+					__( 'The Dintero order has been captured. Captured amount: %1$.2f %2$s.', 'dintero-checkout-for-woocommerce' ),
+					substr_replace( $response['result']['amount'], wc_get_price_decimal_separator(), -2, 0 ),
+					$response['result']['currency']
 				);
 
 			} else {
-				$order->add_order_note( sprintf( __( 'The Dintero order has been captured.', 'dintero-checkout-for-woocommerce' ) ) );
+				$note = __( 'The Dintero order has been captured.', 'dintero-checkout-for-woocommerce' );
 			}
 		}
 
+		if ( ! isset( $note ) ) {
+			// Dintero will capture the order immediately for some payment methods (e.g., Swish).
+			$note = __( 'The Dintero order has been captured.', 'dintero-checkout-for-woocommerce' );
+		}
+
+		$order->add_order_note( $note );
 		update_post_meta( $order_id, $this->status['captured'], current_time( ' Y-m-d H:i:s' ) );
 	}
 
@@ -168,6 +173,7 @@ class Dintero_Checkout_Order_Management {
 			return;
 		}
 
+		// Check if Dintero order has been canceled in the back-office.
 		if ( ! $this->is_canceled( $order_id ) ) {
 			$response = Dintero()->api->cancel_order( $order->get_transaction_id() );
 
@@ -220,6 +226,7 @@ class Dintero_Checkout_Order_Management {
 			return;
 		}
 
+		// Check if the Dintero order has been _fully_ refunded in the back-office.
 		if ( ! $this->is_refunded( $order_id ) ) {
 			$response = Dintero()->api->refund_order( $order->get_transaction_id(), $order_id );
 
@@ -245,16 +252,16 @@ class Dintero_Checkout_Order_Management {
 	 * Whether the order has already been captured.
 	 *
 	 * @param int     $order_id The WooCommerce order id.
-	 * @param boolean $backoffice Whether the order is captured in WooCommerce (rather than through the backoffice).
+	 * @param boolean $in_woocommerce Whether the order is captured in WooCommerce (rather than through the backoffice; identified by the presence of a meta field).
 	 * @return boolean TRUE if already captured otherwise FALSE.
 	 */
-	public function is_captured( $order_id, $backoffice = false ) {
+	public function is_captured( $order_id, $in_woocommerce = false ) {
 		$order = wc_get_order( $order_id );
 
-		if ( ! empty( $order->get_transaction_id() ) ) {
+		if ( ! empty( $order->get_transaction_id() && ! $in_woocommerce ) ) {
 			$dintero_order = Dintero()->api->get_order( $order->get_transaction_id() );
 
-			if ( ! $dintero_order['is_error'] && ! $backoffice ) {
+			if ( ! $dintero_order['is_error'] ) {
 				return ( 'CAPTURED' === $dintero_order['result']['status'] );
 			}
 		}
@@ -266,16 +273,16 @@ class Dintero_Checkout_Order_Management {
 	 * Whether the order has already been canceled.
 	 *
 	 * @param int     $order_id The WooCommerce order id.
-	 * @param boolean $backoffice Whether the order is canceled in WooCommerce (rather than through the backoffice).
+	 * @param boolean $in_woocommerce Whether the order is canceled in WooCommerce (rather than through the backoffice; identified by the presence of a meta field).
 	 * @return boolean TRUE if already canceled otherwise FALSE.
 	 */
-	public function is_canceled( $order_id, $backoffice = false ) {
+	public function is_canceled( $order_id, $in_woocommerce = false ) {
 		$order = wc_get_order( $order_id );
 
-		if ( ! empty( $order->get_transaction_id() ) ) {
+		if ( ! empty( $order->get_transaction_id() ) && ! $in_woocommerce ) {
 			$dintero_order = Dintero()->api->get_order( $order->get_transaction_id() );
 
-			if ( ! $dintero_order['is_error'] && ! $backoffice ) {
+			if ( ! $dintero_order['is_error'] ) {
 				return ( 'AUTHORIZATION_VOIDED' === $dintero_order['result']['status'] );
 			}
 		}
@@ -287,16 +294,16 @@ class Dintero_Checkout_Order_Management {
 	 * Whether the order has already been fully refunded.
 	 *
 	 * @param int     $order_id The WooCommerce order id.
-	 * @param boolean $backoffice Whether the order is fully refunded in WooCommerce (rather than through the backoffice).
-	 * @return  TRUE if fully refunded otherwise FALSE.
+	 * @param boolean $in_woocommerce Whether the order is refunded in WooCommerce (rather than through the backoffice; identified by the presence of a meta field).
+	 * @return boolean TRUE if _fully_ refunded otherwise FALSE.
 	 */
-	public function is_refunded( $order_id, $backoffice = false ) {
+	public function is_refunded( $order_id, $in_woocommerce = false ) {
 		$order = wc_get_order( $order_id );
 
-		if ( ! empty( $order->get_transaction_id() ) ) {
+		if ( ! empty( $order->get_transaction_id() && ! $in_woocommerce ) ) {
 			$dintero_order = Dintero()->api->get_order( $order->get_transaction_id() );
 
-			if ( ! $dintero_order['is_error'] && ! $backoffice ) {
+			if ( ! $dintero_order['is_error'] ) {
 				return ( 'REFUNDED' === $dintero_order['result']['status'] );
 			}
 		}

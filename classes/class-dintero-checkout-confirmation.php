@@ -118,7 +118,7 @@ class Dintero_Checkout_Redirect {
 			Dintero_Logger::log( sprintf( 'RETURN [%s]: The WC order %s (transaction ID: %s) will require further authorization from Dintero.', $dintero_order['result']['status'], $order_id, $transaction_id ) );
 		} else {
 
-			// translators: %s The Dintero transaction ID.
+			// translators: %s the Dintero transaction ID.
 			$order->add_order_note( sprintf( __( 'Payment via Dintero Checkout. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
 			$order->set_status( 'processing' );
 			$order->save();
