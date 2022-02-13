@@ -96,7 +96,7 @@ class Dintero_Checkout_Redirect {
 		$transaction_id = filter_input( INPUT_GET, 'transaction_id', FILTER_SANITIZE_STRING );
 		if ( empty( $transaction_id ) ) {
 			Dintero_Logger::log(
-				sprintf( 'RETURN: The transaction ID is missing for WC order %s. Redirecting customer back to checkout page.', $order_id )
+				sprintf( 'RETURN [transaction_id]: The transaction ID is missing for WC order %s. Redirecting customer back to checkout page.', $order_id )
 			);
 
 			wc_add_notice( __( 'Something went wrong (transaction id).', 'dintero-checkout-for-woocommerce' ), 'error' );
@@ -105,13 +105,27 @@ class Dintero_Checkout_Redirect {
 		}
 
 		// At this point, the gateway is Dintero, and the transaction has succeeded.
+		$dintero_order         = Dintero()->api->get_order( $transaction_id );
+		$require_authorization = ( ! $dintero_order['is_error'] && 'ON_HOLD' === $dintero_order['result']['status'] );
+
+		if ( $require_authorization ) {
+			$order->add_order_note( sprintf( __( 'The order was placed successfully, but requires further authorization by Dintero. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
+			$order->set_status( 'on-hold' );
+			$order->save();
+
+			update_post_meta( $order_id, '_dintero_on_hold', $transaction_id );
+
+			Dintero_Logger::log( sprintf( 'RETURN [%s]: The WC order %s (transaction ID: %s) will require further authorization from Dintero.', $dintero_order['result']['status'], $order_id, $transaction_id ) );
+		} else {
+
+			// translators: %s The Dintero transaction ID.
+			$order->add_order_note( sprintf( __( 'Payment via Dintero Checkout. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
+			$order->set_status( 'processing' );
+			$order->save();
+		}
+
 		update_post_meta( $order_id, '_dintero_transaction_id', $transaction_id );
 		update_post_meta( $order_id, '_transaction_id', $transaction_id );
-
-		// translators: %s The Dintero transaction ID.
-		$order->add_order_note( sprintf( __( 'Payment via Dintero Checkout. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
-		$order->set_status( 'processing' );
-		$order->save();
 
 		wp_redirect(
 			add_query_arg(
@@ -123,7 +137,7 @@ class Dintero_Checkout_Redirect {
 			),
 		);
 
-		Dintero_Logger::log( sprintf( 'RETURN: The WC order %s (transaction ID: %s) was placed succesfully. Redirecting customer to thank-you page.', $order_id, $transaction_id ) );
+		Dintero_Logger::log( sprintf( 'RETURN [OK]: The WC order %s (transaction ID: %s) was placed succesfully. Redirecting customer to thank-you page.', $order_id, $transaction_id ) );
 		exit;
 	}
 

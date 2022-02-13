@@ -24,6 +24,7 @@ class Dintero_Checkout_Order_Management {
 		'canceled'           => '_wc_dintero_canceled',
 		'refunded'           => '_wc_dintero_refunded',
 		'partially_refunded' => '_wc_dintero_partially_refunded',
+		'on-hold'            => '_dintero_on_hold',
 	);
 
 	/**
@@ -47,13 +48,15 @@ class Dintero_Checkout_Order_Management {
 			return;
 		}
 
-		// Check if the order has at least been processed.
-		if ( empty( $order->get_date_paid() ) ) {
+		if ( empty( $order->get_transaction_id() ) ) {
+			$order->add_order_note( __( 'The order is missing a transaction ID.', 'dintero-chekcout-for-woocommerce' ) );
 			return;
 		}
 
-		if ( empty( $order->get_transaction_id() ) ) {
-			$order->add_order_note( __( 'The order is missing a transaction ID.', 'dintero-chekcout-for-woocommerce' ) );
+		// An unauthorized order cannot be captured. Check if the order requires further authorization.
+		if ( get_post_meta( $order_id, $this->status['on-hold'], true ) ) {
+			$order->add_order_note( __( 'The order must be authorized by Dintero before it can be captured.', 'dintero-checkout-for-woocommerce' ) );
+			$order->update_status( 'on-hold' );
 			return;
 		}
 
@@ -103,6 +106,13 @@ class Dintero_Checkout_Order_Management {
 		$order = wc_get_order( $order_id );
 
 		if ( 'dintero_checkout' !== $order->get_payment_method() ) {
+			return;
+		}
+
+		// An unauthorized order cannot be canceled. Check if the order requires further authorization.
+		if ( get_post_meta( $order_id, $this->status['on-hold'], true ) ) {
+			$order->add_order_note( __( 'The order must be authorized by Dintero before it can be canceled.', 'dintero-checkout-for-woocommerce' ) );
+			$order->update_status( 'on-hold' );
 			return;
 		}
 
@@ -158,7 +168,7 @@ class Dintero_Checkout_Order_Management {
 			return;
 		}
 
-		// Check if the order has at least been processed.
+		// Check if the order has at least been processed. This also covers for checking if the order requires further authorization.
 		if ( empty( $order->get_date_paid() ) ) {
 			return;
 		}
@@ -189,7 +199,7 @@ class Dintero_Checkout_Order_Management {
 			if ( $response['is_error'] ) {
 				$order->add_order_note( ucfirst( $response['result']['message'] ) . ': ' . $response['result']['code'] . '.' );
 				$order->update_status( 'on-hold' );
-				return false;
+				return;
 			}
 		}
 

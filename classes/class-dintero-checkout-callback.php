@@ -27,7 +27,7 @@ class Dintero_Checkout_Callback {
 	 * @return void
 	 */
 	public function callback() {
-		$transaction_id = filter_input( INPUT_GET, 'transaction_id', FILTER_SANITIZE_STRING );
+		$transaction_id = filter_input( INPUT_GET, 'transaction_id', FILTER_SANITIZE_STRING ); /* The transaction_id is guaranteed unless 'error' is set. */
 		$error          = filter_input( INPUT_GET, 'error', FILTER_SANITIZE_STRING );
 
 		/* If the 'order_key' does not exist, we cannot identify the WC order. */
@@ -119,6 +119,36 @@ class Dintero_Checkout_Callback {
 			return;
 		}
 
+		// Check if the order is set to on-hold, awaiting authorization.
+		$dintero_order = Dintero()->api->get_order( $transaction_id );
+		$is_authorized = ( 'AUTHORIZED' === $dintero_order['result']['status'] );
+		if ( $is_authorized && ( 'on-hold' === $order->get_status() || get_post_meta( $order_id, '_dintero_on_hold', true ) ) ) {
+			$order->add_order_note( __( 'The order has been authorized by Dintero.', 'dintero-checkout-for-woocommerce' ) );
+			$order->set_status( 'processing' );
+			$order->save();
+
+			delete_meta( $order_id, '_dintero_on_hold' );
+
+			Dintero_Logger::log(
+				sprintf( 'CALLBACK [%s]: The WC order ID: %s (transaction ID: %s) was authorized by Dintero. Changing status from "%s" to "processing".', $dintero_order['result']['status'], $order_id, $transaction_id, $order->get_status() )
+			);
+			return;
+		}
+
+		$is_failed = ( 'FAILED' === $dintero_order['result']['status'] );
+		if ( $is_failed && ( 'on-hold' === $order->get_status() || get_post_meta( $order_id, '_dintero_on_hold', true ) ) ) {
+			$order->add_order_note( __( 'The order was not approved by Dintero.', 'dintero-checkout-for-woocommerce' ) );
+			$order->set_status( 'failed' );
+			$order->save();
+
+			delete_meta( $order_id, '_dintero_on_hold' );
+
+			Dintero_Logger::log(
+				sprintf( 'CALLBACK [%s]: The WC order ID: %s (transaction ID: %s) was not approved by Dintero. Changing status from "%s" to "failed".', $dintero_order['result']['status'], $order_id, $transaction_id, $order->get_status() )
+			);
+			return;
+		}
+
 		// At this point, the 'event' query parameter does not exist which means the order was completed through WooCommerce.
 		if ( 'dintero_checkout' === $order->get_payment_method() && empty( $order->get_transaction_id() ) ) {
 			Dintero_Logger::log( sprintf( 'CALLBACK [CREATE]: The customer might have closed the browser or never returned during payment processing. Order ID: %s (transaction ID: %s).', $order_id, $transaction_id ) );
@@ -143,7 +173,7 @@ class Dintero_Checkout_Callback {
 		// FIXME: Set the delay_callback to 60 seconds.
 		return add_query_arg(
 			array(
-				'delay_callback' => 5, /* seconds. */
+				'delay_callback' => 30, /* seconds. */
 				'report_error'   => true,
 				'key'            => $order_key,
 			),
