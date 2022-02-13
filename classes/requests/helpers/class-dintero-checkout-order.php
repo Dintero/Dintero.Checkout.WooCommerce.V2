@@ -85,8 +85,8 @@ class Dintero_Checkout_Order {
 	 */
 	private function order_items() {
 		foreach ( $this->order()->get_items() as $item ) {
-			$product = ( $item['variation_id'] ) ? wc_get_product( $item['variation_id'] ) : wc_get_product( $item['product_id'] );
-			$id      = $product->get_sku() ?? $product->get_id();
+			$id      = ( empty( $item['variation_id'] ) ) ? $item['product_id'] : $item['variation_id'];
+			$product = wc_get_product( $id );
 
 			$order_item = array(
 				/* NOTE: The id and line_id must match the same id and line_id in session creation. */

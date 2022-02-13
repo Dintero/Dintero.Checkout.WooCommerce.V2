@@ -109,8 +109,8 @@ class Dintero_Checkout_Cart {
 		$cart = WC()->cart->get_cart();
 
 		foreach ( $cart as $item ) {
-			$product = ( $item['variation_id'] ) ? wc_get_product( $item['variation_id'] ) : wc_get_product( $item['product_id'] );
-			$id      = $product->get_sku() ?? $product->get_id();
+			$id      = ( empty( $item['variation_id'] ) ) ? $item['product_id'] : $item['variation_id'];
+			$product = wc_get_product( $id );
 
 			$order_item = array(
 				/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
