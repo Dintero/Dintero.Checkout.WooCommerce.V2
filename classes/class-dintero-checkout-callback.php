@@ -33,13 +33,13 @@ class Dintero_Checkout_Callback {
 		/* If the 'order_key' does not exist, we cannot identify the WC order. */
 		$order_key = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_STRING );
 		if ( empty( $order_key ) ) {
-			Dintero_Logger::log( sprintf( 'CALLBACK [order_key]: No order key was found (transaction ID: %s). Cannot identify the WC order. ', ( $transaction_id ) ? $transaction_id : 'Not available' ) );
+			Dintero_Logger::log( sprintf( 'CALLBACK ERROR [order_key]: No order key was found (transaction ID: %s). Cannot identify the WC order. ', ( $transaction_id ) ? $transaction_id : 'Not available' ) );
 			return;
 		}
 
 		$order_id = wc_get_order_id_by_order_key( $order_key );
 		if ( empty( $order_id ) ) {
-			Dintero_Logger::log( sprintf( 'CALLBACK [order_key]: Failed to retrieve the order id from the order key (transaction ID: %s).', ( $transaction_id ) ? $transaction_id : 'Not available' ) );
+			Dintero_Logger::log( sprintf( 'CALLBACK ERROR [order_key]: Failed to retrieve the order id from the order key (transaction ID: %s).', ( $transaction_id ) ? $transaction_id : 'Not available' ) );
 			return;
 		}
 
@@ -79,7 +79,7 @@ class Dintero_Checkout_Callback {
 		// Check if the order exist in WooCommerce.
 		if ( empty( $order ) ) {
 			$event = filter_input( INPUT_GET, 'event', FILTER_SANITIZE_STRING );
-			Dintero_Logger::log( sprintf( 'CALLBACK%s: WC ERROR: No order with the WC id %s (transaction id: %s) could be found.', ( empty( $event ) ) ? '' : " [$event]", $order_id, $transaction_id ) );
+			Dintero_Logger::log( sprintf( 'CALLBACK ERROR%s: No order with the WC id %s (transaction id: %s) could be found.', ( empty( $event ) ) ? '' : " [$event]", $order_id, $transaction_id ) );
 
 			return;
 		}
@@ -112,7 +112,7 @@ class Dintero_Checkout_Callback {
 					break;
 
 				default:
-					Dintero_Logger::log( sprintf( 'CALLBACK [%s] ignored for WC order id: %s (transaction id: %s).', $event, $order_id, $transaction_id ) );
+					Dintero_Logger::log( sprintf( 'CALLBACK [%s] unknown, ignored for WC order id: %s (transaction id: %s). ' . json_encode( filter_var_array( $_GET, FILTER_SANITIZE_STRING ) ), $event, $order_id, $transaction_id ) );
 					break;
 			}
 
