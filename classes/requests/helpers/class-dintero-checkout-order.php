@@ -65,14 +65,11 @@ class Dintero_Checkout_Order {
 	 * @return WC_Order|WC_Order_Refund
 	 */
 	private function order() {
-		$order = wc_get_order( $this->order_id );
+		$order   = wc_get_order( $this->order_id );
+		$refunds = $order->get_refunds();
 
-		if ( ! $order->has_status( 'completed' ) ) {
-			/* The current refund is always the first in the array but its index is not zero-based. */
-			$index = array_key_first( $order->get_refunds() );
-			if ( null !== $index ) {
-				return $order->get_refunds()[ $index ];
-			}
+		if ( count( $refunds ) > 0 ) {
+			return $refunds[0];
 		}
 
 		return $order;
