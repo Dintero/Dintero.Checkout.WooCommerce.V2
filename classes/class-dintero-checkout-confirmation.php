@@ -113,7 +113,7 @@ class Dintero_Checkout_Redirect {
 			$order->set_status( 'on-hold' );
 			$order->save();
 
-			update_post_meta( $order_id, '_dintero_on_hold', $transaction_id );
+			update_post_meta( $order_id, Dintero()->order_management->status( 'on_hold' ), $transaction_id );
 
 			Dintero_Logger::log( sprintf( 'RETURN [%s]: The WC order %s / %s (transaction ID: %s) will require further authorization from Dintero.', $dintero_order['result']['status'], $order_id, $merchant_reference, $transaction_id ) );
 		} else {

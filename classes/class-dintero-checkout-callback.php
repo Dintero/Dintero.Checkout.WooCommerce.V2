@@ -128,7 +128,7 @@ class Dintero_Checkout_Callback {
 			$order->set_status( 'processing' );
 			$order->save();
 
-			delete_meta( $order_id, '_dintero_on_hold' );
+			delete_meta( $order_id, Dintero()->order_management->status( 'on_hold' ) );
 
 			Dintero_Logger::log(
 				sprintf( 'CALLBACK [%s]: The WC order ID: %s / %s (transaction ID: %s) was authorized by Dintero. Changing status from "%s" to "processing".', $dintero_order['result']['status'], $order_id, $merchant_reference, $transaction_id, $order->get_status() )
@@ -142,7 +142,8 @@ class Dintero_Checkout_Callback {
 			$order->set_status( 'failed' );
 			$order->save();
 
-			delete_meta( $order_id, '_dintero_on_hold' );
+			delete_meta( $order_id, Dintero()->order_management->status( 'on_hold' ) );
+			update_post_meta( $order_id, Dintero()->order_management->status( 'rejected' ), $transaction_id );
 
 			Dintero_Logger::log(
 				sprintf( 'CALLBACK [%s]: The WC order ID: %s / %s (transaction ID: %s) was not approved by Dintero. Changing status from "%s" to "failed".', $dintero_order['result']['status'], $order_id, $merchant_reference, $transaction_id, $order->get_status() )

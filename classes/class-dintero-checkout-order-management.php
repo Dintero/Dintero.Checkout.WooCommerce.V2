@@ -45,7 +45,8 @@ class Dintero_Checkout_Order_Management {
 		'canceled'           => '_wc_dintero_canceled',
 		'refunded'           => '_wc_dintero_refunded',
 		'partially_refunded' => '_wc_dintero_partially_refunded',
-		'on_hold'            => '_dintero_on_hold',
+		'on_hold'            => '_wc_dintero_on_hold',
+		'rejected'           => '_wc_dintero_rejected',
 	);
 
 	/**
@@ -54,6 +55,16 @@ class Dintero_Checkout_Order_Management {
 	public function __construct() {
 		add_action( 'woocommerce_order_status_completed', array( $this, 'capture_order' ) );
 		add_action( 'woocommerce_order_status_cancelled', array( $this, 'cancel_order' ) );
+	}
+
+	/**
+	 * Retrieve the meta field id for a specific status.
+	 *
+	 * @param string $status The status whose meta field id you want.
+	 * @return string The meta field id.
+	 */
+	public function status( $status ) {
+		return $this->status[ $status ];
 	}
 
 	/**
@@ -71,6 +82,11 @@ class Dintero_Checkout_Order_Management {
 
 		if ( empty( $order->get_transaction_id() ) ) {
 			$order->add_order_note( __( 'The order is missing a transaction ID.', 'dintero-chekcout-for-woocommerce' ) );
+			return;
+		}
+
+		if ( get_post_meta( $order_id, $this->status['rejected'], true ) ) {
+			$order->add_order_note( __( 'The Dintero order was rejected, and can therefore not be captured.', 'dintero-checkout-for-woocommerce' ) );
 			return;
 		}
 
@@ -138,6 +154,11 @@ class Dintero_Checkout_Order_Management {
 		$order = wc_get_order( $order_id );
 
 		if ( 'dintero_checkout' !== $order->get_payment_method() ) {
+			return;
+		}
+
+		if ( get_post_meta( $order_id, $this->status['rejected'], true ) ) {
+			$order->add_order_note( __( 'The Dintero order was rejected, and can therefore not be canceled.', 'dintero-checkout-for-woocommerce' ) );
 			return;
 		}
 
