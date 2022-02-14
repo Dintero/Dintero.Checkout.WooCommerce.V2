@@ -71,26 +71,4 @@ class Dintero_Checkout_API {
 		$refund = new Dintero_Checkout_Refund_Order();
 		return $refund->refund( $dintero_id, $order_id );
 	}
-
-	/**
-	 * Update the state of the order in WooCommerce to match Dintero's.
-	 *
-	 * @param string $dintero_id The Dintero transaction id.
-	 * @param string $order_id The WooCommerce order id.
-	 *
-	 * @return array An associative array on success and failure. Check for is_error index.
-	 */
-	public function update_order( $dintero_id, $order_id ) {
-		// TODO: to implement.
-	}
-
-	/**
-	 * Acknowledge that the order was completed.
-	 *
-	 * @param string $order_id WooCommerce Order.
-	 * @return array An associative array on success and failure. Check for is_error index.
-	 */
-	public function acknowledge( $order_id ) {
-		// TODO: to implement.
-	}
 }

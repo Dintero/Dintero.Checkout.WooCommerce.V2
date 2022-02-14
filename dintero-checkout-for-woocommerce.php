@@ -5,12 +5,12 @@
  * Description: Dintero Checkout for WooCommerce.
  * Author: Krokedil
  * Author URI: https://krokedil.com/
- * Version: 0.1.0
+ * Version: 1.0.0
  * Text Domain: dintero-checkout-for-woocommerce
  * Domain Path: /languages
  *
  * WC requires at least: 6.1.0
- * WC tested up to: @TODO:
+ * WC tested up to: 6.2.0
  *
  * Copyright (c) 2022 Krokedil
  *
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'DINTERO_CHECKOUT_VERSION', '0.1.0' );
+define( 'DINTERO_CHECKOUT_VERSION', '1.0.0' );
 define( 'DINTERO_CHECKOUT_URL', untrailingslashit( plugins_url( '/', __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
 
