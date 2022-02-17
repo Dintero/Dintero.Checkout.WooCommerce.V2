@@ -209,8 +209,8 @@ class Dintero_Checkout_Cart {
 				'operator'    => '',
 				'description' => '',
 				'title'       => $shipping_method->get_label(),
-				'vat_amount'  => ( 0 === intval( $shipping_method->get_shipping_tax() ) ) ? 0 : intval( number_format( $shipping_method->get_shipping_tax() * 100, 0, '', '' ) ),
-				'vat'         => ( 0 === intval( $shipping_method->get_cost() ) ) ? 0 : intval( number_format( ( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ) * 100, 0, '', '' ) ),
+				'vat_amount'  => ( empty( $shipping_method->get_shipping_tax() ) ) ? 0 : intval( number_format( $shipping_method->get_shipping_tax() * 100, 0, '', '' ) ),
+				'vat'         => ( empty( $shipping_method->get_cost() ) ) ? 0 : intval( number_format( ( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ) * 100, 0, '', '' ) ),
 			);
 
 			// Dintero needs to know this is an order with multiple shipping options by setting the 'type'.

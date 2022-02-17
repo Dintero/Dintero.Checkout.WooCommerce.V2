@@ -176,7 +176,7 @@ class Dintero_Checkout_Callback {
 		return add_query_arg(
 			array(
 				'delay_callback' => 30, /* seconds. */
-				'report_error'   => true,
+				'report_error'   => 'true',
 				'key'            => $order_key,
 			),
 			home_url( '/wc-api/dintero_callback/' )
