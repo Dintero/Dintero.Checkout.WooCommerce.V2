@@ -172,10 +172,9 @@ class Dintero_Checkout_Callback {
 		// Events to listen to when they happen in the back office.
 		$events = '&report_event=CAPTURE&report_event=REFUND&report_event=VOID';
 
-		// FIXME: Set the delay_callback to 60 seconds.
 		return add_query_arg(
 			array(
-				'delay_callback' => 30, /* seconds. */
+				'delay_callback' => 60, /* seconds. */
 				'report_error'   => 'true',
 				'key'            => $order_key,
 			),
