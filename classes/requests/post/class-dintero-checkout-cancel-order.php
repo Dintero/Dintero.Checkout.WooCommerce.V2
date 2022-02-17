@@ -25,7 +25,7 @@ class Dintero_Checkout_Cancel_Order extends Dintero_Checkout_Request {
 	 * Cancels the Dintero order.
 	 *
 	 * @param string $dintero_id The Dintero transaction id.
-	 * @return boolean An associative array on success and failure. Check for is_error index.
+	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function cancel( $dintero_id ) {
 		$this->request_url  = 'https://checkout.dintero.com/v1/transactions/' . $dintero_id . '/void';

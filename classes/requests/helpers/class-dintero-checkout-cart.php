@@ -71,11 +71,11 @@ class Dintero_Checkout_Cart {
 			'billing_address'      => $this->billing_address( $order ),
 		);
 
-		$this->order_items( $order );
+		$this->order_items();
 		$order_lines['items'] = $this->products;
 
 		if ( WC()->cart->needs_shipping() ) {
-			$this->shipping_option( $order );
+			$this->shipping_option();
 			$order_lines['shipping_address'] = $this->shipping_address( $order );
 
 			/* Undocumented: If more than one shipping line, set 'shipping_option' to undefined, and add the shipping methods accordingly to 'items'. */
@@ -93,7 +93,7 @@ class Dintero_Checkout_Cart {
 		}
 
 		if ( ! empty( WC()->cart->get_fees() ) ) {
-			$this->fee_items( $order );
+			$this->fee_items();
 			$order_lines['items'] = array_merge( $order_lines['items'], $this->fees );
 		}
 
@@ -160,21 +160,20 @@ class Dintero_Checkout_Cart {
 	/**
 	 * Retrieve all the fee items.
 	 *
-	 * @param WC_Order $order WooCommerce Order.
 	 * @return void Populates $this->fees.
 	 */
-	private function fee_items( $order ) {
+	private function fee_items() {
 
-		foreach ( $order->get_fees() as $fee ) {
-			$name     = $fee->get_name();
+		foreach ( WC()->cart->get_fees() as $fee ) {
+			$name     = $fee->name;
 			$fee_item = array(
 				/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
 				'id'          => $name,
 				'line_id'     => $name,
 				'description' => $name,
-				'quantity'    => $fee->get_quantity(),
-				'amount'      => intval( number_format( $fee->get_total() * 100, 0, '', '' ) ),
-				'vat_amount'  => intval( number_format( $fee->get_total_tax() * 100, 0, '', '' ) ),
+				'quantity'    => 1,
+				'amount'      => intval( number_format( $fee->amount * 100, 0, '', '' ) ),
+				'vat_amount'  => intval( number_format( $fee->tax * 100, 0, '', '' ) ),
 			);
 
 			$fee_item['amount'] += $fee_item['vat_amount'];

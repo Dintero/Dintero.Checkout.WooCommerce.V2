@@ -26,7 +26,7 @@ class Dintero_Checkout_Capture_Order extends Dintero_Checkout_Request {
 	 *
 	 * @param string $dintero_id The Dintero transaction id.
 	 * @param string $order_id The WooCommerce order id.
-	 * @return boolean An associative array on success and failure. Check for is_error index.
+	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function capture( $dintero_id, $order_id ) {
 		$this->request_url  = 'https://checkout.dintero.com/v1/transactions/' . $dintero_id . '/capture';
