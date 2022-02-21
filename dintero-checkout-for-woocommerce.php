@@ -25,6 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'DINTERO_CHECKOUT_VERSION', '1.0.0' );
 define( 'DINTERO_CHECKOUT_URL', untrailingslashit( plugins_url( '/', __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
+define( 'DINTERO_CHECKOUT_MAIN_FILE', __FILE__ );
 
 
 if ( ! class_exists( 'Dintero' ) ) {
@@ -109,10 +110,13 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-settings-fields.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-gateway.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-logger.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-assets.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-api.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-confirmation.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-order-management.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-callback.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-templates.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-ajax.php';
 
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/class-dintero-checkout-request.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/get/class-dintero-checkout-get-order.php';
@@ -122,6 +126,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-refund-order.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/helpers/class-dintero-checkout-cart.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/helpers/class-dintero-checkout-order.php';
+			include_once DINTERO_CHECKOUT_PATH . '/includes/dintero-checkout-functions.php';
 
 			$this->api              = new Dintero_Checkout_API();
 			$this->order_management = Dintero_Checkout_Order_Management::get_instance();

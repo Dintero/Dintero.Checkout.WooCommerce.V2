@@ -26,11 +26,10 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request {
 	/**
 	 * Creates a Dintero session.
 	 *
-	 * @param int $order_id WooCommerce order id.
-	 *
+	 * @param int $order_id|false WooCommerce order id (for redirect). Defaults to FALSE (for embedded).
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
-	public function create( $order_id ) {
+	public function create( $order_id = false ) {
 		$order              = wc_get_order( $order_id );
 		$this->request_args = array(
 			'headers' => $this->get_headers(),
@@ -40,15 +39,29 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request {
 						'return_url' => add_query_arg(
 							array(
 								'gateway' => 'dintero',
-								'key'     => $order->get_order_key(),
+								'key'     => ( $order ) ? $order->get_order_key() : '',
 							),
 							home_url()
 						),
 					),
-					'order'      => ( new Dintero_Checkout_Cart() )->cart( $order_id ),
 					'profile_id' => get_option( 'woocommerce_dintero_checkout_settings' )['profile_id'],
 				),
 		);
+
+		// If the order id is available, use it to retrieve the cart items.
+		if ( ! empty( $order_id ) ) {
+			$this->request_args['body']['order'] = ( new Dintero_Checkout_Cart() )->cart( $order_id );
+
+		} else {
+			$order_lines = array(
+				'amount'             => intval( number_format( WC()->cart->total * 100, 0, '', '' ) ),
+				'currency'           => get_woocommerce_currency(),
+				'merchant_reference' => uniqid( 'dwc' ), /* This is an arbitrary prefix but refers to "Dintero WooCommerce". */
+			);
+
+			$this->request_args['body']['order'] = array_merge( $order_lines, ( new Dintero_Checkout_cart() )->cart() );
+
+		}
 
 		// Callbacks require a public HTTP URL.
 		if ( ! Dintero_Checkout_Callback::is_localhost() ) {

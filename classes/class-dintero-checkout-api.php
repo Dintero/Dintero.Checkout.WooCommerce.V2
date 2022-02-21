@@ -22,7 +22,7 @@ class Dintero_Checkout_API {
 	 * @param string $order_id WooCommerce transaction id.
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
-	public function create_session( $order_id ) {
+	public function create_session( $order_id = false ) {
 		$session = new Dintero_Checkout_Create_Session();
 		return $session->create( $order_id );
 	}
