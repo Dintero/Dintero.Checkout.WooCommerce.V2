@@ -13,11 +13,54 @@ jQuery(function ($) {
 
 		init: function () {
 			$(document).ready(dinteroCheckoutForWooCommerce.documentReady);
-			dinteroCheckoutForWooCommerce.bodyEl.on('change', 'input[name="payment_method"]', dinteroCheckoutForWooCommerce.maybeChangeTodinteroCheckout);
-			dinteroCheckoutForWooCommerce.bodyEl.on('click', dinteroCheckoutForWooCommerce.selectAnotherSelector, dinteroCheckoutForWooCommerce.changeFromdinteroCheckout);
-			dinteroCheckoutForWooCommerce.bodyEl.on('updated_checkout', dinteroCheckoutForWooCommerce.maybeDisplayShippingPrice);
+			dinteroCheckoutForWooCommerce.bodyEl.on('change', 'input[name="payment_method"]', dinteroCheckoutForWooCommerce.maybeChangeToDinteroCheckout);
+			dinteroCheckoutForWooCommerce.bodyEl.on('click', dinteroCheckoutForWooCommerce.selectAnotherSelector, dinteroCheckoutForWooCommerce.changeFromDinteroCheckout);
+
 			dinteroCheckoutForWooCommerce.renderIframe();
 		},
+		/**
+		 * Render the iframe and register callback functionality.
+		 */
+		renderIframe: async function() {
+			const container = $('#dintero-checkout-iframe')[0];
+
+			const checkout = await dintero.embed({
+				container,
+				sid: dinteroCheckoutParams.SID,
+				onSession: function(event, checkout) {
+					// Unused.
+				},
+				onPayment: function(event, checkout) {
+					// Unused.
+				},
+				onPaymentError: function(event, checkout) {
+					// Unused.
+				},
+				onSessionCancel: function(event, checkout) {
+					// Unused.
+				},
+				onSessionLocked: function(event, checkout, callback) {
+					// Unused.
+				},
+				onSessionLockFailed: function(event, checkout) {
+					// Unused.
+				},
+				onActivePaymentType: function(event, checkout) {
+					// Unused.
+				},
+				onValidateSession: function(event, checkout, callback) {
+					console.log('validate session');
+					callback({
+					   success: false,
+					   clientValidationError: "testing",
+					});
+				},
+			});
+
+			dinteroCheckoutForWooCommerce.bodyEl.on('update_checkout', checkout.lockSession());
+			dinteroCheckoutForWooCommerce.bodyEl.on('updated_checkout', checkout.refreshSession());
+		},
+
 		/**
 		 * Triggers on document ready.
 		 */
@@ -154,6 +197,7 @@ jQuery(function ($) {
 
 			$("form.checkout").trigger('update_checkout');
 		},
+
 		getDinteroCheckoutOrder: function (data, callback) {
 			$.ajax({
 				type: 'POST',
@@ -172,6 +216,7 @@ jQuery(function ($) {
 				}
 			});
 		},
+
 		/*
 		 * Sets the WooCommerce form field data.
 		 */
@@ -209,10 +254,8 @@ jQuery(function ($) {
 			if (addressData.shippingAddress) {
 				$('#shipping_country').val(addressData.shippingAddress.CountryCode);
 			}
-
-			dinteroCheckoutForWooCommerce.submitOrder(callback);
-
 		},
+
 		/**
 		 * Submit the order using the WooCommerce AJAX function.
 		 */
