@@ -66,13 +66,19 @@ class Dintero_Checkout_Cart {
 		if ( ! empty( $order ) ) {
 			$order_lines = array(
 				'amount'               => intval( number_format( $order->get_total() * 100, 0, '', '' ) ),
-				'currency'             => get_woocommerce_currency(),
 				'merchant_reference'   => $order->get_order_number(),
 				'vat_amount'           => intval( number_format( $order->get_total_tax() * 100, 0, '', '' ) ),
 				'merchant_reference_2' => $order->get_order_number(),
 			);
 
+		} else {
+			$order_lines = array(
+				'amount'             => intval( number_format( WC()->cart->total * 100, 0, '', '' ) ),
+				'merchant_reference' => uniqid( 'dwc' ), /* This is an arbitrary prefix but refers to "Dintero WooCommerce". */
+			);
 		}
+
+		$order_lines['currency']        = get_woocommerce_currency();
 		$order_lines['billing_address'] = $this->billing_address( $order );
 
 		/* Retrieve the products. */
