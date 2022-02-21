@@ -39,6 +39,17 @@ class Dintero_Checkout_API {
 	}
 
 	/**
+	 * Update a Dintero checkout session.
+	 *
+	 * @param string $session_id The Dintero session id.
+	 * @return array An associative array on success and failure. Check for is_error index.
+	 */
+	public function update_checkout_session( $session_id ) {
+		$update = new Dintero_Checkout_Update_Checkout_Session();
+		return $update->update_session( $session_id );
+	}
+
+	/**
 	 * Set the Dintero order to captured.
 	 *
 	 * @param string $dintero_id The Dintero transaction id.

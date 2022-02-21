@@ -44,24 +44,10 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request {
 							home_url()
 						),
 					),
+					'order'      => ( new Dintero_Checkout_Cart() )->cart( $order_id ),
 					'profile_id' => get_option( 'woocommerce_dintero_checkout_settings' )['profile_id'],
 				),
 		);
-
-		// If the order id is available, use it to retrieve the cart items.
-		if ( ! empty( $order_id ) ) {
-			$this->request_args['body']['order'] = ( new Dintero_Checkout_Cart() )->cart( $order_id );
-
-		} else {
-			$order_lines = array(
-				'amount'             => intval( number_format( WC()->cart->total * 100, 0, '', '' ) ),
-				'currency'           => get_woocommerce_currency(),
-				'merchant_reference' => uniqid( 'dwc' ), /* This is an arbitrary prefix but refers to "Dintero WooCommerce". */
-			);
-
-			$this->request_args['body']['order'] = array_merge( $order_lines, ( new Dintero_Checkout_cart() )->cart() );
-
-		}
 
 		// Callbacks require a public HTTP URL.
 		if ( ! Dintero_Checkout_Callback::is_localhost() ) {
