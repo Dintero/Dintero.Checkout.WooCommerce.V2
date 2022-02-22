@@ -193,13 +193,8 @@ class Dintero_Settings_Fields {
 				),
 			),
 			'express_button_corner_radius'            => array(
-				'title'   => __( 'Express button corner radius', 'dintero-checkout-for-woocommerce' ),
-				'type'    => 'select',
-				'default' => 'dark',
-				'options' => array(
-					'dark'  => __( 'Dark', 'dintero-checkout-for-woocommerce' ),
-					'light' => __( 'Light', 'dintero-checkout-for-woocommerce' ),
-				),
+				'title' => __( 'Express button corner radius', 'dintero-checkout-for-woocommerce' ),
+				'type'  => 'text',
 			),
 			/* End of "Dintero Checkout Express Settings". */
 			'branding_title'                          => array(
