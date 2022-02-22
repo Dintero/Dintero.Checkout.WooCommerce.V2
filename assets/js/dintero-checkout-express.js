@@ -10,6 +10,7 @@ jQuery(function ($) {
 		preventPaymentMethodChange: false,
 		selectAnotherSelector: '#dintero-checkout-select-other',
 		paymentMethodEl: $('input[name="payment_method"]'),
+		checkout: null,
 
 		init: function () {
 			$(document).ready(dinteroCheckoutForWooCommerce.documentReady);
@@ -17,18 +18,41 @@ jQuery(function ($) {
 			dinteroCheckoutForWooCommerce.bodyEl.on('click', dinteroCheckoutForWooCommerce.selectAnotherSelector, dinteroCheckoutForWooCommerce.changeFromDinteroCheckout);
 
 			dinteroCheckoutForWooCommerce.renderIframe();
+
+			dinteroCheckoutForWooCommerce.bodyEl.on('update_checkout', dinteroCheckoutForWooCommerce.updateCheckout);
+			dinteroCheckoutForWooCommerce.bodyEl.on('updated_checkout', dinteroCheckoutForWooCommerce.updatedCheckout);
 		},
+
+		updateCheckout: function() {
+			console.log('update_checkout');
+			if(dinteroCheckoutForWooCommerce.checkout !== null) {
+				console.log("locking session");
+				console.log(dinteroCheckoutForWooCommerce.checkout);
+				dinteroCheckoutForWooCommerce.checkout.lockSession();
+			}
+		},
+
+		updatedCheckout: function() {
+			console.log('updated_checkout');
+			if(dinteroCheckoutForWooCommerce.checkout !== null) {
+				console.log("refreshing session");
+				dinteroCheckoutForWooCommerce.checkout.refreshSession();
+			}
+		},
+
 		/**
 		 * Render the iframe and register callback functionality.
 		 */
 		renderIframe: async function() {
 			const container = $('#dintero-checkout-iframe')[0];
 
-			const checkout = await dintero.embed({
+			dintero.embed({
 				container,
 				sid: dinteroCheckoutParams.SID,
 				onSession: function(event, checkout) {
-					// Unused.
+					// Check for address changes and update shipping.
+					//console.log(event);
+					//console.log(checkout);
 				},
 				onPayment: function(event, checkout) {
 					// Unused.
@@ -41,9 +65,11 @@ jQuery(function ($) {
 				},
 				onSessionLocked: function(event, checkout, callback) {
 					// Unused.
+					console.log('session locked');
 				},
 				onSessionLockFailed: function(event, checkout) {
 					// Unused.
+					console.log('session lock failed');
 				},
 				onActivePaymentType: function(event, checkout) {
 					// Unused.
@@ -55,10 +81,9 @@ jQuery(function ($) {
 					   clientValidationError: "testing",
 					});
 				},
+			}).then(function(checkout) {
+				dinteroCheckoutForWooCommerce.checkout = checkout;
 			});
-
-			dinteroCheckoutForWooCommerce.bodyEl.on('update_checkout', checkout.lockSession());
-			dinteroCheckoutForWooCommerce.bodyEl.on('updated_checkout', checkout.refreshSession());
 		},
 
 		/**
