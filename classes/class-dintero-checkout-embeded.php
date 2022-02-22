@@ -9,7 +9,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class Dintero_Checkout_Checkout {
+/**
+ * Class to manage actions during the checkout process for the embeded flow.
+ */
+class Dintero_Checkout_Embeded {
 
 	/**
 	 * Class constructor.
@@ -32,8 +35,8 @@ class Dintero_Checkout_Checkout {
 			return;
 		}
 
-		$dintero_order_id = WC()->session->get( 'dintero_checkout_order_id' );
-		if ( empty( $dintero_order_id ) ) {
+		$session_id = WC()->session->get( 'dintero_checkout_session_id' );
+		if ( empty( $session_id ) ) {
 			return;
 		}
 
@@ -46,14 +49,12 @@ class Dintero_Checkout_Checkout {
 			return;
 		}
 
-		$dintero_order = Dintero()->api->get_order( $dintero_order_id );
-		if ( 'INITIATED' === $dintero_order['result']['status'] ) {
-			$session_id = WC()->session->get( 'dintero_checkout_session_id' );
-			if ( $session_id ) {
-				Dintero()->api->update_checkout_session( $session_id );
-			}
-		}
+		// $dintero_order = Dintero()->api->get_session( $session_id );
+		// if ( 'INITIATED' === $dintero_order['status'] ) {
+			// TODO add check for if we should update later.
+		Dintero()->api->update_checkout_session( $session_id );
+		// }
 		WC()->session->set( 'dintero_checkout_last_update_hash', $cart_hash );
 	}
 
-} new Dintero_Checkout_Checkout();
+} new Dintero_Checkout_Embeded();

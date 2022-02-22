@@ -23,8 +23,9 @@ class Dintero_Checkout_API {
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function create_session( $order_id = false ) {
-		$session = new Dintero_Checkout_Create_Session();
-		return $session->create( $order_id );
+		$args    = array( 'order_id' => $order_id );
+		$session = new Dintero_Checkout_Create_Session( $args );
+		return $session->request();
 	}
 
 	/**
@@ -34,8 +35,21 @@ class Dintero_Checkout_API {
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function get_order( $dintero_id ) {
-		$order = new Dintero_Checkout_Get_Order();
-		return $order->get_order( $dintero_id );
+		$args  = array( 'dintero_id' => $dintero_id );
+		$order = new Dintero_Checkout_Get_Order( $args );
+		return $order->request();
+	}
+
+	/**
+	 * Retrieve information about a WooCommerce order from Dintero.
+	 *
+	 * @param string $session_id The Dintero session id.
+	 * @return array An associative array on success and failure. Check for is_error index.
+	 */
+	public function get_session( $session_id ) {
+		$args  = array( 'session_id' => $session_id );
+		$order = new Dintero_Checkout_Get_session( $args );
+		return $order->request();
 	}
 
 	/**
@@ -45,8 +59,9 @@ class Dintero_Checkout_API {
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function update_checkout_session( $session_id ) {
-		$update = new Dintero_Checkout_Update_Checkout_Session();
-		return $update->update_session( $session_id );
+		$args   = array( 'session_id' => $session_id );
+		$update = new Dintero_Checkout_Update_Checkout_Session( $args );
+		return $update->request();
 	}
 
 	/**
@@ -81,5 +96,17 @@ class Dintero_Checkout_API {
 	public function refund_order( $dintero_id, $order_id ) {
 		$refund = new Dintero_Checkout_Refund_Order();
 		return $refund->refund( $dintero_id, $order_id );
+	}
+
+	/**
+	 * Returns a access token.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function get_access_token() {
+		$request  = new Dintero_Checkout_Get_Access_Token( array() );
+		$response = $request->request();
+
+		return $response;
 	}
 }

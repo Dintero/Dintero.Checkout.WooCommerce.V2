@@ -12,37 +12,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class for cancelling order (both from WooCommerce and Dintero).
  */
-class Dintero_Checkout_Cancel_Order extends Dintero_Checkout_Request {
+class Dintero_Checkout_Cancel_Order extends Dintero_Checkout_Request_Post {
 
 	/**
 	 * Class constructor.
+	 *
+	 * @param array $arguments The request arguments.
 	 */
-	public function __construct() {
-		$this->request_method = 'POST';
+	public function __construct( $arguments ) {
+		parent::__construct( $arguments );
+
+		$this->log_title = 'Cancel Dintero order.';
 	}
 
 	/**
-	 * Cancels the Dintero order.
+	 * Get the request URL.
 	 *
-	 * @param string $dintero_id The Dintero transaction id.
-	 * @return array An associative array on success and failure. Check for is_error index.
+	 * @return string
 	 */
-	public function cancel( $dintero_id ) {
-		$this->request_url  = 'https://checkout.dintero.com/v1/transactions/' . $dintero_id . '/void';
-		$this->request_args = array(
-			'headers' => $this->get_headers(),
-			'body'    => json_encode(
-				array(
-					'id' => $dintero_id,
-				)
-			),
-		);
-		$response           = $this->request();
+	public function get_request_url() {
+		return "{$this->get_api_url_base()}transactions/{$this->arguments['dintero_id']}/void";
+	}
 
-		Dintero_Logger::log(
-			Dintero_Logger::format( $dintero_id, $this->request_method, 'Cancel Dintero order', $response['request'], $response['result'], $response['code'], $this->request_url )
+	/**
+	 * Get the request body.
+	 *
+	 * @return array
+	 */
+	public function get_body() {
+		return array(
+			'id' => $this->arguments['dintero_id'],
 		);
-
-		return $response;
 	}
 }
