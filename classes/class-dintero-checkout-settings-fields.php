@@ -92,11 +92,11 @@ class Dintero_Settings_Fields {
 				),
 			),
 
-			'checkout_flow_title'                     => array(
+			'form_factor_title'                       => array(
 				'title' => __( 'Form factor', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'title',
 			),
-			'checkout_flow'                           => array(
+			'form_factor'                             => array(
 				'default' => 'embedded',
 				'type'    => 'select',
 				'options' => array(
