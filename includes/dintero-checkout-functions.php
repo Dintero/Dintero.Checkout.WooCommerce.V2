@@ -20,7 +20,7 @@ function dintero_checkout_wc_show_another_gateway_button() {
 	if ( count( $available_gateways ) > 1 ) {
 
 		$settings                   = get_option( 'woocommerce_dintero_checkout_settings' );
-		$select_another_method_text = $settings['select_another_method_text'];
+		$select_another_method_text = $settings['redirect_select_another_method_text'];
 
 		if ( empty( $select_another_method_text ) ) {
 			$select_another_method_text = __( 'Select another payment method', 'dintero-checkout-for-woocommerce' );
