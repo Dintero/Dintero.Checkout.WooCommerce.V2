@@ -83,7 +83,7 @@ class Dintero_Settings_Fields {
 				'title' => __( 'Branding', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'title',
 			),
-			'branding_enable_logo'                    => array(
+			'branding_enable_footer_logo'             => array(
 				'title'   => __( 'Enable logos in footer', 'dintero-checkout-for-woocommerce' ),
 				'type'    => 'checkbox',
 				'default' => 'no',

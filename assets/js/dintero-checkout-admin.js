@@ -1,5 +1,6 @@
 jQuery(function ($) {
 	const dwc = {
+		saveButton: $('.woocommerce-save-button'),
 		branding: {
 			'logo_color_checkbox': $('#woocommerce_dintero_checkout_branding_logo_color'),
 			'logo_custom_color': $('#woocommerce_dintero_checkout_branding_logo_color_custom'),
@@ -18,7 +19,7 @@ jQuery(function ($) {
 				} else {
 					dwc.branding.footer_custom_color.parents('tr').fadeIn();
 				}
-			}
+			},
 		},
 		register_events: function () {
 			dwc.branding.logo_color_checkbox.on('change', dwc.branding.toggle_logo_color)
@@ -29,11 +30,23 @@ jQuery(function ($) {
 			dwc.branding.toggle_logo_color();
 			dwc.branding.toggle_footer_color();
 		},
+		onSave: function () {
+			/* If no custom color was set, assume default state. */
+			if (! dwc.branding.logo_custom_color.val()) {
+				dwc.branding.logo_color_checkbox.prop('checked', true);
+			}
+
+			if (! dwc.branding.footer_custom_color.val()) {
+				dwc.branding.footer_color_checkbox.prop('checked', true);
+			}
+		}
 
 	};
 
 	$(document).ready(function () {
 		dwc.register_events();
 		dwc.startup_check();
+
+		dwc.saveButton.on('click', dwc.onSave);
 	});
 });
