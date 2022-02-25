@@ -43,7 +43,15 @@ class Dintero_Checkout_Assets {
 			DINTERO_CHECKOUT_VERSION,
 			true,
 		);
+		wp_register_style(
+			'dintero-checkout-admin',
+			plugins_url( 'assets/css/dintero-checkout-admin.css', DINTERO_CHECKOUT_MAIN_FILE ),
+			array(),
+			DINTERO_CHECKOUT_VERSION
+		);
 
 		wp_enqueue_script( 'dintero-checkout-admin' );
+		wp_enqueue_style( 'dintero-checkout-admin' );
 	}
+
 } new Dintero_Checkout_Assets();

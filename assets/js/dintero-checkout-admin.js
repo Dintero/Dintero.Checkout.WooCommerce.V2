@@ -8,16 +8,20 @@ jQuery(function ($) {
 			'footer_custom_color': $('#woocommerce_dintero_checkout_branding_footer_background_color_custom'),
 			toggle_logo_color: function () {
 				if (dwc.branding.logo_color_checkbox.is(':checked')) {
-					dwc.branding.logo_custom_color.parents('tr').fadeOut();
+					dwc.branding.logo_custom_color.parents('tr').hide();
+					dwc.branding.logo_color_checkbox.parents('tr').css('flex-basis', '100%');
 				} else {
-					dwc.branding.logo_custom_color.parents('tr').fadeIn();
+					dwc.branding.logo_custom_color.parents('tr').show();
+					dwc.branding.logo_color_checkbox.parents('tr').css('flex', '');
 				}
 			},
 			toggle_footer_color: function () {
 				if (dwc.branding.footer_color_checkbox.is(':checked')) {
-					dwc.branding.footer_custom_color.parents('tr').fadeOut();
+					dwc.branding.footer_custom_color.parents('tr').hide();
+					dwc.branding.footer_color_checkbox.parents('tr').css('flex-basis', '100%');
 				} else {
-					dwc.branding.footer_custom_color.parents('tr').fadeIn();
+					dwc.branding.footer_custom_color.parents('tr').show();
+					dwc.branding.footer_color_checkbox.parents('tr').css('flex-basis', '');
 				}
 			},
 		},
