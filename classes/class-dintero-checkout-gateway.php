@@ -57,6 +57,45 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		}
 
 		/**
+		 * Add payment gateway icon on the checkout page.
+		 *
+		 * @return void
+		 */
+		public function get_icon() {
+			$settings    = get_option( 'woocommerce_dintero_checkout_settings' );
+			$environment = ( 'yes' === $settings['test_mode'] ) ? 'T' : 'P';
+
+			/* Default values. */
+			$branding = array(
+				'variant'  => 'colors',
+				'color'    => 'cecece',
+				'width'    => 600,
+				'template' => 'dintero_left_frame.svg',
+			);
+
+			if ( 'yes' !== $settings['branding_logo_color'] ) {
+				$branding['variant'] = 'mono';
+				$branding['color']   = str_replace( '#', '', $settings['branding_logo_color_custom'] );
+			}
+
+			$branding_options_query = join(
+				'/',
+				array_map(
+					function( $key, $value ) {
+						return $key . '/' . $value;
+					},
+					array_keys( $branding ),
+					array_values( $branding )
+				)
+			);
+
+			$icon_url = 'https://checkout.dintero.com/v1/branding/accounts/' . $environment . $settings['account_id'] . '/profiles/' . $settings['profile_id'] . '/' . $branding_options_query;
+
+			return '<img src="' . esc_attr( $icon_url ) . '" style="max-width: 90%" alt="Dintero Logo" />';
+
+		}
+
+		/**
 		 * Check if payment method should be available.
 		 *
 		 * @return boolean

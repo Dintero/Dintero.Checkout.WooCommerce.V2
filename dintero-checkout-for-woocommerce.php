@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'DINTERO_CHECKOUT_VERSION', '1.0.0' );
 define( 'DINTERO_CHECKOUT_URL', untrailingslashit( plugins_url( '/', __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
-
+define( 'DINTERO_CHECKOUT_MAIN_FILE', __FILE__ );
 
 if ( ! class_exists( 'Dintero' ) ) {
 
@@ -109,6 +109,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-settings-fields.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-gateway.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-logger.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-assets.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-api.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-confirmation.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-order-management.php';
