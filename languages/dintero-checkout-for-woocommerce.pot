@@ -1,0 +1,140 @@
+# Copyright (C) 2022 Krokedil
+# This file is distributed under the same license as the Dintero Checkout for WooCommerce package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Dintero Checkout for WooCommerce 0.1.0\n"
+"Report-Msgid-Bugs-To: "
+"https://wordpress.org/support/plugin/dintero-checkout-for-woocommerce\n"
+"POT-Creation-Date: 2022-01-18 15:02:37+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2022-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"X-Generator: grunt-wp-i18n 1.0.3\n"
+
+#: classes/class-dintero-checkout-gateway.php:18
+msgid "Dintero"
+msgstr ""
+
+#: classes/class-dintero-checkout-gateway.php:19
+msgid "Dintero Checkout"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:25
+msgid "Enable"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:26
+msgid "Enable Dintero Checkout"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:32
+msgid "Title"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:34
+msgid "Payment method title."
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:39
+msgid "Description"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:41
+msgid "Payment method description."
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:46
+msgid "Other payment method button text"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:48
+msgid ""
+"Customize the <em>Select another payment method</em> button text that is "
+"displayed in checkout if using other payment methods than Dintero Checkout. "
+"Leave blank to use the default (and translatable) text."
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:56
+msgid "Test mode"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:57
+msgid "Enable Test Mode"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:59
+msgid "Place the payment gateway in test mode using test API keys."
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:64
+msgid "Logging"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:65
+msgid "Log debug messages"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:67
+msgid ""
+"Save debug messages to the WooCommerce System Status log (required for "
+"troubleshooting)."
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:72
+msgid "Profile ID"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:76
+msgid ""
+"Test payment window profile ID. Found under (SETTINGS >> Payment windows) "
+"in Dintero Backoffice."
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:79
+msgid "Account ID"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:83
+msgid "Found under (SETTINGS >> Account) in Dintero Backoffice."
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:86
+msgid "Client ID"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:90
+#: classes/class-dintero-checkout-settings-fields.php:97
+msgid "Generated under (SETTINGS >> API clients) in Dintero Backoffice."
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:93
+msgid "Client secret"
+msgstr ""
+
+#: dintero-checkout-for-woocommerce.php:60
+#: dintero-checkout-for-woocommerce.php:70
+msgid "Nope"
+msgstr ""
+
+#: dintero-checkout-for-woocommerce.php:108
+msgid "Settings"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Dintero Checkout for WooCommerce"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://krokedil.com/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "Dintero Checkout for WooCommerce."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Krokedil"
+msgstr ""
