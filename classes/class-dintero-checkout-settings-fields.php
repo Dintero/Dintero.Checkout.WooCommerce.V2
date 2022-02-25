@@ -29,6 +29,21 @@ class Dintero_Settings_Fields {
 				'description' => '',
 				'default'     => 'yes',
 			),
+			'redirect_title'                          => array(
+				'title'       => __( 'Title', 'dintero-checkout-for-woocommerce' ),
+				'type'        => 'text',
+				'description' => __( 'Payment method title (appears on checkout page if more than one payment method is available).', 'Dintero-checkout-for-woocommerce' ),
+				'default'     => 'Dintero Checkout',
+				'desc_tip'    => true,
+			),
+			'redirect_description'                    => array(
+				'title'       => __( 'Description', 'dintero-checkout-for-woocommerce' ),
+				'type'        => 'textarea',
+				'description' => __( 'Payment method description (appears on checkout page if more than one payment method is available).', 'Dintero-checkout-for-woocommerce' ),
+				'default'     => '',
+				'desc_tip'    => true,
+				'placeholder' => __( 'Choose your payment method in our checkout.', 'dintero-checkout-for-woocommerce' ),
+			),
 
 			'dintero_configuration'                   => array(
 				'title' => __( 'Dintero configuration', 'dintero-checkout-for-woocommerce' ),
