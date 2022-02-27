@@ -79,18 +79,14 @@ class Dintero_Checkout_Widget extends WP_Widget {
 	 * @return array|boolean Settings to save or FALSE to cancel saving.
 	 */
 	public function update( $new_instance, $old_instance ) {
-		$instance                = $old_instance;
-		$instance['use_default'] = ( isset( $new_instance['use_default'] ) ) ? $new_instance['use_default'] : $old_instance['use_default'];
+		$instance                     = $old_instance;
+		$instance['use_default']      = ( isset( $new_instance['use_default'] ) ) ? $new_instance['use_default'] : $old_instance['use_default'];
+		$instance['background_color'] = ( isset( $new_instance['background_color'] ) ) ? wp_strip_all_tags( $new_instance['background_color'] ) : '';
 
 		if ( 'on' !== $instance['use_default'] ) {
-			$instance['icon_color']       = ( isset( $new_instance['icon_color'] ) ) ? wp_strip_all_tags( $new_instance['icon_color'] ) : '';
-			$instance['background_color'] = ( isset( $new_instance['background_color'] ) ) ? wp_strip_all_tags( $new_instance['background_color'] ) : '';
+			$instance['icon_color'] = ( isset( $new_instance['icon_color'] ) ) ? wp_strip_all_tags( $new_instance['icon_color'] ) : '';
 		} else {
-			$instance = array(
-				'icon_color'       => 'cecece',
-				'background_color' => 'ffffff',
-
-			);
+			$instance['icon_color'] = 'cecece';
 		}
 
 		return $instance;
