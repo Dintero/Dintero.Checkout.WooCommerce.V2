@@ -74,7 +74,7 @@ class Dintero_Checkout_Cart {
 		$this->order_items();
 		$order_lines['items'] = $this->products;
 
-		if ( WC()->cart->needs_shipping() ) {
+		if ( WC()->cart->needs_shipping() && ! empty( WC()->session->get( 'chosen_shipping_methods' ) ) ) {
 			$this->shipping_option();
 			$order_lines['shipping_address'] = $this->shipping_address( $order );
 
