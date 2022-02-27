@@ -247,11 +247,13 @@ class Dintero_Checkout_Cart {
 			'email'          => $order->get_billing_email(),
 		);
 
-		foreach ( $billing_address as $key => $information ) {
-			$billing_address[ $key ] = sanitize_text_field( (string) $information );
-		}
-
-		return $billing_address;
+		/* Sanitize all values. Remove all empty elements (required by Dintero). */
+		return array_filter(
+			$billing_address,
+			function( $value ) {
+				return ! empty( sanitize_text_field( $value ) );
+			}
+		);
 	}
 
 	/**
@@ -273,14 +275,16 @@ class Dintero_Checkout_Cart {
 			'email'          => $order->get_billing_email(),
 		);
 
-		// Check if a shipping phone number exist.
+		// Check if a shipping phone number exist. Default to billing phone.
 		$phone                            = $order->get_shipping_phone();
 		$shipping_address['phone_number'] = ( ! empty( $phone ) ) ? $phone : $order->get_billing_phone();
 
-		foreach ( $shipping_address as $key => $information ) {
-			$billing_address[ $key ] = sanitize_text_field( (string) $information );
-		}
-
-		return $shipping_address;
+		/* Sanitize all values. Remove all empty elements (required by Dintero). */
+		return array_filter(
+			$shipping_address,
+			function( $value ) {
+				return ! empty( sanitize_text_field( $value ) );
+			}
+		);
 	}
 }
