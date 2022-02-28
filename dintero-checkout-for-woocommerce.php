@@ -115,6 +115,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-order-management.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-callback.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-widget.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-order-status.php';
 
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/class-dintero-checkout-request.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/get/class-dintero-checkout-get-order.php';
