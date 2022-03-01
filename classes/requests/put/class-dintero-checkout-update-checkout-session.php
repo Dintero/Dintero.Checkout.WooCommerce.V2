@@ -42,12 +42,11 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 		$helper = new Dintero_Checkout_Cart();
 		return array(
 			'order'       => array(
-				'amount'             => $helper::get_order_total(),
-				'currency'           => $helper::get_currency(),
-				'merchant_reference' => $helper::get_merchant_reference(),
-				'vat_amount'         => $helper::get_tax_total(),
-				'items'              => $helper::get_order_lines(),
-				'shipping_option'    => $helper::get_shipping_object(),
+				'amount'          => $helper::get_order_total(),
+				'currency'        => $helper::get_currency(),
+				'vat_amount'      => $helper::get_tax_total(),
+				'items'           => $helper::get_order_lines(),
+				'shipping_option' => $helper::get_shipping_object(),
 			),
 			'remove_lock' => true,
 		);
