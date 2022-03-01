@@ -32,8 +32,8 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			);
 			$this->init_form_fields();
 			$this->init_settings();
-			$this->title       = $this->get_option( 'title' );
-			$this->description = $this->get_option( 'description' );
+			$this->title       = $this->get_option( 'redirect_title' );
+			$this->description = $this->get_option( 'redirect_description' );
 			$this->enabled     = $this->get_option( 'enabled' );
 			$this->test_mode   = 'yes' === $this->get_option( 'test_mode' );
 			$this->logging     = 'yes' === $this->get_option( 'logging' );
@@ -54,6 +54,37 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 */
 		public function init_form_fields() {
 			$this->form_fields = Dintero_Settings_Fields::setting_fields();
+		}
+
+		/**
+		 * Add payment gateway icon on the checkout page.
+		 *
+		 * @return void
+		 */
+		public function get_icon() {
+			$settings    = get_option( 'woocommerce_dintero_checkout_settings' );
+			$environment = ( 'yes' === $settings['test_mode'] ) ? 'T' : 'P';
+
+			/* Default values. */
+			$branding = array(
+				'variant'  => 'colors',
+				'color'    => 'cecece',
+				'width'    => 600,
+				'template' => 'dintero_left_frame.svg',
+			);
+
+			if ( 'yes' !== $settings['branding_logo_color'] ) {
+				$branding['variant'] = 'mono';
+				$branding['color']   = str_replace( '#', '', $settings['branding_logo_color_custom'] );
+			}
+
+			$icon_url = 'https://checkout.dintero.com/v1/branding/accounts/' . $environment . $settings['account_id'] . '/profiles/' . $settings['profile_id'];
+			foreach ( $branding as $key => $value ) {
+				$icon_url .= '/' . $key . '/' . $value;
+			}
+
+			return '<img src="' . esc_attr( $icon_url ) . '" style="max-width: 90%" alt="Dintero Logo" />';
+
 		}
 
 		/**

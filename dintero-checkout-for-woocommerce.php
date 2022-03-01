@@ -27,7 +27,6 @@ define( 'DINTERO_CHECKOUT_URL', untrailingslashit( plugins_url( '/', __FILE__ ) 
 define( 'DINTERO_CHECKOUT_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_MAIN_FILE', __FILE__ );
 
-
 if ( ! class_exists( 'Dintero' ) ) {
 
 	/**
@@ -115,6 +114,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-confirmation.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-order-management.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-callback.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-widget.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-templates.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-ajax.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-embeded.php';
@@ -143,6 +143,13 @@ if ( ! class_exists( 'Dintero' ) ) {
 
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateways' ) );
 			load_plugin_textdomain( 'dintero-checkout-for-woocommerce', false, plugin_basename( __DIR__ ) . '/languages' );
+
+			add_action(
+				'widgets_init',
+				function() {
+					register_widget( 'Dintero_Checkout_Widget' );
+				}
+			);
 		}
 
 
