@@ -87,7 +87,7 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 		$posted_message            = isset( $_POST['message'] ) ? sanitize_text_field( wp_unslash( $_POST['message'] ) ) : '';
 		$dintero_checkout_order_id = WC()->session->get( 'dintero_checkout_order_id' );
 		$message                   = "Frontend JS $dintero_checkout_order_id: $posted_message";
-		Dintero_Logger::log( $message );
+		Dintero_Checkout_Logger::log( $message );
 		wp_send_json_success();
 		wp_die();
 	}

@@ -135,6 +135,7 @@ class Dintero_Checkout_Assets {
 				'change_payment_method_url'   => WC_AJAX::get_endpoint( 'dintero_checkout_wc_change_payment_method' ),
 				'change_payment_method_nonce' => wp_create_nonce( 'dintero_checkout_wc_change_payment_method' ),
 				'standardWooCheckoutFields'   => $standard_woo_checkout_fields,
+				'submitOrder'                 => WC_AJAX::get_endpoint( 'checkout' ),
 				'log_to_file_url'             => WC_AJAX::get_endpoint( 'dintero_checkout_wc_log_js' ),
 				'log_to_file_nonce'           => wp_create_nonce( 'dintero_checkout_wc_log_js' ),
 			)

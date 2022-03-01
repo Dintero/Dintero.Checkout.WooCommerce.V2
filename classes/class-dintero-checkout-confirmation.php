@@ -39,7 +39,7 @@ class Dintero_Checkout_Redirect {
 		// The WC_Order is used for generating the redirect URL to the thank-you page. If it doesn't exist, the method calls will result in a fatal error.
 		$order_key = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_STRING );
 		if ( empty( $order_key ) ) {
-			Dintero_Logger::log( sprintf( 'RETURN ERROR [order_key]: No order key was found for %s. Cannot identify the WC order. Redirecting customer back to checkout page. ', $merchant_reference ) );
+			Dintero_Checkout_Logger::log( sprintf( 'RETURN ERROR [order_key]: No order key was found for %s. Cannot identify the WC order. Redirecting customer back to checkout page. ', $merchant_reference ) );
 
 			wc_add_notice( __( 'Something went wrong (order_key).', 'dintero-checkout-for-woocommerce' ), 'error' );
 			wp_redirect( wc_get_checkout_url() );
@@ -48,7 +48,7 @@ class Dintero_Checkout_Redirect {
 
 		$order_id = wc_get_order_id_by_order_key( $order_key );
 		if ( empty( $order_id ) ) {
-			Dintero_Logger::log( 'RETURN ERROR [order_key]: Failed to retrieve the order id from the order key. Redirecting customer back to checkout page.' );
+			Dintero_Checkout_Logger::log( 'RETURN ERROR [order_key]: Failed to retrieve the order id from the order key. Redirecting customer back to checkout page.' );
 
 			wc_add_notice( __( 'Something went wrong (order_key failed).', 'dintero-checkout-for-woocommerce' ), 'error' );
 			wp_redirect( wc_get_checkout_url() );
@@ -87,7 +87,7 @@ class Dintero_Checkout_Redirect {
 				wc_add_notice( $note, 'error' );
 			}
 
-			Dintero_Logger::log( sprintf( 'RETURN ERROR [%s]: %s WC order id: %s / %s.', $error, $note, $order_id, $merchant_reference ) );
+			Dintero_Checkout_Logger::log( sprintf( 'RETURN ERROR [%s]: %s WC order id: %s / %s.', $error, $note, $order_id, $merchant_reference ) );
 			wp_redirect( wc_get_checkout_url() );
 			exit;
 		}
@@ -95,7 +95,7 @@ class Dintero_Checkout_Redirect {
 		// The 'transaction_id' is only set if the transaction was completed successfully.
 		$transaction_id = filter_input( INPUT_GET, 'transaction_id', FILTER_SANITIZE_STRING );
 		if ( empty( $transaction_id ) ) {
-			Dintero_Logger::log(
+			Dintero_Checkout_Logger::log(
 				sprintf( 'RETURN ERROR [transaction_id]: The transaction ID is missing for WC order %s / %s. Redirecting customer back to checkout page.', $order_id, $merchant_reference )
 			);
 
@@ -115,7 +115,7 @@ class Dintero_Checkout_Redirect {
 
 			update_post_meta( $order_id, Dintero()->order_management->status( 'on_hold' ), $transaction_id );
 
-			Dintero_Logger::log( sprintf( 'RETURN [%s]: The WC order %s / %s (transaction ID: %s) will require further authorization from Dintero.', $dintero_order['result']['status'], $order_id, $merchant_reference, $transaction_id ) );
+			Dintero_Checkout_Logger::log( sprintf( 'RETURN [%s]: The WC order %s / %s (transaction ID: %s) will require further authorization from Dintero.', $dintero_order['result']['status'], $order_id, $merchant_reference, $transaction_id ) );
 		} else {
 
 			// translators: %s the Dintero transaction ID.
@@ -137,7 +137,7 @@ class Dintero_Checkout_Redirect {
 			),
 		);
 
-		Dintero_Logger::log( sprintf( 'RETURN [success]: The WC order %s / %s (transaction ID: %s) was placed succesfully. Redirecting customer to thank-you page.', $order_id, $merchant_reference, $transaction_id ) );
+		Dintero_Checkout_Logger::log( sprintf( 'RETURN [success]: The WC order %s / %s (transaction ID: %s) was placed succesfully. Redirecting customer to thank-you page.', $order_id, $merchant_reference, $transaction_id ) );
 		exit;
 	}
 

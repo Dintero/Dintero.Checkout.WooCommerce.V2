@@ -103,19 +103,13 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return array An associative array containing the success status and redirect URl.
 		 */
 		public function process_payment( $order_id ) {
-			$session = Dintero()->api->create_session( $order_id );
-			$order   = wc_get_order( $order_id );
-
-			if ( $session['is_error'] ) {
-				return array(
-					'result' => 'error',
-				);
-			}
+			// $session = Dintero()->api->create_session( $order_id );
+			$order = wc_get_order( $order_id );
 
 			$order->add_order_note( __( 'Customer redirected to Dintero payment page.', 'dintero-checkout-for-woocommerce' ) );
 			return array(
-				'result'   => 'success',
-				'redirect' => $session['result']['url'],
+				'result' => 'success',
+				// 'redirect' => $session['result']['url'],
 			);
 		}
 
