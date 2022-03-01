@@ -12,56 +12,75 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Dintero_Checkout_Create_Session class.
  */
-class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request {
+class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 
 	/**
 	 * Class constructor.
+	 *
+	 * @param array $arguments The request arguments.
 	 */
-	public function __construct() {
-		$this->load_settings();
-		$this->request_method = 'POST';
-		$this->request_url    = 'https://checkout.dintero.com/v1/sessions-profile';
+	public function __construct( $arguments ) {
+		parent::__construct( $arguments );
+
+		$this->log_title = 'Create Dintero session.';
 	}
 
 	/**
-	 * Creates a Dintero session.
+	 * Get the request url.
 	 *
-	 * @param int $order_id WooCommerce order id.
-	 *
-	 * @return array An associative array on success and failure. Check for is_error index.
+	 * @return string
 	 */
-	public function create( $order_id ) {
-		$order              = wc_get_order( $order_id );
-		$this->request_args = array(
-			'headers' => $this->get_headers(),
-			'body'    =>
-				array(
-					'url'        => array(
-						'return_url' => add_query_arg(
-							array(
-								'gateway' => 'dintero',
-								'key'     => $order->get_order_key(),
-							),
-							home_url()
-						),
-					),
-					'order'      => ( new Dintero_Checkout_Cart() )->cart( $order_id ),
-					'profile_id' => get_option( 'woocommerce_dintero_checkout_settings' )['profile_id'],
-				),
-		);
+	protected function get_request_url() {
+		return "{$this->get_api_url_base()}sessions-profile";
+	}
 
-		// Callbacks require a public HTTP URL.
-		if ( ! Dintero_Checkout_Callback::is_localhost() ) {
-			$this->request_args['body']['url']['callback_url'] = Dintero_Checkout_Callback::callback_url( $order->get_order_key() );
+	/**
+	 * Returns the body for the request.
+	 *
+	 * @return array
+	 */
+	public function get_body() {
+		if ( ! empty( $this->arguments['order_id'] ) ) {
+			$test = false;
+			// $helper = ( new Dintero_Checkout_Cart() )->cart( $this->arguments['order_id'] );
+		} else {
+			$helper = new Dintero_Checkout_Cart();
 		}
 
-		$this->request_args['body'] = json_encode( $this->request_args['body'] );
-		$response                   = $this->request();
-
-		Dintero_Logger::log(
-			Dintero_Logger::format( '', $this->request_method, 'Create new Dintero session', $response['request'], $response['result'], $response['code'], $this->request_url )
+		$body = array(
+			'url'        => array(
+				'return_url' => add_query_arg(
+					array(
+						'gateway' => 'dintero',
+						'key'     => '', // ( ! empty( $order ) ) ? $order->get_order_key() : '',
+					),
+					home_url()
+				),
+			),
+			'order'      => array(
+				'amount'             => $helper::get_order_total(),
+				'currency'           => $helper::get_currency(),
+				'merchant_reference' => $helper::get_merchant_reference(),
+				'vat_amount'         => $helper::get_tax_total(),
+				'items'              => $helper::get_order_lines(),
+				'shipping_option'    => $helper::get_shipping_object(),
+			),
+			'profile_id' => $this->settings['profile_id'],
 		);
 
-		return $response;
+		if ( ! Dintero_Checkout_Callback::is_localhost() ) {
+			$this->request_args['url']['callback_url'] = Dintero_Checkout_Callback::callback_url( '$order->get_order_key()' );
+		}
+
+		if ( empty( $body['order']['shipping_option'] ) ) {
+			unset( $body['order']['shipping_option'] );
+		}
+
+		// Set if express or not.
+		// if ( 'yes' === $this->settings['express'] ) {
+			$body['express']['shipping_options'] = array();
+		// }
+
+		return $body;
 	}
 }
