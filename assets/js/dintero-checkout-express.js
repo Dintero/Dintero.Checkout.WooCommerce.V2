@@ -202,7 +202,7 @@ jQuery(function ($) {
 		updateAddress: function (billingAddress, shippingAddress) {
 			let update = false;
 			// Set billing data.
-			if( null !== billingAddress || undefined !== billingAddress ) {
+			if( null !== billingAddress && undefined !== billingAddress ) {
 				var billingEmail = (('email' in billingAddress) ? billingAddress.email : null);
 				var billingPhone = (('phone_number' in billingAddress) ? billingAddress.phone_number : null);
 				var billingFirstName = (('first_name' in billingAddress) ? billingAddress.first_name : null);
@@ -224,7 +224,7 @@ jQuery(function ($) {
 			}
 
 			// Set shipping data.
-			if( null !== shippingAddress || undefined !== shippingAddress ) {
+			if( null !== shippingAddress && undefined !== shippingAddress ) {
 				$( '#ship-to-different-address-checkbox' ).prop( 'checked', true);
 				var shippingFirstName = (('first_name' in shippingAddress) ? shippingAddress.first_name : null);
 				var shippingLastName = (('last_name' in shippingAddress) ? shippingAddress.last_name : null);
