@@ -123,7 +123,7 @@ abstract class Dintero_Checkout_Request {
 			)
 		);
 		Dintero_Logger::log(
-			Dintero_Logger::format( '', 'POST', 'Generate new access token', $response['request'], $response['result'], $response['code'], $request_url )
+			Dintero_Logger::format( ( $response['is_error'] ) ? 'ERROR' : 'OK', 'POST', 'Generate new access token', $response['request'], $response['result'], $response['code'], $request_url )
 		);
 
 		if ( ! $response['is_error'] ) {
@@ -156,16 +156,24 @@ abstract class Dintero_Checkout_Request {
 		// The request succeeded, check for API errors.
 		$code = wp_remote_retrieve_response_code( $response );
 		if ( $code < 200 || $code > 200 ) {
-			if ( ! is_null( json_decode( $response['body'], true ) ) ) {
-				$errors = json_decode( $response['body'], true )['error'];
 
-				return array(
-					'code'     => $code,
-					'result'   => $errors,
-					'request'  => $this->request_args,
-					'is_error' => true,
+			$errors = json_decode( $response['body'], true );
+			if ( isset( $errors['error'] ) ) {
+				$errors = $errors['error'];
+			} else {
+				/* Handle non-conformant errors. */
+				$errors = array(
+					'message' => sprintf( '%s %s', $response['response']['message'], $response['body'] ),
+					'code'    => $response['response']['code'],
 				);
 			}
+
+			return array(
+				'code'     => $code,
+				'result'   => $errors,
+				'request'  => $this->request_args,
+				'is_error' => true,
+			);
 		}
 
 		// All good.

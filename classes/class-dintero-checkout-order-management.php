@@ -117,7 +117,7 @@ class Dintero_Checkout_Order_Management {
 			$response = Dintero()->api->capture_order( $order->get_transaction_id(), $order_id );
 
 			if ( $response['is_error'] ) {
-				$order->add_order_note( ucfirst( $response['result']['message'] ) . ': ' . $response['result']['code'] . '.' );
+				$order->add_order_note( ucfirst( $response['result']['message'] ) . ': ' . $response['code'] . '.' );
 				$order->update_status( 'on-hold' );
 				return;
 			}
@@ -199,7 +199,7 @@ class Dintero_Checkout_Order_Management {
 			$response = Dintero()->api->cancel_order( $order->get_transaction_id() );
 
 			if ( $response['is_error'] ) {
-				$order->add_order_note( ucfirst( $response['result']['message'] ) . ': ' . $response['result']['code'] . '.' );
+				$order->add_order_note( ucfirst( $response['result']['message'] ) . ': ' . $response['code'] . '.' );
 				$order->update_status( 'on-hold' );
 				return;
 			}
@@ -252,7 +252,7 @@ class Dintero_Checkout_Order_Management {
 			$response = Dintero()->api->refund_order( $order->get_transaction_id(), $order_id );
 
 			if ( $response['is_error'] ) {
-				$order->add_order_note( ucfirst( $response['result']['message'] ) . ': ' . $response['result']['code'] . '.' );
+				$order->add_order_note( ucfirst( $response['result']['message'] ) . ': ' . $response['code'] . '.' );
 				return;
 			}
 		}
