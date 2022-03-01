@@ -97,7 +97,7 @@ abstract class Dintero_Checkout_Request {
 			'accept'                        => 'application/json',
 			'dintero-system-name'           => 'woocommerce',
 			'dintero-system-version'        => WC()->version,
-			'dintero-system-plugin-vame'    => 'Dintero.Checkout.WooCommerce.V2',
+			'dintero-system-plugin-name'    => 'Dintero.Checkout.WooCommerce.V2',
 			'dintero-system-plugin-version' => DINTERO_CHECKOUT_VERSION,
 		);
 	}
