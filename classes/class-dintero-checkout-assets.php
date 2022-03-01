@@ -18,8 +18,8 @@ class Dintero_Checkout_Assets {
 	 * Hook onto enqueue actions.
 	 */
 	public function __construct() {
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
-    add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 	}
 
 	/**
@@ -44,6 +44,7 @@ class Dintero_Checkout_Assets {
 			DINTERO_CHECKOUT_VERSION,
 			true,
 		);
+
 		wp_register_style(
 			'dintero-checkout-admin',
 			plugins_url( 'assets/css/dintero-checkout-admin.css', DINTERO_CHECKOUT_MAIN_FILE ),

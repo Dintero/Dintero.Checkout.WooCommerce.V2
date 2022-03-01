@@ -1,6 +1,7 @@
 jQuery(function($) {
     const dwc = {
         saveButton: $(".woocommerce-save-button"),
+        form_factor: $('#woocommerce_dintero_checkout_form_factor'),
         branding: {
             logo_color_checkbox: $(
                 "#woocommerce_dintero_checkout_branding_logo_color"
@@ -35,9 +36,20 @@ jQuery(function($) {
                 dwc.branding.logo_color_checkbox.prop("checked", true);
             }
         },
+        toggle_form_factor: function () {
+          let siblings = dwc.form_factor.parents('tr').siblings();
+
+          if (dwc.form_factor.val() === 'embedded') {
+            siblings.fadeOut();
+          } else {
+            siblings.fadeIn();
+          }
+        },
     };
 
     $(document).ready(function() {
+      	dwc.toggle_form_factor();
+		    dwc.form_factor.change(dwc.toggle_form_factor);
         dwc.register_events();
         dwc.startup_check();
 
