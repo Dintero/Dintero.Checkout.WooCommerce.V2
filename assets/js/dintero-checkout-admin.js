@@ -49,7 +49,7 @@ jQuery(function($) {
 
     $(document).ready(function() {
       	dwc.toggle_form_factor();
-		    dwc.form_factor.change(dwc.toggle_form_factor);
+		dwc.form_factor.change(dwc.toggle_form_factor);
         dwc.register_events();
         dwc.startup_check();
 
