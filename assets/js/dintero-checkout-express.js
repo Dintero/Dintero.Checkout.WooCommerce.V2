@@ -24,18 +24,13 @@ jQuery(function ($) {
 		},
 
 		updateCheckout: function() {
-			console.log('update_checkout');
 			if(dinteroCheckoutForWooCommerce.checkout !== null) {
-				console.log("locking session");
-				console.log(dinteroCheckoutForWooCommerce.checkout);
 				dinteroCheckoutForWooCommerce.checkout.lockSession();
 			}
 		},
 
 		updatedCheckout: function() {
-			console.log('updated_checkout');
 			if(dinteroCheckoutForWooCommerce.checkout !== null) {
-				console.log("refreshing session");
 				dinteroCheckoutForWooCommerce.checkout.refreshSession();
 			}
 		},
@@ -76,10 +71,11 @@ jQuery(function ($) {
 				},
 				onValidateSession: function(event, checkout, callback) {
 					console.log('validate session');
-					callback({
-					   success: false,
-					   clientValidationError: "testing",
-					});
+					dinteroCheckoutForWooCommerce.updateAddress(event.session.order.billing_address, event.session.order.shipping_address);
+					if ( 0 < $( 'form.checkout #terms' ).length ) {
+						$( 'form.checkout #terms' ).prop( 'checked', true );
+					}
+					dinteroCheckoutForWooCommerce.submitOrder(callback);
 				},
 			}).then(function(checkout) {
 				dinteroCheckoutForWooCommerce.checkout = checkout;
@@ -199,6 +195,7 @@ jQuery(function ($) {
 				}
 			}
 		},
+
 		updateAddress: function (billingAddress, shippingAddress) {
 			let update = false;
 			// Set billing data.
@@ -269,48 +266,11 @@ jQuery(function ($) {
 			});
 		},
 
-		/*
-		 * Sets the WooCommerce form field data.
-		 */
-		setAddressData: function (addressData, callback) {
-			if (0 < $('form.checkout #terms').length) {
-				$('form.checkout #terms').prop('checked', true);
-			}
-
-			// Billing fields.
-			$('#billing_first_name').val(addressData.billingAddress.FirstName);
-			$('#billing_last_name').val(addressData.billingAddress.LastName);
-			$('#billing_company').val(addressData.billingAddress.CompanyName);
-			$('#billing_address_1').val(addressData.billingAddress.Street);
-			$('#billing_address_2').val(addressData.billingAddress.Street2);
-			$('#billing_city').val(addressData.billingAddress.City);
-			$('#billing_postcode').val(addressData.billingAddress.PostalCode);
-			$('#billing_phone').val(addressData.customer.MobileNumber);
-			$('#billing_email').val(addressData.customer.Email);
-
-			// Shipping fields.
-			$('#ship-to-different-address-checkbox').prop('checked', true);
-			$('#shipping_first_name').val(addressData.shippingAddress.FirstName);
-			$('#shipping_last_name').val(addressData.shippingAddress.LastName);
-			$('#shipping_company').val(addressData.shippingAddress.CompanyName);
-			$('#shipping_address_1').val(addressData.shippingAddress.Street);
-			$('#shipping_address_2').val(addressData.shippingAddress.Street2);
-			$('#shipping_city').val(addressData.shippingAddress.City);
-			$('#shipping_postcode').val(addressData.shippingAddress.PostalCode);
-
-			// Only set country fields if we have data in them.
-			if (addressData.billingAddress) {
-				$('#billing_country').val(addressData.billingAddress.CountryCode);
-			}
-			if (addressData.shippingAddress) {
-				$('#shipping_country').val(addressData.shippingAddress.CountryCode);
-			}
-		},
-
 		/**
 		 * Submit the order using the WooCommerce AJAX function.
 		 */
 		submitOrder: function (callback) {
+			console.log('submit order');
 			$('.woocommerce-checkout-review-order-table').block({
 				message: null,
 				overlayCSS: {
@@ -326,9 +286,10 @@ jQuery(function ($) {
 				success: function (data) {
 					console.log(data);
 					try {
+						console.log('try');
 						if ('success' === data.result) {
-							callback({ shouldProceed: true, errorMessage: "" });
 							console.log('submit order success', data);
+							callback({ success: true });
 						} else {
 							throw 'Result failed';
 						}
@@ -348,6 +309,8 @@ jQuery(function ($) {
 					}
 				},
 				error: function (data) {
+					console.log('error data', data);
+					console.log('error data response text', data.responseText);
 					try {
 						dinteroCheckoutForWooCommerce.logToFile('AJAX error | ' + JSON.stringify(data));
 					} catch (e) {
@@ -359,7 +322,8 @@ jQuery(function ($) {
 		},
 
 		failOrder: function (event, error_message, callback) {
-			callback({ shouldProceed: false, errorMessage: error_message });
+			console.log('fail order');
+			callback({ success: false, clientValidationError: error_message });
 
 			// Renable the form.
 			$('body').trigger('updated_checkout');
