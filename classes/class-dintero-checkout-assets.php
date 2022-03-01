@@ -59,6 +59,7 @@ class Dintero_Checkout_Assets {
 		$session_id = WC()->session->get( 'dintero_checkout_session_id' );
 		if ( empty( $session_id ) ) {
 			// FIXME: The shipping_option is not available at this point. The current workaround is to check for null.
+			WC()->cart->calculate_shipping();
 			$session    = Dintero()->api->create_session();
 			$session_id = $session['id'];
 			WC()->session->set( 'dintero_checkout_session_id', $session_id );
