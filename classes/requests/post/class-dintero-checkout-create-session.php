@@ -77,9 +77,9 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 		}
 
 		// Set if express or not.
-		// if ( 'yes' === $this->settings['express'] ) {
+		if ( 'express' === $this->settings['checkout_type'] ) {
 			$body['express']['shipping_options'] = array();
-		// }
+		}
 
 		return $body;
 	}
