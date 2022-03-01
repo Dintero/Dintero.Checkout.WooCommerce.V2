@@ -1,18 +1,44 @@
 <?php
 /**
- * Parent request class intended to be used for GET and POST requests.
+ * Main request class
  *
- * @package Dintero_Checkout/Classes/Requests
+ * @package Qliro_One_For_WooCommerce/Classes/Requests
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+defined( 'ABSPATH' ) || exit;
 
 /**
- * Base class for all API request classes.
+ * Base class for all request classes.
  */
 abstract class Dintero_Checkout_Request {
+
+	/**
+	 * The request method.
+	 *
+	 * @var string
+	 */
+	protected $method;
+
+	/**
+	 * The request title.
+	 *
+	 * @var string
+	 */
+	protected $log_title;
+
+	/**
+	 * The Qliro One order id.
+	 *
+	 * @var string
+	 */
+	protected $qliro_order_id;
+
+	/**
+	 * The request arguments.
+	 *
+	 * @var array
+	 */
+	protected $arguments;
 
 	/**
 	 * The plugin settings.
@@ -21,29 +47,19 @@ abstract class Dintero_Checkout_Request {
 	 */
 	protected $settings;
 
-	/**
-	 * The request HTTP method.
-	 *
-	 * @var string
-	 */
-	protected $request_method;
 
 	/**
-	 * The request URL.
+	 * Class constructor.
 	 *
-	 * @var string
+	 * @param array $arguments The request args.
 	 */
-	protected $request_url;
+	public function __construct( $arguments = array() ) {
+		$this->arguments = $arguments;
+		$this->load_settings();
+	}
 
 	/**
-	 * The request data.
-	 *
-	 * @var array
-	 */
-	protected $request_args;
-
-	/**
-	 * Retrieve the Dintero Checkout plugin settings.
+	 * Loads the Qliro settings and sets them to be used here.
 	 *
 	 * @return void
 	 */
@@ -61,12 +77,12 @@ abstract class Dintero_Checkout_Request {
 	}
 
 	/**
-	 * Calculate the Basic authorization parameter.
+	 * Get the API base URL.
 	 *
-	 * @return string Basic authorization parameter.
+	 * @return string
 	 */
-	private function calculate_auth() {
-		return 'Basic ' . base64_encode( $this->settings['client_id'] . ':' . $this->settings['client_secret'] );
+	protected function get_api_url_base() {
+		return 'https://checkout.dintero.com/v1/';
 	}
 
 	/**
@@ -74,123 +90,117 @@ abstract class Dintero_Checkout_Request {
 	 *
 	 * @return array Required request headers.
 	 */
-	protected function get_headers() {
+	protected function get_request_headers() {
 		return array(
 			'authorization'                 => $this->get_access_token(),
 			'content-type'                  => 'application/json; charset=utf-8',
 			'accept'                        => 'application/json',
 			'dintero-system-name'           => 'woocommerce',
 			'dintero-system-version'        => WC()->version,
-			'dintero-system-plugin-vame'    => 'Dintero.Checkout.WooCommerce.V2',
+			'dintero-system-plugin-name'    => 'Dintero.Checkout.WooCommerce.V2',
 			'dintero-system-plugin-version' => DINTERO_CHECKOUT_VERSION,
 		);
 	}
 
-
-	 /**
-	  * Generate access token.
-	  *
-	  * @return string|array An access token string on success or an associative array on failure. Check for is_error index.
-	  */
+	/**
+	 * Get the access token from Dintero.
+	 *
+	 * @return string
+	 */
 	private function get_access_token() {
-
-		// Check if the token has expired (or been deleted before expiration).
 		$access_token = get_transient( 'dintero_checkout_access_token' );
 		if ( $access_token ) {
 			return $access_token;
 		}
 
-		$request_url  = 'https://checkout.dintero.com/v1/accounts/' . $this->environment() . $this->settings['account_id'] . '/auth/token';
-		$request_args = array(
-			'method'  => 'POST',
-			'headers' => array(
-				'Authorization' => $this->calculate_auth(),
-				'Content-Type'  => 'application/json; charset=utf-8',
-				'Accept'        => 'application/json',
-			),
-			'body'    => json_encode(
-				array(
-					'grant_type' => 'client_credentials',
-					'audience'   => 'https://api.dintero.com/v1/accounts/' . $this->environment() . $this->settings['account_id'],
-				)
-			),
-		);
+		$response = Dintero()->api->get_access_token();
 
-		$response = $this->process_response(
-			wp_remote_request(
-				$request_url,
-				$request_args,
-			)
-		);
-		Dintero_Logger::log(
-			Dintero_Logger::format( '', 'POST', 'Generate new access token', $response['request'], $response['result'], $response['code'], $request_url )
-		);
-
-		if ( ! $response['is_error'] ) {
-			$access_token = $response['result']['token_type'] . ' ' . $response['result']['access_token'];
-			set_transient( 'dintero_checkout_access_token', $access_token, absint( $response['result']['expires_in'] ) );
-			return $access_token;
-		}
-
-		return $response;
+		$access_token = $response['token_type'] . ' ' . $response['access_token'];
+		set_transient( 'dintero_checkout_access_token', $access_token, absint( $response['expires_in'] ) );
+		return $access_token;
 	}
 
 	/**
-	 * Validates the API request.
+	 * Get the user agent.
 	 *
-	 * @param array|WP_Error $response The received response from the HTTP request.
-	 * @param array          $request_args The header and payload (if applicable).
-	 * @param string         $request_url The request URL.
-	 * @return array An associative array on success and failure. Check for is_error index.
+	 * @return string
 	 */
-	public function process_response( $response ) {
+	protected function get_user_agent() {
+		return apply_filters(
+			'http_headers_useragent',
+			'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' )
+		) . ' - WooCommerce: ' . WC()->version . ' - QLIRO ONE: ' . DINTERO_CHECKOUT_VERSION . ' - PHP Version: ' . phpversion() . ' - Krokedil';
+	}
+
+	/**
+	 * Get the request args.
+	 *
+	 * @return array
+	 */
+	abstract protected function get_request_args();
+
+	/**
+	 * Get the request url.
+	 *
+	 * @return string
+	 */
+	abstract protected function get_request_url();
+
+	/**
+	 * Make the request.
+	 *
+	 * @return object|WP_Error
+	 */
+	public function request() {
+		$url      = $this->get_request_url();
+		$args     = $this->get_request_args();
+		$response = wp_remote_request( $url, $args );
+		return $this->process_response( $response, $args, $url );
+	}
+
+	/**
+	 * Processes the response checking for errors.
+	 *
+	 * @param object|WP_Error $response The response from the request.
+	 * @param array           $request_args The request args.
+	 * @param string          $request_url The request url.
+	 * @return array|WP_Error
+	 */
+	protected function process_response( $response, $request_args, $request_url ) {
 		if ( is_wp_error( $response ) ) {
-			return array(
-				'code'     => $response->get_error_code(),
-				'result'   => $response->get_error_message(),
-				'request'  => $this->request_args,
-				'is_error' => true,
-			);
+			return $response;
 		}
+
+		$this->log_response( $response, $request_args, $request_url );
 
 		// The request succeeded, check for API errors.
 		$code = wp_remote_retrieve_response_code( $response );
 		if ( $code < 200 || $code > 200 ) {
 			if ( ! is_null( json_decode( $response['body'], true ) ) ) {
+				$data   = 'URL: ' . $request_url . ' - ' . wp_json_encode( $request_args );
 				$errors = json_decode( $response['body'], true )['error'];
 
-				return array(
-					'code'     => $code,
-					'result'   => $errors,
-					'request'  => $this->request_args,
-					'is_error' => true,
-				);
+				return new WP_Error( $code, $errors, $data );
 			}
 		}
 
-		// All good.
-		return array(
-			'code'     => $code,
-			'result'   => json_decode( wp_remote_retrieve_body( $response ), true ),
-			'request'  => $this->request_args,
-			'is_error' => false,
-		);
+		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
 
 	/**
-	 * Issue request.
+	 * Logs the response from the request.
 	 *
-	 * @return array An associative array on success and failure. Check for is_error index.
+	 * @param object|WP_Error $response The response from the request.
+	 * @param array           $request_args The request args.
+	 * @param string          $request_url The request URL.
+	 * @return void
 	 */
-	public function request() {
-
-		$this->request_args['method'] = strtoupper( $this->request_method );
-
-		return $this->process_response(
-			wp_remote_request(
-				$this->request_url,
-				$this->request_args
-			)
-		);
+	protected function log_response( $response, $request_args, $request_url ) {
+		$method   = $this->method;
+		$title    = "{$this->log_title} - URL: {$request_url}";
+		$code     = wp_remote_retrieve_response_code( $response );
+		$order_id = $response['OrderID'] ?? null;
+		$log      = Dintero_Checkout_Logger::format_log( $order_id, $method, $title, $request_args, $response, $code, $request_url );
+		Dintero_Checkout_Logger::log( $log );
 	}
 }

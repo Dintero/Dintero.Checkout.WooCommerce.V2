@@ -29,7 +29,6 @@ class Dintero_Settings_Fields {
 				'description' => '',
 				'default'     => 'yes',
 			),
-
 			'dintero_configuration'                   => array(
 				'title' => __( 'Dintero configuration', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'title',
@@ -78,7 +77,6 @@ class Dintero_Settings_Fields {
 				'default'     => 'yes',
 				'desc_tip'    => true,
 			),
-
 			'checkout_type_title'                     => array(
 				'title' => __( 'Checkout type', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'title',
@@ -91,7 +89,6 @@ class Dintero_Settings_Fields {
 					'express'  => __( 'Dintero Checkout Express', 'dintero-checkout-for-woocommerce' ),
 				),
 			),
-
 			'form_factor_title'                       => array(
 				'title' => __( 'Form factor', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'title',
@@ -104,7 +101,6 @@ class Dintero_Settings_Fields {
 					'redirect' => __( 'Redirect', 'dintero-checkout-for-woocommerce' ),
 				),
 			),
-
 			/* The "Redirect box" is hidden until the form factor Redirect is selected. */
 			'redirect_title'                          => array(
 				'title'       => __( 'Title', 'dintero-checkout-for-woocommerce' ),
@@ -140,7 +136,6 @@ class Dintero_Settings_Fields {
 				'placeholder' => __( 'Enter your text here (optional)', 'dintero-checkout-for-woocommerce' ),
 			),
 			/* End of "Redirect box". */
-
 			'order_statuses_title'                    => array(
 				'title' => __( 'Order statuses', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'title',
@@ -154,7 +149,6 @@ class Dintero_Settings_Fields {
 					'on-hold'    => __( 'On-hold', 'dintero-checkout-for-woocommerce' ),
 				),
 			),
-
 			/* The Dintero Checkout Express Settings */
 			'dintero_checkout_express_settings_title' => array(
 				'title' => __( 'Dintero Checkout Express Settings', 'dintero-checkout-for-woocommerce' ),
@@ -231,5 +225,4 @@ class Dintero_Settings_Fields {
 
 		return apply_filters( 'dintero_checkout_settings', $settings );
 	}
-
 }

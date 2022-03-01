@@ -10,6 +10,7 @@ jQuery(function ($) {
 		preventPaymentMethodChange: false,
 		selectAnotherSelector: '#dintero-checkout-select-other',
 		paymentMethodEl: $('input[name="payment_method"]'),
+		checkout: null,
 
 		init: function () {
 			$(document).ready(dinteroCheckoutForWooCommerce.documentReady);
@@ -17,18 +18,41 @@ jQuery(function ($) {
 			dinteroCheckoutForWooCommerce.bodyEl.on('click', dinteroCheckoutForWooCommerce.selectAnotherSelector, dinteroCheckoutForWooCommerce.changeFromDinteroCheckout);
 
 			dinteroCheckoutForWooCommerce.renderIframe();
+
+			dinteroCheckoutForWooCommerce.bodyEl.on('update_checkout', dinteroCheckoutForWooCommerce.updateCheckout);
+			dinteroCheckoutForWooCommerce.bodyEl.on('updated_checkout', dinteroCheckoutForWooCommerce.updatedCheckout);
 		},
+
+		updateCheckout: function() {
+			console.log('update_checkout');
+			if(dinteroCheckoutForWooCommerce.checkout !== null) {
+				console.log("locking session");
+				console.log(dinteroCheckoutForWooCommerce.checkout);
+				dinteroCheckoutForWooCommerce.checkout.lockSession();
+			}
+		},
+
+		updatedCheckout: function() {
+			console.log('updated_checkout');
+			if(dinteroCheckoutForWooCommerce.checkout !== null) {
+				console.log("refreshing session");
+				dinteroCheckoutForWooCommerce.checkout.refreshSession();
+			}
+		},
+
 		/**
 		 * Render the iframe and register callback functionality.
 		 */
 		renderIframe: async function() {
 			const container = $('#dintero-checkout-iframe')[0];
 
-			const checkout = await dintero.embed({
+			dintero.embed({
 				container,
 				sid: dinteroCheckoutParams.SID,
 				onSession: function(event, checkout) {
-					// Unused.
+					// Check for address changes and update shipping.
+					console.log(event);
+					dinteroCheckoutForWooCommerce.updateAddress(event.session.order.billing_address, event.session.order.shipping_address);
 				},
 				onPayment: function(event, checkout) {
 					// Unused.
@@ -41,9 +65,11 @@ jQuery(function ($) {
 				},
 				onSessionLocked: function(event, checkout, callback) {
 					// Unused.
+					console.log('session locked');
 				},
 				onSessionLockFailed: function(event, checkout) {
 					// Unused.
+					console.log('session lock failed');
 				},
 				onActivePaymentType: function(event, checkout) {
 					// Unused.
@@ -55,10 +81,9 @@ jQuery(function ($) {
 					   clientValidationError: "testing",
 					});
 				},
+			}).then(function(checkout) {
+				dinteroCheckoutForWooCommerce.checkout = checkout;
 			});
-
-			dinteroCheckoutForWooCommerce.bodyEl.on('update_checkout', checkout.lockSession());
-			dinteroCheckoutForWooCommerce.bodyEl.on('updated_checkout', checkout.refreshSession());
 		},
 
 		/**
@@ -174,28 +199,55 @@ jQuery(function ($) {
 				}
 			}
 		},
-		updateAddress: function (customerInfo) {
-			var billingEmail = (('email' in customerInfo) ? customerInfo.email : null);
-			var billingPhone = (('mobileNumber' in customerInfo) ? customerInfo.mobileNumber : null);
-			var billingFirstName = (('firstName' in customerInfo.address) ? customerInfo.address.firstName : null);
-			var billingLastName = (('lastName' in customerInfo.address) ? customerInfo.address.lastName : null);
-			var billingStreet = (('street' in customerInfo.address) ? customerInfo.address.street : null);
-			var billingPostalCode = (('postalCode' in customerInfo.address) ? customerInfo.address.postalCode : null);
-			var billingCity = (('city' in customerInfo.address) ? customerInfo.address.city : null);
+		updateAddress: function (billingAddress, shippingAddress) {
+			let update = false;
+			// Set billing data.
+			if( null !== billingAddress && undefined !== billingAddress ) {
+				var billingEmail = (('email' in billingAddress) ? billingAddress.email : null);
+				var billingPhone = (('phone_number' in billingAddress) ? billingAddress.phone_number : null);
+				var billingFirstName = (('first_name' in billingAddress) ? billingAddress.first_name : null);
+				var billingLastName = (('last_name' in billingAddress) ? billingAddress.last_name : null);
+				var billingAddress1 = (('address_line' in billingAddress) ? billingAddress.address_line : null);
+				var billingPostalCode = (('postal_code' in billingAddress) ? billingAddress.postal_code : null);
+				var billingCity = (('postal_place' in billingAddress) ? billingAddress.postal_place : null);
+				var billingCountry = (('country' in billingAddress) ? billingAddress.country : null);
 
-			(billingEmail !== null && billingEmail !== undefined) ? $('#billing_email').val(customerInfo.email) : null;
-			(billingPhone !== null && billingPhone !== undefined) ? $('#billing_phone').val(customerInfo.mobileNumber) : null;
-			(billingFirstName !== null && billingFirstName !== undefined) ? $('#billing_first_name').val(customerInfo.address.firstName) : null;
-			(billingLastName !== null && billingLastName !== undefined) ? $('#billing_last_name').val(customerInfo.address.lastName) : null;
-			(billingStreet !== null && billingStreet !== undefined) ? $('#billing_address_1').val(customerInfo.address.street) : null;
-			(billingPostalCode !== null && billingPostalCode !== undefined) ? $('#billing_postcode').val(customerInfo.address.postalCode) : null;
-			(billingCity !== null && billingCity !== undefined) ? $('#billing_city').val(customerInfo.address.city) : null;
+				(billingEmail !== null && billingEmail !== undefined) ? $('#billing_email').val(billingEmail) : null;
+				(billingPhone !== null && billingPhone !== undefined) ? $('#billing_phone').val(billingPhone) : null;
+				(billingFirstName !== null && billingFirstName !== undefined) ? $('#billing_first_name').val(billingFirstName) : null;
+				(billingLastName !== null && billingLastName !== undefined) ? $('#billing_last_name').val(billingLastName) : null;
+				(billingAddress !== null && billingAddress !== undefined) ? $('#billing_address_1').val(billingAddress1) : null;
+				(billingPostalCode !== null && billingPostalCode !== undefined) ? $('#billing_postcode').val(billingPostalCode) : null;
+				(billingCity !== null && billingCity !== undefined) ? $('#billing_city').val(billingCity) : null;
+				(billingCountry !== null && billingCountry !== undefined) ? $('#billing_country').val(billingCountry) : null;
+				update = true;
+			}
+
+			// Set shipping data.
+			if( null !== shippingAddress && undefined !== shippingAddress ) {
+				$( '#ship-to-different-address-checkbox' ).prop( 'checked', true);
+				var shippingFirstName = (('first_name' in shippingAddress) ? shippingAddress.first_name : null);
+				var shippingLastName = (('last_name' in shippingAddress) ? shippingAddress.last_name : null);
+				var shippingAddress1 = (('address_line' in shippingAddress) ? shippingAddress.address_line : null);
+				var shippingPostalCode = (('postal_code' in shippingAddress) ? shippingAddress.postal_code : null);
+				var shippingCity = (('postal_place' in shippingAddress) ? shippingAddress.postal_place : null);
+				var shippingCountry = (('country' in shippingAddress) ? shippingAddress.country : null);
+
+				(shippingFirstName !== null && shippingFirstName !== undefined) ? $('#shipping_first_name').val(shippingFirstName) : null;
+				(shippingLastName !== null && shippingLastName !== undefined) ? $('#shipping_last_name').val(shippingLastName) : null;
+				(shippingAddress !== null && shippingAddress !== undefined) ? $('#shipping_address_1').val(shippingAddress1) : null;
+				(shippingPostalCode !== null && shippingPostalCode !== undefined) ? $('#shipping_postcode').val(shippingPostalCode) : null;
+				(shippingCity !== null && shippingCity !== undefined) ? $('#shipping_city').val(shippingCity) : null;
+				(shippingCountry !== null && shippingCountry !== undefined) ? $('#shipping_country').val(shippingCountry) : null;
+				update = true;
+			}
 
 			// Trigger changes
-			$('#billing_email').change();
-			$('#billing_email').blur();
-
-			$("form.checkout").trigger('update_checkout');
+			if(update) {
+				$('#billing_email').change();
+				$('#billing_email').blur();
+				$("form.checkout").trigger('update_checkout');
+			}
 		},
 
 		getDinteroCheckoutOrder: function (data, callback) {
@@ -224,7 +276,6 @@ jQuery(function ($) {
 			if (0 < $('form.checkout #terms').length) {
 				$('form.checkout #terms').prop('checked', true);
 			}
-			console.log(addressData);
 
 			// Billing fields.
 			$('#billing_first_name').val(addressData.billingAddress.FirstName);

@@ -1,4 +1,3 @@
-
 <?php //phpcs:ignore
 /**
  * Class for updating a checkout session.
@@ -13,37 +12,43 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class for a Dintero checkout session.
  */
-class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request {
-
+class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_Put {
 	/**
 	 * Class constructor.
+	 *
+	 * @param array $arguments The request arguments.
 	 */
-	public function __construct() {
-		$this->request_method = 'PUT';
+	public function __construct( $arguments ) {
+		parent::__construct( $arguments );
+
+		$this->log_title = 'Update Dintero Session.';
 	}
 
 	/**
-	 * Update the Dintero order.
+	 * Get the request url.
 	 *
-	 * @param string $dintero_id The Dintero transaction id.
-	 * @return array An associative array on success and failure. Check for is_error index.
+	 * @return string
 	 */
-	public function update_session( $session_id ) {
-		$this->request_url  = 'https://checkout.dintero.com/v1/sessions/' . $session_id;
-		$this->request_args = array(
-			'headers' => $this->get_headers(),
-			'body'    => array(
-				'order'       => ( new Dintero_Checkout_Cart() )->cart(),
-				'remove_lock' => true,
+	protected function get_request_url() {
+		return "{$this->get_api_url_base()}sessions/{$this->arguments['session_id']}";
+	}
+
+	/**
+	 * Returns the body for the request.
+	 *
+	 * @return array
+	 */
+	public function get_body() {
+		$helper = new Dintero_Checkout_Cart();
+		return array(
+			'order'       => array(
+				'amount'          => $helper::get_order_total(),
+				'currency'        => $helper::get_currency(),
+				'vat_amount'      => $helper::get_tax_total(),
+				'items'           => $helper::get_order_lines(),
+				'shipping_option' => $helper::get_shipping_object(),
 			),
+			'remove_lock' => true,
 		);
-
-		$response = $this->request();
-
-		Dintero_Logger::log(
-			Dintero_Logger::format( '', $this->request_method, 'Update Dintero checkout session', $response['request'], $response['result'], $response['code'], $this->request_url )
-		);
-
-		return $response;
 	}
 }

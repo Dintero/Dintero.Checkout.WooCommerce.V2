@@ -45,7 +45,15 @@ class Dintero_Checkout_Assets {
 			true,
 		);
 
+		wp_register_style(
+			'dintero-checkout-admin',
+			plugins_url( 'assets/css/dintero-checkout-admin.css', DINTERO_CHECKOUT_MAIN_FILE ),
+			array(),
+			DINTERO_CHECKOUT_VERSION
+		);
+
 		wp_enqueue_script( 'dintero-checkout-admin' );
+		wp_enqueue_style( 'dintero-checkout-admin' );
 	}
 
 	/**
@@ -64,13 +72,9 @@ class Dintero_Checkout_Assets {
 			return;
 		}
 
-		if ( 'dintero_checkout' !== WC()->session->chosen_payment_method ) {
-			return;
-		}
-
 		// TODO: Check if embedded is enabled.
 
-		$sdk_url = 'https://unpkg.com/@dintero/checkout-web-sdk@0.0.17/dist/dintero-checkout-web-sdk.umd.min.js';
+		$sdk_url = 'https://unpkg.com/@dintero/checkout-web-sdk@0.3.1/dist/dintero-checkout-web-sdk.umd.min.js';
 		wp_register_script(
 			'dintero-checkout-sdk',
 			$sdk_url,
@@ -90,8 +94,9 @@ class Dintero_Checkout_Assets {
 		$session_id = WC()->session->get( 'dintero_checkout_session_id' );
 		if ( empty( $session_id ) ) {
 			// FIXME: The shipping_option is not available at this point. The current workaround is to check for null.
+			WC()->cart->calculate_shipping();
 			$session    = Dintero()->api->create_session();
-			$session_id = $session['result']['id'];
+			$session_id = $session['id'];
 			WC()->session->set( 'dintero_checkout_session_id', $session_id );
 		}
 
