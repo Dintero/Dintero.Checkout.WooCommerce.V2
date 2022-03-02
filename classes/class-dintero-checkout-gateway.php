@@ -32,8 +32,8 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			);
 			$this->init_form_fields();
 			$this->init_settings();
-			$this->title       = $this->get_option( 'title' );
-			$this->description = $this->get_option( 'description' );
+			$this->title       = $this->get_option( 'redirect_title' );
+			$this->description = $this->get_option( 'redirect_description' );
 			$this->enabled     = $this->get_option( 'enabled' );
 			$this->test_mode   = 'yes' === $this->get_option( 'test_mode' );
 			$this->logging     = 'yes' === $this->get_option( 'logging' );
@@ -78,18 +78,10 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				$branding['color']   = str_replace( '#', '', $settings['branding_logo_color_custom'] );
 			}
 
-			$branding_options_query = join(
-				'/',
-				array_map(
-					function( $key, $value ) {
-						return $key . '/' . $value;
-					},
-					array_keys( $branding ),
-					array_values( $branding )
-				)
-			);
-
-			$icon_url = 'https://checkout.dintero.com/v1/branding/accounts/' . $environment . $settings['account_id'] . '/profiles/' . $settings['profile_id'] . '/' . $branding_options_query;
+			$icon_url = 'https://checkout.dintero.com/v1/branding/accounts/' . $environment . $settings['account_id'] . '/profiles/' . $settings['profile_id'];
+			foreach ( $branding as $key => $value ) {
+				$icon_url .= '/' . $key . '/' . $value;
+			}
 
 			return '<img src="' . esc_attr( $icon_url ) . '" style="max-width: 90%" alt="Dintero Logo" />';
 

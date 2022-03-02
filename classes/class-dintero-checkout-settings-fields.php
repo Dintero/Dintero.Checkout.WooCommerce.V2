@@ -22,47 +22,62 @@ class Dintero_Settings_Fields {
 	 */
 	public static function setting_fields() {
 		$settings = array(
-			'enabled'                                 => array(
+			'enabled'                    => array(
 				'title'       => __( 'Enable/Disable', 'dintero-checkout-for-woocommerce' ),
 				'label'       => __( 'Enable Dintero Checkout', 'dintero-checkout-for-woocommerce' ),
 				'type'        => 'checkbox',
 				'description' => '',
 				'default'     => 'yes',
 			),
+			'redirect_title'             => array(
+				'title'       => __( 'Title', 'dintero-checkout-for-woocommerce' ),
+				'type'        => 'text',
+				'description' => __( 'Payment method title (appears on checkout page if more than one payment method is available).', 'Dintero-checkout-for-woocommerce' ),
+				'default'     => 'Dintero Checkout',
+				'desc_tip'    => true,
+			),
+			'redirect_description'       => array(
+				'title'       => __( 'Description', 'dintero-checkout-for-woocommerce' ),
+				'type'        => 'textarea',
+				'description' => __( 'Payment method description (appears on checkout page if more than one payment method is available).', 'Dintero-checkout-for-woocommerce' ),
+				'default'     => '',
+				'desc_tip'    => true,
+				'placeholder' => __( 'Choose your payment method in our checkout.', 'dintero-checkout-for-woocommerce' ),
+			),
 
-			'dintero_configuration'                   => array(
+			'dintero_configuration'      => array(
 				'title' => __( 'Dintero configuration', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'title',
 			),
-			'account_id'                              => array(
+			'account_id'                 => array(
 				'title'       => __( 'Account ID', 'dintero-checkout-for-woocommerce' ),
 				'type'        => 'text',
 				'default'     => '',
 				'desc_tip'    => true,
 				'description' => __( 'Found under (SETTINGS → Account) in Dintero Backoffice.', 'dintero-checkout-for-woocommerce' ),
 			),
-			'client_id'                               => array(
+			'client_id'                  => array(
 				'title'       => __( 'Client ID', 'dintero-checkout-for-woocommerce' ),
 				'type'        => 'text',
 				'default'     => '',
 				'desc_tip'    => true,
 				'description' => __( 'Generated under (SETTINGS → API clients) in Dintero Backoffice.', 'dintero-checkout-for-woocommerce' ),
 			),
-			'client_secret'                           => array(
+			'client_secret'              => array(
 				'title'       => __( 'Client secret', 'dintero-checkout-for-woocommerce' ),
 				'type'        => 'password',
 				'default'     => '',
 				'desc_tip'    => true,
 				'description' => __( 'Generated under (SETTINGS → API clients) in Dintero Backoffice.', 'dintero-checkout-for-woocommerce' ),
 			),
-			'profile_id'                              => array(
+			'profile_id'                 => array(
 				'title'       => __( 'Profile ID', 'dintero-checkout-for-woocommerce' ),
 				'type'        => 'text',
 				'default'     => 'default',
 				'desc_tip'    => true,
 				'description' => __( 'Test payment window profile ID. Found under (SETTINGS → Payment windows) in Dintero Backoffice.', 'dintero-checkout-for-woocommerce' ),
 			),
-			'test_mode'                               => array(
+			'test_mode'                  => array(
 				'title'       => __( 'Enable test mode:', 'dintero-checkout-for-woocommerce' ),
 				'label'       => ' ',
 				'type'        => 'checkbox',
@@ -70,7 +85,7 @@ class Dintero_Settings_Fields {
 				'default'     => 'no',
 				'desc_tip'    => true,
 			),
-			'logging'                                 => array(
+			'logging'                    => array(
 				'title'       => __( 'Enable logging', 'dintero-checkout-for-woocommerce' ),
 				'label'       => ' ',
 				'type'        => 'checkbox',
@@ -79,33 +94,17 @@ class Dintero_Settings_Fields {
 				'desc_tip'    => true,
 			),
 
-			'branding_title'                          => array(
+			'branding_title'             => array(
 				'title' => __( 'Branding', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'title',
 			),
-			'branding_enable_footer_logo'             => array(
-				'title'   => __( 'Enable logos in footer', 'dintero-checkout-for-woocommerce' ),
-				'type'    => 'checkbox',
-				'default' => 'no',
-				'label'   => __( 'Enable', 'dintero-checkout-for-woocommerce' ),
-			),
-			'branding_logo_color'                     => array(
+			'branding_logo_color'        => array(
 				'title'   => __( 'Logo color', 'dintero-checkout-for-woocommerce' ),
 				'type'    => 'checkbox',
 				'default' => 'yes',
 				'label'   => __( 'Default color', 'dintero-checkout-for-woocommerce' ),
 			),
-			'branding_logo_color_custom'              => array(
-				'title' => __( 'Custom color', 'dintero-checkout-for-woocommerce' ),
-				'type'  => 'color',
-			),
-			'branding_footer_background_color'        => array(
-				'title'   => __( 'Footer background color', 'dintero-checkout-for-woocommerce' ),
-				'type'    => 'checkbox',
-				'default' => 'yes',
-				'label'   => __( 'Default color', 'dintero-checkout-for-woocommerce' ),
-			),
-			'branding_footer_background_color_custom' => array(
+			'branding_logo_color_custom' => array(
 				'title' => __( 'Custom color', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'color',
 			),

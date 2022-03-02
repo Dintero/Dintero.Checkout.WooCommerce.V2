@@ -110,7 +110,7 @@ class Dintero_Checkout_Redirect {
 
 		if ( $require_authorization ) {
 			$order->add_order_note( sprintf( __( 'The order was placed successfully, but requires further authorization by Dintero. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
-			$order->set_status( 'on-hold' );
+			$order->set_status( 'manual-review' );
 			$order->save();
 
 			update_post_meta( $order_id, Dintero()->order_management->status( 'on_hold' ), $transaction_id );
