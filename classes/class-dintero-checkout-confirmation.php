@@ -36,21 +36,20 @@ class Dintero_Checkout_Redirect {
 		// The 'merchant_reference' is guaranteed to always be available.
 		$merchant_reference = filter_input( INPUT_GET, 'merchant_reference', FILTER_SANITIZE_STRING );
 
-		// The WC_Order is used for generating the redirect URL to the thank-you page. If it doesn't exist, the method calls will result in a fatal error.
-		$order_key = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_STRING );
-		if ( empty( $order_key ) ) {
-			Dintero_Checkout_Logger::log( sprintf( 'RETURN ERROR [order_key]: No order key was found for %s. Cannot identify the WC order. Redirecting customer back to checkout page. ', $merchant_reference ) );
+		if ( empty( $merchant_reference ) ) {
+			Dintero_Checkout_Logger::log( sprintf( 'RETURN ERROR [merchant_reference]: No order key was found for %s. Cannot identify the WC order. Redirecting customer back to checkout page. ', $merchant_reference ) );
 
-			wc_add_notice( __( 'Something went wrong (order_key).', 'dintero-checkout-for-woocommerce' ), 'error' );
+			wc_add_notice( __( 'Something went wrong (merchant_reference).', 'dintero-checkout-for-woocommerce' ), 'error' );
 			wp_redirect( wc_get_checkout_url() );
 			exit;
 		}
 
-		$order_id = wc_get_order_id_by_order_key( $order_key );
-		if ( empty( $order_id ) ) {
-			Dintero_Checkout_Logger::log( 'RETURN ERROR [order_key]: Failed to retrieve the order id from the order key. Redirecting customer back to checkout page.' );
+		$order_id = $this->get_order_id_from_reference( $merchant_reference );
 
-			wc_add_notice( __( 'Something went wrong (order_key failed).', 'dintero-checkout-for-woocommerce' ), 'error' );
+		if ( empty( $order_id ) ) {
+			Dintero_Checkout_Logger::log( 'RETURN ERROR [order_id]: Failed to retrieve the order id from the order key. Redirecting customer back to checkout page.' );
+
+			wc_add_notice( __( 'Something went wrong (order_id failed).', 'dintero-checkout-for-woocommerce' ), 'error' );
 			wp_redirect( wc_get_checkout_url() );
 			exit;
 		}
@@ -109,6 +108,7 @@ class Dintero_Checkout_Redirect {
 		$require_authorization = ( ! $dintero_order['is_error'] && 'ON_HOLD' === $dintero_order['result']['status'] );
 
 		if ( $require_authorization ) {
+			// translators: %s the Dintero transaction ID.
 			$order->add_order_note( sprintf( __( 'The order was placed successfully, but requires further authorization by Dintero. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
 			$order->set_status( 'on-hold' );
 			$order->save();
@@ -124,6 +124,7 @@ class Dintero_Checkout_Redirect {
 			$order->save();
 		}
 
+		dintero_unset_sessions();
 		update_post_meta( $order_id, '_dintero_transaction_id', $transaction_id );
 		update_post_meta( $order_id, '_transaction_id', $transaction_id );
 
@@ -141,5 +142,27 @@ class Dintero_Checkout_Redirect {
 		exit;
 	}
 
+	/**
+	 * Get a order id from the merchant reference.
+	 *
+	 * @param string $merchant_reference The merchant reference from dintero.
+	 * @return int
+	 */
+	public function get_order_id_from_reference( $merchant_reference ) {
+		$query_args = array(
+			'fields'      => 'ids',
+			'post_type'   => wc_get_order_types(),
+			'post_status' => array_keys( wc_get_order_statuses() ),
+			'meta_key'    => '_dintero_merchant_reference', // phpcs:ignore WordPress.DB.SlowDBQuery -- Slow DB Query is ok here, we need to limit to our meta key.
+			'meta_value'  => $merchant_reference, // phpcs:ignore WordPress.DB.SlowDBQuery -- Slow DB Query is ok here, we need to limit to our meta key.
+		);
 
+		$order_ids = get_posts( $query_args );
+
+		if ( empty( $order_ids ) ) {
+			return null;
+		}
+
+		return $order_ids[0];
+	}
 } new Dintero_Checkout_Redirect();

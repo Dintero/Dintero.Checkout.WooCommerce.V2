@@ -11,6 +11,7 @@ jQuery(function ($) {
 		selectAnotherSelector: '#dintero-checkout-select-other',
 		paymentMethodEl: $('input[name="payment_method"]'),
 		checkout: null,
+		validation: false,
 
 		init: function () {
 			$(document).ready(dinteroCheckoutForWooCommerce.documentReady);
@@ -24,13 +25,13 @@ jQuery(function ($) {
 		},
 
 		updateCheckout: function() {
-			if(dinteroCheckoutForWooCommerce.checkout !== null) {
+			if(dinteroCheckoutForWooCommerce.checkout !== null &&  ! dinteroCheckoutForWooCommerce.validation) {
 				dinteroCheckoutForWooCommerce.checkout.lockSession();
 			}
 		},
 
 		updatedCheckout: function() {
-			if(dinteroCheckoutForWooCommerce.checkout !== null) {
+			if(dinteroCheckoutForWooCommerce.checkout !== null &&  ! dinteroCheckoutForWooCommerce.validation) {
 				dinteroCheckoutForWooCommerce.checkout.refreshSession();
 			}
 		},
@@ -50,7 +51,8 @@ jQuery(function ($) {
 					dinteroCheckoutForWooCommerce.updateAddress(event.session.order.billing_address, event.session.order.shipping_address);
 				},
 				onPayment: function(event, checkout) {
-					// Unused.
+					console.log(event);
+					window.location.href = event.href
 				},
 				onPaymentError: function(event, checkout) {
 					// Unused.
@@ -60,22 +62,21 @@ jQuery(function ($) {
 				},
 				onSessionLocked: function(event, checkout, callback) {
 					// Unused.
-					console.log('session locked');
 				},
 				onSessionLockFailed: function(event, checkout) {
 					// Unused.
-					console.log('session lock failed');
 				},
 				onActivePaymentType: function(event, checkout) {
 					// Unused.
 				},
 				onValidateSession: function(event, checkout, callback) {
-					console.log('validate session');
+					dinteroCheckoutForWooCommerce.validation = true;
 					dinteroCheckoutForWooCommerce.updateAddress(event.session.order.billing_address, event.session.order.shipping_address);
 					if ( 0 < $( 'form.checkout #terms' ).length ) {
 						$( 'form.checkout #terms' ).prop( 'checked', true );
 					}
 					dinteroCheckoutForWooCommerce.submitOrder(callback);
+					dinteroCheckoutForWooCommerce.validation = false;
 				},
 			}).then(function(checkout) {
 				dinteroCheckoutForWooCommerce.checkout = checkout;

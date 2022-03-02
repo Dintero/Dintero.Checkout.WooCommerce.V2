@@ -104,9 +104,13 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 */
 		public function process_payment( $order_id ) {
 			// $session = Dintero()->api->create_session( $order_id );
+			// $order->add_order_note( __( 'Customer redirected to Dintero payment page.', 'dintero-checkout-for-woocommerce' ) );
 			$order = wc_get_order( $order_id );
 
-			$order->add_order_note( __( 'Customer redirected to Dintero payment page.', 'dintero-checkout-for-woocommerce' ) );
+			$reference = WC()->session->get( 'dintero_merchant_reference' );
+			update_post_meta( $order_id, '_dintero_merchant_reference', $reference );
+			$order->add_order_note( __( 'Dintero Order created with reference ', 'dintero-checkout-for-woocommerce' ) . $reference );
+
 			return array(
 				'result' => 'success',
 				// 'redirect' => $session['result']['url'],

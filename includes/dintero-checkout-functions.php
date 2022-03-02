@@ -35,3 +35,13 @@ function dintero_checkout_wc_show_another_gateway_button() {
 		<?php
 	}
 }
+
+/**
+ * Unsets all sessions set by Dintero.
+ *
+ * @return void
+ */
+function dintero_unset_sessions() {
+	WC()->session->__unset( 'dintero_checkout_session_id' );
+	WC()->session->__unset( 'dintero_merchant_reference' );
+}

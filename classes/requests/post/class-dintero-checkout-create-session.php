@@ -47,12 +47,15 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			$helper = new Dintero_Checkout_Cart();
 		}
 
+		$reference = $helper::get_merchant_reference();
+
+		WC()->session->set( 'dintero_merchant_reference', $reference );
+
 		$body = array(
 			'url'        => array(
 				'return_url' => add_query_arg(
 					array(
 						'gateway' => 'dintero',
-						'key'     => '', // ( ! empty( $order ) ) ? $order->get_order_key() : '',
 					),
 					home_url()
 				),
@@ -60,7 +63,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			'order'      => array(
 				'amount'             => $helper::get_order_total(),
 				'currency'           => $helper::get_currency(),
-				'merchant_reference' => $helper::get_merchant_reference(),
+				'merchant_reference' => $reference,
 				'vat_amount'         => $helper::get_tax_total(),
 				'items'              => $helper::get_order_lines(),
 				'shipping_option'    => $helper::get_shipping_object(),
