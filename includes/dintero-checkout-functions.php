@@ -45,3 +45,13 @@ function dintero_unset_sessions() {
 	WC()->session->__unset( 'dintero_checkout_session_id' );
 	WC()->session->__unset( 'dintero_merchant_reference' );
 }
+
+/**
+ * Prints error message as notices.
+ *
+ * @param WP_Error $wp_error A WordPress error object.
+ * @return void
+ */
+function dintero_print_error_message( $wp_error ) {
+	wc_print_notice( $wp_error->get_error_message(), 'error' );
+}

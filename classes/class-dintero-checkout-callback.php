@@ -122,7 +122,11 @@ class Dintero_Checkout_Callback {
 
 		// Check if the order is set to on-hold, awaiting authorization.
 		$dintero_order = Dintero()->api->get_order( $transaction_id );
-		$is_authorized = ( 'AUTHORIZED' === $dintero_order['result']['status'] );
+		if ( is_wp_error( $dintero_order ) ) {
+			return;
+		}
+
+		$is_authorized = ( 'AUTHORIZED' === $dintero_order['status'] );
 		if ( $is_authorized && get_post_meta( $order_id, Dintero()->order_management->status( 'on_hold' ), true ) ) {
 			$order->add_order_note( __( 'The order has been authorized by Dintero.', 'dintero-checkout-for-woocommerce' ) );
 			$order->set_status( 'processing' );
@@ -131,12 +135,12 @@ class Dintero_Checkout_Callback {
 			delete_post_meta( $order_id, Dintero()->order_management->status( 'on_hold' ) );
 
 			Dintero_Checkout_Logger::log(
-				sprintf( 'CALLBACK [%s]: The WC order ID: %s / %s (transaction ID: %s) was authorized by Dintero. Changing status from "%s" to "processing".', $dintero_order['result']['status'], $order_id, $merchant_reference, $transaction_id, $order->get_status() )
+				sprintf( 'CALLBACK [%s]: The WC order ID: %s / %s (transaction ID: %s) was authorized by Dintero. Changing status from "%s" to "processing".', $dintero_order['status'], $order_id, $merchant_reference, $transaction_id, $order->get_status() )
 			);
 			return;
 		}
 
-		$is_failed = ( 'FAILED' === $dintero_order['result']['status'] );
+		$is_failed = ( 'FAILED' === $dintero_order['status'] );
 		if ( $is_failed && get_post_meta( $order_id, Dintero()->order_management->status( 'on_hold' ), true ) ) {
 			$order->add_order_note( __( 'The order was not approved by Dintero.', 'dintero-checkout-for-woocommerce' ) );
 			$order->set_status( 'failed' );
@@ -146,7 +150,7 @@ class Dintero_Checkout_Callback {
 			update_post_meta( $order_id, Dintero()->order_management->status( 'rejected' ), $transaction_id );
 
 			Dintero_Checkout_Logger::log(
-				sprintf( 'CALLBACK [%s]: The WC order ID: %s / %s (transaction ID: %s) was not approved by Dintero. Changing status from "%s" to "failed".', $dintero_order['result']['status'], $order_id, $merchant_reference, $transaction_id, $order->get_status() )
+				sprintf( 'CALLBACK [%s]: The WC order ID: %s / %s (transaction ID: %s) was not approved by Dintero. Changing status from "%s" to "failed".', $dintero_order['status'], $order_id, $merchant_reference, $transaction_id, $order->get_status() )
 			);
 			return;
 		}

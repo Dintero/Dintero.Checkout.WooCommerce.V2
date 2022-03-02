@@ -104,8 +104,13 @@ class Dintero_Checkout_Redirect {
 		}
 
 		// At this point, the gateway is Dintero, and the transaction has succeeded.
-		$dintero_order         = Dintero()->api->get_order( $transaction_id );
-		$require_authorization = ( ! $dintero_order['is_error'] && 'ON_HOLD' === $dintero_order['result']['status'] );
+		$dintero_order = Dintero()->api->get_order( $transaction_id );
+
+		if ( is_wp_error( $dintero_order ) ) {
+			return;
+		}
+
+		$require_authorization = ( ! $dintero_order['is_error'] && 'ON_HOLD' === $dintero_order['status'] );
 
 		if ( $require_authorization ) {
 			// translators: %s the Dintero transaction ID.
@@ -115,7 +120,7 @@ class Dintero_Checkout_Redirect {
 
 			update_post_meta( $order_id, Dintero()->order_management->status( 'on_hold' ), $transaction_id );
 
-			Dintero_Checkout_Logger::log( sprintf( 'RETURN [%s]: The WC order %s / %s (transaction ID: %s) will require further authorization from Dintero.', $dintero_order['result']['status'], $order_id, $merchant_reference, $transaction_id ) );
+			Dintero_Checkout_Logger::log( sprintf( 'RETURN [%s]: The WC order %s / %s (transaction ID: %s) will require further authorization from Dintero.', $dintero_order['status'], $order_id, $merchant_reference, $transaction_id ) );
 		} else {
 
 			// translators: %s the Dintero transaction ID.

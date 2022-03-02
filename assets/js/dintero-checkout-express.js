@@ -26,13 +26,13 @@ jQuery(function ($) {
 
 		updateCheckout: function() {
 			if(dinteroCheckoutForWooCommerce.checkout !== null &&  ! dinteroCheckoutForWooCommerce.validation) {
-				dinteroCheckoutForWooCommerce.checkout.lockSession();
+				//dinteroCheckoutForWooCommerce.checkout.lockSession();
 			}
 		},
 
 		updatedCheckout: function() {
 			if(dinteroCheckoutForWooCommerce.checkout !== null &&  ! dinteroCheckoutForWooCommerce.validation) {
-				dinteroCheckoutForWooCommerce.checkout.refreshSession();
+				//dinteroCheckoutForWooCommerce.checkout.refreshSession();
 			}
 		},
 

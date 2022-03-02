@@ -18,7 +18,7 @@ class Dintero_Checkout_Embeded {
 	 * Class constructor.
 	 */
 	public function __construct() {
-		add_action( 'woocommerce_after_calculate_totals', array( $this, 'update_dintero_checkout_session' ), 9999 );
+		// add_action( 'woocommerce_after_calculate_totals', array( $this, 'update_dintero_checkout_session' ), 9999 );
 	}
 
 	/**
@@ -31,6 +31,10 @@ class Dintero_Checkout_Embeded {
 			return;
 		}
 
+		if ( ! is_ajax() ) {
+			return;
+		}
+
 		if ( 'dintero_checkout' !== WC()->session->chosen_payment_method ) {
 			return;
 		}
@@ -40,11 +44,7 @@ class Dintero_Checkout_Embeded {
 			return;
 		}
 
-		// $dintero_order = Dintero()->api->get_session( $session_id );
-		// if ( 'INITIATED' === $dintero_order['status'] ) {
-			// TODO add check for if we should update later.
 		Dintero()->api->update_checkout_session( $session_id );
-		// }
 	}
 
 } new Dintero_Checkout_Embeded();

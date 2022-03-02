@@ -113,7 +113,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 
 			return array(
 				'result' => 'success',
-				// 'redirect' => $session['result']['url'],
+				// 'redirect' => $session['url'],
 			);
 		}
 

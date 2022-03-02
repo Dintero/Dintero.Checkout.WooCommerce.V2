@@ -115,6 +115,10 @@ abstract class Dintero_Checkout_Request {
 
 		$response = Dintero()->api->get_access_token();
 
+		if ( is_wp_error( $response ) ) {
+			return '';
+		}
+
 		$access_token = $response['token_type'] . ' ' . $response['access_token'];
 		set_transient( 'dintero_checkout_access_token', $access_token, absint( $response['expires_in'] ) );
 		return $access_token;

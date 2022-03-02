@@ -116,18 +116,23 @@ class Dintero_Checkout_Order_Management {
 		if ( ! $this->is_captured( $order_id ) ) {
 			$response = Dintero()->api->capture_order( $order->get_transaction_id(), $order_id );
 
-			if ( $response['is_error'] ) {
-				$order->add_order_note( ucfirst( $response['result']['message'] ) . ': ' . $response['result']['code'] . '.' );
+			if ( is_wp_error( $response ) ) {
+				/**
+				 * Handling of a WP_Error.
+				 *
+				 * @var WP_Error $response The WP_Error response.
+				 */
+				$order->add_order_note( ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.' );
 				$order->update_status( 'on-hold' );
 				return;
 			}
 
-			if ( $response['result']['amount'] > 0 ) {
-				// translators: the amount, the currency.
+			if ( $response['amount'] > 0 ) {
 				$note = sprintf(
+					// translators: the amount, the currency.
 					__( 'The Dintero order has been captured. Captured amount: %1$.2f %2$s.', 'dintero-checkout-for-woocommerce' ),
-					substr_replace( $response['result']['amount'], wc_get_price_decimal_separator(), -2, 0 ),
-					$response['result']['currency']
+					substr_replace( $response['amount'], wc_get_price_decimal_separator(), -2, 0 ),
+					$response['currency']
 				);
 
 			} else {
@@ -198,8 +203,13 @@ class Dintero_Checkout_Order_Management {
 		if ( ! $this->is_canceled( $order_id ) ) {
 			$response = Dintero()->api->cancel_order( $order->get_transaction_id() );
 
-			if ( $response['is_error'] ) {
-				$order->add_order_note( ucfirst( $response['result']['message'] ) . ': ' . $response['result']['code'] . '.' );
+			if ( is_wp_error( $response ) ) {
+				/**
+				 * Handling of a WP_Error.
+				 *
+				 * @var WP_Error $response The WP_Error response.
+				 */
+				$order->add_order_note( ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.' );
 				$order->update_status( 'on-hold' );
 				return;
 			}
@@ -251,8 +261,13 @@ class Dintero_Checkout_Order_Management {
 		if ( ! $this->is_refunded( $order_id ) ) {
 			$response = Dintero()->api->refund_order( $order->get_transaction_id(), $order_id );
 
-			if ( $response['is_error'] ) {
-				$order->add_order_note( ucfirst( $response['result']['message'] ) . ': ' . $response['result']['code'] . '.' );
+			if ( is_wp_error( $response ) ) {
+				/**
+				 * Handling of a WP_Error.
+				 *
+				 * @var WP_Error $response The WP_Error response.
+				 */
+				$order->add_order_note( ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.' );
 				return;
 			}
 		}
@@ -282,8 +297,8 @@ class Dintero_Checkout_Order_Management {
 		if ( ! empty( $order->get_transaction_id() && ! $in_woocommerce ) ) {
 			$dintero_order = Dintero()->api->get_order( $order->get_transaction_id() );
 
-			if ( ! $dintero_order['is_error'] ) {
-				return ( 'CAPTURED' === $dintero_order['result']['status'] );
+			if ( ! is_wp_error( $dintero_order ) ) {
+				return ( 'CAPTURED' === $dintero_order['status'] );
 			}
 		}
 
@@ -303,8 +318,8 @@ class Dintero_Checkout_Order_Management {
 		if ( ! empty( $order->get_transaction_id() ) && ! $in_woocommerce ) {
 			$dintero_order = Dintero()->api->get_order( $order->get_transaction_id() );
 
-			if ( ! $dintero_order['is_error'] ) {
-				return ( 'AUTHORIZATION_VOIDED' === $dintero_order['result']['status'] );
+			if ( ! is_wp_error( $dintero_order ) ) {
+				return ( 'AUTHORIZATION_VOIDED' === $dintero_order['status'] );
 			}
 		}
 
@@ -324,8 +339,8 @@ class Dintero_Checkout_Order_Management {
 		if ( ! empty( $order->get_transaction_id() && ! $in_woocommerce ) ) {
 			$dintero_order = Dintero()->api->get_order( $order->get_transaction_id() );
 
-			if ( ! $dintero_order['is_error'] ) {
-				return ( 'REFUNDED' === $dintero_order['result']['status'] );
+			if ( ! is_wp_error( $dintero_order ) ) {
+				return ( 'REFUNDED' === $dintero_order['status'] );
 			}
 		}
 

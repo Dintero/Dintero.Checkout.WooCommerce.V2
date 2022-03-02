@@ -23,9 +23,11 @@ class Dintero_Checkout_API {
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function create_session( $order_id = false ) {
-		$args    = array( 'order_id' => $order_id );
-		$session = new Dintero_Checkout_Create_Session( $args );
-		return $session->request();
+		$args     = array( 'order_id' => $order_id );
+		$request  = new Dintero_Checkout_Create_Session( $args );
+		$response = $request->request();
+		return $this->check_for_api_error( $response );
+
 	}
 
 	/**
@@ -35,9 +37,10 @@ class Dintero_Checkout_API {
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function get_order( $dintero_id ) {
-		$args  = array( 'dintero_id' => $dintero_id );
-		$order = new Dintero_Checkout_Get_Order( $args );
-		return $order->request();
+		$args     = array( 'dintero_id' => $dintero_id );
+		$request  = new Dintero_Checkout_Get_Order( $args );
+		$response = $request->request();
+		return $this->check_for_api_error( $response );
 	}
 
 	/**
@@ -47,9 +50,10 @@ class Dintero_Checkout_API {
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function get_session( $session_id ) {
-		$args  = array( 'session_id' => $session_id );
-		$order = new Dintero_Checkout_Get_session( $args );
-		return $order->request();
+		$args     = array( 'session_id' => $session_id );
+		$request  = new Dintero_Checkout_Get_session( $args );
+		$response = $request->request();
+		return $this->check_for_api_error( $response );
 	}
 
 	/**
@@ -59,9 +63,10 @@ class Dintero_Checkout_API {
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function update_checkout_session( $session_id ) {
-		$args   = array( 'session_id' => $session_id );
-		$update = new Dintero_Checkout_Update_Checkout_Session( $args );
-		return $update->request();
+		$args     = array( 'session_id' => $session_id );
+		$request  = new Dintero_Checkout_Update_Checkout_Session( $args );
+		$response = $request->request();
+		return $this->check_for_api_error( $response );
 	}
 
 	/**
@@ -72,8 +77,9 @@ class Dintero_Checkout_API {
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function capture_order( $dintero_id, $order_id ) {
-		$capture = new Dintero_Checkout_Capture_Order();
-		return $capture->capture( $dintero_id, $order_id );
+		$request  = new Dintero_Checkout_Capture_Order( array() );
+		$response = $request->request();
+		return $this->check_for_api_error( $response );
 	}
 
 	/**
@@ -83,8 +89,9 @@ class Dintero_Checkout_API {
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function cancel_order( $dintero_id ) {
-		$cancel = new Dintero_Checkout_Cancel_Order();
-		return $cancel->cancel( $dintero_id );
+		$request  = new Dintero_Checkout_Cancel_Order( array() );
+		$response = $request->request();
+		return $this->check_for_api_error( $response );
 	}
 
 	/**
@@ -94,8 +101,9 @@ class Dintero_Checkout_API {
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function refund_order( $dintero_id, $order_id ) {
-		$refund = new Dintero_Checkout_Refund_Order();
-		return $refund->refund( $dintero_id, $order_id );
+		$request  = new Dintero_Checkout_Refund_Order( array() );
+		$response = $request->request();
+		return $this->check_for_api_error( $response );
 	}
 
 	/**
@@ -107,6 +115,21 @@ class Dintero_Checkout_API {
 		$request  = new Dintero_Checkout_Get_Access_Token( array() );
 		$response = $request->request();
 
+		return $this->check_for_api_error( $response );
+	}
+
+	/**
+	 * Checks for WP Errors and returns either the response as array or a false.
+	 *
+	 * @param array $response The response from the request.
+	 * @return mixed
+	 */
+	private function check_for_api_error( $response ) {
+		if ( is_wp_error( $response ) ) {
+			if ( ! is_admin() ) {
+				dintero_print_error_message( $response );
+			}
+		}
 		return $response;
 	}
 }
