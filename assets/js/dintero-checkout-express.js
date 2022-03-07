@@ -47,14 +47,13 @@ jQuery(function ($) {
 				sid: dinteroCheckoutParams.SID,
 				onSession: function(event, checkout) {
 					// Check for address changes and update shipping.
-					console.log(event);
 					dinteroCheckoutForWooCommerce.updateAddress(event.session.order.billing_address, event.session.order.shipping_address);
 				},
 				onPayment: function(event, checkout) {
-					console.log(event);
-					window.location.href = event.href
+					window.location = event.href
 				},
 				onPaymentError: function(event, checkout) {
+					$(dinteroCheckoutForWooCommerce.checkoutFormSelector).unblock()
 					// Unused.
 				},
 				onSessionCancel: function(event, checkout) {
@@ -70,6 +69,14 @@ jQuery(function ($) {
 					// Unused.
 				},
 				onValidateSession: function(event, checkout, callback) {
+					console.log($('#dintero-checkout-wc-form'));
+					$('#dintero-checkout-wc-form').block({
+						message: null,
+						overlayCSS: {
+							background: '#fff',
+							opacity: 0.6
+						}
+					});
 					dinteroCheckoutForWooCommerce.validation = true;
 					dinteroCheckoutForWooCommerce.updateAddress(event.session.order.billing_address, event.session.order.shipping_address);
 					if ( 0 < $( 'form.checkout #terms' ).length ) {

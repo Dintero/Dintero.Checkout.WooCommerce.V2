@@ -110,7 +110,7 @@ class Dintero_Checkout_Redirect {
 			return;
 		}
 
-		$require_authorization = ( ! $dintero_order['is_error'] && 'ON_HOLD' === $dintero_order['status'] );
+		$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
 
 		if ( $require_authorization ) {
 			// translators: %s the Dintero transaction ID.

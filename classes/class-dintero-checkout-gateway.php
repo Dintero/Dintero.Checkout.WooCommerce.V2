@@ -136,8 +136,10 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return array
 		 */
 		public function process_redirect_payment( $order_id ) {
-			$order   = wc_get_order( $order_id );
-			$session = Dintero()->api->create_session( $order_id );
+			$order     = wc_get_order( $order_id );
+			$session   = Dintero()->api->create_session( $order_id );
+			$reference = WC()->session->get( 'dintero_merchant_reference' );
+			update_post_meta( $order_id, '_dintero_merchant_reference', $reference );
 
 			if ( is_wp_error( $session ) ) {
 				return array(

@@ -101,8 +101,11 @@ class Dintero_Checkout_Template {
 	 * @return void
 	 */
 	public function add_wc_form() {
+		$settings           = get_option( 'woocommerce_dintero_checkout_settings' );
+		$form_wrapper_style = 'express' === $settings['checkout_type'] ? 'position:absolute; top:-99999px; left:-99999px;' : '';
+
 		?>
-		<div aria-hidden="true" id="dintero-checkout-wc-form" style="position:absolute; top:-99999px; left:-99999px;">
+		<div aria-hidden="true" id="dintero-checkout-wc-form" style="<?php echo esc_html( $form_wrapper_style ); ?>">
 		<?php do_action( 'woocommerce_checkout_billing' ); ?>
 		<?php do_action( 'woocommerce_checkout_shipping' ); ?>
 			<div id="dintero_checkout-nonce-wrapper">
