@@ -1,8 +1,6 @@
-<?php
+<?php //phpcs:ignore
 /**
- * Class for handling cart items.
- *
- * @package Dintero_Checkout/Classes/Requests/Helpers
+ * Class for processing order items to be used with order management.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,9 +8,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class for handling cart items.
+ * Class for processing orders items to be used with order management.
  */
-class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
+class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
+	/**
+	 * The WooCommerce order.
+	 *
+	 * @var WC_Order
+	 */
+	public $order;
+
+	/**
+	 * Class constructor.
+	 *
+	 * @param int $order_id The WooCommerce order id.
+	 */
+	public function __construct( $order_id ) {
+		$this->order = wc_get_order( $order_id );
+	}
+
 	/**
 	 * Get the order total.
 	 *
@@ -55,34 +69,36 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 * @return array Formatted cart items.
 	 */
 	public function get_order_lines() {
-		$cart = WC()->cart->get_cart();
+		$order_lines = array();
 
-		// Get cart items.
-		foreach ( $cart as $cart_item ) {
-			$formatted_cart_items[] = $this->get_cart_item( $cart_item );
+		/**
+		 * Process order item products.
+		 *
+		 * @var WC_Order_Item_Product $order_item WooCommerce order item product.
+		 */
+		foreach ( $this->order->get_items() as $order_item ) {
+			$order_lines[] = $this->get_order_line( $order_item );
 		}
 
 		/**
-		 * Get cart fees.
+		 * Process order item shipping.
 		 *
-		 * @var $cart_fees WC_Cart_Fees
+		 * @var WC_Order_Item_Shipping $order_item WooCommerce order item shipping.
 		 */
-		$cart_fees = WC()->cart->get_fees();
-		foreach ( $cart_fees as $fee ) {
-			$formatted_cart_items[] = $this->get_fee( $fee );
+		foreach ( $this->order->get_items( 'shipping' ) as $order_item ) {
+			$order_lines[] = $this->get_shipping( $order_item );
 		}
 
-		// Get cart shipping.
-		// TODO implement shipping in iframe.
-		if ( WC()->cart->needs_shipping() && count( WC()->shipping->get_packages() ) > 1 ) {
-			$shipping_methods = WC()->shipping->get_packages()[0]['rates'];
-			foreach ( $shipping_methods as $shipping_method ) {
-				$shipping               = $this->get_shipping( $shipping_method );
-				$formatted_cart_items[] = $shipping;
-			}
+		/**
+		 * Process order item fee.
+		 *
+		 * @var WC_Order_Item_Fee $order_item WooCommerce order item fee.
+		 */
+		foreach ( $this->order->get_items( 'fee' ) as $order_item ) {
+			$order_lines[] = $this->get_fee( $order_item );
 		}
 
-		return $formatted_cart_items;
+		return array_values( $order_lines );
 	}
 
 	/**
@@ -97,20 +113,20 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	/**
 	 * Get the formated order line from a cart item.
 	 *
-	 * @param array $cart_item The cart item.
+	 * @param WC_Order_Item_Product $order_item WooCommerce order item product.
 	 * @return array
 	 */
-	public function get_cart_item( $cart_item ) {
-		$id      = ( empty( $cart_item['variation_id'] ) ) ? $cart_item['product_id'] : $cart_item['variation_id'];
+	public function get_order_line( $order_item ) {
+		$id      = ( empty( $order_item['variation_id'] ) ) ? $order_item['product_id'] : $order_item['variation_id'];
 		$product = wc_get_product( $id );
 
 		return array(
 			'id'          => $this->get_product_sku( $product ),
 			'line_id'     => $this->get_product_sku( $product ),
-			'description' => $this->get_product_name( $cart_item ),
-			'quantity'    => $cart_item['quantity'],
-			'amount'      => self::format_number( $cart_item['line_total'] + $cart_item['line_tax'] ),
-			'vat_amount'  => self::format_number( $cart_item['line_tax'] ),
+			'description' => $order_item->get_name(),
+			'quantity'    => $order_item->get_quantity(),
+			'amount'      => self::format_number( $order_item->get_total() + $order_item->get_total_tax() ),
+			'vat_amount'  => self::format_number( $order_item->get_total_tax() ),
 		);
 	}
 
@@ -131,54 +147,41 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
-	 * Gets the product name.
-	 *
-	 * @param object $cart_item The cart item.
-	 * @return string
-	 */
-	public function get_product_name( $cart_item ) {
-		$cart_item_data = $cart_item['data'];
-		$cart_item_name = $cart_item_data->get_name();
-		$item_name      = apply_filters( 'dintero_cart_item_name', $cart_item_name, $cart_item );
-		return strip_tags( $item_name );
-	}
-
-	/**
 	 * Get the formated order line from a fee.
 	 *
-	 * @param object $fee The cart fee.
+	 * @param WC_Order_Item_Fee $order_item WooCommerce order item fee.
 	 * @return array
 	 */
-	public function get_fee( $fee ) {
-		$name = $fee->name;
+	public function get_fee( $order_item ) {
+		$name = $order_item->get_name();
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
-			'id'          => $name,
-			'line_id'     => $name,
-			'description' => $name,
+			'id'          => $order_item->get_name(),
+			'line_id'     => $order_item->get_name(),
+			'description' => $order_item->get_name(),
 			'quantity'    => 1,
-			'amount'      => self::format_number( $fee->amount + $fee->tax ),
-			'vat_amount'  => self::format_number( $fee->tax ),
+			'amount'      => self::format_number( $order_item->get_total() + $order_item->get_total_tax() ),
+			'vat_amount'  => self::format_number( $order_item->get_total_tax() ),
 		);
 	}
 
 	/**
 	 * Gets the formated order line from shipping.
 	 *
-	 * @param object $shipping_method The id of the shipping method.
+	 * @param WC_Order_Item_Shipping $order_item WooCommerce order item shipping.
 	 * @return array
 	 */
-	public function get_shipping( $shipping_method ) {
+	public function get_shipping( $order_item ) {
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
-			'id'          => $shipping_method->get_id(),
-			'line_id'     => $shipping_method->get_id(),
-			'amount'      => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping->tax() ),
+			'id'          => $order_item->get_id(),
+			'line_id'     => $order_item->get_id(),
+			'amount'      => self::format_number( $order_item->get_total() + $order_item->get_total_tax() ),
 			'operator'    => '',
 			'description' => '',
-			'title'       => $shipping_method->get_label(),
-			'vat_amount'  => self::format_number( $shipping_method->get_shipping_tax() ),
-			'vat'         => ( 0 !== $shipping_method->get_cost() ) ? self::format_number( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ) : 0,
+			'title'       => $order_item->get_name(),
+			'vat_amount'  => self::format_number( $order_item->get_total_tax() ),
+			'vat'         => ( 0 !== $order_item->get_total() ) ? self::format_number( $order_item->get_total_tax() / $order_item->get_total() ) : 0,
 			'quantity'    => 1,
 		);
 	}

@@ -41,14 +41,12 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 	 */
 	public function get_body() {
 		if ( ! empty( $this->arguments['order_id'] ) ) {
-			$test = false;
-			// $helper = ( new Dintero_Checkout_Cart() )->cart( $this->arguments['order_id'] );
+			$helper = new Dintero_Checkout_Order( $this->arguments['order_id'] );
 		} else {
 			$helper = new Dintero_Checkout_Cart();
 		}
 
-		$reference = $helper::get_merchant_reference();
-
+		$reference = $helper->get_merchant_reference();
 		WC()->session->set( 'dintero_merchant_reference', $reference );
 
 		$body = array(
@@ -61,12 +59,12 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 				),
 			),
 			'order'      => array(
-				'amount'             => $helper::get_order_total(),
-				'currency'           => $helper::get_currency(),
+				'amount'             => $helper->get_order_total(),
+				'currency'           => $helper->get_currency(),
 				'merchant_reference' => $reference,
-				'vat_amount'         => $helper::get_tax_total(),
-				'items'              => $helper::get_order_lines(),
-				'shipping_option'    => $helper::get_shipping_object(),
+				'vat_amount'         => $helper->get_tax_total(),
+				'items'              => $helper->get_order_lines(),
+				'shipping_option'    => $helper->get_shipping_object(),
 			),
 			'profile_id' => $this->settings['profile_id'],
 		);

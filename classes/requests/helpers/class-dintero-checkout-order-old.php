@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class for processing orders items to be used with order management.
  */
-class Dintero_Checkout_Order {
+class Dintero_Checkout_Order_old {
 
 	/**
 	 * All the items in the cart, but may contain other items that behave similar to products (used by third-part plugins).

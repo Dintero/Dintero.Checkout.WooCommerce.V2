@@ -182,14 +182,13 @@ if ( ! class_exists( 'Dintero' ) ) {
 				'section' => $section_slug,
 			);
 
-			// admin url
 			return esc_url( add_query_arg( $params, 'admin.php' ) );
 		}
 
 		/**
 		 * Add the gateways to WooCommerce.
 		 *
-		 * @param array Payment methods.
+		 * @param array $methods Payment methods.
 		 * @return array Payment methods with Dintero added.
 		 */
 		public function add_gateways( $methods ) {
