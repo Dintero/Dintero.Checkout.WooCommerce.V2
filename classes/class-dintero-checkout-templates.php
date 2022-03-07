@@ -32,10 +32,16 @@ class Dintero_Checkout_Template {
 		return self::$instance;
 	}
 
+	/**
+	 * Class constructor.
+	 */
 	public function __construct() {
-		add_filter( 'wc_get_template', array( $this, 'override_template' ), 999, 2 );
-		add_action( 'dintero_checkout_wc_after_order_review', 'dintero_checkout_wc_show_another_gateway_button', 20 );
-		add_action( 'dintero_checkout_wc_before_snippet', array( $this, 'add_wc_form' ) );
+		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
+		if ( 'embedded' === $settings['form_factor'] ) {
+			add_filter( 'wc_get_template', array( $this, 'override_template' ), 999, 2 );
+			add_action( 'dintero_checkout_wc_after_order_review', 'dintero_checkout_wc_show_another_gateway_button', 20 );
+			add_action( 'dintero_checkout_wc_before_snippet', array( $this, 'add_wc_form' ) );
+		}
 	}
 
 	/**
@@ -43,7 +49,7 @@ class Dintero_Checkout_Template {
 	 *
 	 * @param string $template The absolute path to the template.
 	 * @param string $template_name The relative path to the template (known as the 'name').
-	 * @return void
+	 * @return string
 	 */
 	public function override_template( $template, $template_name ) {
 		if ( ! is_checkout() ) {

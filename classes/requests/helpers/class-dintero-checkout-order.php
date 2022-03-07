@@ -85,8 +85,10 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		 *
 		 * @var WC_Order_Item_Shipping $order_item WooCommerce order item shipping.
 		 */
-		foreach ( $this->order->get_items( 'shipping' ) as $order_item ) {
-			$order_lines[] = $this->get_shipping( $order_item );
+		if ( count( $this->order->get_items( 'shipping' ) ) > 1 ) {
+			foreach ( $this->order->get_items( 'shipping' ) as $order_item ) {
+				$order_lines[] = $this->get_shipping( $order_item );
+			}
 		}
 
 		/**
@@ -174,8 +176,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	public function get_shipping( $order_item ) {
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
-			'id'          => $order_item->get_id(),
-			'line_id'     => $order_item->get_id(),
+			'id'          => strval( $order_item->get_id() ),
+			'line_id'     => strval( $order_item->get_id() ),
 			'amount'      => self::format_number( $order_item->get_total() + $order_item->get_total_tax() ),
 			'operator'    => '',
 			'description' => '',
@@ -192,41 +194,25 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * @return array|null
 	 */
 	public function get_shipping_object() {
-		if ( WC()->cart->needs_shipping() && count( WC()->shipping->get_packages() ) === 1 ) {
-			$packages        = WC()->shipping()->get_packages();
-			$chosen_methods  = WC()->session->get( 'chosen_shipping_methods' );
-			$chosen_shipping = $chosen_methods[0];
-			foreach ( $packages as $i => $package ) {
-				foreach ( $package['rates'] as $shipping_method ) {
-					if ( $chosen_shipping === $shipping_method->id ) {
-						if ( $shipping_method->cost > 0 ) {
-							return array(
-								'id'          => $shipping_method->get_id(),
-								'line_id'     => $shipping_method->get_id(),
-								'amount'      => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping_tax() ),
-								'operator'    => '',
-								'description' => '',
-								'title'       => $shipping_method->get_label(),
-								'vat_amount'  => self::format_number( $shipping_method->get_shipping_tax() ),
-								'vat'         => ( 0 !== $shipping_method->get_cost() ) ? self::format_number( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ) : 0,
-							);
-						} else {
-							return array(
-								'id'          => $shipping_method->get_id(),
-								'line_id'     => $shipping_method->get_id(),
-								'amount'      => 0,
-								'operator'    => '',
-								'description' => '',
-								'title'       => $shipping_method->get_label(),
-								'vat_amount'  => 0,
-								'vat'         => 0,
-							);
-						}
-					}
-				}
-			}
+		$shipping_lines = $this->order->get_items( 'shipping' );
+		if ( count( $shipping_lines ) === 1 ) {
+			/**
+			 * Process the shipping line.
+			 *
+			 * @var WC_Order_Item_Shipping $shipping_line The shipping line.
+			 */
+			$shipping_line = array_values( $shipping_lines )[0];
+			return array(
+				'id'          => strval( $shipping_line->get_method_id() ),
+				'line_id'     => strval( $shipping_line->get_method_id() ),
+				'amount'      => self::format_number( $shipping_line->get_total() + $shipping_line->get_total_tax() ),
+				'operator'    => '',
+				'description' => '',
+				'title'       => $shipping_line->get_method_title(),
+				'vat_amount'  => self::format_number( $shipping_line->get_total_tax() ),
+				'vat'         => ( 0 !== $shipping_line->get_total() ) ? self::format_number( $shipping_line->get_total_tax() / $shipping_line->get_total() ) : 0,
+			);
 		}
-
 		return null;
 	}
 }

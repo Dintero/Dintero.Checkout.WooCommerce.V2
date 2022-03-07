@@ -18,7 +18,10 @@ class Dintero_Checkout_Embeded {
 	 * Class constructor.
 	 */
 	public function __construct() {
-		// add_action( 'woocommerce_after_calculate_totals', array( $this, 'update_dintero_checkout_session' ), 9999 );
+		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
+		if ( 'embedded' === $settings['form_factor'] ) {
+			// add_action( 'woocommerce_after_calculate_totals', array( $this, 'update_dintero_checkout_session' ), 9999 );
+		}
 	}
 
 	/**

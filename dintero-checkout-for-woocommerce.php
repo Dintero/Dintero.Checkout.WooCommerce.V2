@@ -127,7 +127,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/helpers/class-dintero-checkout-helper-base.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/helpers/class-dintero-checkout-cart.php';
-			// include_once DINTERO_CHECKOUT_PATH . '/classes/requests/helpers/class-dintero-checkout-order.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/helpers/class-dintero-checkout-order.php';
 
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/get/class-dintero-checkout-get-order.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/get/class-dintero-checkout-get-session.php';

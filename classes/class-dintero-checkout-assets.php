@@ -18,13 +18,17 @@ class Dintero_Checkout_Assets {
 	 * Hook onto enqueue actions.
 	 */
 	public function __construct() {
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
+		if ( 'embedded' === $settings['form_factor'] ) {
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		}
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 	}
 
 	/**
 	 * Register and enqueue scripts for the admin.
 	 *
+	 * @param string $hook The hook for the admin page where the script is to be enqueued.
 	 * @return void
 	 */
 	public function admin_enqueue_scripts( $hook ) {
