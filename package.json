@@ -22,6 +22,10 @@
     "makepot": "npx grunt makepot",
     "cssmin": "npx grunt cssmin",
     "jsmin": "npx webpack",
-    "build": "yarn makepot && yarn cssmin && yarn jsmin"
+    "build": "yarn makepot && yarn cssmin && yarn jsmin",
+    "zip": "npx grunt zip"
+  },
+  "dependencies": {
+    "grunt-zip": "^0.18.2"
   }
 }

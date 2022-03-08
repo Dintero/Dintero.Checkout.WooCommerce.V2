@@ -1,6 +1,7 @@
 module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-wp-i18n');
 	grunt.loadNpmTasks('grunt-contrib-cssmin');
+	grunt.loadNpmTasks('grunt-zip');
 	grunt.initConfig({
 		makepot: {
 			target: {
@@ -27,6 +28,10 @@ module.exports = function (grunt) {
 					ext: '.min.css'
 				}]
 			}
+		},
+		// build release zip
+		zip: {
+			'./release/dintero-checkout-for-woocommerce.zip': [ 'readme.txt', 'assets/**/*', 'classes/**/*', 'includes/*', 'languages/*', 'templates/*', 'dintero-checkout-for-woocommerce.php' ]
 		}
 	});
 }
