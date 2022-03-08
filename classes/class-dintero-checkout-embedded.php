@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class to manage actions during the checkout process for the embeded flow.
  */
-class Dintero_Checkout_Embeded {
+class Dintero_Checkout_Embedded {
 
 	/**
 	 * Class constructor.
@@ -50,4 +50,4 @@ class Dintero_Checkout_Embeded {
 		Dintero()->api->update_checkout_session( $session_id );
 	}
 
-} new Dintero_Checkout_Embeded();
+} new Dintero_Checkout_Embedded();
