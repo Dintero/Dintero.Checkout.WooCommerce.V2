@@ -21,6 +21,13 @@ class Dintero_Checkout_Template {
 	private static $instance;
 
 	/**
+	 * Settings for the dintero plugin.
+	 *
+	 * @var array
+	 */
+	public $settings;
+
+	/**
 	 * Returns the *Singleton* instance of this class.
 	 *
 	 * @return self::$instance The *Singleton* instance.
@@ -36,11 +43,17 @@ class Dintero_Checkout_Template {
 	 * Class constructor.
 	 */
 	public function __construct() {
-		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
-		if ( 'embedded' === $settings['form_factor'] ) {
+		$this->settings = get_option( 'woocommerce_dintero_checkout_settings' );
+		if ( 'embedded' === $this->settings['form_factor'] || 'yes' === $this->settings['enabled'] ) {
+			// Common.
 			add_filter( 'wc_get_template', array( $this, 'override_template' ), 999, 2 );
-			add_action( 'dintero_checkout_wc_after_order_review', 'dintero_checkout_wc_show_another_gateway_button', 20 );
-			add_action( 'dintero_checkout_wc_before_snippet', array( $this, 'add_wc_form' ) );
+			add_action( 'dintero_iframe', array( $this, 'iframe' ) );
+
+			// Express.
+			add_action( 'dintero_express_order_review', array( $this, 'express_order_review' ) );
+			add_action( 'dintero_express_order_review', 'dintero_checkout_wc_show_another_gateway_button', 20 );
+			add_action( 'dintero_express_form', array( $this, 'express_form' ), 20 );
+			add_action( 'dintero_express_iframe', array( $this, 'add_wc_form' ) );
 		}
 	}
 
@@ -60,12 +73,26 @@ class Dintero_Checkout_Template {
 			return $template;
 		}
 
-		// TODO: Add action before showing template.
-		do_action( 'dintero_before_add_template' );
+		if ( 'express' === $this->settings['checkout_type'] ) {
+			return $this->maybe_replace_checkout( $template, $template_name );
+		}
 
-		// The regular checkout page.
+		if ( 'checkout' === $this->settings['checkout_type'] ) {
+			return $this->replace_payment_method( $template, $template_name );
+		}
+
+		return $template;
+	}
+
+	/**
+	 * Maybe replaces the checkout form template in Dintero is the selected payment method
+	 *
+	 * @param string $template The absolute path to the template.
+	 * @param string $template_name The relative path to the template (known as the 'name').
+	 * @return string
+	 */
+	public function maybe_replace_checkout( $template, $template_name ) {
 		if ( 'checkout/form-checkout.php' === $template_name ) {
-
 			$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
 			if ( ! array_key_exists( 'dintero_checkout', $available_gateways ) ) {
 				return $template;
@@ -96,33 +123,63 @@ class Dintero_Checkout_Template {
 	}
 
 	/**
-	 * Adds the WooCommerce form and other fields to the checkout page (although hidden).
+	 * Replaces the payment method template.
+	 *
+	 * @param string $template The absolute path to the template.
+	 * @param string $template_name The relative path to the template (known as the 'name').
+	 * @return string
+	 */
+	public function replace_payment_method( $template, $template_name ) {
+		if ( 'checkout/payment.php' === $template_name ) {
+			WC()->session->set( 'chosen_payment_method', 'dintero_checkout' );
+			// Retrieve the template for Dintero Checkout template.
+			$maybe_template             = locate_template( 'woocommerce/dintero-checkout-embedded.php' );
+			$checkout_embedded_template = ( $maybe_template ) ? $maybe_template : DINTERO_CHECKOUT_PATH . '/templates/dintero-checkout-embedded.php';
+
+			return $checkout_embedded_template;
+		}
+
+		return $template;
+	}
+
+	/**
+	 * Adds the WooCommerce form and other fields to the checkout page (although hidden) for Dintero Express.
 	 *
 	 * @return void
 	 */
-	public function add_wc_form() {
-		$settings           = get_option( 'woocommerce_dintero_checkout_settings' );
-		$form_wrapper_style = 'express' === $settings['checkout_type'] ? 'position:absolute; top:-99999px; left:-99999px;' : '';
-
+	public function express_form() {
+		do_action( 'woocommerce_checkout_billing' );
+		do_action( 'woocommerce_checkout_shipping' );
+		if ( version_compare( WOOCOMMERCE_VERSION, '3.4', '<' ) ) {
+			wp_nonce_field( 'woocommerce-process_checkout' );
+		} else {
+			wp_nonce_field( 'woocommerce-process_checkout', 'woocommerce-process-checkout-nonce' );
+		}
+		wc_get_template( 'checkout/terms.php' );
 		?>
-		<div aria-hidden="true" id="dintero-checkout-wc-form" style="<?php echo esc_html( $form_wrapper_style ); ?>">
-		<?php do_action( 'woocommerce_checkout_billing' ); ?>
-		<?php do_action( 'woocommerce_checkout_shipping' ); ?>
-			<div id="dintero_checkout-nonce-wrapper">
-			<?php
-			if ( version_compare( WOOCOMMERCE_VERSION, '3.4', '<' ) ) {
-				wp_nonce_field( 'woocommerce-process_checkout' );
-			} else {
-				wp_nonce_field( 'woocommerce-process_checkout', 'woocommerce-process-checkout-nonce' );
-			}
-			wc_get_template( 'checkout/terms.php' );
-			?>
-			</div>
-			<input id="payment_method_dintero_checkout" type="radio" class="input-radio" name="payment_method" value="dintero_checkout" checked="checked" />
-		</div>
+		<input id="payment_method_dintero_checkout" type="radio" class="input-radio" name="payment_method" value="dintero_checkout" checked="checked" />
 		<?php
 	}
 
+	/**
+	 * Adds the order review for Dintero Express.
+	 *
+	 * @return void
+	 */
+	public function express_order_review() {
+		woocommerce_order_review();
+	}
+
+	/**
+	 * Prints the iframe wrapper for Dintero.
+	 *
+	 * @return void
+	 */
+	public function iframe() {
+		?>
+		<div id='dintero-checkout-iframe'></div>
+		<?php
+	}
 }
 
 Dintero_Checkout_Template::get_instance();
