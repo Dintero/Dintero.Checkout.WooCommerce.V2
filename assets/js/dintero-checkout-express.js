@@ -25,14 +25,15 @@ jQuery(function ($) {
 		},
 
 		updateCheckout: function() {
+			console.log('update');
 			if(dinteroCheckoutForWooCommerce.checkout !== null &&  ! dinteroCheckoutForWooCommerce.validation) {
-				//dinteroCheckoutForWooCommerce.checkout.lockSession();
+				dinteroCheckoutForWooCommerce.checkout.lockSession();
 			}
 		},
 
 		updatedCheckout: function() {
 			if(dinteroCheckoutForWooCommerce.checkout !== null &&  ! dinteroCheckoutForWooCommerce.validation) {
-				//dinteroCheckoutForWooCommerce.checkout.refreshSession();
+				dinteroCheckoutForWooCommerce.checkout.refreshSession();
 			}
 		},
 
@@ -69,7 +70,6 @@ jQuery(function ($) {
 					// Unused.
 				},
 				onValidateSession: function(event, checkout, callback) {
-					console.log($('#dintero-checkout-wc-form'));
 					$('#dintero-checkout-wc-form').block({
 						message: null,
 						overlayCSS: {
@@ -248,7 +248,7 @@ jQuery(function ($) {
 			}
 
 			// Trigger changes
-			if(update) {
+			if(update && dinteroCheckoutForWooCommerce.validation !== true) {
 				$('#billing_email').change();
 				$('#billing_email').blur();
 				$("form.checkout").trigger('update_checkout');
@@ -278,7 +278,6 @@ jQuery(function ($) {
 		 * Submit the order using the WooCommerce AJAX function.
 		 */
 		submitOrder: function (callback) {
-			console.log('submit order');
 			$('.woocommerce-checkout-review-order-table').block({
 				message: null,
 				overlayCSS: {

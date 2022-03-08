@@ -20,7 +20,7 @@ class Dintero_Checkout_Embedded {
 	public function __construct() {
 		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
 		if ( 'embedded' === $settings['form_factor'] ) {
-			// add_action( 'woocommerce_after_calculate_totals', array( $this, 'update_dintero_checkout_session' ), 9999 );
+			add_action( 'woocommerce_after_calculate_totals', array( $this, 'update_dintero_checkout_session' ), 9999 );
 		}
 	}
 
@@ -35,6 +35,11 @@ class Dintero_Checkout_Embedded {
 		}
 
 		if ( ! is_ajax() ) {
+			return;
+		}
+
+		$ajax = filter_input( INPUT_GET, 'wc-ajax', FILTER_SANITIZE_STRING );
+		if ( 'update_order_review' !== $ajax ) {
 			return;
 		}
 
