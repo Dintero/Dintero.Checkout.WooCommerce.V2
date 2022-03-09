@@ -33,7 +33,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * @return int
 	 */
 	public function get_order_total() {
-		return self::format_number( WC()->cart->total );
+		return self::format_number( $this->order->get_total() );
 	}
 
 	/**
@@ -42,7 +42,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * @return int
 	 */
 	public function get_tax_total() {
-		return self::format_number( WC()->cart->get_total_tax() );
+		return self::format_number( $this->order->get_total_tax() );
 	}
 
 	/**
@@ -176,8 +176,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	public function get_shipping( $order_item ) {
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
-			'id'          => strval( $order_item->get_id() ),
-			'line_id'     => strval( $order_item->get_id() ),
+			'id'          => strval( $order_item->get_method_id() . ':' . $order_item->get_instance_id() ),
+			'line_id'     => strval( $order_item->get_method_id() . ':' . $order_item->get_instance_id() ),
 			'amount'      => self::format_number( $order_item->get_total() + $order_item->get_total_tax() ),
 			'operator'    => '',
 			'description' => '',
@@ -203,8 +203,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			 */
 			$shipping_line = array_values( $shipping_lines )[0];
 			return array(
-				'id'          => strval( $shipping_line->get_method_id() ),
-				'line_id'     => strval( $shipping_line->get_method_id() ),
+				'id'          => strval( $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id() ),
+				'line_id'     => strval( $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id() ),
 				'amount'      => self::format_number( $shipping_line->get_total() + $shipping_line->get_total_tax() ),
 				'operator'    => '',
 				'description' => '',

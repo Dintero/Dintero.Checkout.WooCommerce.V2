@@ -79,7 +79,35 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 
 		// Set if express or not.
 		if ( 'express' === $this->settings['checkout_type'] && 'embedded' === $this->settings['form_factor'] ) {
-			$body['express']['shipping_options'] = array();
+			$body = $this->add_express_object( $body );
+		}
+
+		return $body;
+	}
+
+	/**
+	 * Adds the Express object to the body.
+	 *
+	 * @param array $body The body array.
+	 * @return array
+	 */
+	public function add_express_object( $body ) {
+		// Add shipping options array.
+		$body['express']['shipping_options'] = array();
+
+		// Set allowed customer types.
+		$customer_types = $this->settings['express_customer_type'];
+		switch ( $customer_types ) {
+			case 'b2c':
+				$body['express']['customer_type'] = array( 'b2c' );
+				break;
+			case 'b2b':
+				$body['express']['customer_type'] = array( 'b2b' );
+				break;
+			case 'b2bc':
+			default:
+				$body['express']['customer_type'] = array( 'b2c', 'b2b' );
+				break;
 		}
 
 		return $body;

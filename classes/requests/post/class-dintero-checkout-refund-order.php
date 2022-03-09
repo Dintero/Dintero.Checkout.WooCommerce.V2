@@ -40,12 +40,20 @@ class Dintero_Checkout_Refund_Order extends Dintero_Checkout_Request_Post {
 	 * @return array
 	 */
 	public function get_body() {
-		$items = ( new Dintero_Checkout_Order( $this->arguments['order_id'] ) )->items();
+		$helper = new Dintero_Checkout_Order( $this->arguments['order_id'] );
+
+		$order_lines = $helper->get_order_lines();
+		$shipping    = $helper->get_shipping_object();
+
+		if ( ! empty( $shipping ) ) {
+			$order_lines[] = $helper::format_shipping_for_om( $shipping );
+		}
+
 		return array(
 			'capture_reference' => strval( $this->arguments['order_id'] ),
-			'amount'            => $items['total_amount'],
-			'reason'            => $items['reason'],
-			'items'             => $items['items'],
+			'amount'            => $helper->get_order_total(),
+			'items'             => $order_lines,
+			'reason'            => $this->arguments['reason'],
 		);
 	}
 }
