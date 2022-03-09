@@ -164,7 +164,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return array|WP_Error
 		 */
 		public function process_refund( $order_id, $amount = null, $reason = '' ) {
-			return Dintero()->order_management->refund_order( $order_id );
+			return Dintero()->order_management->refund_order( $order_id, $reason );
 		}
 	}
 }

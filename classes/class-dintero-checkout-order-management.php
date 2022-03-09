@@ -222,10 +222,11 @@ class Dintero_Checkout_Order_Management {
 	/**
 	 * Refunds the Dintero order that the WooCommerce order corresponds to.
 	 *
-	 * @param int $order_id The WooCommerce order id.
+	 * @param int    $order_id The WooCommerce order id.
+	 * @param string $reason The reason for the refund.
 	 * @return boolean|null TRUE on success, FALSE on unrecoverable failure, and null if not relevant or valid.
 	 */
-	public function refund_order( $order_id ) {
+	public function refund_order( $order_id, $reason ) {
 		$order = wc_get_order( $order_id );
 
 		if ( 'dintero_checkout' !== $order->get_payment_method() ) {
@@ -259,7 +260,7 @@ class Dintero_Checkout_Order_Management {
 
 		// Check if the Dintero order has been _fully_ refunded in the back-office.
 		if ( ! $this->is_refunded( $order_id ) ) {
-			$response = Dintero()->api->refund_order( $order->get_transaction_id(), $order_id );
+			$response = Dintero()->api->refund_order( $order->get_transaction_id(), $order_id, $reason );
 
 			if ( is_wp_error( $response ) ) {
 				/**

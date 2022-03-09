@@ -77,7 +77,12 @@ class Dintero_Checkout_API {
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function capture_order( $dintero_id, $order_id ) {
-		$request  = new Dintero_Checkout_Capture_Order( array() );
+		$request  = new Dintero_Checkout_Capture_Order(
+			array(
+				'dintero_id' => $dintero_id,
+				'order_id'   => $order_id,
+			)
+		);
 		$response = $request->request();
 		return $this->check_for_api_error( $response );
 	}
@@ -89,7 +94,11 @@ class Dintero_Checkout_API {
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function cancel_order( $dintero_id ) {
-		$request  = new Dintero_Checkout_Cancel_Order( array() );
+		$request  = new Dintero_Checkout_Cancel_Order(
+			array(
+				'dintero_id' => $dintero_id,
+			)
+		);
 		$response = $request->request();
 		return $this->check_for_api_error( $response );
 	}
@@ -100,8 +109,14 @@ class Dintero_Checkout_API {
 	 * @param string $dintero_id The Dintero transaction id.
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
-	public function refund_order( $dintero_id, $order_id ) {
-		$request  = new Dintero_Checkout_Refund_Order( array() );
+	public function refund_order( $dintero_id, $order_id, $reason ) {
+		$request  = new Dintero_Checkout_Refund_Order(
+			array(
+				'dintero_id' => $dintero_id,
+				'order_id'   => $order_id,
+				'reason'     => $reason,
+			)
+		);
 		$response = $request->request();
 		return $this->check_for_api_error( $response );
 	}
