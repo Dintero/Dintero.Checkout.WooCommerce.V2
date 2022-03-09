@@ -99,14 +99,14 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 		$customer_types = $this->settings['express_customer_type'];
 		switch ( $customer_types ) {
 			case 'b2c':
-				$body['express']['customer_type'] = array( 'b2c' );
+				$body['express']['customer_types'] = array( 'b2c' );
 				break;
 			case 'b2b':
-				$body['express']['customer_type'] = array( 'b2b' );
+				$body['express']['customer_types'] = array( 'b2b' );
 				break;
 			case 'b2bc':
 			default:
-				$body['express']['customer_type'] = array( 'b2c', 'b2b' );
+				$body['express']['customer_types'] = array( 'b2c', 'b2b' );
 				break;
 		}
 
