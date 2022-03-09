@@ -27,12 +27,14 @@ jQuery(function ($) {
 		updateCheckout: function() {
 			console.log('update');
 			if(dinteroCheckoutForWooCommerce.checkout !== null &&  ! dinteroCheckoutForWooCommerce.validation) {
+				$(dinteroCheckoutForWooCommerce.checkoutFormSelector).append( '<input type="hidden" name="dintero_locked" id="dintero_locked" value=1>' );
 				dinteroCheckoutForWooCommerce.checkout.lockSession();
 			}
 		},
 
 		updatedCheckout: function() {
 			if(dinteroCheckoutForWooCommerce.checkout !== null &&  ! dinteroCheckoutForWooCommerce.validation) {
+				$('#dintero_locked').remove();
 				dinteroCheckoutForWooCommerce.checkout.refreshSession();
 			}
 		},
@@ -103,6 +105,8 @@ jQuery(function ($) {
 			if (!dinteroCheckoutParams.payForOrder && dinteroCheckoutForWooCommerce.paymentMethod === 'dintero_checkout') {
 				dinteroCheckoutForWooCommerce.moveExtraCheckoutFields();
 			}
+
+			$("form.checkout").trigger('update_checkout');
 		},
 
 		/**
