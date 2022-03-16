@@ -2,7 +2,7 @@
 /**
  * Main request class
  *
- * @package Qliro_One_For_WooCommerce/Classes/Requests
+ * @package Dintero_Checkout/Classes/Requests
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -27,11 +27,11 @@ abstract class Dintero_Checkout_Request {
 	protected $log_title;
 
 	/**
-	 * The Qliro One order id.
+	 * The Dintero order id.
 	 *
 	 * @var string
 	 */
-	protected $qliro_order_id;
+	protected $dintero_order_id;
 
 	/**
 	 * The request arguments.
@@ -133,7 +133,7 @@ abstract class Dintero_Checkout_Request {
 		return apply_filters(
 			'http_headers_useragent',
 			'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' )
-		) . ' - WooCommerce: ' . WC()->version . ' - QLIRO ONE: ' . DINTERO_CHECKOUT_VERSION . ' - PHP Version: ' . phpversion() . ' - Krokedil';
+		) . ' - WooCommerce: ' . WC()->version . ' - Dintero Checkout: ' . DINTERO_CHECKOUT_VERSION . ' - PHP Version: ' . phpversion() . ' - Krokedil';
 	}
 
 	/**

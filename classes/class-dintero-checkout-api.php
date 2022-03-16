@@ -134,10 +134,10 @@ class Dintero_Checkout_API {
 	}
 
 	/**
-	 * Checks for WP Errors and returns either the response as array or a false.
+	 * Checks for WP Errors and returns either the response as array.
 	 *
 	 * @param array $response The response from the request.
-	 * @return mixed
+	 * @return array|WP_Error
 	 */
 	private function check_for_api_error( $response ) {
 		if ( is_wp_error( $response ) ) {
