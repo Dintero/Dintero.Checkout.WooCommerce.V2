@@ -54,6 +54,6 @@ function dintero_unset_sessions() {
  */
 function dintero_print_error_message( $wp_error ) {
 	foreach ( $wp_error->get_error_messages() as $error ) {
-		wc_add_notice( $error['message'], 'error' );
+		wc_add_notice( $error, 'error' );
 	}
 }
