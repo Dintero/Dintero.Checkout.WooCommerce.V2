@@ -112,6 +112,11 @@ class Dintero_Checkout_Cart {
 			$id      = ( empty( $item['variation_id'] ) ) ? $item['product_id'] : $item['variation_id'];
 			$product = wc_get_product( $id );
 
+			/* A misconfigured variation product will not have a unique variation id, but it will still have a unique variant. */
+			if ( ! empty( $item['variation'] ) ) {
+				$id .= ':' . reset( $item['variation'] );
+			}
+
 			$order_item = array(
 				/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
 				'id'          => strval( $id ),

@@ -50,11 +50,14 @@ class Dintero_Settings_Fields {
 				'type'  => 'title',
 			),
 			'account_id'                 => array(
-				'title'       => __( 'Account ID', 'dintero-checkout-for-woocommerce' ),
-				'type'        => 'text',
-				'default'     => '',
-				'desc_tip'    => true,
-				'description' => __( 'Found under (SETTINGS → Account) in Dintero Backoffice.', 'dintero-checkout-for-woocommerce' ),
+				'title'             => __( 'Account ID', 'dintero-checkout-for-woocommerce' ),
+				'type'              => 'text',
+				'default'           => '',
+				'desc_tip'          => true,
+				'description'       => __( 'Found under (SETTINGS → Account) in Dintero Backoffice.', 'dintero-checkout-for-woocommerce' ),
+				'custom_attributes' => array(
+					'autocomplete' => 'off',
+				),
 			),
 			'client_id'                  => array(
 				'title'       => __( 'Client ID', 'dintero-checkout-for-woocommerce' ),
@@ -64,11 +67,14 @@ class Dintero_Settings_Fields {
 				'description' => __( 'Generated under (SETTINGS → API clients) in Dintero Backoffice.', 'dintero-checkout-for-woocommerce' ),
 			),
 			'client_secret'              => array(
-				'title'       => __( 'Client secret', 'dintero-checkout-for-woocommerce' ),
-				'type'        => 'password',
-				'default'     => '',
-				'desc_tip'    => true,
-				'description' => __( 'Generated under (SETTINGS → API clients) in Dintero Backoffice.', 'dintero-checkout-for-woocommerce' ),
+				'title'             => __( 'Client secret', 'dintero-checkout-for-woocommerce' ),
+				'type'              => 'password',
+				'default'           => '',
+				'desc_tip'          => true,
+				'description'       => __( 'Generated under (SETTINGS → API clients) in Dintero Backoffice.', 'dintero-checkout-for-woocommerce' ),
+				'custom_attributes' => array(
+					'autocomplete' => 'off',
+				),
 			),
 			'profile_id'                 => array(
 				'title'       => __( 'Profile ID', 'dintero-checkout-for-woocommerce' ),
