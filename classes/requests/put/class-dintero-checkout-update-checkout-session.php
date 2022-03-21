@@ -40,7 +40,7 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 	 */
 	public function get_body() {
 		$helper = new Dintero_Checkout_Cart();
-		return array(
+		$body   = array(
 			'order'       => array(
 				'amount'          => $helper->get_order_total(),
 				'currency'        => $helper->get_currency(),
@@ -50,5 +50,11 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 			),
 			'remove_lock' => true,
 		);
+
+		if ( empty( $body['order']['shipping_option'] ) ) {
+			unset( $body['order']['shipping_option'] );
+		}
+
+		return $body;
 	}
 }
