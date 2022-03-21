@@ -64,6 +64,9 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 				'merchant_reference' => $reference,
 				'vat_amount'         => $helper->get_tax_total(),
 				'items'              => $helper->get_order_lines(),
+				'store'              => array(
+					'id' => preg_replace( '/(https?:\/\/|www.|\/\s*$)/i', '', get_home_url() ),
+				),
 				'shipping_option'    => $helper->get_shipping_object(),
 			),
 			'profile_id' => $this->settings['profile_id'],
