@@ -69,6 +69,9 @@ class Dintero_Checkout_Cart {
 			'vat_amount'           => intval( number_format( $order->get_total_tax() * 100, 0, '', '' ) ),
 			'merchant_reference_2' => $order->get_order_number(),
 			'billing_address'      => $this->billing_address( $order ),
+			'store'                => array(
+				'id' => preg_replace( '/(https?:\/\/|www.|\/\s*$)/i', '', get_home_url() ),
+			),
 		);
 
 		$this->order_items();
