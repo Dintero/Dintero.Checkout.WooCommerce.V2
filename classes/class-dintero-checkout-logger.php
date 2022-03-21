@@ -76,8 +76,8 @@ class Dintero_Checkout_Logger {
 			'id'             => $dintero_id,
 			'type'           => $method,
 			'title'          => $title,
-			'request'        => $request_args,
 			'request_url'    => $request_url,
+			'request'        => $request_args,
 			'response'       => array(
 				'body' => $response,
 				'code' => $code,
