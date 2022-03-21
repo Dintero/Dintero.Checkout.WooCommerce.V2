@@ -198,25 +198,27 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 					if ( $chosen_shipping === $shipping_method->id ) {
 						if ( $shipping_method->cost > 0 ) {
 							return array(
-								'id'          => $shipping_method->get_id(),
-								'line_id'     => $shipping_method->get_id(),
-								'amount'      => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping_tax() ),
-								'operator'    => '',
-								'description' => '',
-								'title'       => $shipping_method->get_label(),
-								'vat_amount'  => self::format_number( $shipping_method->get_shipping_tax() ),
-								'vat'         => ( 0 !== $shipping_method->get_cost() ) ? self::format_number( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ) : 0,
+								'id'              => $shipping_method->get_id(),
+								'line_id'         => $shipping_method->get_id(),
+								'amount'          => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping_tax() ),
+								'operator'        => '',
+								'description'     => '',
+								'title'           => $shipping_method->get_label(),
+								'delivery_method' => 'unspecified',
+								'vat_amount'      => self::format_number( $shipping_method->get_shipping_tax() ),
+								'vat'             => ( 0 !== $shipping_method->get_cost() ) ? self::format_number( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ) : 0,
 							);
 						} else {
 							return array(
-								'id'          => $shipping_method->get_id(),
-								'line_id'     => $shipping_method->get_id(),
-								'amount'      => 0,
-								'operator'    => '',
-								'description' => '',
-								'title'       => $shipping_method->get_label(),
-								'vat_amount'  => 0,
-								'vat'         => 0,
+								'id'              => $shipping_method->get_id(),
+								'line_id'         => $shipping_method->get_id(),
+								'amount'          => 0,
+								'operator'        => '',
+								'description'     => '',
+								'title'           => $shipping_method->get_label(),
+								'delivery_method' => 'unspecified',
+								'vat_amount'      => 0,
+								'vat'             => 0,
 							);
 						}
 					}
