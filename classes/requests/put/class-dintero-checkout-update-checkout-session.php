@@ -30,7 +30,7 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 	 * @return string
 	 */
 	protected function get_request_url() {
-		return "{$this->get_api_url_base()}sessions/{$this->arguments['session_id']}";
+		return "{$this->get_api_url_base()}sessions/{$this->arguments['session_id']}?update_without_lock=true";
 	}
 
 	/**

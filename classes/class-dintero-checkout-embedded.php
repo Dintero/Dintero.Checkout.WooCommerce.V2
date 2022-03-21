@@ -35,11 +35,11 @@ class Dintero_Checkout_Embedded {
 		}
 
 		// We can only do this during AJAX, so if it is not an ajax call, we should just bail.
-		if ( ! is_ajax() ) {
+		if ( ! wp_doing_ajax() ) {
 			return;
 		}
 
-		// Only when its an acual AJAX request to update the order review (this is when update_checkout is triggered).
+		// Only when its an actual AJAX request to update the order review (this is when update_checkout is triggered).
 		$ajax = filter_input( INPUT_GET, 'wc-ajax', FILTER_SANITIZE_STRING );
 		if ( 'update_order_review' !== $ajax ) {
 			return;
