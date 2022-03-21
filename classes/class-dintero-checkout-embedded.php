@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class to manage actions during the checkout process for the embeded flow.
+ * Class to manage actions during the checkout process for the embedded flow.
  */
 class Dintero_Checkout_Embedded {
 

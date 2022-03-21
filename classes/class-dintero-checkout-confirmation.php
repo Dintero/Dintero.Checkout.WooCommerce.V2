@@ -45,11 +45,20 @@ class Dintero_Checkout_Redirect {
 		}
 
 		$order_id = $this->get_order_id_from_reference( $merchant_reference );
+		$error    = filter_input( INPUT_GET, 'error', FILTER_SANITIZE_STRING );
 
 		if ( empty( $order_id ) ) {
-			Dintero_Checkout_Logger::log( 'RETURN ERROR [order_id]: Failed to retrieve the order id from the order key. Redirecting customer back to checkout page.' );
+			Dintero_Checkout_Logger::log(
+				sprintf(
+					'RETURN ERROR [order_id]: Failed to retrieve the order id from the order key%s. Redirecting customer back to checkout page.',
+					( ! empty( $error ) ? ' due to: ' . $error : '' )
+				)
+			);
 
-			wc_add_notice( __( 'Something went wrong (order_id failed).', 'dintero-checkout-for-woocommerce' ), 'error' );
+			if ( empty( $error ) ) {
+				wc_add_notice( __( 'Something went wrong (order_id failed).', 'dintero-checkout-for-woocommerce' ), 'error' );
+			}
+
 			wp_redirect( wc_get_checkout_url() );
 			exit;
 		}

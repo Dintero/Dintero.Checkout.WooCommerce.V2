@@ -99,14 +99,33 @@ class Dintero_Checkout_Assets {
 		if ( empty( $session_id ) ) {
 			// FIXME: The shipping_option is not available at this point. The current workaround is to check for null.
 			WC()->cart->calculate_shipping();
-			$session = Dintero()->api->create_session();
+			$new_session = Dintero()->api->create_session();
 
-			if ( is_wp_error( $session ) ) {
+			if ( is_wp_error( $new_session ) ) {
 				return;
 			}
 
-			$session_id = $session['id'];
+			$session_id = $new_session['id'];
 			WC()->session->set( 'dintero_checkout_session_id', $session_id );
+		} else {
+
+			/* Check if the session is still valid (e.g., not canceled). */
+			$session = Dintero()->api->get_session( $session_id );
+			if ( isset( $session['events'] ) ) {
+
+				$last_event = count( $session['events'] ) - 1;
+
+				if ( $last_event >= 0 && 'CANCELLED' === $session['events'][ $last_event ]['name'] ) {
+					$session = Dintero()->api->create_session();
+
+					if ( is_wp_error( $session ) ) {
+						return;
+					}
+
+					$session_id = $session['id'];
+					WC()->session->set( 'dintero_checkout_session_id', $session_id );
+				}
+			}
 		}
 
 		/* We need our own checkout fields since we're replacing the defualt WC form. */

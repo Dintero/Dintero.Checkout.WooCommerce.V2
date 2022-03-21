@@ -67,7 +67,8 @@ jQuery( function( $ ) {
 					$( dinteroCheckoutForWooCommerce.checkoutFormSelector ).unblock();
 				},
 				onSessionCancel( event, checkout ) {
-					// Unused.
+					checkout.destroy();
+					window.location.replace( event.href );
 				},
 				onSessionLocked( event, checkout, callback ) {
 					dinteroCheckoutForWooCommerce.isLocked = true;
