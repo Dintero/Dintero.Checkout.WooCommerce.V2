@@ -251,9 +251,7 @@ class Dintero_Checkout_Cart {
 			'postal_code'    => $order->get_billing_postcode(),
 			'postal_place'   => $order->get_billing_city(),
 			'country'        => $order->get_billing_country(),
-
-			/* Keep the '+' at the start (if available), remove every subsequent non-digit character. */
-			'phone_number'   => preg_replace( '/(?!^)[+]?[^\d]/', '', $order->get_billing_phone() ),
+			'phone_number'   => dintero_sanitize_phone_number( $order->get_billing_phone() ),
 			'email'          => $order->get_billing_email(),
 		);
 
@@ -286,9 +284,8 @@ class Dintero_Checkout_Cart {
 		);
 
 		// Check if a shipping phone number exist. Default to billing phone.
-		$phone = $order->get_shipping_phone();
-		/* Keep the '+' at the start (if available), remove every subsequent non-digit character. */
-		$shipping_address['phone_number'] = preg_replace( '/(?!^)[+]?[^\d]/', '', ( ! empty( $phone ) ) ? $phone : $order->get_billing_phone() );
+		$phone                            = $order->get_shipping_phone();
+		$shipping_address['phone_number'] = dintero_sanitize_phone_number( ! empty( $phone ) ? $phone : $order->get_billing_phone() );
 
 		/* Sanitize all values. Remove all empty elements (required by Dintero). */
 		return array_filter(
