@@ -96,9 +96,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 	 */
 	public function add_express_object( $body, $shipping ) {
 		// Add shipping options array.
-		if ( ! empty( $shipping ) ) {
-			$body['express']['shipping_options'] = array( $shipping );
-		}
+		$body['express']['shipping_options'] = ( empty( $shipping ) ) ? array() : array( $shipping );
 
 		// Set allowed customer types.
 		$customer_types = $this->settings['express_customer_type'];
