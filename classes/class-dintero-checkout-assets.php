@@ -106,25 +106,6 @@ class Dintero_Checkout_Assets {
 
 			$session_id = $new_session['id'];
 			WC()->session->set( 'dintero_checkout_session_id', $session_id );
-		} else {
-
-			/* Check if the session is still valid (e.g., not canceled). */
-			$session = Dintero()->api->get_session( $session_id );
-			if ( isset( $session['events'] ) ) {
-
-				$last_event = count( $session['events'] ) - 1;
-
-				if ( $last_event >= 0 && 'CANCELLED' === $session['events'][ $last_event ]['name'] ) {
-					$session = Dintero()->api->create_session();
-
-					if ( is_wp_error( $session ) ) {
-						return;
-					}
-
-					$session_id = $session['id'];
-					WC()->session->set( 'dintero_checkout_session_id', $session_id );
-				}
-			}
 		}
 
 		/* We need our own checkout fields since we're replacing the defualt WC form. */
@@ -165,6 +146,8 @@ class Dintero_Checkout_Assets {
 				'submitOrder'                 => WC_AJAX::get_endpoint( 'checkout' ),
 				'log_to_file_url'             => WC_AJAX::get_endpoint( 'dintero_checkout_wc_log_js' ),
 				'log_to_file_nonce'           => wp_create_nonce( 'dintero_checkout_wc_log_js' ),
+				'unset_session_url'           => WC_AJAX::get_endpoint( 'dintero_checkout_unset_session' ),
+				'unset_session_nonce'         => wp_create_nonce( 'dintero_checkout_unset_session' ),
 			)
 		);
 

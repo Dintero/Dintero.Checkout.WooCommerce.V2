@@ -68,7 +68,18 @@ jQuery( function( $ ) {
 				},
 				onSessionCancel( event, checkout ) {
 					checkout.destroy();
-					window.location.replace( event.href );
+
+					$.ajax( {
+						type: 'POST',
+						dataType: 'json',
+						data: {
+							nonce: dinteroCheckoutParams.unset_session_nonce,
+						},
+						url: dinteroCheckoutParams.unset_session_url,
+						complete( ) {
+							window.location.replace( event.href );
+						},
+					} );
 				},
 				onSessionLocked( event, checkout, callback ) {
 					dinteroCheckoutForWooCommerce.isLocked = true;
@@ -143,8 +154,6 @@ jQuery( function( $ ) {
 					nonce: dinteroCheckoutParams.change_payment_method_nonce,
 				},
 				url: dinteroCheckoutParams.change_payment_method_url,
-				success( data ) { },
-				error( data ) { },
 				complete( data ) {
 					window.location.href = data.responseJSON.data.redirect;
 				},
