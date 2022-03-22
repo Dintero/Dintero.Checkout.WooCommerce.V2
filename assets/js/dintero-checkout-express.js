@@ -181,8 +181,6 @@ jQuery( function( $ ) {
 						},
 						dataType: 'json',
 						url: dinteroCheckoutParams.change_payment_method_url,
-						success( data ) { },
-						error( data ) { },
 						complete( data ) {
 							window.location.href = data.responseJSON.data.redirect;
 						},
