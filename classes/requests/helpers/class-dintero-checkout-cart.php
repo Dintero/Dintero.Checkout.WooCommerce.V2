@@ -222,8 +222,7 @@ class Dintero_Checkout_Cart {
 
 			// Dintero needs to know this is an order with multiple shipping options by setting the 'type'.
 			if ( $is_multiple_shipping ) {
-				// FIXME: This ENUM has not yet been added in production by Dintero. We'll omit it for now per agreement.
-				// $shipping_option['type'] = 'shipping';
+				$shipping_option['type'] = 'shipping';
 
 				/* Since the shipping will be added to the list of products, it needs a quantity. */
 				$shipping_option['quantity'] = 1;

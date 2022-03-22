@@ -161,8 +161,7 @@ class Dintero_Checkout_Order {
 			);
 
 			// Dintero needs to know this is an order with multiple shipping options by setting the 'type'. */
-			// FIXME: This ENUM has not yet been added in production by Dintero. We'll omit it for now per agreement
-			// $shipping_option['type'] = 'shipping';
+			$shipping_option['type'] = 'shipping';
 
 			$shipping_option['amount'] += $shipping_option['vat_amount'];
 			$this->total_amount        += $shipping_option['amount'];
