@@ -353,8 +353,8 @@ jQuery( function( $ ) {
 						console.error( err );
 						if ( data.messages ) {
 							// Strip HTML code from messages.
-							const messages = data.messages.replace( /<\/?[^>]+(>|$)/g, '' );
-							console.log( 'error ', messages );
+							const messages = data.messages.replace( /<\/?[^>]+(>|$)\s+/g, '' );
+							console.error( 'Dintero error: ', messages );
 							dinteroCheckoutForWooCommerce.logToFile( 'Checkout error | ' + messages );
 							dinteroCheckoutForWooCommerce.failOrder( 'submission', messages, callback );
 						} else {

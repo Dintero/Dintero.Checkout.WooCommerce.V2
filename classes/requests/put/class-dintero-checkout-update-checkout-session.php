@@ -51,6 +51,11 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 			'remove_lock' => true,
 		);
 
+		// Set if express or not.
+		if ( 'express' === $this->settings['checkout_type'] && 'embedded' === $this->settings['form_factor'] ) {
+			$body['express']['shipping_options'] = ( empty( $body['order']['shipping_option'] ) ) ? array() : array( $body['order']['shipping_option'] );
+		}
+
 		if ( empty( $body['order']['shipping_option'] ) ) {
 			unset( $body['order']['shipping_option'] );
 		}
