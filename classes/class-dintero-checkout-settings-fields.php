@@ -164,6 +164,8 @@ class Dintero_Settings_Fields {
 					'b2c'  => __( 'Consumer only', 'dintero-checkout-for-woocommerce' ),
 				),
 			),
+			/*
+			 TODO: These options will be added in a future iteration.
 			'express_show_shipping'                   => array(
 				'title'    => __( 'Show shipping info in Express', 'dintero-checkout-for-woocommerce' ),
 				'type'     => 'checkbox',
@@ -189,7 +191,7 @@ class Dintero_Settings_Fields {
 			'express_button_corner_radius'            => array(
 				'title' => __( 'Express button corner radius', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'text',
-			),
+			), */
 			/* End of "Dintero Checkout Express Settings". */
 			'branding_title'                          => array(
 				'title' => __( 'Branding', 'dintero-checkout-for-woocommerce' ),
