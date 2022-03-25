@@ -35,7 +35,7 @@ class Dintero_Checkout_Logger {
 			if ( empty( self::$log ) ) {
 				self::$log = new WC_Logger();
 			}
-			self::$log->add( 'dintero-checkout-for-woocommerce', wp_json_encode( $message ) );
+			self::$log->add( 'dintero-checkout-for-woocommerce', wp_json_encode( $message, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) );
 		}
 
 		if ( isset( $data['response']['code'] ) && ( $data['response']['code'] < 200 || $data['response']['code'] > 299 ) ) {
@@ -51,7 +51,8 @@ class Dintero_Checkout_Logger {
 	 */
 	public static function format_data( $data ) {
 		if ( isset( $data['request']['body'] ) ) {
-			$data['request']['body'] = json_decode( $data['request']['body'], true );
+			$request_body            = json_decode( $data['request']['body'], true );
+			$data['request']['body'] = ( ! empty( $request_body ) ) ? $request_body : $data['request']['body'];
 		}
 		return $data;
 	}
