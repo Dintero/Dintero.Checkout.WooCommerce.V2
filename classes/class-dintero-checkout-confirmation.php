@@ -33,11 +33,13 @@ class Dintero_Checkout_Redirect {
 			return;
 		}
 
+		$the_GET = json_encode( filter_var_array( $_GET, FILTER_SANITIZE_STRING ) );
+
 		// The 'merchant_reference' is guaranteed to always be available.
 		$merchant_reference = filter_input( INPUT_GET, 'merchant_reference', FILTER_SANITIZE_STRING );
 
 		if ( empty( $merchant_reference ) ) {
-			Dintero_Checkout_Logger::log( sprintf( 'RETURN ERROR [merchant_reference]: No order key was found for %s. Cannot identify the WC order. Redirecting customer back to checkout page. ', $merchant_reference ) );
+			Dintero_Checkout_Logger::log( sprintf( 'REDIRECT ERROR [merchant_reference]: No order key was found for %s. Cannot identify the WC order. Redirecting customer back to checkout page: %s ', $merchant_reference, $the_GET ) );
 
 			wc_add_notice( __( 'Something went wrong (merchant_reference).', 'dintero-checkout-for-woocommerce' ), 'error' );
 			wp_redirect( wc_get_checkout_url() );
@@ -50,8 +52,9 @@ class Dintero_Checkout_Redirect {
 		if ( empty( $order_id ) ) {
 			Dintero_Checkout_Logger::log(
 				sprintf(
-					'RETURN ERROR [order_id]: Failed to retrieve the order id from the order key%s. Redirecting customer back to checkout page.',
-					( ! empty( $error ) ? ' due to: ' . $error : '' )
+					'REDIRECT ERROR [order_id]: Failed to retrieve the order id from the order key%s. Redirecting customer back to checkout page: %s',
+					( ! empty( $error ) ? ' due to: ' . $error : '' ),
+					$the_GET,
 				)
 			);
 
@@ -85,7 +88,7 @@ class Dintero_Checkout_Redirect {
 					$note = __( 'The transaction capture operation failed during auto-capture.', 'dintero-checkout-for-woocommerce' );
 					break;
 				default:
-					$note = 'Unknown event. ' . json_encode( filter_var_array( $_GET, FILTER_SANITIZE_STRING ) ) . '.';
+					$note = 'Unknown event.';
 					break;
 			}
 			if ( $note ) {
@@ -95,7 +98,7 @@ class Dintero_Checkout_Redirect {
 				wc_add_notice( $note, 'error' );
 			}
 
-			Dintero_Checkout_Logger::log( sprintf( 'RETURN ERROR [%s]: %s WC order id: %s / %s.', $error, $note, $order_id, $merchant_reference ) );
+			Dintero_Checkout_Logger::log( sprintf( 'REDIRECT ERROR [%s]: %s WC order id: %s / %s: %s', $error, $note, $order_id, $merchant_reference, $the_GET ) );
 			wp_redirect( wc_get_checkout_url() );
 			exit;
 		}
@@ -104,7 +107,7 @@ class Dintero_Checkout_Redirect {
 		$transaction_id = filter_input( INPUT_GET, 'transaction_id', FILTER_SANITIZE_STRING );
 		if ( empty( $transaction_id ) ) {
 			Dintero_Checkout_Logger::log(
-				sprintf( 'RETURN ERROR [transaction_id]: The transaction ID is missing for WC order %s / %s. Redirecting customer back to checkout page.', $order_id, $merchant_reference )
+				sprintf( 'REDIRECT ERROR [transaction_id]: The transaction ID is missing for WC order %s / %s. Redirecting customer back to checkout page:', $order_id, $merchant_reference, $the_GET )
 			);
 
 			wc_add_notice( __( 'Something went wrong (transaction id).', 'dintero-checkout-for-woocommerce' ), 'error' );
@@ -129,7 +132,7 @@ class Dintero_Checkout_Redirect {
 
 			update_post_meta( $order_id, Dintero()->order_management->status( 'on_hold' ), $transaction_id );
 
-			Dintero_Checkout_Logger::log( sprintf( 'RETURN [%s]: The WC order %s / %s (transaction ID: %s) will require further authorization from Dintero.', $dintero_order['status'], $order_id, $merchant_reference, $transaction_id ) );
+			Dintero_Checkout_Logger::log( sprintf( 'REDIRECT [%s]: The WC order %s / %s (transaction ID: %s) will require further authorization from Dintero.', $dintero_order['status'], $order_id, $merchant_reference, $transaction_id ) );
 		} else {
 
 			// translators: %s the Dintero transaction ID.
@@ -152,7 +155,7 @@ class Dintero_Checkout_Redirect {
 			),
 		);
 
-		Dintero_Checkout_Logger::log( sprintf( 'RETURN [success]: The WC order %s / %s (transaction ID: %s) was placed succesfully. Redirecting customer to thank-you page.', $order_id, $merchant_reference, $transaction_id ) );
+		Dintero_Checkout_Logger::log( sprintf( 'REDIRECT [success]: The WC order %s / %s (transaction ID: %s) was placed succesfully. Redirecting customer to thank-you page.', $order_id, $merchant_reference, $transaction_id ) );
 		exit;
 	}
 
