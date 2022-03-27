@@ -46,17 +46,19 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 				'currency'        => $helper->get_currency(),
 				'vat_amount'      => $helper->get_tax_total(),
 				'items'           => $helper->get_order_lines(),
-				'shipping_option' => $helper->get_shipping_object(),
+				'shipping_option' => $helper->get_shipping_objects(),
 			),
 			'remove_lock' => true,
 		);
 
-		// Set if express or not.
-		if ( 'express' === $this->settings['checkout_type'] && 'embedded' === $this->settings['form_factor'] ) {
-			$body['express']['shipping_options'] = ( empty( $body['order']['shipping_option'] ) ) ? array() : array( $body['order']['shipping_option'] );
+		$shipping_option = $body['order']['shipping_option'];
+		if ( empty( $shipping_option ) || count( $shipping_option ) > 1 ) {
+			unset( $body['order']['shipping_option'] );
 		}
 
-		if ( empty( $body['order']['shipping_option'] ) ) {
+		// Set if express or not.
+		if ( 'express' === $this->settings['checkout_type'] && 'embedded' === $this->settings['form_factor'] ) {
+			$body['express']['shipping_options'] = ( count( $shipping_option ) > 1 ) ? array() : $shipping_option;
 			unset( $body['order']['shipping_option'] );
 		}
 

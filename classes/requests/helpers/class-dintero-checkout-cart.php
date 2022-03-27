@@ -73,13 +73,8 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		}
 
 		// Get cart shipping.
-		// TODO implement shipping in iframe.
 		if ( WC()->cart->needs_shipping() && count( WC()->shipping->get_packages() ) > 1 ) {
-			$shipping_methods = WC()->shipping->get_packages()[0]['rates'];
-			foreach ( $shipping_methods as $shipping_method ) {
-				$shipping               = $this->get_shipping( $shipping_method );
-				$formatted_cart_items[] = $shipping;
-			}
+			$formatted_cart_items = array_merge( $formatted_cart_items, $this->get_shipping_objects() );
 		}
 
 		return $formatted_cart_items;
@@ -168,23 +163,45 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 * @param object $shipping_method The id of the shipping method.
 	 * @return array
 	 */
-	public function get_shipping( $shipping_method ) {
+	public function get_shipping_option( $shipping_method ) {
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
-			'id'          => $shipping_method->get_id(),
-			'line_id'     => $shipping_method->get_id(),
-			'amount'      => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping->tax() ),
-			'operator'    => '',
-			'description' => '',
-			'title'       => $shipping_method->get_label(),
-			'vat_amount'  => self::format_number( $shipping_method->get_shipping_tax() ),
-			'vat'         => ( 0 !== $shipping_method->get_cost() ) ? self::format_number( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ) : 0,
-			'quantity'    => 1,
+			'id'              => $shipping_method->get_id(),
+			'line_id'         => $shipping_method->get_id(),
+			'amount'          => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping_tax() ),
+			'operator'        => '',
+			'description'     => '',
+			'title'           => $shipping_method->get_label(),
+			'delivery_method' => 'unspecified',
+			'vat_amount'      => self::format_number( $shipping_method->get_shipping_tax() ),
+			'vat'             => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ),
 		);
 	}
 
 	/**
-	 * Get the formated shipping object.
+	 * Formats the shipping method to be used in order.items.
+	 *
+	 * @param WC_Shipping_rate $shipping_method
+	 * @return array
+	 */
+	public function get_shipping_item( $shipping_method ) {
+		return array(
+			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
+			'id'         => $shipping_method->get_id(),
+			'line_id'    => $shipping_method->get_id(),
+			'amount'     => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping_tax() ),
+			'title'      => $shipping_method->get_label(),
+			'vat_amount' => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() ),
+			'vat'        => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ),
+			/* Since the shipping will be added to the list of products, it needs a quantity. */
+			'quantity'   => 1,
+			/* Dintero needs to know this is an order with multiple shipping options by setting the 'type'. */
+			'type'       => 'shipping',
+		);
+	}
+
+	/**
+	 * Get the formatted shipping object.
 	 *
 	 * @return array|null
 	 */
@@ -206,7 +223,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 								'title'           => $shipping_method->get_label(),
 								'delivery_method' => 'unspecified',
 								'vat_amount'      => self::format_number( $shipping_method->get_shipping_tax() ),
-								'vat'             => ( 0 !== $shipping_method->get_cost() ) ? self::format_number( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ) : 0,
+								'vat'             => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ),
 							);
 						} else {
 							return array(
@@ -228,4 +245,34 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 
 		return null;
 	}
+
+	/**
+	 * Get the selected shipping objects (if available).
+	 *
+	 * @return array If no shipping is available or selected, an empty array is returned.
+	 */
+	public function get_shipping_objects() {
+
+		$shipping_lines = array();
+
+		if ( WC()->cart->needs_shipping() && count( WC()->shipping->get_packages() ) < 1 ) {
+			return $shipping_lines;
+		}
+
+		$shipping_ids   = array_unique( WC()->session->get( 'chosen_shipping_methods' ) );
+		$shipping_rates = WC()->shipping->get_packages()[0]['rates'];
+
+		$is_multiple_shipping = ( count( $shipping_ids ) > 1 );
+		if ( ! $is_multiple_shipping ) {
+			$shipping_ids = array( $shipping_ids[0] );
+		}
+
+		foreach ( $shipping_ids as  $shipping_id ) {
+			$shipping_method  = $shipping_rates[ $shipping_id ];
+			$shipping_lines[] = ( $is_multiple_shipping ) ? $this->get_shipping_item( $shipping_method ) : $this->get_shipping_option( $shipping_method );
+		}
+
+		return $shipping_lines;
+	}
+
 }

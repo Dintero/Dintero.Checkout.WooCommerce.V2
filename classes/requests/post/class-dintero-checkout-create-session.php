@@ -67,7 +67,6 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 				'store'              => array(
 					'id' => preg_replace( '/(https?:\/\/|www.|\/\s*$)/i', '', get_home_url() ),
 				),
-				'shipping_option'    => $helper->get_shipping_object(),
 			),
 			'profile_id' => $this->settings['profile_id'],
 		);
@@ -76,13 +75,15 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			$this->request_args['url']['callback_url'] = Dintero_Checkout_Callback::callback_url( '$order->get_order_key()' );
 		}
 
-		if ( empty( $body['order']['shipping_option'] ) ) {
+		/* If we have more than one shipping package, we add them to the order.items. */
+		$shipping_option = $helper->get_shipping_objects();
+		if ( empty( $shipping_option ) || count( $shipping_option ) > 1 ) {
 			unset( $body['order']['shipping_option'] );
 		}
 
 		// Set if express or not.
 		if ( 'express' === $this->settings['checkout_type'] && 'embedded' === $this->settings['form_factor'] ) {
-			$body = $this->add_express_object( $body, $helper->get_shipping_object() );
+			$body = $this->add_express_object( $body, $shipping_option );
 		}
 
 		return $body;
@@ -95,8 +96,14 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 	 * @return array
 	 */
 	public function add_express_object( $body, $shipping ) {
-		// Add shipping options array.
-		$body['express']['shipping_options'] = ( empty( $shipping ) ) ? array() : array( $shipping );
+
+		/* If we only have _one_ shipping package, we'll show it in Dintero Express. */
+		$body['express']['shipping_options'] = $shipping;
+
+		if ( count( $shipping ) > 1 ) {
+			$body['express']['shipping_options'] = array();
+			$body['express']['shipping_mode']    = 'shipping_not_required';
+		}
 
 		// Set allowed customer types.
 		$customer_types = $this->settings['express_customer_type'];
