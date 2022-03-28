@@ -51,16 +51,51 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 			'remove_lock' => true,
 		);
 
+		/* If we have more than one shipping package, we've added them to the order.items. */
 		$shipping_option = $body['order']['shipping_option'];
-		if ( empty( $shipping_option ) || count( $shipping_option ) > 1 ) {
+		if ( empty( $shipping_option ) ) {
 			unset( $body['order']['shipping_option'] );
 		}
 
 		// Set if express or not.
 		if ( 'express' === $this->settings['checkout_type'] && 'embedded' === $this->settings['form_factor'] ) {
-			$body['express']['shipping_options'] = ( count( $shipping_option ) > 1 ) ? array() : $shipping_option;
-			unset( $body['order']['shipping_option'] );
+			$body = $this->add_express_object( $body, $helper->get_shipping_objects() );
 		}
+
+		return $body;
+	}
+
+	/**
+	 * Adds the Express object to the body.
+	 *
+	 * @param array $body The body array.
+	 * @return array
+	 */
+	public function add_express_object( $body, $shipping ) {
+
+		/* If we only have _one_ shipping package, we'll show it in Dintero Express. */
+		$body['express']['shipping_options'] = $shipping;
+
+		if ( count( $shipping ) > 1 ) {
+			$body['express']['shipping_options'] = array();
+			$body['express']['shipping_mode']    = 'shipping_not_required';
+		}
+
+		/* We must remove the shipping option from the order if we're showing it in Dintero Express. */
+		unset( $body['order']['shipping_option'] );
+
+		/* order.amount and order.vat_amount include the shipping cost, we must remove it since it is already added in Express object. */
+		$amount     = 0;
+		$vat_amount = 0;
+		foreach ( $body['order']['items'] as $item ) {
+			if ( isset( $item['amount'] ) ) {
+				$amount     += $item['amount'];
+				$vat_amount += $item['vat_amount'];
+			}
+		}
+
+		$body['order']['amount']     = $amount;
+		$body['order']['vat_amount'] = $vat_amount;
 
 		return $body;
 	}

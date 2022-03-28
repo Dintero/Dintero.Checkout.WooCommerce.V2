@@ -74,7 +74,12 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 
 		// Get cart shipping.
 		if ( WC()->cart->needs_shipping() && count( WC()->shipping->get_packages() ) > 1 ) {
-			$formatted_cart_items = array_merge( $formatted_cart_items, $this->get_shipping_objects() );
+			$shipping_objects = $this->get_shipping_objects();
+
+			/* The cart may have multiple shipping packages, but the same package can be used for all products which we'll treat as a single shipping option instead. */
+			if ( count( $shipping_objects ) > 1 ) {
+				$formatted_cart_items = array_merge( $formatted_cart_items, $this->get_shipping_objects() );
+			}
 		}
 
 		return $formatted_cart_items;

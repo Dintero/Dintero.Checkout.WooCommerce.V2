@@ -64,6 +64,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 				'merchant_reference' => $reference,
 				'vat_amount'         => $helper->get_tax_total(),
 				'items'              => $helper->get_order_lines(),
+				'shipping_option'    => $helper->get_shipping_object(),
 				'store'              => array(
 					'id' => preg_replace( '/(https?:\/\/|www.|\/\s*$)/i', '', get_home_url() ),
 				),
@@ -76,14 +77,14 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 		}
 
 		/* If we have more than one shipping package, we add them to the order.items. */
-		$shipping_option = $helper->get_shipping_objects();
+		$shipping_option = $body['order']['shipping_option'];
 		if ( empty( $shipping_option ) || count( $shipping_option ) > 1 ) {
 			unset( $body['order']['shipping_option'] );
 		}
 
 		// Set if express or not.
 		if ( 'express' === $this->settings['checkout_type'] && 'embedded' === $this->settings['form_factor'] ) {
-			$body = $this->add_express_object( $body, $shipping_option );
+			$body = $this->add_express_object( $body, $helper->get_shipping_objects() );
 		}
 
 		return $body;
@@ -104,6 +105,22 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			$body['express']['shipping_options'] = array();
 			$body['express']['shipping_mode']    = 'shipping_not_required';
 		}
+
+		/* We must remove the shipping option from the order if we're showing it in Dintero Express. */
+		unset( $body['order']['shipping_option'] );
+
+		/* order.amount and order.vat_amount include the shipping cost, we must remove it since it is already added in Express object. */
+		$amount     = 0;
+		$vat_amount = 0;
+		foreach ( $body['order']['items'] as $item ) {
+			if ( isset( $item['amount'] ) ) {
+				$amount     += $item['amount'];
+				$vat_amount += $item['vat_amount'];
+			}
+		}
+
+		$body['order']['amount']     = $amount;
+		$body['order']['vat_amount'] = $vat_amount;
 
 		// Set allowed customer types.
 		$customer_types = $this->settings['express_customer_type'];
