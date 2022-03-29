@@ -59,7 +59,7 @@ abstract class Dintero_Checkout_Request {
 	}
 
 	/**
-	 * Loads the Qliro settings and sets them to be used here.
+	 * Loads the Dintero Checkout settings and sets them to be used here.
 	 *
 	 * @return void
 	 */
