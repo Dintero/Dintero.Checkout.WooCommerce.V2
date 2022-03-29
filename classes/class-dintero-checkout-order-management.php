@@ -122,9 +122,8 @@ class Dintero_Checkout_Order_Management {
 				 *
 				 * @var WP_Error $response The WP_Error response.
 				 */
-
-				if ( is_array( $response ) ) {
-					$note = sprintf( '%s: %s', ucfirst( $response['message'] ), $response['code'] );
+				if ( is_array( $response->get_error_message() ) ) {
+					$note = sprintf( '[%s] %s', $response->get_error_code(), $response->get_error_message()['message'] );
 				} else {
 					$note = ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.';
 				}
@@ -216,8 +215,8 @@ class Dintero_Checkout_Order_Management {
 				 *
 				 * @var WP_Error $response The WP_Error response.
 				 */
-				if ( is_array( $response ) ) {
-					$note = sprintf( '%s: %s', ucfirst( $response['message'] ), $response['code'] );
+				if ( is_array( $response->get_error_message() ) ) {
+					$note = sprintf( '[%s] %s', $response->get_error_code(), $response->get_error_message()['message'] );
 				} else {
 					$note = ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.';
 				}
@@ -281,8 +280,8 @@ class Dintero_Checkout_Order_Management {
 				 *
 				 * @var WP_Error $response The WP_Error response.
 				 */
-				if ( is_array( $response ) ) {
-					$note = sprintf( '%s: %s', ucfirst( $response['message'] ), $response['code'] );
+				if ( is_array( $response->get_error_message() ) ) {
+					$note = sprintf( '[%s] %s', $response->get_error_code(), $response->get_error_message()['message'] );
 				} else {
 					$note = ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.';
 				}
