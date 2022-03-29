@@ -212,7 +212,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			return array(
 				'id'          => strval( $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id() ),
 				'line_id'     => strval( $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id() ),
-				'amount'      => self::format_number( $shipping_line->get_total() + $shipping_line->get_total_tax() ),
+				'amount'      => absint( self::format_number( $shipping_line->get_total() + $shipping_line->get_total_tax() ) ),
 				'operator'    => '',
 				'description' => '',
 				'title'       => $shipping_line->get_method_title(),
