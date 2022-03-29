@@ -122,7 +122,14 @@ class Dintero_Checkout_Order_Management {
 				 *
 				 * @var WP_Error $response The WP_Error response.
 				 */
-				$order->add_order_note( ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.' );
+
+				if ( is_array( $response ) ) {
+					$note = sprintf( '%s: %s', ucfirst( $response['message'] ), $response['code'] );
+				} else {
+					$note = ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.';
+				}
+
+				$order->add_order_note( $note );
 				$order->update_status( 'on-hold' );
 				return;
 			}
@@ -209,7 +216,13 @@ class Dintero_Checkout_Order_Management {
 				 *
 				 * @var WP_Error $response The WP_Error response.
 				 */
-				$order->add_order_note( ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.' );
+				if ( is_array( $response ) ) {
+					$note = sprintf( '%s: %s', ucfirst( $response['message'] ), $response['code'] );
+				} else {
+					$note = ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.';
+				}
+
+				$order->add_order_note( $note );
 				$order->update_status( 'on-hold' );
 				return;
 			}
@@ -268,7 +281,13 @@ class Dintero_Checkout_Order_Management {
 				 *
 				 * @var WP_Error $response The WP_Error response.
 				 */
-				$order->add_order_note( ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.' );
+				if ( is_array( $response ) ) {
+					$note = sprintf( '%s: %s', ucfirst( $response['message'] ), $response['code'] );
+				} else {
+					$note = ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.';
+				}
+
+				$order->add_order_note( $note );
 				return;
 			}
 		}
