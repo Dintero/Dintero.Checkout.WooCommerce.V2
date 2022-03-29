@@ -27,6 +27,7 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 		$ajax_events = array(
 			'dintero_checkout_wc_change_payment_method' => true,
 			'dintero_checkout_wc_log_js'                => true,
+			'dintero_checkout_unset_session'            => true,
 		);
 		foreach ( $ajax_events as $ajax_event => $nopriv ) {
 			add_action( 'wp_ajax_woocommerce_' . $ajax_event, array( __CLASS__, $ajax_event ) );
@@ -87,10 +88,24 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 		$posted_message            = isset( $_POST['message'] ) ? sanitize_text_field( wp_unslash( $_POST['message'] ) ) : '';
 		$dintero_checkout_order_id = WC()->session->get( 'dintero_checkout_order_id' );
 		$message                   = "Frontend JS $dintero_checkout_order_id: $posted_message";
-		Dintero_Logger::log( $message );
+		Dintero_Checkout_Logger::log( $message );
 		wp_send_json_success();
 		wp_die();
 	}
 
+	/**
+	 * Unset the WooCommerce session.
+	 *
+	 * @return void
+	 */
+	public static function dintero_checkout_unset_session() {
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_key( $_POST['nonce'] ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'dintero_checkout_unset_session' ) ) {
+			wp_send_json_error( 'bad_nonce' );
+			exit;
+		}
+
+		dintero_unset_sessions();
+	}
 }
 Dintero_Checkout_Ajax::init();

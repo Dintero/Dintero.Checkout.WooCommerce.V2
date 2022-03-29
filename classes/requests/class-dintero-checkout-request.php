@@ -2,7 +2,7 @@
 /**
  * Main request class
  *
- * @package Qliro_One_For_WooCommerce/Classes/Requests
+ * @package Dintero_Checkout/Classes/Requests
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -27,11 +27,11 @@ abstract class Dintero_Checkout_Request {
 	protected $log_title;
 
 	/**
-	 * The Qliro One order id.
+	 * The Dintero order id.
 	 *
 	 * @var string
 	 */
-	protected $qliro_order_id;
+	protected $dintero_order_id;
 
 	/**
 	 * The request arguments.
@@ -59,7 +59,7 @@ abstract class Dintero_Checkout_Request {
 	}
 
 	/**
-	 * Loads the Qliro settings and sets them to be used here.
+	 * Loads the Dintero Checkout settings and sets them to be used here.
 	 *
 	 * @return void
 	 */
@@ -115,6 +115,10 @@ abstract class Dintero_Checkout_Request {
 
 		$response = Dintero()->api->get_access_token();
 
+		if ( is_wp_error( $response ) ) {
+			return '';
+		}
+
 		$access_token = $response['token_type'] . ' ' . $response['access_token'];
 		set_transient( 'dintero_checkout_access_token', $access_token, absint( $response['expires_in'] ) );
 		return $access_token;
@@ -129,7 +133,7 @@ abstract class Dintero_Checkout_Request {
 		return apply_filters(
 			'http_headers_useragent',
 			'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' )
-		) . ' - WooCommerce: ' . WC()->version . ' - QLIRO ONE: ' . DINTERO_CHECKOUT_VERSION . ' - PHP Version: ' . phpversion() . ' - Krokedil';
+		) . ' - WooCommerce: ' . WC()->version . ' - Dintero Checkout: ' . DINTERO_CHECKOUT_VERSION . ' - PHP Version: ' . phpversion() . ' - Krokedil';
 	}
 
 	/**
@@ -197,7 +201,7 @@ abstract class Dintero_Checkout_Request {
 	 */
 	protected function log_response( $response, $request_args, $request_url ) {
 		$method   = $this->method;
-		$title    = "{$this->log_title} - URL: {$request_url}";
+		$title    = $this->log_title;
 		$code     = wp_remote_retrieve_response_code( $response );
 		$order_id = $response['OrderID'] ?? null;
 		$log      = Dintero_Checkout_Logger::format_log( $order_id, $method, $title, $request_args, $response, $code, $request_url );

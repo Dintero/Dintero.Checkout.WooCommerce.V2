@@ -34,13 +34,13 @@ class Dintero_Checkout_Callback {
 		/* If the 'order_key' does not exist, we cannot identify the WC order. */
 		$order_key = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_STRING );
 		if ( empty( $order_key ) ) {
-			Dintero_Logger::log( sprintf( 'CALLBACK ERROR [order_key]: No order key was found (transaction ID: %s). Cannot identify the WC order. ', ( $transaction_id ) ? $transaction_id : 'Not available' ) );
+			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR [order_key]: No order key was found (transaction ID: %s). Cannot identify the WC order. ', ( $transaction_id ) ? $transaction_id : 'Not available' ) );
 			return;
 		}
 
 		$order_id = wc_get_order_id_by_order_key( $order_key );
 		if ( empty( $order_id ) ) {
-			Dintero_Logger::log( sprintf( 'CALLBACK ERROR [order_key]: Failed to retrieve the order id from the order key (transaction ID: %s).', ( $transaction_id ) ? $transaction_id : 'Not available' ) );
+			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR [order_key]: Failed to retrieve the order id from the order key (transaction ID: %s).', ( $transaction_id ) ? $transaction_id : 'Not available' ) );
 			return;
 		}
 
@@ -69,7 +69,7 @@ class Dintero_Checkout_Callback {
 					break;
 			}
 
-			Dintero_Logger::log( sprintf( 'CALLBACK [%s]: %s WC order id: %s / %s.', $error, $note, $order_id, $merchant_reference ) );
+			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK [%s]: %s WC order id: %s / %s.', $error, $note, $order_id, $merchant_reference ) );
 			if ( $show_on_order_page ) {
 				$order->add_order_note( $note );
 			}
@@ -80,7 +80,7 @@ class Dintero_Checkout_Callback {
 		// Check if the order exist in WooCommerce.
 		if ( empty( $order ) ) {
 			$event = filter_input( INPUT_GET, 'event', FILTER_SANITIZE_STRING );
-			Dintero_Logger::log( sprintf( 'CALLBACK ERROR%s: No order with the WC id %s / %s (transaction id: %s) could be found.', ( empty( $event ) ) ? '' : " [$event]", $order_id, $merchant_reference, $transaction_id ) );
+			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR%s: No order with the WC id %s / %s (transaction id: %s) could be found.', ( empty( $event ) ) ? '' : " [$event]", $order_id, $merchant_reference, $transaction_id ) );
 
 			return;
 		}
@@ -92,28 +92,28 @@ class Dintero_Checkout_Callback {
 
 				/* Dintero does not trigger these events for for partial actions (e.g., partial refund). */
 				case 'CAPTURE':
-					Dintero_Logger::log( sprintf( 'CALLBACK [%s]: The status for the WC order id %s / %s (transaction id: %s) was changed to CAPTURE in the back office.', $event, $order_id, $merchant_reference, $transaction_id ) );
+					Dintero_Checkout_Logger::log( sprintf( 'CALLBACK [%s]: The status for the WC order id %s / %s (transaction id: %s) was changed to CAPTURE in the back office.', $event, $order_id, $merchant_reference, $transaction_id ) );
 					if ( ! Dintero()->order_management->is_captured( $order_id, true ) ) {
 						$order->add_order_note( __( 'The order was CAPTURED in the Dintero backoffice.', 'dintero-checkout-for-woocommerce' ) );
 					}
 					break;
 
 				case 'REFUND':
-					Dintero_Logger::log( sprintf( 'CALLBACK [%s]: The status for the WC order id %s / %s (transaction id: %s) was changed to REFUND (or PARTIALLY REFUNDED) in the back office.', $event, $order_id, $merchant_reference, $transaction_id ) );
+					Dintero_Checkout_Logger::log( sprintf( 'CALLBACK [%s]: The status for the WC order id %s / %s (transaction id: %s) was changed to REFUND (or PARTIALLY REFUNDED) in the back office.', $event, $order_id, $merchant_reference, $transaction_id ) );
 					if ( ! Dintero()->order_management->is_refunded( $order_id, true ) ) {
 						$order->add_order_note( __( 'The order was REFUNDED in the Dintero backoffice.', 'dintero-checkout-for-woocommerce' ) );
 					}
 					break;
 
 				case 'VOID':
-					Dintero_Logger::log( sprintf( 'CALLBACK [%s]: The status for the WC order id %s / %s (transaction id: %s) was changed to VOID in the back office.', $event, $order_id, $merchant_reference, $transaction_id ) );
+					Dintero_Checkout_Logger::log( sprintf( 'CALLBACK [%s]: The status for the WC order id %s / %s (transaction id: %s) was changed to VOID in the back office.', $event, $order_id, $merchant_reference, $transaction_id ) );
 					if ( ! Dintero()->order_management->is_canceled( $order_id, false ) ) {
 						$order->update_status( 'cancelled', __( 'The order was CANCELED in the Dintero backoffice.', 'dintero-checkout-for-woocommerce' ) );
 					}
 					break;
 
 				default:
-					Dintero_Logger::log( sprintf( 'CALLBACK [%s] unknown, ignored for WC order id: %s / %s (transaction id: %s). ' . json_encode( filter_var_array( $_GET, FILTER_SANITIZE_STRING ) ), $event, $order_id, $merchant_reference, $transaction_id ) );
+					Dintero_Checkout_Logger::log( sprintf( 'CALLBACK [%s] unknown, ignored for WC order id: %s / %s (transaction id: %s). ' . json_encode( filter_var_array( $_GET, FILTER_SANITIZE_STRING ) ), $event, $order_id, $merchant_reference, $transaction_id ) );
 					break;
 			}
 
@@ -122,7 +122,11 @@ class Dintero_Checkout_Callback {
 
 		// Check if the order is set to on-hold, awaiting authorization.
 		$dintero_order = Dintero()->api->get_order( $transaction_id );
-		$is_authorized = ( 'AUTHORIZED' === $dintero_order['result']['status'] );
+		if ( is_wp_error( $dintero_order ) ) {
+			return;
+		}
+
+		$is_authorized = ( 'AUTHORIZED' === $dintero_order['status'] );
 		if ( $is_authorized && get_post_meta( $order_id, Dintero()->order_management->status( 'on_hold' ), true ) ) {
 			$order->add_order_note( __( 'The order has been authorized by Dintero.', 'dintero-checkout-for-woocommerce' ) );
 			$order->set_status( 'processing' );
@@ -130,13 +134,13 @@ class Dintero_Checkout_Callback {
 
 			delete_post_meta( $order_id, Dintero()->order_management->status( 'on_hold' ) );
 
-			Dintero_Logger::log(
-				sprintf( 'CALLBACK [%s]: The WC order ID: %s / %s (transaction ID: %s) was authorized by Dintero. Changing status from "%s" to "processing".', $dintero_order['result']['status'], $order_id, $merchant_reference, $transaction_id, $order->get_status() )
+			Dintero_Checkout_Logger::log(
+				sprintf( 'CALLBACK [%s]: The WC order ID: %s / %s (transaction ID: %s) was authorized by Dintero. Changing status from "%s" to "processing".', $dintero_order['status'], $order_id, $merchant_reference, $transaction_id, $order->get_status() )
 			);
 			return;
 		}
 
-		$is_failed = ( 'FAILED' === $dintero_order['result']['status'] );
+		$is_failed = ( 'FAILED' === $dintero_order['status'] );
 		if ( $is_failed && get_post_meta( $order_id, Dintero()->order_management->status( 'on_hold' ), true ) ) {
 			$order->add_order_note( __( 'The order was not approved by Dintero.', 'dintero-checkout-for-woocommerce' ) );
 			$order->set_status( 'failed' );
@@ -145,15 +149,15 @@ class Dintero_Checkout_Callback {
 			delete_post_meta( $order_id, Dintero()->order_management->status( 'on_hold' ) );
 			update_post_meta( $order_id, Dintero()->order_management->status( 'rejected' ), $transaction_id );
 
-			Dintero_Logger::log(
-				sprintf( 'CALLBACK [%s]: The WC order ID: %s / %s (transaction ID: %s) was not approved by Dintero. Changing status from "%s" to "failed".', $dintero_order['result']['status'], $order_id, $merchant_reference, $transaction_id, $order->get_status() )
+			Dintero_Checkout_Logger::log(
+				sprintf( 'CALLBACK [%s]: The WC order ID: %s / %s (transaction ID: %s) was not approved by Dintero. Changing status from "%s" to "failed".', $dintero_order['status'], $order_id, $merchant_reference, $transaction_id, $order->get_status() )
 			);
 			return;
 		}
 
 		// At this point, the 'event' query parameter does not exist which means the order was completed through WooCommerce.
 		if ( 'dintero_checkout' === $order->get_payment_method() && empty( $order->get_transaction_id() ) ) {
-			Dintero_Logger::log( sprintf( 'CALLBACK [CREATE]: The customer might have closed the browser or never returned during payment processing. WC order ID: %s / %s (transaction ID: %s).', $order_id, $merchant_reference, $transaction_id ) );
+			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK [CREATE]: The customer might have closed the browser or never returned during payment processing. WC order ID: %s / %s (transaction ID: %s).', $order_id, $merchant_reference, $transaction_id ) );
 			$order->set_transaction_id( $transaction_id );
 			$order->payment_complete();
 

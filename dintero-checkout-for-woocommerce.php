@@ -117,7 +117,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-widget.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-templates.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-ajax.php';
-			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-embeded.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-embedded.php';
 
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/class-dintero-checkout-request.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/class-dintero-checkout-request-get.php';
@@ -127,7 +127,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/helpers/class-dintero-checkout-helper-base.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/helpers/class-dintero-checkout-cart.php';
-			// include_once DINTERO_CHECKOUT_PATH . '/classes/requests/helpers/class-dintero-checkout-order.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/helpers/class-dintero-checkout-order.php';
 
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/get/class-dintero-checkout-get-order.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/get/class-dintero-checkout-get-session.php';
@@ -182,14 +182,13 @@ if ( ! class_exists( 'Dintero' ) ) {
 				'section' => $section_slug,
 			);
 
-			// admin url
 			return esc_url( add_query_arg( $params, 'admin.php' ) );
 		}
 
 		/**
 		 * Add the gateways to WooCommerce.
 		 *
-		 * @param array Payment methods.
+		 * @param array $methods Payment methods.
 		 * @return array Payment methods with Dintero added.
 		 */
 		public function add_gateways( $methods ) {

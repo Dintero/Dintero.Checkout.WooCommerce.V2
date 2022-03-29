@@ -18,13 +18,17 @@ class Dintero_Checkout_Assets {
 	 * Hook onto enqueue actions.
 	 */
 	public function __construct() {
+		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
+		if ( 'embedded' === $settings['form_factor'] ) {
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		}
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
-    add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 	}
 
 	/**
 	 * Register and enqueue scripts for the admin.
 	 *
+	 * @param string $hook The hook for the admin page where the script is to be enqueued.
 	 * @return void
 	 */
 	public function admin_enqueue_scripts( $hook ) {
@@ -44,6 +48,7 @@ class Dintero_Checkout_Assets {
 			DINTERO_CHECKOUT_VERSION,
 			true,
 		);
+
 		wp_register_style(
 			'dintero-checkout-admin',
 			plugins_url( 'assets/css/dintero-checkout-admin.css', DINTERO_CHECKOUT_MAIN_FILE ),
@@ -92,10 +97,14 @@ class Dintero_Checkout_Assets {
 
 		$session_id = WC()->session->get( 'dintero_checkout_session_id' );
 		if ( empty( $session_id ) ) {
-			// FIXME: The shipping_option is not available at this point. The current workaround is to check for null.
 			WC()->cart->calculate_shipping();
-			$session    = Dintero()->api->create_session();
-			$session_id = $session['id'];
+			$new_session = Dintero()->api->create_session();
+
+			if ( is_wp_error( $new_session ) ) {
+				return;
+			}
+
+			$session_id = $new_session['id'];
 			WC()->session->set( 'dintero_checkout_session_id', $session_id );
 		}
 
@@ -134,8 +143,11 @@ class Dintero_Checkout_Assets {
 				'change_payment_method_url'   => WC_AJAX::get_endpoint( 'dintero_checkout_wc_change_payment_method' ),
 				'change_payment_method_nonce' => wp_create_nonce( 'dintero_checkout_wc_change_payment_method' ),
 				'standardWooCheckoutFields'   => $standard_woo_checkout_fields,
+				'submitOrder'                 => WC_AJAX::get_endpoint( 'checkout' ),
 				'log_to_file_url'             => WC_AJAX::get_endpoint( 'dintero_checkout_wc_log_js' ),
 				'log_to_file_nonce'           => wp_create_nonce( 'dintero_checkout_wc_log_js' ),
+				'unset_session_url'           => WC_AJAX::get_endpoint( 'dintero_checkout_unset_session' ),
+				'unset_session_nonce'         => wp_create_nonce( 'dintero_checkout_unset_session' ),
 			)
 		);
 
