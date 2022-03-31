@@ -44,7 +44,7 @@ class Dintero_Checkout_Template {
 	 */
 	public function __construct() {
 		$this->settings = get_option( 'woocommerce_dintero_checkout_settings' );
-		if ( 'embedded' === $this->settings['form_factor'] || 'yes' === $this->settings['enabled'] ) {
+		if ( 'embedded' === $this->settings['form_factor'] && 'yes' === $this->settings['enabled'] ) {
 			// Common.
 			add_filter( 'wc_get_template', array( $this, 'override_template' ), 999, 2 );
 			add_action( 'dintero_iframe', array( $this, 'iframe' ) );
