@@ -104,7 +104,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 		$body['express']['shipping_options'] = $shipping;
 
 		/* Otherwise, it is embedded in order.items, and hidden in Dintero Express for now. */
-		if ( count( $shipping ) > 1 ) {
+		if ( empty( $shipping ) || count( $shipping ) > 1 ) {
 			$body['express']['shipping_options'] = array();
 			$body['express']['shipping_mode']    = 'shipping_not_required';
 
