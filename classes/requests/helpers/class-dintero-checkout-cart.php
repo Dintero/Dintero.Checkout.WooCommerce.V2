@@ -260,7 +260,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 
 		$shipping_lines = array();
 
-		if ( WC()->cart->needs_shipping() && count( WC()->shipping->get_packages() ) < 1 ) {
+		if ( ! WC()->cart->needs_shipping() || empty( count( WC()->shipping->get_packages() ) ) ) {
 			return $shipping_lines;
 		}
 
