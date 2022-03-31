@@ -105,7 +105,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 */
 		public function process_payment( $order_id ) {
 			if ( 'embedded' === $this->form_factor ) {
-				$result = $this->process_embeded_payment( $order_id );
+				$result = $this->process_embedded_payment( $order_id );
 			} else {
 				$result = $this->process_redirect_payment( $order_id );
 			}
@@ -113,12 +113,12 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		}
 
 		/**
-		 * Process an embeded payment method.
+		 * Process an embedded payment method.
 		 *
 		 * @param int $order_id The WooCommerce Order ID.
 		 * @return array
 		 */
-		public function process_embeded_payment( $order_id ) {
+		public function process_embedded_payment( $order_id ) {
 			$order     = wc_get_order( $order_id );
 			$reference = WC()->session->get( 'dintero_merchant_reference' );
 			update_post_meta( $order_id, '_dintero_merchant_reference', $reference );
