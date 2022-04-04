@@ -76,7 +76,7 @@ class Dintero_Checkout_Assets {
 			return;
 		}
 
-		if ( 'embedded' !== $this->form_factor ) {
+		if ( 'embedded' !== $settings['form_factor'] ) {
 			return;
 		}
 
