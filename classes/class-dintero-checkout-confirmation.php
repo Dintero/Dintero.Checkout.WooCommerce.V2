@@ -124,6 +124,9 @@ class Dintero_Checkout_Redirect {
 
 		$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
 
+		update_post_meta( $order_id, '_dintero_transaction_id', $transaction_id );
+		update_post_meta( $order_id, '_transaction_id', $transaction_id );
+
 		if ( $require_authorization ) {
 			// translators: %s the Dintero transaction ID.
 			$order->add_order_note( sprintf( __( 'The order was placed successfully, but requires further authorization by Dintero. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
@@ -137,13 +140,10 @@ class Dintero_Checkout_Redirect {
 
 			// translators: %s the Dintero transaction ID.
 			$order->add_order_note( sprintf( __( 'Payment via Dintero Checkout. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
-			$order->set_status( 'processing' );
-			$order->save();
+			$order->payment_complete();
 		}
 
 		dintero_unset_sessions();
-		update_post_meta( $order_id, '_dintero_transaction_id', $transaction_id );
-		update_post_meta( $order_id, '_transaction_id', $transaction_id );
 
 		wp_redirect(
 			add_query_arg(
