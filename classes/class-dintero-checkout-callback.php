@@ -35,13 +35,17 @@ class Dintero_Checkout_Callback {
 		$order_key = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_STRING );
 		if ( empty( $order_key ) ) {
 			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR [order_key]: No order key was found (transaction ID: %s). Cannot identify the WC order. ', ( $transaction_id ) ? $transaction_id : 'Not available' ) );
-			return;
+
+			/* Dintero has to know that something went wrong otherwise they will assume all is fine. */
+			header( 'HTTP/1.1 500 Internal Server Error' );
+			die;
 		}
 
 		$order_id = wc_get_order_id_by_order_key( $order_key );
 		if ( empty( $order_id ) ) {
 			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR [order_key]: Failed to retrieve the order id from the order key (transaction ID: %s).', ( $transaction_id ) ? $transaction_id : 'Not available' ) );
-			return;
+			header( 'HTTP/1.1 500 Internal Server Error' );
+			die;
 		}
 
 		$order = wc_get_order( $order_id );
@@ -74,7 +78,8 @@ class Dintero_Checkout_Callback {
 				$order->add_order_note( $note );
 			}
 
-			return;
+			header( 'HTTP/1.1 500 Internal Server Error' );
+			die;
 		}
 
 		// Check if the order exist in WooCommerce.
@@ -82,7 +87,8 @@ class Dintero_Checkout_Callback {
 			$event = filter_input( INPUT_GET, 'event', FILTER_SANITIZE_STRING );
 			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR%s: No order with the WC id %s / %s (transaction id: %s) could be found.', ( empty( $event ) ) ? '' : " [$event]", $order_id, $merchant_reference, $transaction_id ) );
 
-			return;
+			header( 'HTTP/1.1 500 Internal Server Error' );
+			die;
 		}
 
 		// If the 'event' query parameter exist, the order status was changed in the back office.
@@ -117,13 +123,15 @@ class Dintero_Checkout_Callback {
 					break;
 			}
 
-			return;
+			header( 'HTTP/1.1 200 OK' );
+			die;
 		}
 
 		// Check if the order is set to on-hold, awaiting authorization.
 		$dintero_order = Dintero()->api->get_order( $transaction_id );
 		if ( is_wp_error( $dintero_order ) ) {
-			return;
+			header( 'HTTP/1.1 500 Internal Server Error' );
+			die;
 		}
 
 		$is_authorized = ( 'AUTHORIZED' === $dintero_order['status'] );
@@ -137,7 +145,8 @@ class Dintero_Checkout_Callback {
 			Dintero_Checkout_Logger::log(
 				sprintf( 'CALLBACK [%s]: The WC order ID: %s / %s (transaction ID: %s) was authorized by Dintero. Changing status from "%s" to "processing".', $dintero_order['status'], $order_id, $merchant_reference, $transaction_id, $order->get_status() )
 			);
-			return;
+			header( 'HTTP/1.1 200 OK' );
+			die;
 		}
 
 		$is_failed = ( 'FAILED' === $dintero_order['status'] );
@@ -152,7 +161,8 @@ class Dintero_Checkout_Callback {
 			Dintero_Checkout_Logger::log(
 				sprintf( 'CALLBACK [%s]: The WC order ID: %s / %s (transaction ID: %s) was not approved by Dintero. Changing status from "%s" to "failed".', $dintero_order['status'], $order_id, $merchant_reference, $transaction_id, $order->get_status() )
 			);
-			return;
+			header( 'HTTP/1.1 200 OK' );
+			die;
 		}
 
 		// At this point, the 'event' query parameter does not exist which means the order was completed through WooCommerce.
@@ -164,6 +174,9 @@ class Dintero_Checkout_Callback {
 			// translators: the transaction ID.
 			$order->add_order_note( sprintf( __( 'The customer has completed the payment, but did not return to the confirmation page. Transaction ID: %s.', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
 		}
+
+		header( 'HTTP/1.1 200 OK' );
+		die;
 	}
 
 	/**
