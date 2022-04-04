@@ -76,7 +76,9 @@ class Dintero_Checkout_Assets {
 			return;
 		}
 
-		// TODO: Check if embedded is enabled.
+		if ( 'embedded' !== $this->form_factor ) {
+			return;
+		}
 
 		$sdk_url = 'https://unpkg.com/@dintero/checkout-web-sdk@0.3.1/dist/dintero-checkout-web-sdk.umd.min.js';
 		wp_register_script(

@@ -104,7 +104,9 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return array An associative array containing the success status and redirect URl.
 		 */
 		public function process_payment( $order_id ) {
-			if ( 'embedded' === $this->form_factor ) {
+
+			/* For all form factors, redirect is used for order-pay since the cart object (used for embedded) is not available. */
+			if ( 'embedded' === $this->form_factor && ! is_wc_endpoint_url( 'order-pay' ) ) {
 				$result = $this->process_embedded_payment( $order_id );
 			} else {
 				$result = $this->process_redirect_payment( $order_id );

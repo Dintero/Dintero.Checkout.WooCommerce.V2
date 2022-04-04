@@ -73,6 +73,11 @@ class Dintero_Checkout_Template {
 			return $template;
 		}
 
+		/* For all form factors, redirect is used for order-pay since the cart object (used for embedded) is not available. */
+		if ( is_wc_endpoint_url( 'order-pay' ) ) {
+			return $template;
+		}
+
 		if ( 'express' === $this->settings['checkout_type'] ) {
 			return $this->maybe_replace_checkout( $template, $template_name );
 		}
