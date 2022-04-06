@@ -64,22 +64,25 @@ jQuery( function( $ ) {
 					window.location = event.href;
 				},
 				onPaymentError( event, checkout ) {
-					$( dinteroCheckoutForWooCommerce.checkoutFormSelector ).unblock();
-				},
-				onSessionCancel( event, checkout ) {
 					checkout.destroy();
 
 					$.ajax( {
 						type: 'POST',
 						dataType: 'json',
 						data: {
-							nonce: dinteroCheckoutParams.unset_session_nonce,
+							nonce: dinteroCheckoutParams.print_notice_nonce,
+							message: 'A payment error was encountered.',
+							notice_type: 'error',
 						},
-						url: dinteroCheckoutParams.unset_session_url,
-						complete( ) {
-							window.location.replace( event.href );
+						url: dinteroCheckoutParams.print_notice_url,
+						complete() {
+							dinteroCheckoutForWooCommerce.unsetSession( event.href );
 						},
 					} );
+				},
+				onSessionCancel( event, checkout ) {
+					checkout.destroy();
+					dinteroCheckoutForWooCommerce.unsetSession( event.href );
 				},
 				onSessionLocked( event, checkout, callback ) {
 					dinteroCheckoutForWooCommerce.isLocked = true;
@@ -111,6 +114,20 @@ jQuery( function( $ ) {
 				},
 			} ).then( function( checkout ) {
 				dinteroCheckoutForWooCommerce.checkout = checkout;
+			} );
+		},
+
+		unsetSession( redirect_url ) {
+			$.ajax( {
+				type: 'POST',
+				dataType: 'json',
+				data: {
+					nonce: dinteroCheckoutParams.unset_session_nonce,
+				},
+				url: dinteroCheckoutParams.unset_session_url,
+				complete( ) {
+					window.location.replace( redirect_url );
+				},
 			} );
 		},
 

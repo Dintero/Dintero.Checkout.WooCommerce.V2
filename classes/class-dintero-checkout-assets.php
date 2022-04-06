@@ -150,6 +150,8 @@ class Dintero_Checkout_Assets {
 				'log_to_file_nonce'           => wp_create_nonce( 'dintero_checkout_wc_log_js' ),
 				'unset_session_url'           => WC_AJAX::get_endpoint( 'dintero_checkout_unset_session' ),
 				'unset_session_nonce'         => wp_create_nonce( 'dintero_checkout_unset_session' ),
+				'print_notice_url'            => WC_AJAX::get_endpoint( 'dintero_checkout_print_notice' ),
+				'print_notice_nonce'          => wp_create_nonce( 'dintero_checkout_print_notice' ),
 			)
 		);
 

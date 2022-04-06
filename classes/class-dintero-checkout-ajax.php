@@ -28,6 +28,7 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 			'dintero_checkout_wc_change_payment_method' => true,
 			'dintero_checkout_wc_log_js'                => true,
 			'dintero_checkout_unset_session'            => true,
+			'dintero_checkout_print_notice'             => true,
 		);
 		foreach ( $ajax_events as $ajax_event => $nopriv ) {
 			add_action( 'wp_ajax_woocommerce_' . $ajax_event, array( __CLASS__, $ajax_event ) );
@@ -106,6 +107,19 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 		}
 
 		dintero_unset_sessions();
+	}
+
+
+	public static function dintero_checkout_print_notice() {
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_key( $_POST['nonce'] ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'dintero_checkout_print_notice' ) ) {
+			wp_send_json_error( 'bad_nonce' );
+			exit;
+		}
+
+		$notice_type = filter_input( INPUT_POST, 'notice_type', FILTER_SANITIZE_STRING );
+		wc_add_notice( filter_input( INPUT_POST, 'message', FILTER_SANITIZE_STRING ), $notice_type );
+
 	}
 }
 Dintero_Checkout_Ajax::init();
