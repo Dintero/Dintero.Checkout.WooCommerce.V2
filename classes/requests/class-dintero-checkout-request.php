@@ -186,6 +186,13 @@ abstract class Dintero_Checkout_Request {
 
 				return new WP_Error( $code, $errors, $data );
 			}
+
+			return array(
+				'code'     => $code,
+				'result'   => $errors,
+				'request'  => $this->request_args,
+				'is_error' => true,
+			);
 		}
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );

@@ -6,22 +6,23 @@
     max-width: 1040px;
 }
 
-#woocommerce_dintero_checkout_branding_title+.form-table tbody tr:first-child {
-    flex: 1 0 100%;
-}
-
-#woocommerce_dintero_checkout_branding_title+.form-table tbody tr:not(:first-child):nth-child(n) {
+#woocommerce_dintero_checkout_branding_title+.form-table tbody tr:nth-child(n) {
     flex: 1 0 50%;
 }
 
 
 /* Make the preview and input field appear on the same line. */
-#woocommerce_dintero_checkout_branding_title+.form-table tbody tr:not(:first-child):nth-child(n) {
+
+#woocommerce_dintero_checkout_branding_title+.form-table tbody tr:not(:first-child):nth-child(n) td {
     display: flex;
-    flex-flow: wrap;
+}
+
+#woocommerce_dintero_checkout_branding_logo_color_custom {
+    width: 80%;
 }
 
 @media screen and (max-width: 720px) {
+    /* Move the input fields to their own lines. */
     #woocommerce_dintero_checkout_branding_title+.form-table tbody tr:not(:first-child):nth-child(n) {
         flex-basis: 100%;
     }
