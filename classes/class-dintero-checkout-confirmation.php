@@ -143,6 +143,9 @@ class Dintero_Checkout_Redirect {
 			$order->payment_complete();
 		}
 
+		// Update the transaction with the order number.
+		Dintero()->api->update_transaction( $transaction_id, $order->get_order_number() );
+
 		dintero_unset_sessions();
 
 		wp_redirect(

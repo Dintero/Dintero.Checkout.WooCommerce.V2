@@ -134,6 +134,25 @@ class Dintero_Checkout_API {
 	}
 
 	/**
+	 * Update a transaction with the correct order number sent as the order reference.
+	 *
+	 * @param string $transaction_id The Dintero Transaction id.
+	 * @param string $order_number The WooCommerce order number.
+	 * @return array|WP_Error
+	 */
+	public function update_transaction( $transaction_id, $order_number ) {
+		$request  = new Dintero_Checkout_Update_Transaction(
+			array(
+				'transaction_id' => $transaction_id,
+				'order_number'   => $order_number,
+			)
+		);
+		$response = $request->request();
+
+		return $this->check_for_api_error( $response );
+	}
+
+	/**
 	 * Checks for WP Errors and returns either the response as array.
 	 *
 	 * @param array $response The response from the request.
