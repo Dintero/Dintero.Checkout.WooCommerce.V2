@@ -1,6 +1,6 @@
 <?php //phpcs:ignore
 /**
- * Class for retrieving order information from Dintero.
+ * Class for retrieving session information from Dintero.
  *
  * @package Dintero_Checkout/Classes/Requests/Get
  */
@@ -10,9 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class for retrieving order information.
+ * Class for retrieving session information.
  */
-class Dintero_Checkout_Get_Order extends Dintero_Checkout_Request_Get {
+class Dintero_Checkout_Get_Session extends Dintero_Checkout_Request_Get {
 
 	/**
 	 * Class constructor.
@@ -22,7 +22,7 @@ class Dintero_Checkout_Get_Order extends Dintero_Checkout_Request_Get {
 	public function __construct( $arguments ) {
 		parent::__construct( $arguments );
 
-		$this->log_title = 'Get Dintero order.';
+		$this->log_title = 'Get Dintero session.';
 	}
 
 	/**
@@ -31,6 +31,6 @@ class Dintero_Checkout_Get_Order extends Dintero_Checkout_Request_Get {
 	 * @return string
 	 */
 	public function get_request_url() {
-		return "{$this->get_api_url_base()}transactions/{$this->arguments['dintero_id']}";
+		return "{$this->get_api_url_base()}sessions/{$this->arguments['session_id']}";
 	}
 }

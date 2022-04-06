@@ -37,6 +37,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			$this->enabled     = $this->get_option( 'enabled' );
 			$this->test_mode   = 'yes' === $this->get_option( 'test_mode' );
 			$this->logging     = 'yes' === $this->get_option( 'logging' );
+			$this->form_factor = $this->get_option( 'form_factor' );
 			$this->has_fields  = false;
 			add_action(
 				'woocommerce_update_options_payment_gateways_' . $this->id,
@@ -59,7 +60,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		/**
 		 * Add payment gateway icon on the checkout page.
 		 *
-		 * @return void
+		 * @return string
 		 */
 		public function get_icon() {
 			$settings    = get_option( 'woocommerce_dintero_checkout_settings' );
@@ -103,19 +104,56 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return array An associative array containing the success status and redirect URl.
 		 */
 		public function process_payment( $order_id ) {
-			$session = Dintero()->api->create_session( $order_id );
-			$order   = wc_get_order( $order_id );
 
-			if ( $session['is_error'] ) {
+			/* For all form factors, redirect is used for order-pay since the cart object (used for embedded) is not available. */
+			if ( 'embedded' === $this->form_factor && ! is_wc_endpoint_url( 'order-pay' ) ) {
+				$result = $this->process_embedded_payment( $order_id );
+			} else {
+				$result = $this->process_redirect_payment( $order_id );
+			}
+			return $result;
+		}
+
+		/**
+		 * Process an embedded payment method.
+		 *
+		 * @param int $order_id The WooCommerce Order ID.
+		 * @return array
+		 */
+		public function process_embedded_payment( $order_id ) {
+			$order     = wc_get_order( $order_id );
+			$reference = WC()->session->get( 'dintero_merchant_reference' );
+			update_post_meta( $order_id, '_dintero_merchant_reference', $reference );
+			$order->add_order_note( __( 'Dintero Order created with reference ', 'dintero-checkout-for-woocommerce' ) . $reference );
+
+			return array(
+				'result' => 'success',
+			);
+		}
+
+		/**
+		 * Process a redirect payment.
+		 *
+		 * @param int $order_id The WooCommerce Order ID.
+		 * @return array
+		 */
+		public function process_redirect_payment( $order_id ) {
+			$order     = wc_get_order( $order_id );
+			$session   = Dintero()->api->create_session( $order_id );
+			$reference = WC()->session->get( 'dintero_merchant_reference' );
+			update_post_meta( $order_id, '_dintero_merchant_reference', $reference );
+
+			if ( is_wp_error( $session ) ) {
 				return array(
 					'result' => 'error',
 				);
 			}
 
 			$order->add_order_note( __( 'Customer redirected to Dintero payment page.', 'dintero-checkout-for-woocommerce' ) );
+
 			return array(
 				'result'   => 'success',
-				'redirect' => $session['result']['url'],
+				'redirect' => $session['url'],
 			);
 		}
 
@@ -125,10 +163,10 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @param int    $order_id The WooCommerce order id.
 		 * @param float  $amount The amount to refund.
 		 * @param string $reason The reason for the refund.
-		 * @return void
+		 * @return array|WP_Error
 		 */
 		public function process_refund( $order_id, $amount = null, $reason = '' ) {
-			return Dintero()->order_management->refund_order( $order_id );
+			return Dintero()->order_management->refund_order( $order_id, $reason );
 		}
 	}
 }

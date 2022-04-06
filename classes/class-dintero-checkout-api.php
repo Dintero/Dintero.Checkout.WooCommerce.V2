@@ -22,9 +22,12 @@ class Dintero_Checkout_API {
 	 * @param string $order_id WooCommerce transaction id.
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
-	public function create_session( $order_id ) {
-		$session = new Dintero_Checkout_Create_Session();
-		return $session->create( $order_id );
+	public function create_session( $order_id = false ) {
+		$args     = array( 'order_id' => $order_id );
+		$request  = new Dintero_Checkout_Create_Session( $args );
+		$response = $request->request();
+		return $this->check_for_api_error( $response );
+
 	}
 
 	/**
@@ -34,8 +37,36 @@ class Dintero_Checkout_API {
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function get_order( $dintero_id ) {
-		$order = new Dintero_Checkout_Get_Order();
-		return $order->get_order( $dintero_id );
+		$args     = array( 'dintero_id' => $dintero_id );
+		$request  = new Dintero_Checkout_Get_Order( $args );
+		$response = $request->request();
+		return $this->check_for_api_error( $response );
+	}
+
+	/**
+	 * Retrieve information about a WooCommerce order from Dintero.
+	 *
+	 * @param string $session_id The Dintero session id.
+	 * @return array An associative array on success and failure. Check for is_error index.
+	 */
+	public function get_session( $session_id ) {
+		$args     = array( 'session_id' => $session_id );
+		$request  = new Dintero_Checkout_Get_session( $args );
+		$response = $request->request();
+		return $this->check_for_api_error( $response );
+	}
+
+	/**
+	 * Update a Dintero checkout session.
+	 *
+	 * @param string $session_id The Dintero session id.
+	 * @return array An associative array on success and failure. Check for is_error index.
+	 */
+	public function update_checkout_session( $session_id ) {
+		$args     = array( 'session_id' => $session_id );
+		$request  = new Dintero_Checkout_Update_Checkout_Session( $args );
+		$response = $request->request();
+		return $this->check_for_api_error( $response );
 	}
 
 	/**
@@ -46,8 +77,14 @@ class Dintero_Checkout_API {
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function capture_order( $dintero_id, $order_id ) {
-		$capture = new Dintero_Checkout_Capture_Order();
-		return $capture->capture( $dintero_id, $order_id );
+		$request  = new Dintero_Checkout_Capture_Order(
+			array(
+				'dintero_id' => $dintero_id,
+				'order_id'   => $order_id,
+			)
+		);
+		$response = $request->request();
+		return $this->check_for_api_error( $response );
 	}
 
 	/**
@@ -57,8 +94,13 @@ class Dintero_Checkout_API {
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function cancel_order( $dintero_id ) {
-		$cancel = new Dintero_Checkout_Cancel_Order();
-		return $cancel->cancel( $dintero_id );
+		$request  = new Dintero_Checkout_Cancel_Order(
+			array(
+				'dintero_id' => $dintero_id,
+			)
+		);
+		$response = $request->request();
+		return $this->check_for_api_error( $response );
 	}
 
 	/**
@@ -67,8 +109,61 @@ class Dintero_Checkout_API {
 	 * @param string $dintero_id The Dintero transaction id.
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
-	public function refund_order( $dintero_id, $order_id ) {
-		$refund = new Dintero_Checkout_Refund_Order();
-		return $refund->refund( $dintero_id, $order_id );
+	public function refund_order( $dintero_id, $order_id, $reason ) {
+		$request  = new Dintero_Checkout_Refund_Order(
+			array(
+				'dintero_id' => $dintero_id,
+				'order_id'   => $order_id,
+				'reason'     => $reason,
+			)
+		);
+		$response = $request->request();
+		return $this->check_for_api_error( $response );
+	}
+
+	/**
+	 * Returns a access token.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function get_access_token() {
+		$request  = new Dintero_Checkout_Get_Access_Token( array() );
+		$response = $request->request();
+
+		return $this->check_for_api_error( $response );
+	}
+
+	/**
+	 * Update a transaction with the correct order number sent as the order reference.
+	 *
+	 * @param string $transaction_id The Dintero Transaction id.
+	 * @param string $order_number The WooCommerce order number.
+	 * @return array|WP_Error
+	 */
+	public function update_transaction( $transaction_id, $order_number ) {
+		$request  = new Dintero_Checkout_Update_Transaction(
+			array(
+				'transaction_id' => $transaction_id,
+				'order_number'   => $order_number,
+			)
+		);
+		$response = $request->request();
+
+		return $this->check_for_api_error( $response );
+	}
+
+	/**
+	 * Checks for WP Errors and returns either the response as array.
+	 *
+	 * @param array $response The response from the request.
+	 * @return array|WP_Error
+	 */
+	private function check_for_api_error( $response ) {
+		if ( is_wp_error( $response ) ) {
+			if ( ! is_admin() ) {
+				dintero_print_error_message( $response );
+			}
+		}
+		return $response;
 	}
 }

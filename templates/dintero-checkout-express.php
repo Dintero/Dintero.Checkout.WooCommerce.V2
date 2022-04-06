@@ -1,0 +1,21 @@
+<?php
+/**
+ * The Dintero Checkout Express form to be embedded.
+ *
+ * @package Dintero_Checkout/Templates
+ */
+
+?>
+<form name="checkout" class="checkout woocommerce-checkout">
+	<div id="dintero-express-wrapper">
+		<div id="dintero-checkout-order-review">
+			<?php do_action( 'dintero_express_order_review' ); ?>
+		</div>
+		<div aria-hidden="true" id="dintero-express-form" style="position:absolute; top:-99999px; left:-99999px;">
+			<?php do_action( 'dintero_express_form' ); ?>
+		</div>
+		<div>
+		<?php do_action( 'dintero_iframe' ); ?>
+		</div>
+	</div>
+</form>

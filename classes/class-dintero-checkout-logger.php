@@ -12,8 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Logger class.
  */
-class Dintero_Logger {
-
+class Dintero_Checkout_Logger {
 	/**
 	 * The message to log.
 	 *
@@ -30,27 +29,31 @@ class Dintero_Logger {
 	 */
 	public static function log( $data ) {
 		$settings = get_option( 'woocommerce_dintero_checkout_settings', array() );
+
 		if ( 'yes' === $settings['logging'] ) {
+			$message = self::format_data( $data );
 			if ( empty( self::$log ) ) {
 				self::$log = new WC_Logger();
 			}
+			self::$log->add( 'dintero-checkout-for-woocommerce', wp_json_encode( $message, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) );
+		}
 
-			self::$log->add( 'dintero-checkout-for-woocommerce', wp_json_encode( self::decode_body( $data ) ) );
+		if ( isset( $data['response']['code'] ) && ( $data['response']['code'] < 200 || $data['response']['code'] > 299 ) ) {
+			self::log_to_db( $data );
 		}
 	}
 
 	/**
-	 * Decode the JSON body for easier reading.
+	 * Formats the log data to prevent json error.
 	 *
-	 * @static
-	 * @param array $data
-	 * @return array The same data with the body (if available) JSON decoded.
+	 * @param string $data Json string of data.
+	 * @return array
 	 */
-	public static function decode_body( $data ) {
+	public static function format_data( $data ) {
 		if ( isset( $data['request']['body'] ) ) {
-			$data['request']['body'] = json_decode( $data['request']['body'] );
+			$request_body            = json_decode( $data['request']['body'], true );
+			$data['request']['body'] = ( ! empty( $request_body ) ) ? $request_body : $data['request']['body'];
 		}
-
 		return $data;
 	}
 
@@ -67,15 +70,15 @@ class Dintero_Logger {
 	 * @param string $request_url The request URL.
 	 * @return array A formatted associative array.
 	 */
-	public static function format( $dintero_id, $method, $title, $request_args, $response, $code, $request_url ) {
+	public static function format_log( $dintero_id, $method, $title, $request_args, $response, $code, $request_url = null ) {
 		$user_agent = filter_input( INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_ADD_SLASHES ) ?? 'Not available';
 
 		return array(
 			'id'             => $dintero_id,
 			'type'           => $method,
 			'title'          => $title,
-			'request'        => $request_args,
 			'request_url'    => $request_url,
+			'request'        => $request_args,
 			'response'       => array(
 				'body' => $response,
 				'code' => $code,
@@ -86,18 +89,17 @@ class Dintero_Logger {
 			'wc_version'     => WC()->version,
 			'wp_version'     => get_bloginfo( 'version' ),
 			'user_agent'     => $user_agent,
-			'stack'          => self::stacktrace(),
+			'stack'          => self::get_stack(),
 		);
 	}
 
 	/**
-	 * Get the stacktrace.
+	 * Gets the stack for the request.
 	 *
-	 * @static
 	 * @return array
 	 */
-	public static function stacktrace() {
-		$debug_data = debug_backtrace(); // phpcs:ignore 
+	public static function get_stack() {
+		$debug_data = debug_backtrace(); // phpcs:ignore WordPress.PHP.DevelopmentFunctions -- Data is not used for display.
 		$stack      = array();
 		foreach ( $debug_data as $data ) {
 			$extra_data = '';
@@ -113,5 +115,23 @@ class Dintero_Logger {
 			$stack[] = $data['function'] . $extra_data;
 		}
 		return $stack;
+	}
+
+	/**
+	 * Logs an event in the WP DB.
+	 *
+	 * @param array $data The data to be logged.
+	 */
+	public static function log_to_db( $data ) {
+		$logs = get_option( 'krokedil_debuglog_dintero_checkout', array() );
+
+		if ( ! empty( $logs ) ) {
+			$logs = json_decode( $logs );
+		}
+
+		$logs   = array_slice( $logs, -14 );
+		$logs[] = $data;
+		$logs   = wp_json_encode( $logs );
+		update_option( 'krokedil_debuglog_dintero_checkout', $logs );
 	}
 }
