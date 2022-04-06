@@ -248,18 +248,13 @@ jQuery( function( $ ) {
 		updateAddress( billingAddress, shippingAddress ) {
 			let update = false;
 
-			// Maybe set names if its a b2b purchase.
-			if( billingAddress.co_address ) {
-				billingAddress.first_name = billingAddress.first_name || billingAddress.co_address.split(" ")[0] || billingAddress.business_name
-				billingAddress.last_name = billingAddress.last_name || billingAddress.co_address.split(" ")[1] || billingAddress.business_name
-			}
-
-			if( shippingAddress.co_address ) {
-				shippingAddress.first_name = shippingAddress.first_name || shippingAddress.co_address.split(" ")[0] || shippingAddress.business_name
-				shippingAddress.last_name = shippingAddress.last_name || shippingAddress.co_address.split(" ")[1] || shippingAddress.business_name
-			}
-
 			if ( billingAddress ) {
+				// Maybe set names if its a b2b purchase.
+				if ( billingAddress.co_address ) {
+					billingAddress.first_name = billingAddress.first_name || billingAddress.co_address.split( ' ' )[ 0 ] || billingAddress.business_name;
+					billingAddress.last_name = billingAddress.last_name || billingAddress.co_address.split( ' ' )[ 1 ] || billingAddress.business_name;
+				}
+
 				if ( 'first_name' in billingAddress ) {
 					// first_name=shipping_address.first_name || shipping_address.co_address.split(" ")[0] || shipping_address.business_name
 					$( '#billing_first_name' ).val( billingAddress.first_name );
@@ -298,6 +293,11 @@ jQuery( function( $ ) {
 			}
 
 			if ( shippingAddress ) {
+				if ( shippingAddress.co_address ) {
+					shippingAddress.first_name = shippingAddress.first_name || shippingAddress.co_address.split( ' ' )[ 0 ] || shippingAddress.business_name;
+					shippingAddress.last_name = shippingAddress.last_name || shippingAddress.co_address.split( ' ' )[ 1 ] || shippingAddress.business_name;
+				}
+
 				$( '#ship-to-different-address-checkbox' ).prop( 'checked', true );
 
 				if ( 'first_name' in shippingAddress ) {
