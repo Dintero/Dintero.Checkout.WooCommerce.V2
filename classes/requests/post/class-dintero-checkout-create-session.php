@@ -74,7 +74,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 		);
 
 		if ( ! Dintero_Checkout_Callback::is_localhost() ) {
-			$this->request_args['url']['callback_url'] = Dintero_Checkout_Callback::callback_url( '$order->get_order_key()' );
+			$body['url']['callback_url'] = Dintero_Checkout_Callback::callback_url();
 		}
 
 		/* If we have more than one shipping package, we've added them to the order.items. */

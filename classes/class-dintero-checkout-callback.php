@@ -31,19 +31,12 @@ class Dintero_Checkout_Callback {
 		$transaction_id     = filter_input( INPUT_GET, 'transaction_id', FILTER_SANITIZE_STRING ); /* The transaction_id is guaranteed unless 'error' is set. */
 		$error              = filter_input( INPUT_GET, 'error', FILTER_SANITIZE_STRING );
 
+		$the_GET = json_encode( filter_var_array( $_GET, FILTER_SANITIZE_STRING ) );
+
 		/* If the 'order_key' does not exist, we cannot identify the WC order. */
-		$order_key = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_STRING );
-		if ( empty( $order_key ) ) {
-			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR [order_key]: No order key was found (transaction ID: %s). Cannot identify the WC order. ', ( $transaction_id ) ? $transaction_id : 'Not available' ) );
-
-			/* Dintero has to know that something went wrong otherwise they will assume all is fine. */
-			header( 'HTTP/1.1 500 Internal Server Error' );
-			die;
-		}
-
-		$order_id = wc_get_order_id_by_order_key( $order_key );
+		$order_id = $this->get_order_id_from_reference( $merchant_reference );
 		if ( empty( $order_id ) ) {
-			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR [order_key]: Failed to retrieve the order id from the order key (transaction ID: %s).', ( $transaction_id ) ? $transaction_id : 'Not available' ) );
+			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR [order_id]: Failed to retrieve the order id from the merchant_reference (transaction ID: %s): %s', ( $transaction_id ) ? $transaction_id : 'Not available', $the_GET ) );
 			header( 'HTTP/1.1 500 Internal Server Error' );
 			die;
 		}
@@ -68,12 +61,12 @@ class Dintero_Checkout_Callback {
 					$note = 'The transaction capture operation failed during auto-capture.';
 					break;
 				default:
-					$note               = 'Unknown event. ' . json_encode( filter_var_array( $_GET, FILTER_SANITIZE_STRING ) ) . '.';
+					$note               = 'Unknown event.';
 					$show_on_order_page = false;
 					break;
 			}
 
-			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK [%s]: %s WC order id: %s / %s.', $error, $note, $order_id, $merchant_reference ) );
+			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK [%s]: %s WC order id: %s / %s: %s', $error, $note, $order_id, $merchant_reference, $the_GET ) );
 			if ( $show_on_order_page ) {
 				$order->add_order_note( $note );
 			}
@@ -85,7 +78,7 @@ class Dintero_Checkout_Callback {
 		// Check if the order exist in WooCommerce.
 		if ( empty( $order ) ) {
 			$event = filter_input( INPUT_GET, 'event', FILTER_SANITIZE_STRING );
-			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR%s: No order with the WC id %s / %s (transaction id: %s) could be found.', ( empty( $event ) ) ? '' : " [$event]", $order_id, $merchant_reference, $transaction_id ) );
+			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR%s: No order with the WC id %s / %s (transaction id: %s) could be found: %s', ( empty( $event ) ) ? '' : " [$event]", $order_id, $merchant_reference, $transaction_id, $the_GET ) );
 
 			header( 'HTTP/1.1 500 Internal Server Error' );
 			die;
@@ -119,7 +112,7 @@ class Dintero_Checkout_Callback {
 					break;
 
 				default:
-					Dintero_Checkout_Logger::log( sprintf( 'CALLBACK [%s] unknown, ignored for WC order id: %s / %s (transaction id: %s). ' . json_encode( filter_var_array( $_GET, FILTER_SANITIZE_STRING ) ), $event, $order_id, $merchant_reference, $transaction_id ) );
+					Dintero_Checkout_Logger::log( sprintf( 'CALLBACK [%s] unknown, ignored for WC order id: %s / %s (transaction id: %s): %s ' . json_encode( filter_var_array( $_GET, FILTER_SANITIZE_STRING ) ), $event, $order_id, $merchant_reference, $transaction_id, $the_GET ) );
 					break;
 			}
 
@@ -185,15 +178,14 @@ class Dintero_Checkout_Callback {
 	 * @static
 	 * @return string The callback URL (relative to the home URL).
 	 */
-	public static function callback_url( $order_key ) {
+	public static function callback_url() {
 		// Events to listen to when they happen in the back office.
 		$events = '&report_event=CAPTURE&report_event=REFUND&report_event=VOID';
 
 		return add_query_arg(
 			array(
-				'delay_callback' => 60, /* seconds. */
+				'delay_callback' => 120, /* seconds. */
 				'report_error'   => 'true',
-				'key'            => $order_key,
 			),
 			home_url( '/wc-api/dintero_callback/' )
 		) . $events;
@@ -206,6 +198,31 @@ class Dintero_Checkout_Callback {
 	 */
 	public static function is_localhost() {
 		return ( isset( $_SERVER['REMOTE_ADDR'] ) && in_array( $_SERVER['REMOTE_ADDR'], array( '127.0.0.1', '::1' ), true ) || isset( $_SERVER['HTTP_HOST'] ) && 'localhost' === substr( wp_unslash( $_SERVER['HTTP_HOST'] ), 0, 9 ) );
+	}
+
+
+	/**
+	 * Get a order id from the merchant reference.
+	 *
+	 * @param string $merchant_reference The merchant reference from dintero.
+	 * @return int
+	 */
+	public function get_order_id_from_reference( $merchant_reference ) {
+		$query_args = array(
+			'fields'      => 'ids',
+			'post_type'   => wc_get_order_types(),
+			'post_status' => array_keys( wc_get_order_statuses() ),
+			'meta_key'    => '_dintero_merchant_reference', // phpcs:ignore WordPress.DB.SlowDBQuery -- Slow DB Query is ok here, we need to limit to our meta key.
+			'meta_value'  => $merchant_reference, // phpcs:ignore WordPress.DB.SlowDBQuery -- Slow DB Query is ok here, we need to limit to our meta key.
+		);
+
+		$order_ids = get_posts( $query_args );
+
+		if ( empty( $order_ids ) ) {
+			return null;
+		}
+
+		return $order_ids[0];
 	}
 
 } new Dintero_Checkout_Callback();
