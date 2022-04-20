@@ -274,4 +274,65 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 
 		return $shipping_lines;
 	}
+
+	/**
+	 * Retrieve the customer's billing address.
+	 *
+	 * @param WC_Order $order WooCommerce Order.
+	 * @return array An associative array representing the billing address.
+	 */
+	public function get_billing_address( $order ) {
+		$billing_address = array(
+			'first_name'     => $order->get_billing_first_name(),
+			'last_name'      => $order->get_billing_last_name(),
+			'address_line'   => $order->get_billing_address_1(),
+			'address_line_2' => $order->get_billing_address_2(),
+			'business_name'  => $order->get_billing_company(),
+			'postal_code'    => $order->get_billing_postcode(),
+			'postal_place'   => $order->get_billing_city(),
+			'country'        => $order->get_billing_country(),
+			'phone_number'   => dintero_sanitize_phone_number( $order->get_billing_phone() ),
+			'email'          => $order->get_billing_email(),
+		);
+
+		/* Sanitize all values. Remove all empty elements (required by Dintero). */
+		return array_filter(
+			$billing_address,
+			function( $value ) {
+				return ! empty( sanitize_text_field( $value ) );
+			}
+		);
+	}
+
+	/**
+	 * Retrieve the customer's shipping address.
+	 *
+	 * @param WC_Order $order WooCommerce Order.
+	 * @return array An associative array representing the shipping address.
+	 */
+	public function get_shipping_address( $order ) {
+		$shipping_address = array(
+			'first_name'     => $order->get_shipping_first_name(),
+			'last_name'      => $order->get_shipping_last_name(),
+			'address_line'   => $order->get_shipping_address_1(),
+			'address_line_2' => $order->get_shipping_address_2(),
+			'business_name'  => $order->get_shipping_company(),
+			'postal_code'    => $order->get_shipping_postcode(),
+			'postal_place'   => $order->get_shipping_city(),
+			'country'        => $order->get_shipping_country(),
+			'email'          => $order->get_billing_email(),
+		);
+
+		// Check if a shipping phone number exist. Default to billing phone.
+		$phone                            = $order->get_shipping_phone();
+		$shipping_address['phone_number'] = dintero_sanitize_phone_number( ! empty( $phone ) ? $phone : $order->get_billing_phone() );
+
+		/* Sanitize all values. Remove all empty elements (required by Dintero). */
+		return array_filter(
+			$shipping_address,
+			function( $value ) {
+				return ! empty( sanitize_text_field( $value ) );
+			}
+		);
+	}
 }

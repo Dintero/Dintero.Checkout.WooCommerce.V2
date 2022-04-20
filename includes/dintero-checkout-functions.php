@@ -57,3 +57,14 @@ function dintero_print_error_message( $wp_error ) {
 		wc_add_notice( ( is_array( $error ) ) ? $error['message'] : $error, 'error' );
 	}
 }
+
+/**
+ * Sanitize phone number.
+ * Allow only '+' (if at the start), and numbers.
+ *
+ * @param string $phone Phone number.
+ * @return string
+ */
+function dintero_sanitize_phone_number( $phone ) {
+	return preg_replace( '/(?!^)[+]?[^\d]/', '', $phone );
+}
