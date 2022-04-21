@@ -116,6 +116,10 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			$order_lines[] = $this->get_gift_card( $gift_card );
 		}
 
+		foreach ( $this->order->get_items( 'pw_gift_card' ) as $gift_card ) {
+			$order_lines[] = $this->get_gift_card( $gift_card );
+		}
+
 		return array_values( $order_lines );
 	}
 
@@ -177,21 +181,33 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	/**
 	 * Get the formatted order line from a gift card.
 	 *
-	 * @param WC_GC_Order_Item_Gift_Card $gift_card WooCommerce order item gift card.
+	 * @param WC_GC_Order_Item_Gift_Card|WC_Order_Item_PW_Gift_Card $gift_card WooCommerce order item gift card.
 	 * @return array
 	 */
 	public function get_gift_card( $gift_card ) {
 
+		if ( is_a( $gift_card, 'WC_GC_Order_Item_Gift_Card' ) ) {
+			$id          = $gift_card->get_code() . ':' . $gift_card->get_giftcard_id();
+			$description = $gift_card->get_code();
+			$amount      = $gift_card->get_amount();
+		}
+
+		if ( is_a( $gift_card, 'WC_Order_Item_PW_Gift_Card' ) ) {
+			$id          = $gift_card->get_name();
+			$description = $gift_card->get_name();
+			$amount      = $gift_card->get_amount();
+		}
+
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
-			'id'          => $gift_card->get_code() . ':' . $gift_card->get_giftcard_id(),
-			'line_id'     => $gift_card->get_code() . ':' . $gift_card->get_giftcard_id(),
+			'id'          => $id,
+			'line_id'     => $id,
 			'type'        => 'gift_card',
-			'description' => __( 'Gift card', 'dintero-checkout-for-woocommerce' ) . ': ' . $gift_card->get_code(),
+			'description' => __( 'Gift card', 'dintero-checkout-for-woocommerce' ) . ': ' . $description,
 			'quantity'    => 1,
 			'tax_rate'    => 0,
 			'vat_amount'  => 0,
-			'amount'      => self::format_number( $gift_card->get_amount() * -1 ),
+			'amount'      => self::format_number( $amount * -1 ),
 		);
 	}
 

@@ -314,6 +314,26 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			}
 		}
 
+		// PW WooCommerce Gift Cards.
+		if ( ! empty( WC()->session->get( 'pw-gift-card-data' ) ) ) {
+			$pw_gift_cards = WC()->session->get( 'pw-gift-card-data' );
+			foreach ( $pw_gift_cards['gift_cards'] as $gift_card_code => $value ) {
+
+				$gift_card = array(
+					'id'          => $gift_card_code,
+					'line_id'     => $gift_card_code,
+					'type'        => 'gift_card',
+					'description' => __( 'Gift card', 'dintero-checkout-for-woocommerce' ) . ': ' . $gift_card_code,
+					'quantity'    => 1,
+					'tax_rate'    => 0,
+					'vat_amount'  => 0,
+					'amount'      => self::format_number( $value * -1 ),
+				);
+
+				$order_lines[] = $gift_card;
+			}
+		}
+
 		return $order_lines;
 	}
 
