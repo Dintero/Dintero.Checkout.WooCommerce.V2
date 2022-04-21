@@ -66,8 +66,6 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 				'amount'             => $helper->get_order_total(),
 				'currency'           => $helper->get_currency(),
 				'merchant_reference' => $reference,
-				'shipping_address'   => $shipping_address,
-				'billing_address'    => $billing_address,
 				'vat_amount'         => $helper->get_tax_total(),
 				'items'              => $helper->get_order_lines(),
 				/* order.shipping_option expects an object rather than an array: */
@@ -78,6 +76,11 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			),
 			'profile_id' => $this->settings['profile_id'],
 		);
+
+		if ( isset( $order ) ) {
+			$body['order']['shipping_address'] = $shipping_address;
+			$body['order']['billing_address']  = $billing_address;
+		}
 
 		if ( ! Dintero_Checkout_Callback::is_localhost() ) {
 			$body['url']['callback_url'] = Dintero_Checkout_Callback::callback_url();

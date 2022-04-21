@@ -107,20 +107,20 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			$order_lines[] = $this->get_fee( $order_item );
 		}
 
+		/**
+		 * Process order item gift card.
+		 *
+		 * @var WC_GC_Order_Item_Gift_Card $gift_card WooCommerce order item gift card.
+		 */
+		foreach ( $this->order->get_items( 'gift_card' ) as $gift_card ) {
+			$order_lines[] = $this->get_gift_card( $gift_card );
+		}
+
 		return array_values( $order_lines );
 	}
 
 	/**
-	 * Gets the formated shipping lines.
-	 *
-	 * @return array|null
-	 */
-	public function get_shipping_lines() {
-		return null;
-	}
-
-	/**
-	 * Get the formated order line from a cart item.
+	 * Get the formatted order line from a cart item.
 	 *
 	 * @param WC_Order_Item_Product $order_item WooCommerce order item product.
 	 * @return array
@@ -156,7 +156,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
-	 * Get the formated order line from a fee.
+	 * Get the formatted order line from a fee.
 	 *
 	 * @param WC_Order_Item_Fee $order_item WooCommerce order item fee.
 	 * @return array
@@ -165,12 +165,33 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		$name = $order_item->get_name();
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
-			'id'          => $order_item->get_name(),
-			'line_id'     => $order_item->get_name(),
-			'description' => $order_item->get_name(),
+			'id'          => $name,
+			'line_id'     => $name,
+			'description' => $name,
 			'quantity'    => 1,
 			'amount'      => absint( self::format_number( $order_item->get_total() + $order_item->get_total_tax() ) ),
 			'vat_amount'  => absint( self::format_number( $order_item->get_total_tax() ) ),
+		);
+	}
+
+	/**
+	 * Get the formatted order line from a gift card.
+	 *
+	 * @param WC_GC_Order_Item_Gift_Card $gift_card WooCommerce order item gift card.
+	 * @return array
+	 */
+	public function get_gift_card( $gift_card ) {
+
+		return array(
+			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
+			'id'          => $gift_card->get_code() . ':' . $gift_card->get_giftcard_id(),
+			'line_id'     => $gift_card->get_code() . ':' . $gift_card->get_giftcard_id(),
+			'type'        => 'gift_card',
+			'description' => __( 'Gift card', 'dintero-checkout-for-woocommerce' ) . ': ' . $gift_card->get_code(),
+			'quantity'    => 1,
+			'tax_rate'    => 0,
+			'vat_amount'  => 0,
+			'amount'      => self::format_number( $gift_card->get_amount() * -1 ),
 		);
 	}
 
@@ -197,7 +218,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
-	 * Gets the formated order line from shipping.
+	 * Gets the formatted order line from shipping.
 	 *
 	 * @param WC_Order_Item_Shipping $order_item WooCommerce order item shipping.
 	 * @return array
@@ -218,7 +239,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
-	 * Get the formated shipping object.
+	 * Get the formatted shipping object.
 	 *
 	 * @return array|null
 	 */
