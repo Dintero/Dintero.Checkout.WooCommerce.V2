@@ -94,7 +94,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return boolean
 		 */
 		public function is_available() {
-			return ! ( 'yes' !== $this->enabled );
+			return ( 'yes' === $this->enabled );
 		}
 
 		/**

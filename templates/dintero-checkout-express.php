@@ -5,6 +5,9 @@
  * @package Dintero_Checkout/Templates
  */
 
+/* This hook is used for showing WC Gift Cards form. */
+do_action( 'woocommerce_review_order_before_payment' );
+
 ?>
 <form name="checkout" class="checkout woocommerce-checkout">
 	<div id="dintero-express-wrapper">

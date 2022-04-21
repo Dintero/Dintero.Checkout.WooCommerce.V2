@@ -82,20 +82,16 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			}
 		}
 
+		$coupons = $this->process_coupons();
+		if ( ! empty( $coupons ) ) {
+			$formatted_cart_items = array_merge( $formatted_cart_items, $coupons );
+		}
+
 		return $formatted_cart_items;
 	}
 
 	/**
-	 * Gets the formated shipping lines.
-	 *
-	 * @return array|null
-	 */
-	public function get_shipping_lines() {
-		return null;
-	}
-
-	/**
-	 * Get the formated order line from a cart item.
+	 * Get the formatted order line from a cart item.
 	 *
 	 * @param array $cart_item The cart item.
 	 * @return array
@@ -144,7 +140,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
-	 * Get the formated order line from a fee.
+	 * Get the formatted order line from a fee.
 	 *
 	 * @param object $fee The cart fee.
 	 * @return array
@@ -163,7 +159,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
-	 * Gets the formated order line from shipping.
+	 * Gets the formatted order line from shipping.
 	 *
 	 * @param object $shipping_method The id of the shipping method.
 	 * @return array
@@ -278,6 +274,47 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		}
 
 		return $shipping_lines;
+	}
+
+	/**
+	 * process coupons and gift cards.
+	 *
+	 * @return array A formatted list of coupon and gift card items.
+	 */
+	public function process_coupons() {
+		$order_lines = array();
+
+		/* WooCommerce Gift Cards compatibility. */
+		if ( class_exists( 'wc_gc_gift_cards' ) ) {
+			/**
+			 * Use the applied giftcards.
+			 *
+			 * @var WC_GC_Gift_Card_Data $wc_gc_gift_card_data
+			*/
+			$totals_before_giftcard = round( wc()->cart->get_subtotal() + wc()->cart->get_shipping_total() + wc()->cart->get_subtotal_tax() + wc()->cart->get_shipping_tax(), wc_get_price_decimals() );
+			$giftcards_used         = wc_gc()->giftcards->cover_balance( $totals_before_giftcard, wc_gc()->giftcards->get_applied_giftcards_from_session() );
+
+			foreach ( wc_gc()->giftcards->get_applied_giftcards_from_session() as $wc_gc_gift_card_data ) {
+				$gift_card_code   = $wc_gc_gift_card_data->get_code();
+				$gift_card_amount = self::format_number( $giftcards_used['total_amount'] * -1 );
+
+				$gift_card = array(
+					'id'          => $wc_gc_gift_card_data->get_code() . ':' . $wc_gc_gift_card_data->get_id(),
+					'line_id'     => $wc_gc_gift_card_data->get_code() . ':' . $wc_gc_gift_card_data->get_id(),
+					'type'        => 'gift_card',
+					'description' => __( 'Gift card', 'dintero-checkout-for-woocommerce' ) . ': ' . $gift_card_code,
+					'quantity'    => 1,
+					'tax_rate'    => 0,
+					'vat_amount'  => 0,
+					'amount'      => $gift_card_amount,
+				);
+
+				$order_lines[] = $gift_card;
+
+			}
+		}
+
+		return $order_lines;
 	}
 
 }
