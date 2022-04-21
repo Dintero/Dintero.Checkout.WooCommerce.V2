@@ -8,6 +8,9 @@
 /* This hook is used for showing WC Gift Cards form. */
 do_action( 'woocommerce_review_order_before_payment' );
 
+/* This hook is used for YITH WooCommerce Gift Cards form. */
+do_action( 'woocommerce_before_checkout_form', WC()->checkout() );
+
 ?>
 <form name="checkout" class="checkout woocommerce-checkout">
 	<div id="dintero-express-wrapper">

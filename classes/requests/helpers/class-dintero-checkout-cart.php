@@ -315,22 +315,44 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		}
 
 		// PW WooCommerce Gift Cards.
-		if ( ! empty( WC()->session->get( 'pw-gift-card-data' ) ) ) {
-			$pw_gift_cards = WC()->session->get( 'pw-gift-card-data' );
-			foreach ( $pw_gift_cards['gift_cards'] as $gift_card_code => $value ) {
+		if ( class_exists( 'PW_Gift_Cards' ) ) {
+			if ( ! empty( WC()->session->get( 'pw-gift-card-data' ) ) ) {
+				$pw_gift_cards = WC()->session->get( 'pw-gift-card-data' );
+				foreach ( $pw_gift_cards['gift_cards'] as $gift_card_code => $value ) {
 
-				$gift_card = array(
-					'id'          => $gift_card_code,
-					'line_id'     => $gift_card_code,
-					'type'        => 'gift_card',
-					'description' => __( 'Gift card', 'dintero-checkout-for-woocommerce' ) . ': ' . $gift_card_code,
-					'quantity'    => 1,
-					'tax_rate'    => 0,
-					'vat_amount'  => 0,
-					'amount'      => self::format_number( $value * -1 ),
-				);
+					$gift_card = array(
+						'id'          => $gift_card_code,
+						'line_id'     => $gift_card_code,
+						'type'        => 'gift_card',
+						'description' => __( 'Gift card', 'dintero-checkout-for-woocommerce' ) . ': ' . $gift_card_code,
+						'quantity'    => 1,
+						'tax_rate'    => 0,
+						'vat_amount'  => 0,
+						'amount'      => self::format_number( $value * -1 ),
+					);
 
-				$order_lines[] = $gift_card;
+					$order_lines[] = $gift_card;
+				}
+			}
+		}
+
+		// YITH WooCommerce Gift Cards
+		if ( class_exists( 'YITH_WooCommerce_Gift_Cards' ) ) {
+			if ( ! empty( WC()->cart->applied_gift_cards ) ) {
+				foreach ( WC()->cart->applied_gift_cards as $coupon_key => $gift_card_code ) {
+					$gift_card = array(
+						'id'          => $gift_card_code,
+						'line_id'     => $gift_card_code,
+						'type'        => 'gift_card',
+						'description' => apply_filters( 'yith_ywgc_cart_totals_gift_card_label', esc_html( __( 'Gift card:', 'yith-woocommerce-gift-cards' ) . ' ' . $gift_card_code ), $gift_card_code ),
+						'quantity'    => 1,
+						'tax_rate'    => 0,
+						'vat_amount'  => 0,
+						'amount'      => isset( WC()->cart->applied_gift_cards_amounts[ $gift_card_code ] ) ? self::format_number( WC()->cart->applied_gift_cards_amounts[ $gift_card_code ] * -1 ) : 0,
+					);
+
+					$order_lines[] = $gift_card;
+				}
 			}
 		}
 

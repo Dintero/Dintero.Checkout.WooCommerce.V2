@@ -120,6 +120,13 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			$order_lines[] = $this->get_gift_card( $gift_card );
 		}
 
+		$yith_gift_cards = get_post_meta( $this->order->get_id(), YITH_YWGC_Cart_Checkout::ORDER_GIFT_CARDS, true );
+		if ( $yith_gift_cards ) {
+			foreach ( $yith_gift_cards as $code => $amount ) {
+				$order_lines[] = $this->get_gift_card( YITH_YWGC()->get_gift_card_by_code( $code ) );
+			}
+		}
+
 		return array_values( $order_lines );
 	}
 
@@ -181,7 +188,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	/**
 	 * Get the formatted order line from a gift card.
 	 *
-	 * @param WC_GC_Order_Item_Gift_Card|WC_Order_Item_PW_Gift_Card $gift_card WooCommerce order item gift card.
+	 * @param WC_GC_Order_Item_Gift_Card|WC_Order_Item_PW_Gift_Card|YITH_YWGC_Gift_Card $gift_card WooCommerce order item gift card.
 	 * @return array
 	 */
 	public function get_gift_card( $gift_card ) {
@@ -196,6 +203,12 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			$id          = $gift_card->get_name();
 			$description = $gift_card->get_name();
 			$amount      = $gift_card->get_amount();
+		}
+
+		if ( is_a( $gift_card, 'YITH_YWGC_Gift_Card' ) ) {
+			$id          = $gift_card->get_code();
+			$description = $gift_card->get_code();
+			$amount      = $gift_card->total_amount;
 		}
 
 		return array(
