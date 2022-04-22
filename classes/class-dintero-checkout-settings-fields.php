@@ -103,7 +103,7 @@ class Dintero_Settings_Fields {
 				'type'  => 'title',
 			),
 			'form_factor'                             => array(
-				'default' => 'embedded',
+				'default' => 'redirect',
 				'type'    => 'select',
 				'options' => array(
 					'embedded' => __( 'Embedded', 'dintero-checkout-for-woocommerce' ),
