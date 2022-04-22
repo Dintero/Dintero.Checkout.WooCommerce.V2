@@ -110,7 +110,7 @@ class Dintero_Checkout_Assets {
 			WC()->session->set( 'dintero_checkout_session_id', $session_id );
 		}
 
-		/* We need our own checkout fields since we're replacing the defualt WC form. */
+		/* We need our own checkout fields since we're replacing the default WC form. */
 		$standard_woo_checkout_fields = array(
 			'billing_first_name',
 			'billing_last_name',
@@ -142,6 +142,7 @@ class Dintero_Checkout_Assets {
 			'dinteroCheckoutParams',
 			array(
 				'SID'                         => $session_id,
+				'language'                    => substr( get_locale(), 0, 2 ),
 				'change_payment_method_url'   => WC_AJAX::get_endpoint( 'dintero_checkout_wc_change_payment_method' ),
 				'change_payment_method_nonce' => wp_create_nonce( 'dintero_checkout_wc_change_payment_method' ),
 				'standardWooCheckoutFields'   => $standard_woo_checkout_fields,

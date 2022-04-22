@@ -56,6 +56,7 @@ jQuery( function( $ ) {
 			dintero.embed( {
 				container,
 				sid: dinteroCheckoutParams.SID,
+				language: dinteroCheckoutParams.language,
 				onSession( event, checkout ) {
 					// Check for address changes and update shipping.
 					dinteroCheckoutForWooCommerce.updateAddress( event.session.order.billing_address, event.session.order.shipping_address );
