@@ -74,12 +74,8 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 
 		// Get cart shipping.
 		if ( WC()->cart->needs_shipping() && count( WC()->shipping->get_packages() ) > 1 ) {
-			$shipping_objects = $this->get_shipping_objects();
-
-			/* The cart may have multiple shipping packages, but the same package can be used for all products which we'll treat as a single shipping option instead. */
-			if ( count( $shipping_objects ) > 1 ) {
-				$formatted_cart_items = array_merge( $formatted_cart_items, $this->get_shipping_objects() );
-			}
+			// Handle multiple shipping lines.
+			$formatted_cart_items = array_merge( $formatted_cart_items, $this->get_shipping_items() );
 		}
 
 		$coupons = $this->process_coupons();
@@ -159,14 +155,54 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
-	 * Gets the formatted order line from shipping.
+	 * Get the Express Shipping Options. Used for shipping in the iframe.
+	 * Returns all shipping methods in WooCommerce as Dintero shipping options,
+	 * so the customer can select the shipping method in the iframe.
+	 *
+	 * @return array
+	 */
+	public function get_express_shipping_options() {
+		$shipping_options = array();
+
+		$packages = WC()->shipping->get_packages();
+		foreach ( $packages as $i => $package ) {
+			foreach ( $package['rates'] as $shipping_method ) {
+				$shipping_options[] = $this->get_shipping_option( $shipping_method );
+			}
+		}
+
+		return $shipping_options;
+	}
+
+	/**
+	 * Get shipping options as multiple order lines. This is used for
+	 * when an cart has multiple shipping packages attached to it.
+	 *
+	 * @return array
+	 */
+	public function get_shipping_items() {
+		$shipping_options = array();
+
+		$shipping_ids   = array_unique( WC()->session->get( 'chosen_shipping_methods' ) );
+		$shipping_rates = WC()->shipping->get_packages()[0]['rates'];
+
+		foreach ( $shipping_ids as  $shipping_id ) {
+			$shipping_method    = $shipping_rates[ $shipping_id ];
+			$shipping_options[] = $this->get_shipping_item( $shipping_method );
+		}
+
+		return $shipping_options;
+	}
+
+	/**
+	 * Gets a the single shipping method. Can be used to get a single shipping
+	 * method for when shipping is not able to be selected in the iframe.
 	 *
 	 * @param object $shipping_method The id of the shipping method.
 	 * @return array
 	 */
 	public function get_shipping_option( $shipping_method ) {
 		return array(
-			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
 			'id'              => $shipping_method->get_id(),
 			'line_id'         => $shipping_method->get_id(),
 			'amount'          => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping_tax() ),
@@ -187,93 +223,15 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 */
 	public function get_shipping_item( $shipping_method ) {
 		return array(
-			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
 			'id'         => $shipping_method->get_id(),
 			'line_id'    => $shipping_method->get_id(),
 			'amount'     => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping_tax() ),
 			'title'      => $shipping_method->get_label(),
 			'vat_amount' => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() ),
 			'vat'        => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ),
-			/* Since the shipping will be added to the list of products, it needs a quantity. */
 			'quantity'   => 1,
-			/* Dintero needs to know this is an order with multiple shipping options by setting the 'type'. */
 			'type'       => 'shipping',
 		);
-	}
-
-	/**
-	 * Get the formatted shipping object.
-	 *
-	 * @return array|null
-	 */
-	public function get_shipping_object() {
-		if ( WC()->cart->needs_shipping() && count( WC()->shipping->get_packages() ) === 1 ) {
-			$packages        = WC()->shipping()->get_packages();
-			$chosen_methods  = WC()->session->get( 'chosen_shipping_methods' );
-			$chosen_shipping = $chosen_methods[0];
-			foreach ( $packages as $i => $package ) {
-				foreach ( $package['rates'] as $shipping_method ) {
-					if ( $chosen_shipping === $shipping_method->id ) {
-						if ( $shipping_method->cost > 0 ) {
-							return array(
-								'id'              => $shipping_method->get_id(),
-								'line_id'         => $shipping_method->get_id(),
-								'amount'          => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping_tax() ),
-								'operator'        => '',
-								'description'     => '',
-								'title'           => $shipping_method->get_label(),
-								'delivery_method' => 'unspecified',
-								'vat_amount'      => self::format_number( $shipping_method->get_shipping_tax() ),
-								'vat'             => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ),
-							);
-						} else {
-							return array(
-								'id'              => $shipping_method->get_id(),
-								'line_id'         => $shipping_method->get_id(),
-								'amount'          => 0,
-								'operator'        => '',
-								'description'     => '',
-								'title'           => $shipping_method->get_label(),
-								'delivery_method' => 'unspecified',
-								'vat_amount'      => 0,
-								'vat'             => 0,
-							);
-						}
-					}
-				}
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Get the selected shipping objects (if available).
-	 *
-	 * @return array If no shipping is available or selected, an empty array is returned.
-	 */
-	public function get_shipping_objects() {
-
-		$shipping_lines = array();
-
-		if ( ! WC()->cart->needs_shipping() || empty( count( WC()->shipping->get_packages() ) ) ) {
-			return $shipping_lines;
-		}
-
-		$shipping_ids   = array_unique( WC()->session->get( 'chosen_shipping_methods' ) );
-		$shipping_rates = WC()->shipping->get_packages()[0]['rates'];
-
-		$is_multiple_shipping = ( count( $shipping_ids ) > 1 );
-		if ( ! $is_multiple_shipping ) {
-			$shipping_ids = array( $shipping_ids[0] );
-		}
-
-		foreach ( $shipping_ids as  $shipping_id ) {
-			$shipping_method  = $shipping_rates[ $shipping_id ];
-			$shipping_lines[] = ( $is_multiple_shipping ) ? $this->get_shipping_item( $shipping_method ) : $this->get_shipping_option( $shipping_method );
-		}
-
-		return $shipping_lines;
 	}
 
 	/**
@@ -358,5 +316,4 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 
 		return $order_lines;
 	}
-
 }

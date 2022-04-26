@@ -68,3 +68,31 @@ function dintero_print_error_message( $wp_error ) {
 function dintero_sanitize_phone_number( $phone ) {
 	return preg_replace( '/(?!^)[+]?[^\d]/', '', $phone );
 }
+
+/**
+ * Sets the shipping method in WooCommerce from Dintero.
+ *
+ * @param array|bool $data The shipping data from Dintero. False if not set.
+ * @return void
+ */
+function dintero_update_wc_shipping( $data ) {
+	// Set cart definition.
+	$merchant_reference = WC()->session->get( 'dintero_merchant_reference' );
+
+	// If we don't have a Dintero merchant reference, return void.
+	if ( empty( $merchant_reference ) ) {
+		return;
+	}
+
+	// If the data is empty, return void.
+	if ( empty( $data ) ) {
+		return;
+	}
+
+	do_action( 'dintero_update_shipping_data', $data );
+
+	set_transient( 'dintero_shipping_data_' . $merchant_reference, $data, HOUR_IN_SECONDS );
+	$chosen_shipping_methods   = array();
+	$chosen_shipping_methods[] = wc_clean( $data['id'] );
+	WC()->session->set( 'chosen_shipping_methods', apply_filters( 'dintero_chosen_shipping_method', $chosen_shipping_methods ) );
+}

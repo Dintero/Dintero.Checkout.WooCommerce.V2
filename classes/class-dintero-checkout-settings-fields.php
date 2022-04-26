@@ -173,6 +173,13 @@ class Dintero_Settings_Fields {
 					'b2c'  => __( 'Consumer only', 'dintero-checkout-for-woocommerce' ),
 				),
 			),
+			'express_shipping_in_iframe'              => array(
+				'title'    => __( 'Display Shipping in the iframe', 'dintero-checkout-for-woocommerce' ),
+				'type'     => 'checkbox',
+				'default'  => 'no',
+				'label'    => __( 'Enable', 'dintero-checkout-for-woocommerce' ),
+				'desc_tip' => __( 'Will make the shipping selection happen in the Dintero checkout iframe instead of the shipping section in WooCommerce.', 'dintero-checkout-for-woocommerce' ),
+			),
 			/*
 			 TODO: These options will be added in a future iteration.
 			'express_show_shipping'                   => array(
