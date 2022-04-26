@@ -61,7 +61,6 @@ jQuery( function( $ ) {
 				onSession( event, checkout ) {
 					// Check for address changes and update shipping.
 					dinteroCheckoutForWooCommerce.updateAddress( event.session.order.billing_address, event.session.order.shipping_address );
-					console.log(event.session.order.shipping_option);
 					if(event.session.order.shipping_option && dinteroCheckoutParams.shipping_in_iframe) {
 						// @TODO only if shipping in iframe.
 						dinteroCheckoutForWooCommerce.shippingMethodChanged(event.session.order.shipping_option);
@@ -356,7 +355,6 @@ jQuery( function( $ ) {
 			if( $('.dintero-shipping').length ) {
 				return;
 			}
-			console.log(dinteroCheckoutForWooCommerce.paymentMethod);
 			if ( 'dintero_checkout' === dinteroCheckoutForWooCommerce.paymentMethod && dinteroCheckoutParams.shipping_in_iframe ) {
 				if ( $( '#shipping_method input[type=\'radio\']' ).length ) {
 					// Multiple shipping options available.
