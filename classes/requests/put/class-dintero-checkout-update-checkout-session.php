@@ -46,6 +46,9 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 				'currency'   => $helper->get_currency(),
 				'vat_amount' => $helper->get_tax_total(),
 				'items'      => $helper->get_order_lines(),
+				'store'      => array(
+					'id' => preg_replace( '/(https?:\/\/|www.|\/\s*$)/i', '', get_home_url() ),
+				),
 			),
 			'remove_lock' => true,
 		);
