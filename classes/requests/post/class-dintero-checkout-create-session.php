@@ -89,7 +89,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			$this->add_express_object( $body );
 		}
 
-		$this->add_shipping( $body, $helper );
+		$helper::add_shipping( $body, $helper, $this->is_embedded(), $this->is_shipping_in_iframe() );
 
 		return $body;
 	}
@@ -117,38 +117,5 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 		}
 
 		return $body;
-	}
-
-	/**
-	 * Add shipping to the body depending on settings.
-	 *
-	 * @param array                                        $body The request body.
-	 * @param Dintero_Checkout_Order|Dintero_Checkout_Cart $helper The helper class to use.
-	 * @return void
-	 */
-	public function add_shipping( &$body, $helper ) {
-		if ( 'express' === $this->settings['checkout_type'] && 'embedded' === $this->settings['form_factor'] ) {
-			if ( isset( $this->settings['express_shipping_in_iframe'] ) && 'yes' === $this->settings['express_shipping_in_iframe'] ) {
-				$body['express']['shipping_options'] = $helper->get_express_shipping_options();
-				return;
-			}
-
-			$packages        = WC()->shipping()->get_packages();
-			$chosen_methods  = WC()->session->get( 'chosen_shipping_methods' );
-			$chosen_shipping = $chosen_methods[0];
-			foreach ( $packages as $i => $package ) {
-				foreach ( $package['rates'] as $method ) {
-					if ( $chosen_shipping === $method->id ) {
-						$body['express']['shipping_options'] = array( $helper->get_shipping_option( $method ) );
-					}
-				}
-			}
-		} else {
-			// Add single shipping option if needed.
-			$shipping_option = $helper->get_shipping_objects();
-			if ( empty( $shipping_option ) || count( $shipping_option ) === 1 ) {
-				$body['order']['shipping_option'] = $shipping_option[0];
-			}
-		}
 	}
 }
