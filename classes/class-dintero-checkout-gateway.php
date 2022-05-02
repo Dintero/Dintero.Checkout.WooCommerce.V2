@@ -63,26 +63,20 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return string
 		 */
 		public function get_icon() {
-			$settings    = get_option( 'woocommerce_dintero_checkout_settings' );
-			$environment = ( 'yes' === $settings['test_mode'] ) ? 'T' : 'P';
+			$settings = get_option( 'woocommerce_dintero_checkout_settings' );
 
-			/* Default values. */
-			$branding = array(
-				'variant'  => 'colors',
-				'color'    => 'cecece',
-				'width'    => 600,
-				'template' => 'dintero_left_frame.svg',
-			);
+			$variant  = 'colors';
+			$color    = 'cecece';
+			$width    = 600;
+			$template = 'dintero_left_frame';
+			$profile  = $settings['profile_id'];
 
 			if ( 'yes' !== $settings['branding_logo_color'] ) {
-				$branding['variant'] = 'mono';
-				$branding['color']   = str_replace( '#', '', $settings['branding_logo_color_custom'] );
+				$variant = 'mono';
+				$color   = str_replace( '#', '', $settings['branding_logo_color_custom'] );
 			}
 
-			$icon_url = 'https://checkout.dintero.com/v1/branding/accounts/' . $environment . $settings['account_id'] . '/profiles/' . $settings['profile_id'];
-			foreach ( $branding as $key => $value ) {
-				$icon_url .= '/' . $key . '/' . $value;
-			}
+			$icon_url = "https://checkout.dintero.com/v1/branding/profiles/$profile/variant/$variant/color/$color/width/$width/$template.svg";
 
 			return '<img src="' . esc_attr( $icon_url ) . '" style="max-width: 90%" alt="Dintero Logo" />';
 
