@@ -48,6 +48,7 @@ abstract class Dintero_Checkout_Helper_Base {
 
 		if ( $is_embedded ) {
 			if ( ! WC()->cart->needs_shipping() ) {
+				unset( $body['order']['shipping_option'] );
 				$body['express']['shipping_options'] = array();
 				$body['express']['shipping_mode']    = 'shipping_not_required';
 				return;
