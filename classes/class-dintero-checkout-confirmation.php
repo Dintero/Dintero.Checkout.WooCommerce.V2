@@ -140,7 +140,13 @@ class Dintero_Checkout_Redirect {
 
 			// translators: %s the Dintero transaction ID.
 			$order->add_order_note( sprintf( __( 'Payment via Dintero Checkout. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
-			$order->payment_complete();
+
+			if ( 'AUTHORIZED' === $dintero_order['status'] ) {
+				$order->update_status( get_option( 'woocommerce_dintero_checkout_settings' )['order_statuses'], __( 'The order was placed successfully.', 'dintero-checkout-for-woocommerce' ) );
+			} else {
+				// If the order is not set to authorized, it must have been captured immediately.
+				$order->payment_complete();
+			}
 		}
 
 		// Update the transaction with the order number.
