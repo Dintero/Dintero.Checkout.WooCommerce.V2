@@ -40,10 +40,11 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 	 * @return array
 	 */
 	public function get_body() {
-		if ( ! empty( $this->arguments['order_id'] ) ) {
-			$helper = new Dintero_Checkout_Order( $this->arguments['order_id'] );
+		if ( ! empty( $this->arguments['order_id'] ) || is_wc_endpoint_url( 'order-pay' ) ) {
+			$order_id = is_wc_endpoint_url( 'order-pay' ) ? wc_get_order_id_by_order_key( sanitize_key( $_GET['key'] ) ) : $this->arguments['order_id'];
 
-			$order            = wc_get_order( $this->arguments['order_id'] );
+			$helper           = new Dintero_Checkout_Order( $order_id );
+			$order            = wc_get_order( $order_id );
 			$shipping_address = $helper->get_shipping_address( $order );
 			$billing_address  = $helper->get_billing_address( $order );
 		} else {
@@ -84,8 +85,8 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			$body['url']['callback_url'] = Dintero_Checkout_Callback::callback_url();
 		}
 
-		// Set if express or not.
-		if ( 'express' === $this->settings['checkout_type'] && 'embedded' === $this->settings['form_factor'] ) {
+		// Set if express or not. For order-pay, we default to redirect flow.
+		if ( ! is_wc_endpoint_url( 'order-pay' ) && 'express' === $this->settings['checkout_type'] && 'embedded' === $this->settings['form_factor'] ) {
 			$this->add_express_object( $body );
 		}
 
@@ -127,7 +128,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 	 * @return void
 	 */
 	public function add_shipping( &$body, $helper ) {
-		if ( 'express' === $this->settings['checkout_type'] && 'embedded' === $this->settings['form_factor'] ) {
+		if ( ! is_wc_endpoint_url( 'order-pay' ) && 'express' === $this->settings['checkout_type'] && 'embedded' === $this->settings['form_factor'] ) {
 			if ( isset( $this->settings['express_shipping_in_iframe'] ) && 'yes' === $this->settings['express_shipping_in_iframe'] ) {
 				$body['express']['shipping_options'] = $helper->get_express_shipping_options();
 				return;
@@ -145,7 +146,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			}
 		} else {
 			// Add single shipping option if needed.
-			$shipping_option = $helper->get_shipping_objects();
+			$shipping_option = array( $helper->get_shipping_object() );
 			if ( empty( $shipping_option ) || count( $shipping_option ) === 1 ) {
 				$body['order']['shipping_option'] = $shipping_option[0];
 			}
