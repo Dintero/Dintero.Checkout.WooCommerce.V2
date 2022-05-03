@@ -96,3 +96,19 @@ function dintero_update_wc_shipping( $data ) {
 	$chosen_shipping_methods[] = wc_clean( $data['id'] );
 	WC()->session->set( 'chosen_shipping_methods', apply_filters( 'dintero_chosen_shipping_method', $chosen_shipping_methods ) );
 }
+
+/**
+ * Confirms the Dintero Order.
+ *
+ * @param WC_Order $order The WooCommerce order.
+ * @return void
+ */
+function dintero_confirm_order( $order ) {
+	if ( ! empty( $order->get_date_paid() ) ) {
+		return;
+	}
+
+	$transaction_id = get_post_meta( $order->get_id(), '_dintero_transaction_id', true );
+
+	$order->payment_complete( $transaction_id );
+}
