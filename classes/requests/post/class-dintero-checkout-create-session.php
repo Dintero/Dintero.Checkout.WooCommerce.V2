@@ -90,6 +90,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 		}
 
 		$helper::add_shipping( $body, $helper, $this->is_embedded(), $this->is_shipping_in_iframe() );
+		$helper::add_rounding_line( $body );
 
 		return $body;
 	}

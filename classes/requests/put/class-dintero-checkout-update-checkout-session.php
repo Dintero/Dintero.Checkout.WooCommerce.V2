@@ -59,6 +59,7 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 		}
 
 		$helper::add_shipping( $body, $helper, $this->is_embedded(), $this->is_shipping_in_iframe() );
+		$helper::add_rounding_line( $body );
 
 		return $body;
 	}

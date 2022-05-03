@@ -49,10 +49,14 @@ class Dintero_Checkout_Capture_Order extends Dintero_Checkout_Request_Post {
 			$order_lines[] = $helper::format_shipping_for_om( $shipping );
 		}
 
-		return array(
+		$body = array(
 			'capture_reference' => strval( $this->arguments['order_id'] ),
 			'amount'            => $helper->get_order_total(),
 			'items'             => $order_lines,
 		);
+
+		$helper::add_om_rounding_line( $body );
+
+		return $body;
 	}
 }

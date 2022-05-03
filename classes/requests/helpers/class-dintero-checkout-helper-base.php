@@ -94,4 +94,66 @@ abstract class Dintero_Checkout_Helper_Base {
 
 		return array();
 	}
+
+	/**
+	 * Add a rounding line to the body to prevent errors when decimals are off in the calculation.
+	 *
+	 * @param array $body The request body.
+	 * @return void
+	 */
+	public static function add_rounding_line( &$body ) {
+		$rounding_line = array(
+			'id'          => 'rounding-fee',
+			'line_id'     => 'rounding-fee',
+			'description' => 'Rounding fee',
+			'quantity'    => 1,
+			'amount'      => 0,
+			'vat_amount'  => 0,
+		);
+
+		$order            = $body['order'];
+		$order_total      = $order['amount'];
+		$shipping_total   = isset( $order['shipping_option'] ) ? $order['shipping_option']['amount'] : 0;
+		$order_line_total = 0;
+		foreach ( $order['items'] as $item ) {
+			$order_line_total += $item['amount'];
+		}
+
+		$rounding_line['amount'] = $order_total - ( $shipping_total + $order_line_total );
+
+		// If the rounding amount is not zero, add it to the order.
+		if ( 0 !== $rounding_line['amount'] ) {
+			$body['order']['items'][] = $rounding_line;
+		}
+	}
+
+	/**
+	 * Add a rounding line to the body to prevent errors when decimals are off in the calculation.
+	 *
+	 * @param array $body The request body.
+	 * @return void
+	 */
+	public static function add_om_rounding_line( &$body ) {
+		$rounding_line = array(
+			'id'          => 'rounding-fee',
+			'line_id'     => 'rounding-fee',
+			'description' => 'Rounding fee',
+			'quantity'    => 1,
+			'amount'      => 0,
+			'vat_amount'  => 0,
+		);
+
+		$order_total      = $body['amount'];
+		$order_line_total = 0;
+		foreach ( $body['items'] as $item ) {
+			$order_line_total += $item['amount'];
+		}
+
+		$rounding_line['amount'] = $order_total - $order_line_total;
+
+		// If the rounding amount is not zero, add it to the order.
+		if ( 0 !== $rounding_line['amount'] ) {
+			$body['items'][] = $rounding_line;
+		}
+	}
 }
