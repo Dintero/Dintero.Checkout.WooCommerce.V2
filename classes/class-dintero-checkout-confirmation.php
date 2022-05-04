@@ -84,7 +84,7 @@ class Dintero_Checkout_Redirect {
 			$order->add_order_note( sprintf( __( 'Payment via Dintero Checkout. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
 
 			$default_status = get_option( 'woocommerce_dintero_checkout_settings' )['order_statuses'];
-			if ( '' !== $default_status ) {
+			if ( 'processing' !== $default_status ) {
 				update_post_meta( $order_id, '_transaction_id', $transaction_id );
 				$order->update_status( $default_status, __( 'The order was placed successfully.', 'dintero-checkout-for-woocommerce' ) );
 			} else {
