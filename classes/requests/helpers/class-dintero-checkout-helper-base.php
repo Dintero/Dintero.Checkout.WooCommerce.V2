@@ -41,6 +41,8 @@ abstract class Dintero_Checkout_Helper_Base {
 	 *
 	 * @param array                                        $body The request body.
 	 * @param Dintero_Checkout_Order|Dintero_Checkout_Cart $helper The helper class to use.
+	 * @param bool                                         $is_embedded If the request is for an embedded checkout.
+	 * @param bool                                         $is_shipping_in_iframe If the request is for shipping selections in the iframe.
 	 * @return void
 	 */
 	public static function add_shipping( &$body, $helper, $is_embedded, $is_shipping_in_iframe ) {

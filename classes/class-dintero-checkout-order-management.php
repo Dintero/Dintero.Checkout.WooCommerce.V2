@@ -272,7 +272,6 @@ class Dintero_Checkout_Order_Management {
 
 		// Check if the Dintero order has been _fully_ refunded in the back-office.
 		if ( ! $this->is_refunded( $order_id ) ) {
-      
 			$response = Dintero()->api->refund_order( $order->get_transaction_id(), $order_id, $reason );
 
 			if ( is_wp_error( $response ) ) {

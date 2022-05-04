@@ -97,7 +97,7 @@ class Dintero_Checkout_Embedded {
 		}
 
 		// Only when its an actual AJAX request to update the order review (this is when update_checkout is triggered).
-		$ajax = filter_input( INPUT_GET, 'wc-ajax', FILTER_SANITIZE_STRING );
+		$ajax = filter_input( INPUT_GET, 'wc-ajax', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( 'update_order_review' !== $ajax ) {
 			return;
 		}
@@ -112,7 +112,7 @@ class Dintero_Checkout_Embedded {
 		}
 
 		// Check if we have locked the iframe first, if not then this should not happen since it will return an error.
-		$raw_post_data = filter_input( INPUT_POST, 'post_data', FILTER_SANITIZE_STRING );
+		$raw_post_data = filter_input( INPUT_POST, 'post_data', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		parse_str( $raw_post_data, $post_data );
 		if ( ! isset( $post_data['dintero_locked'] ) ) {
 			return;

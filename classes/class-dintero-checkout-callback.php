@@ -27,7 +27,7 @@ class Dintero_Checkout_Callback {
 	 * @return void
 	 */
 	public function callback() {
-		$get_params = json_encode( filter_var_array( $_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS ) );
+		$get_params = wp_json_encode( filter_var_array( $_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS ) );
 		Dintero_Checkout_Logger::log( "CALLBACK: Callback triggered by Dintero. Data: $get_params" );
 		$merchant_reference = filter_input( INPUT_GET, 'merchant_reference', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$transaction_id     = filter_input( INPUT_GET, 'transaction_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
@@ -228,8 +228,7 @@ class Dintero_Checkout_Callback {
 	 * @return boolean TRUE if running on localhost, otherwise FALSE.
 	 */
 	public static function is_localhost() {
-		return false;
-		// return ( isset( $_SERVER['REMOTE_ADDR'] ) && in_array( $_SERVER['REMOTE_ADDR'], array( '127.0.0.1', '::1' ), true ) || isset( $_SERVER['HTTP_HOST'] ) && 'localhost' === substr( wp_unslash( $_SERVER['HTTP_HOST'] ), 0, 9 ) );
+		return ( isset( $_SERVER['REMOTE_ADDR'] ) && in_array( $_SERVER['REMOTE_ADDR'], array( '127.0.0.1', '::1' ), true ) || isset( $_SERVER['HTTP_HOST'] ) && 'localhost' === substr( wp_unslash( $_SERVER['HTTP_HOST'] ), 0, 9 ) ); // phpcs:ignore
 	}
 
 

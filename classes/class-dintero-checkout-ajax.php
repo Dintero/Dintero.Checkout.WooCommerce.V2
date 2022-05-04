@@ -110,6 +110,11 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 	}
 
 
+	/**
+	 * Prints checkout noticesfrom Dintero.
+	 *
+	 * @return void
+	 */
 	public static function dintero_checkout_print_notice() {
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_key( $_POST['nonce'] ) : '';
 		if ( ! wp_verify_nonce( $nonce, 'dintero_checkout_print_notice' ) ) {
@@ -117,9 +122,8 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 			exit;
 		}
 
-		$notice_type = filter_input( INPUT_POST, 'notice_type', FILTER_SANITIZE_STRING );
-		wc_add_notice( filter_input( INPUT_POST, 'message', FILTER_SANITIZE_STRING ), $notice_type );
-
+		$notice_type = filter_input( INPUT_POST, 'notice_type', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		wc_add_notice( filter_input( INPUT_POST, 'message', FILTER_SANITIZE_FULL_SPECIAL_CHARS ), $notice_type );
 	}
 }
 Dintero_Checkout_Ajax::init();

@@ -39,7 +39,7 @@ class Dintero_Checkout_Redirect {
 		if ( empty( $transaction_id ) ) {
 			Dintero_Checkout_Logger::log( 'REDIRECT ERROR [transaction_id]: The transaction ID is missing. Redirecting customer back to checkout page.' );
 			wc_add_notice( __( 'Something went wrong (transaction id).', 'dintero-checkout-for-woocommerce' ), 'error' );
-			wp_redirect( wc_get_checkout_url() );
+			wp_safe_redirect( wc_get_checkout_url() );
 			exit;
 		}
 
@@ -47,7 +47,7 @@ class Dintero_Checkout_Redirect {
 		$order = $this->get_order_from_reference( $merchant_reference );
 		if ( empty( $order ) ) {
 			wc_add_notice( __( 'Something went wrong with completing the order. Please try again or contact the store', 'dintero-checkout-for-woocommerce' ) );
-			wp_redirect( wc_get_checkout_url() );
+			wp_safe_redirect( wc_get_checkout_url() );
 			exit;
 		}
 
@@ -95,7 +95,7 @@ class Dintero_Checkout_Redirect {
 		// Update the transaction with the order number.
 		Dintero()->api->update_transaction( $transaction_id, $order->get_order_number() );
 		dintero_unset_sessions();
-		wp_redirect( $order->get_checkout_order_received_url() );
+		wp_safe_redirect( $order->get_checkout_order_received_url() );
 
 		Dintero_Checkout_Logger::log( "REDIRECT [success]: The WC order $order_id (transaction ID: $transaction_id) was placed succesfully. Redirecting customer to thank-you page." );
 		exit;
@@ -139,7 +139,7 @@ class Dintero_Checkout_Redirect {
 		}
 
 		Dintero_Checkout_Logger::log( "REDIRECT ERROR [$error]: $note WC order id: $order_id / %s: %s", $note, $order_id );
-		wp_redirect( wc_get_checkout_url() );
+		wp_safe_redirect( wc_get_checkout_url() );
 		exit;
 	}
 

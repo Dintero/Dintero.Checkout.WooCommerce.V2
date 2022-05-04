@@ -132,7 +132,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		$cart_item_data = $cart_item['data'];
 		$cart_item_name = $cart_item_data->get_name();
 		$item_name      = apply_filters( 'dintero_cart_item_name', $cart_item_name, $cart_item );
-		return strip_tags( $item_name );
+		return wp_strip_all_tags( $item_name );
 	}
 
 	/**
@@ -218,7 +218,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	/**
 	 * Formats the shipping method to be used in order.items.
 	 *
-	 * @param WC_Shipping_rate $shipping_method
+	 * @param WC_Shipping_rate $shipping_method The WooCommerce shipping method.
 	 * @return array
 	 */
 	public function get_shipping_item( $shipping_method ) {
@@ -235,7 +235,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
-	 * process coupons and gift cards.
+	 * Process coupons and gift cards.
 	 *
 	 * @return array A formatted list of coupon and gift card items.
 	 */
@@ -294,7 +294,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			}
 		}
 
-		// YITH WooCommerce Gift Cards
+		// YITH WooCommerce Gift Cards.
 		if ( class_exists( 'YITH_WooCommerce_Gift_Cards' ) ) {
 			if ( ! empty( WC()->cart->applied_gift_cards ) ) {
 				foreach ( WC()->cart->applied_gift_cards as $coupon_key => $gift_card_code ) {
