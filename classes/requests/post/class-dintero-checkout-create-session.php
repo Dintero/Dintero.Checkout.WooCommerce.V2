@@ -41,7 +41,8 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 	 */
 	public function get_body() {
 		if ( ! empty( $this->arguments['order_id'] ) || is_wc_endpoint_url( 'order-pay' ) ) {
-			$order_id = is_wc_endpoint_url( 'order-pay' ) ? wc_get_order_id_by_order_key( sanitize_key( $_GET['key'] ) ) : $this->arguments['order_id'];
+			$key      = filter_input( INPUT_POST, 'key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			$order_id = is_wc_endpoint_url( 'order-pay' ) ? wc_get_order_id_by_order_key( sanitize_key( $key ) ) : $this->arguments['order_id'];
 
 			$helper           = new Dintero_Checkout_Order( $order_id );
 			$order            = wc_get_order( $order_id );
@@ -86,11 +87,11 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 		}
 
 		// Set if express or not. For order-pay, we default to redirect flow.
-		if ( ! is_wc_endpoint_url( 'order-pay' ) && 'express' === $this->settings['checkout_type'] && 'embedded' === $this->settings['form_factor'] ) {
+		if ( ! is_wc_endpoint_url( 'order-pay' ) && $this->is_express() && $this->is_embedded() ) {
 			$this->add_express_object( $body );
 		}
 
-		$helper::add_shipping( $body, $helper, $this->is_embedded(), $this->is_shipping_in_iframe() );
+		$helper::add_shipping( $body, $helper, $this->is_embedded(), $this->is_express(), $this->is_shipping_in_iframe() );
 		$helper::add_rounding_line( $body );
 
 		return $body;

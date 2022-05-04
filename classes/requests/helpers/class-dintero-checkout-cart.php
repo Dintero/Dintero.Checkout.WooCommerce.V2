@@ -132,7 +132,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		$cart_item_data = $cart_item['data'];
 		$cart_item_name = $cart_item_data->get_name();
 		$item_name      = apply_filters( 'dintero_cart_item_name', $cart_item_name, $cart_item );
-		return strip_tags( $item_name );
+		return wp_strip_all_tags( $item_name );
 	}
 
 	/**
@@ -201,7 +201,27 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 * @param object $shipping_method The id of the shipping method.
 	 * @return array
 	 */
-	public function get_shipping_option( $shipping_method ) {
+	public function get_shipping_option( $shipping_method = null ) {
+		if ( empty( $shipping_method ) ) {
+			$packages       = WC()->shipping()->get_packages();
+			$chosen_methods = WC()->session->get( 'chosen_shipping_methods' );
+			if ( count( $chosen_methods ) > 1 ) {
+				return null;
+			}
+			$chosen_shipping = $chosen_methods[0];
+			foreach ( $packages as $i => $package ) {
+				foreach ( $package['rates'] as $method ) {
+					if ( $chosen_shipping === $method->id ) {
+						$shipping_method = $method;
+					}
+				}
+			}
+		}
+
+		if ( empty( $shipping_method ) ) {
+			return null;
+		}
+
 		return array(
 			'id'              => $shipping_method->get_id(),
 			'line_id'         => $shipping_method->get_id(),
@@ -218,7 +238,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	/**
 	 * Formats the shipping method to be used in order.items.
 	 *
-	 * @param WC_Shipping_rate $shipping_method
+	 * @param WC_Shipping_rate $shipping_method The WooCommerce shipping method.
 	 * @return array
 	 */
 	public function get_shipping_item( $shipping_method ) {
@@ -235,7 +255,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
-	 * process coupons and gift cards.
+	 * Process coupons and gift cards.
 	 *
 	 * @return array A formatted list of coupon and gift card items.
 	 */
@@ -294,7 +314,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			}
 		}
 
-		// YITH WooCommerce Gift Cards
+		// YITH WooCommerce Gift Cards.
 		if ( class_exists( 'YITH_WooCommerce_Gift_Cards' ) ) {
 			if ( ! empty( WC()->cart->applied_gift_cards ) ) {
 				foreach ( WC()->cart->applied_gift_cards as $coupon_key => $gift_card_code ) {

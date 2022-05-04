@@ -107,6 +107,8 @@ class Dintero_Checkout_API {
 	 * Set the Dintero order to refunded.
 	 *
 	 * @param string $dintero_id The Dintero transaction id.
+	 * @param int    $order_id The WooCommerce order id.
+	 * @param string $reason The given reason for the refund.
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
 	public function refund_order( $dintero_id, $order_id, $reason ) {

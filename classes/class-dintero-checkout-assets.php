@@ -36,7 +36,7 @@ class Dintero_Checkout_Assets {
 			return;
 		}
 
-		$section = filter_input( INPUT_GET, 'section', FILTER_SANITIZE_STRING );
+		$section = filter_input( INPUT_GET, 'section', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( 'dintero_checkout' !== $section ) {
 			return;
 		}

@@ -37,9 +37,15 @@ class Dintero_Checkout_Widget extends WP_Widget {
 	 * @return void
 	 */
 	public function widget( $args, $instance ) {
-		echo $args['before_widget'];
+		$allowed_html = array(
+			'div' => array(
+				'id'    => array(),
+				'class' => array(),
+			),
+		);
+		echo wp_kses( $args['before_widget'], $allowed_html );
 		$this->print_icon( $instance['icon_color'], $instance['background_color'] );
-		echo $args['after_widget'];
+		echo wp_kses( $args['after_widget'], $allowed_html );
 	}
 
 	/**
@@ -48,25 +54,26 @@ class Dintero_Checkout_Widget extends WP_Widget {
 	 * @see WP_Widget::form()
 	 *
 	 * @param array $instance Current settings.
-	 * @return string The HTML for the settings forms.
+	 * @return void
 	 */
 	public function form( $instance ) {
+		$use_default      = $this->get_field_id( 'use_default' );
+		$icon_color       = $this->get_field_id( 'icon_color' );
+		$background_color = $this->get_field_id( 'background_color' );
 		?>
 		<p>
-			<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id( 'use_default' ); ?>" name="<?php echo $this->get_field_name( 'use_default' ); ?>" /></label>
-			<label for="<?php echo $this->get_field_id( 'use_default' ); ?>"><?php _e( 'Default icon color', 'dintero-checkout-for-woocommerce' ); ?>
+			<input type="checkbox" class="checkbox" id="<?php echo esc_attr( $use_default ); ?>" name="<?php echo esc_attr( $use_default ); ?>" /></label>
+			<label for="<?php echo esc_attr( $use_default ); ?>"><?php esc_html_e( 'Default icon color', 'dintero-checkout-for-woocommerce' ); ?>
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'icon_color' ); ?>"><?php _e( 'Icon color:', 'dintero-checkout-for-woocommerce' ); ?>
-			<input type="color" class="widefat colorpick" value="#cecece" id="<?php echo $this->get_field_id( 'icon_color' ); ?>" name="<?php echo $this->get_field_name( 'icon_color' ); ?>"  /></label>
-			
+			<label for="<?php echo esc_attr( $icon_color ); ?>"><?php esc_html_e( 'Icon color:', 'dintero-checkout-for-woocommerce' ); ?>
+			<input type="color" class="widefat colorpick" value="#cecece" id="<?php echo esc_attr( $icon_color ); ?>" name="<?php echo esc_attr( $icon_color ); ?>"  /></label>	
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'background_color' ); ?>"><?php _e( 'Background color:', 'dintero-checkout-for-woocommerce' ); ?>
-			<input type="color" class="widefat colorpick" value="#ffffff" id="<?php echo $this->get_field_id( 'background_color' ); ?>" name="<?php echo $this->get_field_name( 'background_color' ); ?>"  /></label>
+			<label for="<?php echo esc_attr( $background_color ); ?>"><?php esc_html_e( 'Background color:', 'dintero-checkout-for-woocommerce' ); ?>
+			<input type="color" class="widefat colorpick" value="#ffffff" id="<?php echo esc_attr( $background_color ); ?>" name="<?php echo esc_attr( $background_color ); ?>"  /></label>
 		</p>
 		<?php
-
 	}
 
 	/**
@@ -98,36 +105,28 @@ class Dintero_Checkout_Widget extends WP_Widget {
 	 * @param string         $icon_color The color of the icon (hexadecimal).
 	 * @param string|boolean $background_color The background color (hexadecimal) or FALSE for default color.
 	 *
-	 * @return string Echoes HTML content.
+	 * @return void
 	 */
 	private function print_icon( $icon_color = 'cecece', $background_color = false ) {
-		$settings    = get_option( 'woocommerce_dintero_checkout_settings' );
-		$environment = ( 'yes' === $settings['test_mode'] ) ? 'T' : 'P';
+		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
 
-		$branding = array(
-			'variant'  => 'colors',
-			'color'    => 'cecece',
-			'width'    => 600,
-			'template' => 'dintero_left_frame.svg',
-		);
+		$variant  = 'colors';
+		$color    = $icon_color;
+		$width    = 600;
+		$template = 'dintero_left_frame';
+		$profile  = $settings['profile_id'];
 
-		$icon_color = empty( $icon_color ) ? $branding['color'] : $icon_color;
-		if ( $icon_color !== $branding['color'] ) {
-			$branding['variant'] = 'mono';
-			$branding['color']   = str_replace( '#', '', $icon_color );
+		if ( 'yes' !== $settings['branding_logo_color'] ) {
+			$variant = 'mono';
+			$color   = str_replace( '#', '', $settings['branding_logo_color_custom'] );
 		}
 
-		$icon_url = 'https://checkout.dintero.com/v1/branding/accounts/' . $environment . $settings['account_id'] . '/profiles/' . $settings['profile_id'];
-		foreach ( $branding as $key => $value ) {
-			$icon_url .= '/' . $key . '/' . $value;
-		}
-
-		$icon_html = '<img style="margin: 0 auto;" src="' . esc_attr( $icon_url ) . '" style="max-width: 90%" alt="Dintero Logo" />';
-		if ( ! empty( $background_color ) ) {
-			echo '<div style="padding: 20px 0; background-color:' . esc_attr( $background_color ) . '">' . $icon_html . '</div>';
-		} else {
-			echo $icon_html;
-		}
+		$icon_url = "https://checkout.dintero.com/v1/branding/profiles/$profile/variant/$variant/color/$color/width/$width/$template.svg";
+		?>
+			<div style="padding: 20px 0; <?php echo ( ! empty( $background_color ) ) ? esc_attr( "background-color: $background_color" ) : ''; ?> ">
+				<img style="margin: 0 auto;" src="<?php echo esc_attr( $icon_url ); ?>" style="max-width: 90%" alt="Dintero Logo" />
+			</div>
+		<?php
 	}
 }
 

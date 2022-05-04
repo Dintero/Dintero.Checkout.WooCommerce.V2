@@ -223,9 +223,20 @@ abstract class Dintero_Checkout_Request {
 	 * @return boolean
 	 */
 	public function is_embedded() {
-		if ( 'express' !== $this->settings['checkout_type'] ||
-			'embedded' !== $this->settings['form_factor']
-		) {
+		if ( 'embedded' !== $this->settings['form_factor'] ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Returns if we are currently uses the express flow.
+	 *
+	 * @return boolean
+	 */
+	public function is_express() {
+		if ( 'express' !== $this->settings['checkout_type'] ) {
 			return false;
 		}
 
@@ -239,6 +250,7 @@ abstract class Dintero_Checkout_Request {
 	 */
 	public function is_shipping_in_iframe() {
 		if ( ! $this->is_embedded() ||
+			! $this->is_express() ||
 			! isset( $this->settings['express_shipping_in_iframe'] ) ||
 			'yes' !== $this->settings['express_shipping_in_iframe']
 		) {

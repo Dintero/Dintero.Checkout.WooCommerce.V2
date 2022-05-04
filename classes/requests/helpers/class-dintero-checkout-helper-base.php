@@ -41,12 +41,21 @@ abstract class Dintero_Checkout_Helper_Base {
 	 *
 	 * @param array                                        $body The request body.
 	 * @param Dintero_Checkout_Order|Dintero_Checkout_Cart $helper The helper class to use.
+	 * @param bool                                         $is_embedded If the request is for an embedded checkout.
+	 * @param bool                                         $is_express If the request is for an express checkout.
+	 * @param bool                                         $is_shipping_in_iframe If the request is for shipping selections in the iframe.
 	 * @return void
 	 */
-	public static function add_shipping( &$body, $helper, $is_embedded, $is_shipping_in_iframe ) {
-		$body['order']['shipping_option'] = $helper::get_single_shipping_cart( $helper ); // This will always be needed.
+	public static function add_shipping( &$body, $helper, $is_embedded, $is_express, $is_shipping_in_iframe ) {
+		// We will always need this if shipping is available, so it will always be added.
+		$shipping_option = $helper->get_shipping_option();
+		if ( ! empty( $shipping_option ) ) {
+			$body['order']['shipping_option'] = $shipping_option;
+		}
 
-		if ( $is_embedded ) {
+		// If its express we need to add the express options.
+		if ( $is_embedded && $is_express ) {
+			// If the cart does not need shipping, unset shipping, set empty array and shipping_not_required.
 			if ( ! WC()->cart->needs_shipping() ) {
 				unset( $body['order']['shipping_option'] );
 				$body['express']['shipping_options'] = array();
@@ -54,45 +63,9 @@ abstract class Dintero_Checkout_Helper_Base {
 				return;
 			}
 
-			if ( $is_shipping_in_iframe ) {
-				$body['express']['shipping_options'] = $helper->get_express_shipping_options();
-				$body['express']['shipping_mode']    = 'shipping_required';
-				return;
-			}
-
-			$packages        = WC()->shipping()->get_packages();
-			$chosen_methods  = WC()->session->get( 'chosen_shipping_methods' );
-			$chosen_shipping = $chosen_methods[0];
-			foreach ( $packages as $i => $package ) {
-				foreach ( $package['rates'] as $method ) {
-					if ( $chosen_shipping === $method->id ) {
-						$body['express']['shipping_options'] = array( $helper::get_single_shipping_cart( $helper ) );
-						$body['express']['shipping_mode']    = 'shipping_required';
-					}
-				}
-			}
+			$body['express']['shipping_options'] = $is_shipping_in_iframe ? $helper->get_express_shipping_options() : array( $helper->get_shipping_option() );
+			$body['express']['shipping_mode']    = 'shipping_required';
 		}
-	}
-
-	/**
-	 * Get the single shipping method for the cart.
-	 *
-	 * @param Dintero_Checkout_Order|Dintero_Checkout_Cart $helper The helper class to use.
-	 * @return array
-	 */
-	public static function get_single_shipping_cart( $helper ) {
-		$packages        = WC()->shipping()->get_packages();
-		$chosen_methods  = WC()->session->get( 'chosen_shipping_methods' );
-		$chosen_shipping = $chosen_methods[0];
-		foreach ( $packages as $i => $package ) {
-			foreach ( $package['rates'] as $method ) {
-				if ( $chosen_shipping === $method->id ) {
-					return $helper->get_shipping_option( $method );
-				}
-			}
-		}
-
-		return array();
 	}
 
 	/**
