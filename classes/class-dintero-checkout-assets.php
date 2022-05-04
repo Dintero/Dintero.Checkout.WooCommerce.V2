@@ -72,7 +72,7 @@ class Dintero_Checkout_Assets {
 			return;
 		}
 
-		if ( ! is_checkout() || is_order_received_page() ) {
+		if ( ! is_checkout() || is_order_received_page() || is_wc_endpoint_url( 'order-pay' ) ) {
 			return;
 		}
 

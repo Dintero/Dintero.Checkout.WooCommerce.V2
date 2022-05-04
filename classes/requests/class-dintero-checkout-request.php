@@ -223,7 +223,7 @@ abstract class Dintero_Checkout_Request {
 	 * @return boolean
 	 */
 	public function is_embedded() {
-		if ( 'embedded' !== $this->settings['form_factor'] ) {
+		if ( 'embedded' !== $this->settings['form_factor'] || is_wc_endpoint_url( 'order-pay' ) ) {
 			return false;
 		}
 
