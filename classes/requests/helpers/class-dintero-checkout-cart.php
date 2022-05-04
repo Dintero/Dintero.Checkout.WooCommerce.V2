@@ -201,7 +201,24 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 * @param object $shipping_method The id of the shipping method.
 	 * @return array
 	 */
-	public function get_shipping_option( $shipping_method ) {
+	public function get_shipping_option( $shipping_method = null ) {
+		if ( empty( $shipping_method ) ) {
+			$packages        = WC()->shipping()->get_packages();
+			$chosen_methods  = WC()->session->get( 'chosen_shipping_methods' );
+			$chosen_shipping = $chosen_methods[0];
+			foreach ( $packages as $i => $package ) {
+				foreach ( $package['rates'] as $method ) {
+					if ( $chosen_shipping === $method->id ) {
+						$shipping_method = $method;
+					}
+				}
+			}
+		}
+
+		if ( empty( $shipping_method ) ) {
+			return null;
+		}
+
 		return array(
 			'id'              => $shipping_method->get_id(),
 			'line_id'         => $shipping_method->get_id(),

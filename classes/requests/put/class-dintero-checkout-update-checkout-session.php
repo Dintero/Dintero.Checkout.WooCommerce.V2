@@ -54,11 +54,11 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 		);
 
 		// Set if express or not.
-		if ( 'express' === $this->settings['checkout_type'] && 'embedded' === $this->settings['form_factor'] ) {
+		if ( $this->is_express() && $this->is_embedded() ) {
 			$this->add_express_object( $body );
 		}
 
-		$helper::add_shipping( $body, $helper, $this->is_embedded(), $this->is_shipping_in_iframe() );
+		$helper::add_shipping( $body, $helper, $this->is_embedded(), $this->is_express(), $this->is_shipping_in_iframe() );
 		$helper::add_rounding_line( $body );
 
 		return $body;

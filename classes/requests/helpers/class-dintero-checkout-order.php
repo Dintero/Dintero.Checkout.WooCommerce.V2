@@ -255,7 +255,24 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * @param WC_Order_Item_Shipping $shipping_method WooCommerce order item shipping.
 	 * @return array
 	 */
-	public function get_shipping_option( $shipping_method ) {
+	public function get_shipping_option( $shipping_method = null ) {
+		if ( empty( $shipping_method ) ) {
+			if ( count( $this->order->get_items( 'shipping' ) ) > 1 ) {
+				/**
+				 * Process order item shipping.
+				 *
+				 * @var WC_Order_Item_Shipping $order_item WooCommerce order item shipping.
+				 */
+				foreach ( $this->order->get_items( 'shipping' ) as $order_item ) {
+					$shipping_method = $order_item;
+				}
+			}
+		}
+
+		if ( empty( $shipping_method ) ) {
+			return null;
+		}
+
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
 			'id'              => $shipping_method->get_id() . ':' . $shipping_method->get_instance_id(),
