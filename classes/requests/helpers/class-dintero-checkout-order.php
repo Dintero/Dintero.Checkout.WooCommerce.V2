@@ -236,8 +236,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	public function get_shipping_item( $shipping_method ) {
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
-			'id'         => $shipping_method->get_id(),
-			'line_id'    => $shipping_method->get_id(),
+			'id'         => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
+			'line_id'    => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
 			'amount'     => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping_tax() ),
 			'title'      => $shipping_method->get_label(),
 			'vat_amount' => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() ),
@@ -257,7 +257,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 */
 	public function get_shipping_option( $shipping_method = null ) {
 		if ( empty( $shipping_method ) ) {
-			if ( count( $this->order->get_items( 'shipping' ) ) > 1 ) {
+			if ( count( $this->order->get_items( 'shipping' ) ) === 1 ) {
 				/**
 				 * Process order item shipping.
 				 *
@@ -275,8 +275,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
-			'id'              => $shipping_method->get_id() . ':' . $shipping_method->get_instance_id(),
-			'line_id'         => $shipping_method->get_id() . ':' . $shipping_method->get_instance_id(),
+			'id'              => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
+			'line_id'         => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
 			'amount'          => self::format_number( $shipping_method->get_total() + $shipping_method->get_total_tax() ),
 			'operator'        => '',
 			'description'     => '',
@@ -302,8 +302,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			 */
 			$shipping_line = array_values( $shipping_lines )[0];
 			return array(
-				'id'          => strval( $shipping_line->get_method_title() . ':' . $shipping_line->get_instance_id() ),
-				'line_id'     => strval( $shipping_line->get_method_title() . ':' . $shipping_line->get_instance_id() ),
+				'id'          => $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id(),
+				'line_id'     => $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id(),
 				'amount'      => absint( self::format_number( $shipping_line->get_total() + $shipping_line->get_total_tax() ) ),
 				'operator'    => '',
 				'description' => '',
