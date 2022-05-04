@@ -112,7 +112,7 @@ class Dintero_Checkout_Embedded {
 		}
 
 		// Check if we have locked the iframe first, if not then this should not happen since it will return an error.
-		$raw_post_data = filter_input( INPUT_POST, 'post_data', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$raw_post_data = filter_input( INPUT_POST, 'post_data', FILTER_SANITIZE_URL );
 		parse_str( $raw_post_data, $post_data );
 		if ( ! isset( $post_data['dintero_locked'] ) ) {
 			return;
