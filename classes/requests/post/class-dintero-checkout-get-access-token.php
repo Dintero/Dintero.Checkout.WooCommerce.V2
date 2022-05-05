@@ -9,9 +9,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
- /**
-  * Class for the request to get the access token.
-  */
+/**
+ * Class for the request to get the access token.
+ */
 class Dintero_Checkout_Get_Access_Token extends Dintero_Checkout_Request_Post {
 	/**
 	 * Class constructor.
@@ -64,6 +64,6 @@ class Dintero_Checkout_Get_Access_Token extends Dintero_Checkout_Request_Post {
 	 * @return string Basic authorization parameter.
 	 */
 	private function calculate_auth() {
-		return 'Basic ' . base64_encode( $this->settings['client_id'] . ':' . $this->settings['client_secret'] );
+		return 'Basic ' . base64_encode( $this->settings['client_id'] . ':' . $this->settings['client_secret'] ); // phpcs:ignore
 	}
 }

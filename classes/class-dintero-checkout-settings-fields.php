@@ -103,7 +103,7 @@ class Dintero_Settings_Fields {
 				'type'  => 'title',
 			),
 			'form_factor'                             => array(
-				'default' => 'embedded',
+				'default' => 'redirect',
 				'type'    => 'select',
 				'options' => array(
 					'embedded' => __( 'Embedded', 'dintero-checkout-for-woocommerce' ),
@@ -173,8 +173,16 @@ class Dintero_Settings_Fields {
 					'b2c'  => __( 'Consumer only', 'dintero-checkout-for-woocommerce' ),
 				),
 			),
+			'express_shipping_in_iframe'              => array(
+				'title'    => __( 'Display Shipping in the iframe', 'dintero-checkout-for-woocommerce' ),
+				'type'     => 'checkbox',
+				'default'  => 'no',
+				'label'    => __( 'Enable', 'dintero-checkout-for-woocommerce' ),
+				'desc_tip' => __( 'Will make the shipping selection happen in the Dintero checkout iframe instead of the shipping section in WooCommerce.', 'dintero-checkout-for-woocommerce' ),
+			),
+
 			/*
-			 TODO: These options will be added in a future iteration.
+			TODO: These options will be added in a future iteration.
 			'express_show_shipping'                   => array(
 				'title'    => __( 'Show shipping info in Express', 'dintero-checkout-for-woocommerce' ),
 				'type'     => 'checkbox',
@@ -200,7 +208,8 @@ class Dintero_Settings_Fields {
 			'express_button_corner_radius'            => array(
 				'title' => __( 'Express button corner radius', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'text',
-			), */
+			),
+			*/
 			/* End of "Dintero Checkout Express Settings". */
 			'branding_title'                          => array(
 				'title' => __( 'Branding', 'dintero-checkout-for-woocommerce' ),

@@ -40,8 +40,14 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 	 * @return array
 	 */
 	public function get_body() {
-		if ( ! empty( $this->arguments['order_id'] ) ) {
-			$helper = new Dintero_Checkout_Order( $this->arguments['order_id'] );
+		if ( ! empty( $this->arguments['order_id'] ) || is_wc_endpoint_url( 'order-pay' ) ) {
+			$key      = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			$order_id = is_wc_endpoint_url( 'order-pay' ) ? wc_get_order_id_by_order_key( sanitize_key( $key ) ) : $this->arguments['order_id'];
+
+			$helper           = new Dintero_Checkout_Order( $order_id );
+			$order            = wc_get_order( $order_id );
+			$shipping_address = $helper->get_shipping_address( $order );
+			$billing_address  = $helper->get_billing_address( $order );
 		} else {
 			$helper = new Dintero_Checkout_Cart();
 		}
@@ -64,8 +70,6 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 				'merchant_reference' => $reference,
 				'vat_amount'         => $helper->get_tax_total(),
 				'items'              => $helper->get_order_lines(),
-				/* order.shipping_option expects an object rather than an array: */
-				'shipping_option'    => $helper->get_shipping_objects()[0],
 				'store'              => array(
 					'id' => preg_replace( '/(https?:\/\/|www.|\/\s*$)/i', '', get_home_url() ),
 				),
@@ -73,21 +77,22 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			'profile_id' => $this->settings['profile_id'],
 		);
 
+		if ( isset( $order ) ) {
+			$body['order']['shipping_address'] = $shipping_address;
+			$body['order']['billing_address']  = $billing_address;
+		}
+
 		if ( ! Dintero_Checkout_Callback::is_localhost() ) {
 			$body['url']['callback_url'] = Dintero_Checkout_Callback::callback_url();
 		}
 
-		/* If we have more than one shipping package, we've added them to the order.items. */
-		$shipping_option = $helper->get_shipping_objects();
-		if ( empty( $shipping_option ) || count( $shipping_option ) > 1 ) {
-			unset( $body['order']['shipping_option'] );
+		// Set if express or not. For order-pay, we default to redirect flow.
+		if ( ! is_wc_endpoint_url( 'order-pay' ) && $this->is_express() && $this->is_embedded() ) {
+			$this->add_express_object( $body );
 		}
 
-		// Set if express or not.
-		if ( 'express' === $this->settings['checkout_type'] && 'embedded' === $this->settings['form_factor'] ) {
-			$shipping_option = ( empty( $shipping_option ) ) ? array() : $shipping_option;
-			$body            = $this->add_express_object( $body, $shipping_option );
-		}
+		$helper::add_shipping( $body, $helper, $this->is_embedded(), $this->is_express(), $this->is_shipping_in_iframe() );
+		$helper::add_rounding_line( $body );
 
 		return $body;
 	}
@@ -98,20 +103,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 	 * @param array $body The body array.
 	 * @return array
 	 */
-	public function add_express_object( $body, $shipping ) {
-
-		/* If we only have _one_ shipping package, we'll show it in Dintero Express. */
-		$body['express']['shipping_options'] = $shipping;
-
-		/* Otherwise, it is embedded in order.items, and hidden in Dintero Express for now. */
-		if ( empty( $shipping ) || count( $shipping ) > 1 ) {
-			$body['express']['shipping_options'] = array();
-			$body['express']['shipping_mode']    = 'shipping_not_required';
-
-			/* The shipping option is embedded in order.items instead. */
-			unset( $body['order']['shipping_option'] );
-		}
-
+	public function add_express_object( &$body ) {
 		// Set allowed customer types.
 		$customer_types = $this->settings['express_customer_type'];
 		switch ( $customer_types ) {

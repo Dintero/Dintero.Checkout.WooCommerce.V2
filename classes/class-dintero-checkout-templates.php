@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Dintero_Checkout_Templates class.
  */
-class Dintero_Checkout_Template {
+class Dintero_Checkout_Templates {
 	/**
 	 * The reference the *Singleton* instance of this class.
 	 *
@@ -119,7 +119,7 @@ class Dintero_Checkout_Template {
 			}
 
 			// If another gateway was, but is made unavailable during checkout, and Dintero Checkout is available, and is the first gateway...
-			if ( ! in_array( $chosen_payment_method, $available_gateways ) && 'dintero_checkout' === array_key_first( $available_gateways ) ) {
+			if ( ! in_array( $chosen_payment_method, $available_gateways, true ) && 'dintero_checkout' === array_key_first( $available_gateways ) ) {
 				return $checkout_express_template;
 			}
 		}
@@ -187,4 +187,4 @@ class Dintero_Checkout_Template {
 	}
 }
 
-Dintero_Checkout_Template::get_instance();
+Dintero_Checkout_Templates::get_instance();

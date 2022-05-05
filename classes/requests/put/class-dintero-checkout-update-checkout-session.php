@@ -42,27 +42,24 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 		$helper = new Dintero_Checkout_Cart();
 		$body   = array(
 			'order'       => array(
-				'amount'          => $helper->get_order_total(),
-				'currency'        => $helper->get_currency(),
-				'vat_amount'      => $helper->get_tax_total(),
-				'items'           => $helper->get_order_lines(),
-				/* order.shipping_option expects an object rather than an array: */
-				'shipping_option' => $helper->get_shipping_objects()[0],
+				'amount'     => $helper->get_order_total(),
+				'currency'   => $helper->get_currency(),
+				'vat_amount' => $helper->get_tax_total(),
+				'items'      => $helper->get_order_lines(),
+				'store'      => array(
+					'id' => preg_replace( '/(https?:\/\/|www.|\/\s*$)/i', '', get_home_url() ),
+				),
 			),
 			'remove_lock' => true,
 		);
 
-		/* If we have more than one shipping package, we've added them to the order.items. */
-		$shipping_option = $helper->get_shipping_objects();
-		if ( empty( $shipping_option ) || count( $shipping_option ) > 1 ) {
-			unset( $body['order']['shipping_option'] );
+		// Set if express or not.
+		if ( $this->is_express() && $this->is_embedded() ) {
+			$this->add_express_object( $body );
 		}
 
-		// Set if express or not.
-		if ( 'express' === $this->settings['checkout_type'] && 'embedded' === $this->settings['form_factor'] ) {
-			$shipping_option = ( empty( $shipping_option ) ) ? array() : $shipping_option;
-			$body            = $this->add_express_object( $body, $shipping_option );
-		}
+		$helper::add_shipping( $body, $helper, $this->is_embedded(), $this->is_express(), $this->is_shipping_in_iframe() );
+		$helper::add_rounding_line( $body );
 
 		return $body;
 	}
@@ -73,18 +70,20 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 	 * @param array $body The body array.
 	 * @return array
 	 */
-	public function add_express_object( $body, $shipping ) {
-
-		/* If we only have _one_ shipping package, we'll show it in Dintero Express. */
-		$body['express']['shipping_options'] = $shipping;
-
-		/* Otherwise, it is embedded in order.items, and hidden in Dintero Express for now. */
-		if ( count( $shipping ) > 1 ) {
-			$body['express']['shipping_options'] = array();
-			$body['express']['shipping_mode']    = 'shipping_not_required';
-
-			/* The shipping option is embedded in order.items instead. */
-			unset( $body['order']['shipping_option'] );
+	public function add_express_object( &$body ) {
+		// Set allowed customer types.
+		$customer_types = $this->settings['express_customer_type'];
+		switch ( $customer_types ) {
+			case 'b2c':
+				$body['express']['customer_types'] = array( 'b2c' );
+				break;
+			case 'b2b':
+				$body['express']['customer_types'] = array( 'b2b' );
+				break;
+			case 'b2bc':
+			default:
+				$body['express']['customer_types'] = array( 'b2c', 'b2b' );
+				break;
 		}
 
 		return $body;

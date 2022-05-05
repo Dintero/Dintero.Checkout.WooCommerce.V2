@@ -23,7 +23,8 @@ class Dintero_Checkout_Order_Status {
 		add_filter(
 			'wc_order_statuses',
 			function( $order_statuses ) {
-				return array( 'wc-manual-review' => _x( 'Manual review', 'Order status', 'dintero-checkout-for-woocommerce' ) ) + $order_statuses;
+				$order_statuses['wc-manual-review'] = _x( 'Manual review', 'Order status', 'dintero-checkout-for-woocommerce' );
+				return $order_statuses;
 			}
 		);
 

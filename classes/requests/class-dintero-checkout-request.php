@@ -207,11 +207,56 @@ abstract class Dintero_Checkout_Request {
 	 * @return void
 	 */
 	protected function log_response( $response, $request_args, $request_url ) {
+		$body = json_decode( $response['body'], true );
+
 		$method   = $this->method;
 		$title    = $this->log_title;
 		$code     = wp_remote_retrieve_response_code( $response );
-		$order_id = $response['OrderID'] ?? null;
+		$order_id = $body['id'] ?? null;
 		$log      = Dintero_Checkout_Logger::format_log( $order_id, $method, $title, $request_args, $response, $code, $request_url );
 		Dintero_Checkout_Logger::log( $log );
+	}
+
+	/**
+	 * Returns if we are currently using the embedded flow.
+	 *
+	 * @return boolean
+	 */
+	public function is_embedded() {
+		if ( 'embedded' !== $this->settings['form_factor'] || is_wc_endpoint_url( 'order-pay' ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Returns if we are currently uses the express flow.
+	 *
+	 * @return boolean
+	 */
+	public function is_express() {
+		if ( 'express' !== $this->settings['checkout_type'] ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Returns if shipping is handled by the iframe.
+	 *
+	 * @return boolean
+	 */
+	public function is_shipping_in_iframe() {
+		if ( ! $this->is_embedded() ||
+			! $this->is_express() ||
+			! isset( $this->settings['express_shipping_in_iframe'] ) ||
+			'yes' !== $this->settings['express_shipping_in_iframe']
+		) {
+			return false;
+		}
+
+		return true;
 	}
 }

@@ -10,7 +10,7 @@
  * Domain Path: /languages
  *
  * WC requires at least: 6.1.0
- * WC tested up to: 6.2.0
+ * WC tested up to: 6.4.1
  *
  * Copyright (c) 2022 Krokedil
  *
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'DINTERO_CHECKOUT_VERSION', '1.0.0-beta.5' );
+define( 'DINTERO_CHECKOUT_VERSION', '1.0.0-beta.6' );
 define( 'DINTERO_CHECKOUT_URL', untrailingslashit( plugins_url( '/', __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_MAIN_FILE', __FILE__ );

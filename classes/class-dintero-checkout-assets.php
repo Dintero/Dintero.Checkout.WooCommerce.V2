@@ -36,7 +36,7 @@ class Dintero_Checkout_Assets {
 			return;
 		}
 
-		$section = filter_input( INPUT_GET, 'section', FILTER_SANITIZE_STRING );
+		$section = filter_input( INPUT_GET, 'section', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( 'dintero_checkout' !== $section ) {
 			return;
 		}
@@ -72,7 +72,7 @@ class Dintero_Checkout_Assets {
 			return;
 		}
 
-		if ( ! is_checkout() || is_order_received_page() ) {
+		if ( ! is_checkout() || is_order_received_page() || is_wc_endpoint_url( 'order-pay' ) ) {
 			return;
 		}
 
@@ -110,7 +110,7 @@ class Dintero_Checkout_Assets {
 			WC()->session->set( 'dintero_checkout_session_id', $session_id );
 		}
 
-		/* We need our own checkout fields since we're replacing the defualt WC form. */
+		/* We need our own checkout fields since we're replacing the default WC form. */
 		$standard_woo_checkout_fields = array(
 			'billing_first_name',
 			'billing_last_name',
@@ -142,6 +142,7 @@ class Dintero_Checkout_Assets {
 			'dinteroCheckoutParams',
 			array(
 				'SID'                         => $session_id,
+				'language'                    => substr( get_locale(), 0, 2 ),
 				'change_payment_method_url'   => WC_AJAX::get_endpoint( 'dintero_checkout_wc_change_payment_method' ),
 				'change_payment_method_nonce' => wp_create_nonce( 'dintero_checkout_wc_change_payment_method' ),
 				'standardWooCheckoutFields'   => $standard_woo_checkout_fields,
@@ -152,6 +153,8 @@ class Dintero_Checkout_Assets {
 				'unset_session_nonce'         => wp_create_nonce( 'dintero_checkout_unset_session' ),
 				'print_notice_url'            => WC_AJAX::get_endpoint( 'dintero_checkout_print_notice' ),
 				'print_notice_nonce'          => wp_create_nonce( 'dintero_checkout_print_notice' ),
+				'shipping_in_iframe'          => ( isset( $settings['express_shipping_in_iframe'] ) && 'yes' === $settings['express_shipping_in_iframe'] && 'express' === $settings['checkout_type'] ),
+
 			)
 		);
 

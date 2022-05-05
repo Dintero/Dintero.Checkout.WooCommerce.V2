@@ -93,6 +93,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		 * @var WC_Order_Item_Shipping $order_item WooCommerce order item shipping.
 		 */
 		if ( count( $this->order->get_items( 'shipping' ) ) > 1 ) {
+			/* If there is more than one shipping option, it will be part of the order.items to support multiple shipping packages. */
 			foreach ( $this->order->get_items( 'shipping' ) as $order_item ) {
 				$order_lines[] = $this->get_shipping_option( $order_item );
 			}
@@ -107,20 +108,33 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			$order_lines[] = $this->get_fee( $order_item );
 		}
 
+		/**
+		 * Process order item gift card.
+		 *
+		 * @var WC_GC_Order_Item_Gift_Card $gift_card WooCommerce order item gift card.
+		 */
+		foreach ( $this->order->get_items( 'gift_card' ) as $gift_card ) {
+			$order_lines[] = $this->get_gift_card( $gift_card );
+		}
+
+		foreach ( $this->order->get_items( 'pw_gift_card' ) as $gift_card ) {
+			$order_lines[] = $this->get_gift_card( $gift_card );
+		}
+
+		if ( class_exists( 'YITH_YWGC_Cart_Checkout' ) ) {
+			$yith_gift_cards = get_post_meta( $this->order->get_id(), YITH_YWGC_Cart_Checkout::ORDER_GIFT_CARDS, true );
+			if ( $yith_gift_cards ) {
+				foreach ( $yith_gift_cards as $code => $amount ) {
+					$order_lines[] = $this->get_gift_card( YITH_YWGC()->get_gift_card_by_code( $code ) );
+				}
+			}
+		}
+
 		return array_values( $order_lines );
 	}
 
 	/**
-	 * Gets the formated shipping lines.
-	 *
-	 * @return array|null
-	 */
-	public function get_shipping_lines() {
-		return null;
-	}
-
-	/**
-	 * Get the formated order line from a cart item.
+	 * Get the formatted order line from a cart item.
 	 *
 	 * @param WC_Order_Item_Product $order_item WooCommerce order item product.
 	 * @return array
@@ -156,7 +170,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
-	 * Get the formated order line from a fee.
+	 * Get the formatted order line from a fee.
 	 *
 	 * @param WC_Order_Item_Fee $order_item WooCommerce order item fee.
 	 * @return array
@@ -165,9 +179,9 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		$name = $order_item->get_name();
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
-			'id'          => $order_item->get_name(),
-			'line_id'     => $order_item->get_name(),
-			'description' => $order_item->get_name(),
+			'id'          => $name,
+			'line_id'     => $name,
+			'description' => $name,
 			'quantity'    => 1,
 			'amount'      => absint( self::format_number( $order_item->get_total() + $order_item->get_total_tax() ) ),
 			'vat_amount'  => absint( self::format_number( $order_item->get_total_tax() ) ),
@@ -175,16 +189,55 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
+	 * Get the formatted order line from a gift card.
+	 *
+	 * @param WC_GC_Order_Item_Gift_Card|WC_Order_Item_PW_Gift_Card|YITH_YWGC_Gift_Card $gift_card WooCommerce order item gift card.
+	 * @return array
+	 */
+	public function get_gift_card( $gift_card ) {
+
+		if ( is_a( $gift_card, 'WC_GC_Order_Item_Gift_Card' ) ) {
+			$id          = $gift_card->get_code() . ':' . $gift_card->get_giftcard_id();
+			$description = $gift_card->get_code();
+			$amount      = $gift_card->get_amount();
+		}
+
+		if ( is_a( $gift_card, 'WC_Order_Item_PW_Gift_Card' ) ) {
+			$id          = $gift_card->get_name();
+			$description = $gift_card->get_name();
+			$amount      = $gift_card->get_amount();
+		}
+
+		if ( is_a( $gift_card, 'YITH_YWGC_Gift_Card' ) ) {
+			$id          = $gift_card->get_code();
+			$description = $gift_card->get_code();
+			$amount      = $gift_card->total_amount;
+		}
+
+		return array(
+			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
+			'id'          => $id,
+			'line_id'     => $id,
+			'type'        => 'gift_card',
+			'description' => __( 'Gift card', 'dintero-checkout-for-woocommerce' ) . ': ' . $description,
+			'quantity'    => 1,
+			'tax_rate'    => 0,
+			'vat_amount'  => 0,
+			'amount'      => self::format_number( $amount * -1 ),
+		);
+	}
+
+	/**
 	 * Formats the shipping method to be used in order.items.
 	 *
-	 * @param WC_Shipping_rate $shipping_method
+	 * @param WC_Shipping_rate $shipping_method The shipping method from WooCommerce.
 	 * @return array
 	 */
 	public function get_shipping_item( $shipping_method ) {
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
-			'id'         => $shipping_method->get_id(),
-			'line_id'    => $shipping_method->get_id(),
+			'id'         => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
+			'line_id'    => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
 			'amount'     => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping_tax() ),
 			'title'      => $shipping_method->get_label(),
 			'vat_amount' => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() ),
@@ -197,28 +250,45 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
-	 * Gets the formated order line from shipping.
+	 * Gets the formatted order line from shipping.
 	 *
-	 * @param WC_Order_Item_Shipping $order_item WooCommerce order item shipping.
+	 * @param WC_Order_Item_Shipping $shipping_method WooCommerce order item shipping.
 	 * @return array
 	 */
-	public function get_shipping_option( $shipping_method ) {
+	public function get_shipping_option( $shipping_method = null ) {
+		if ( empty( $shipping_method ) ) {
+			if ( count( $this->order->get_items( 'shipping' ) ) === 1 ) {
+				/**
+				 * Process order item shipping.
+				 *
+				 * @var WC_Order_Item_Shipping $order_item WooCommerce order item shipping.
+				 */
+				foreach ( $this->order->get_items( 'shipping' ) as $order_item ) {
+					$shipping_method = $order_item;
+				}
+			}
+		}
+
+		if ( empty( $shipping_method ) ) {
+			return null;
+		}
+
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
-			'id'              => $shipping_method->get_id(),
-			'line_id'         => $shipping_method->get_id(),
-			'amount'          => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping_tax() ),
+			'id'              => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
+			'line_id'         => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
+			'amount'          => self::format_number( $shipping_method->get_total() + $shipping_method->get_total_tax() ),
 			'operator'        => '',
 			'description'     => '',
-			'title'           => $shipping_method->get_label(),
+			'title'           => $shipping_method->get_method_title(),
 			'delivery_method' => 'unspecified',
-			'vat_amount'      => self::format_number( $shipping_method->get_shipping_tax() ),
-			'vat'             => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ),
+			'vat_amount'      => self::format_number( $shipping_method->get_total_tax() ),
+			'vat'             => ( empty( floatval( $shipping_method->get_total() ) ) ) ? 0 : self::format_number( $shipping_method->get_total_tax() / $shipping_method->get_total() ),
 		);
 	}
 
 	/**
-	 * Get the formated shipping object.
+	 * Get the formatted shipping object.
 	 *
 	 * @return array|null
 	 */
@@ -232,8 +302,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			 */
 			$shipping_line = array_values( $shipping_lines )[0];
 			return array(
-				'id'          => strval( $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id() ),
-				'line_id'     => strval( $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id() ),
+				'id'          => $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id(),
+				'line_id'     => $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id(),
 				'amount'      => absint( self::format_number( $shipping_line->get_total() + $shipping_line->get_total_tax() ) ),
 				'operator'    => '',
 				'description' => '',
@@ -273,5 +343,66 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		}
 
 		return $shipping_lines;
+	}
+
+	/**
+	 * Retrieve the customer's billing address.
+	 *
+	 * @param WC_Order $order WooCommerce Order.
+	 * @return array An associative array representing the billing address.
+	 */
+	public function get_billing_address( $order ) {
+		$billing_address = array(
+			'first_name'     => $order->get_billing_first_name(),
+			'last_name'      => $order->get_billing_last_name(),
+			'address_line'   => $order->get_billing_address_1(),
+			'address_line_2' => $order->get_billing_address_2(),
+			'business_name'  => $order->get_billing_company(),
+			'postal_code'    => $order->get_billing_postcode(),
+			'postal_place'   => $order->get_billing_city(),
+			'country'        => $order->get_billing_country(),
+			'phone_number'   => dintero_sanitize_phone_number( $order->get_billing_phone() ),
+			'email'          => $order->get_billing_email(),
+		);
+
+		/* Sanitize all values. Remove all empty elements (required by Dintero). */
+		return array_filter(
+			$billing_address,
+			function( $value ) {
+				return ! empty( sanitize_text_field( $value ) );
+			}
+		);
+	}
+
+	/**
+	 * Retrieve the customer's shipping address.
+	 *
+	 * @param WC_Order $order WooCommerce Order.
+	 * @return array An associative array representing the shipping address.
+	 */
+	public function get_shipping_address( $order ) {
+		$shipping_address = array(
+			'first_name'     => $order->get_shipping_first_name(),
+			'last_name'      => $order->get_shipping_last_name(),
+			'address_line'   => $order->get_shipping_address_1(),
+			'address_line_2' => $order->get_shipping_address_2(),
+			'business_name'  => $order->get_shipping_company(),
+			'postal_code'    => $order->get_shipping_postcode(),
+			'postal_place'   => $order->get_shipping_city(),
+			'country'        => $order->get_shipping_country(),
+			'email'          => $order->get_billing_email(),
+		);
+
+		// Check if a shipping phone number exist. Default to billing phone.
+		$phone                            = $order->get_shipping_phone();
+		$shipping_address['phone_number'] = dintero_sanitize_phone_number( ! empty( $phone ) ? $phone : $order->get_billing_phone() );
+
+		/* Sanitize all values. Remove all empty elements (required by Dintero). */
+		return array_filter(
+			$shipping_address,
+			function( $value ) {
+				return ! empty( sanitize_text_field( $value ) );
+			}
+		);
 	}
 }

@@ -27,139 +27,146 @@ class Dintero_Checkout_Redirect {
 	 * @return void
 	 */
 	public function maybe_redirect() {
-		// If the customer was not redirected by Dintero, exit.
-		$gateway = filter_input( INPUT_GET, 'gateway', FILTER_SANITIZE_STRING );
-		if ( 'dintero' !== $gateway ) {
+		$gateway            = filter_input( INPUT_GET, 'gateway', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$transaction_id     = filter_input( INPUT_GET, 'transaction_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$merchant_reference = filter_input( INPUT_GET, 'merchant_reference', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$error              = filter_input( INPUT_GET, 'error', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+		if ( 'dintero' !== $gateway || empty( $merchant_reference ) ) {
 			return;
 		}
 
-		$the_GET = json_encode( filter_var_array( $_GET, FILTER_SANITIZE_STRING ) );
-
-		// The 'merchant_reference' is guaranteed to always be available.
-		$merchant_reference = filter_input( INPUT_GET, 'merchant_reference', FILTER_SANITIZE_STRING );
-
-		if ( empty( $merchant_reference ) ) {
-			Dintero_Checkout_Logger::log( sprintf( 'REDIRECT ERROR [merchant_reference]: No order key was found for %s. Cannot identify the WC order. Redirecting customer back to checkout page: %s ', $merchant_reference, $the_GET ) );
-
-			wc_add_notice( __( 'Something went wrong (merchant_reference).', 'dintero-checkout-for-woocommerce' ), 'error' );
-			wp_redirect( wc_get_checkout_url() );
-			exit;
-		}
-
-		$order_id = $this->get_order_id_from_reference( $merchant_reference );
-		$error    = filter_input( INPUT_GET, 'error', FILTER_SANITIZE_STRING );
-
-		if ( empty( $order_id ) ) {
-			Dintero_Checkout_Logger::log(
-				sprintf(
-					'REDIRECT ERROR [order_id]: Failed to retrieve the order id from the order key%s. Redirecting customer back to checkout page: %s',
-					( ! empty( $error ) ? ' due to: ' . $error : '' ),
-					$the_GET,
-				)
-			);
-
-			if ( empty( $error ) ) {
-				wc_add_notice( __( 'Something went wrong (order_id failed).', 'dintero-checkout-for-woocommerce' ), 'error' );
-			}
-
-			wp_redirect( wc_get_checkout_url() );
-			exit;
-		}
-
-		$order = wc_get_order( $order_id );
-
-		// If the 'error' parameter is set, something went wrong or require further authorization. No 'transaction_id' is provided on error.
-		$error = filter_input( INPUT_GET, 'error', FILTER_SANITIZE_STRING );
-		if ( ! empty( $error ) ) {
-
-			$show_in_checkout = false;
-			switch ( $error ) {
-				case 'authorization':
-					$note = __( 'The customer failed to authorize the payment.', 'dintero-checkout-for-woocommerce' );
-					break;
-				case 'failed':
-					$note             = __( 'The transaction was rejected by Dintero, or an error occurred during transaction processing.', 'dintero-checkout-for-woocommerce' );
-					$show_in_checkout = true;
-					break;
-				case 'cancelled':
-					$note = __( 'The customer canceled the checkout payment.', 'dintero-checkout-for-woocommerce' );
-					break;
-				case 'captured':
-					$note = __( 'The transaction capture operation failed during auto-capture.', 'dintero-checkout-for-woocommerce' );
-					break;
-				default:
-					$note = 'Unknown event.';
-					break;
-			}
-			if ( $note ) {
-				$order->add_order_note( $note );
-			}
-			if ( $show_in_checkout ) {
-				wc_add_notice( $note, 'error' );
-			}
-
-			Dintero_Checkout_Logger::log( sprintf( 'REDIRECT ERROR [%s]: %s WC order id: %s / %s: %s', $error, $note, $order_id, $merchant_reference, $the_GET ) );
-			wp_redirect( wc_get_checkout_url() );
-			exit;
-		}
-
-		// The 'transaction_id' is only set if the transaction was completed successfully.
-		$transaction_id = filter_input( INPUT_GET, 'transaction_id', FILTER_SANITIZE_STRING );
 		if ( empty( $transaction_id ) ) {
-			Dintero_Checkout_Logger::log(
-				sprintf( 'REDIRECT ERROR [transaction_id]: The transaction ID is missing for WC order %s / %s. Redirecting customer back to checkout page:', $order_id, $merchant_reference, $the_GET )
-			);
-
+			Dintero_Checkout_Logger::log( 'REDIRECT ERROR [transaction_id]: The transaction ID is missing. Redirecting customer back to checkout page.' );
 			wc_add_notice( __( 'Something went wrong (transaction id).', 'dintero-checkout-for-woocommerce' ), 'error' );
-			wp_redirect( wc_get_checkout_url() );
+			wp_safe_redirect( wc_get_checkout_url() );
 			exit;
 		}
 
-		// At this point, the gateway is Dintero, and the transaction has succeeded.
-		$dintero_order = Dintero()->api->get_order( $transaction_id );
-
-		if ( is_wp_error( $dintero_order ) ) {
-			return;
+		// Get the order from the merchant reference.
+		$order = $this->get_order_from_reference( $merchant_reference );
+		if ( empty( $order ) ) {
+			wc_add_notice( __( 'Something went wrong with completing the order. Please try again or contact the store', 'dintero-checkout-for-woocommerce' ) );
+			wp_safe_redirect( wc_get_checkout_url() );
+			exit;
 		}
 
-		$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
+		$error = filter_input( INPUT_GET, 'error', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		if ( ! empty( $error ) ) {
+			$this->handle_error( $error, $order );
+		}
+
+		$this->handle_success( $transaction_id, $order );
+	}
+
+	/**
+	 * Handles a successful redirect from Dintero.
+	 *
+	 * @param string   $transaction_id The Transaction ID from Dintero.
+	 * @param WC_Order $order The WooCommerce order.
+	 * @return void
+	 */
+	public function handle_success( $transaction_id, $order ) {
+		$order_id = $order->get_id();
 
 		update_post_meta( $order_id, '_dintero_transaction_id', $transaction_id );
-		update_post_meta( $order_id, '_transaction_id', $transaction_id );
-
+		$dintero_order         = Dintero()->api->get_order( $transaction_id );
+		$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
 		if ( $require_authorization ) {
 			// translators: %s the Dintero transaction ID.
-			$order->add_order_note( sprintf( __( 'The order was placed successfully, but requires further authorization by Dintero. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
-			$order->set_status( 'manual-review' );
+			$order->update_status( 'manual-review', sprintf( __( 'The order was placed successfully, but requires further authorization by Dintero. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
 			$order->save();
-
 			update_post_meta( $order_id, Dintero()->order_management->status( 'on_hold' ), $transaction_id );
-
-			Dintero_Checkout_Logger::log( sprintf( 'REDIRECT [%s]: The WC order %s / %s (transaction ID: %s) will require further authorization from Dintero.', $dintero_order['status'], $order_id, $merchant_reference, $transaction_id ) );
+			update_post_meta( $order_id, '_transaction_id', $transaction_id );
+			Dintero_Checkout_Logger::log( "REDIRECT: The WC order $order_id (transaction ID: $transaction_id) will require further authorization from Dintero." );
 		} else {
-
 			// translators: %s the Dintero transaction ID.
 			$order->add_order_note( sprintf( __( 'Payment via Dintero Checkout. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
-			$order->payment_complete();
+
+			$default_status = get_option( 'woocommerce_dintero_checkout_settings' )['order_statuses'];
+			if ( 'processing' !== $default_status ) {
+				update_post_meta( $order_id, '_transaction_id', $transaction_id );
+				$order->update_status( $default_status, __( 'The order was placed successfully.', 'dintero-checkout-for-woocommerce' ) );
+			} else {
+				dintero_confirm_order( $order );
+			}
 		}
 
 		// Update the transaction with the order number.
 		Dintero()->api->update_transaction( $transaction_id, $order->get_order_number() );
-
 		dintero_unset_sessions();
+		wp_safe_redirect( $order->get_checkout_order_received_url() );
 
-		wp_redirect(
-			add_query_arg(
-				array(
-					'merchant_reference' => $merchant_reference,
-					'transaction_id'     => $transaction_id,
-				),
-				$order->get_checkout_order_received_url()
-			),
-		);
-
-		Dintero_Checkout_Logger::log( sprintf( 'REDIRECT [success]: The WC order %s / %s (transaction ID: %s) was placed succesfully. Redirecting customer to thank-you page.', $order_id, $merchant_reference, $transaction_id ) );
+		Dintero_Checkout_Logger::log( "REDIRECT [success]: The WC order $order_id (transaction ID: $transaction_id) was placed succesfully. Redirecting customer to thank-you page." );
 		exit;
+	}
+
+	/**
+	 * Handles a error from the redirect by Dintero.
+	 *
+	 * @param string   $error The error from Dintero.
+	 * @param WC_Order $order The WooCommerce order.
+	 * @return void
+	 */
+	public function handle_error( $error, $order ) {
+		$order_id         = $order->get_id();
+		$show_in_checkout = false;
+		switch ( $error ) {
+			case 'authorization':
+				$note = __( 'The customer failed to authorize the payment.', 'dintero-checkout-for-woocommerce' );
+				break;
+			case 'failed':
+				$note             = __( 'The transaction was rejected by Dintero, or an error occurred during transaction processing.', 'dintero-checkout-for-woocommerce' );
+				$show_in_checkout = true;
+				break;
+			case 'cancelled':
+				$note = __( 'The customer canceled the checkout payment.', 'dintero-checkout-for-woocommerce' );
+				break;
+			case 'captured':
+				$note = __( 'The transaction capture operation failed during auto-capture.', 'dintero-checkout-for-woocommerce' );
+				break;
+			default:
+				$note = 'Unknown event.';
+				break;
+		}
+
+		if ( $note ) {
+			$order->add_order_note( $note );
+		}
+
+		if ( $show_in_checkout ) {
+			wc_add_notice( $note, 'error' );
+		}
+
+		Dintero_Checkout_Logger::log( "REDIRECT ERROR [$error]: $note WC order id: $order_id / %s: %s", $note, $order_id );
+		wp_safe_redirect( wc_get_checkout_url() );
+		exit;
+	}
+
+	/**
+	 * Get the order from the reference.
+	 *
+	 * @param string $merchant_reference The merchant reference from Dintero.
+	 * @return WC_Order
+	 */
+	public function get_order_from_reference( $merchant_reference ) {
+		$order_id = $this->get_order_id_from_reference( $merchant_reference );
+
+		// Check that we get a order id.
+		if ( empty( $order_id ) ) {
+			Dintero_Checkout_Logger::log( "REDIRECT ERROR [order_id]: Could not get an order_id from the merchant reference $merchant_reference" );
+			return null;
+		}
+
+		$order = wc_get_order( $order_id );
+
+		// Check if we get a valid order.
+		if ( empty( $order ) ) {
+			Dintero_Checkout_Logger::log( "REDIRECT ERROR [order]: Could not get an order from the merchant reference $merchant_reference" );
+			return null;
+		}
+
+		return $order;
 	}
 
 	/**
