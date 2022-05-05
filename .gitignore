@@ -32,3 +32,4 @@ yarn-error.log*
 
 # Release
 /release/
+yarn.lock
