@@ -21,5 +21,5 @@ Dintero offers a complete payment solution. Simplifying the payment process for 
 
 == Changelog ==
 
-= 1.0.0 =
+= 2022.05.10    - version 1.0.0 =
 * Initial release.
