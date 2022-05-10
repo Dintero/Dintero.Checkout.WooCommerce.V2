@@ -71,8 +71,6 @@ class Dintero_Checkout_Logger {
 	 * @return array A formatted associative array.
 	 */
 	public static function format_log( $dintero_id, $method, $title, $request_args, $response, $code, $request_url = null ) {
-		$user_agent = filter_input( INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_ADD_SLASHES ) ?? 'Not available';
-
 		return array(
 			'id'             => $dintero_id,
 			'type'           => $method,
@@ -88,7 +86,7 @@ class Dintero_Checkout_Logger {
 			'php_version'    => phpversion(),
 			'wc_version'     => WC()->version,
 			'wp_version'     => get_bloginfo( 'version' ),
-			'user_agent'     => $user_agent,
+			'user_agent'     => wc_get_user_agent(),
 			'stack'          => self::get_stack(),
 		);
 	}
