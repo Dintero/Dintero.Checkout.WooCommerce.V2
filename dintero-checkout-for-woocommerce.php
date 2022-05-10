@@ -1,7 +1,7 @@
 <?php //phpcs:ignore
 /**
  * Plugin Name: Dintero Checkout for WooCommerce
- * Plugin URI: https://krokedil.com/
+ * Plugin URI: https://krokedil.com/products/
  * Description: Dintero offers a complete payment solution. Simplifying the payment process for you and the customer.
  * Author: Krokedil
  * Author URI: https://krokedil.com/
