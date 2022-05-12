@@ -108,6 +108,7 @@ function dintero_confirm_order( $order ) {
 	}
 
 	$transaction_id = get_post_meta( $order->get_id(), '_dintero_transaction_id', true );
+	delete_post_meta( $order->get_id(), Dintero()->order_management->status( 'on_hold' ) );
 
 	$order->payment_complete( $transaction_id );
 }
