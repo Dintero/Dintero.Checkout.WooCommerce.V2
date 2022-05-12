@@ -215,8 +215,9 @@ class Dintero_Checkout_Callback {
 
 		return add_query_arg(
 			array(
-				'delay_callback' => 120, /* seconds. */
-				'report_error'   => 'true',
+				'delay_callback'     => 120, /* seconds. */
+				'report_error'       => 'true',
+				'sid_parameter_name' => 'sid',
 			),
 			home_url( '/wc-api/dintero_callback/' )
 		) . $events;
