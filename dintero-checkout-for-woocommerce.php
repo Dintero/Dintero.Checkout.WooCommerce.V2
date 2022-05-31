@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'DINTERO_CHECKOUT_VERSION', '1.0.0-beta.7' );
+define( 'DINTERO_CHECKOUT_VERSION', '1.0.0-beta.8' );
 define( 'DINTERO_CHECKOUT_URL', untrailingslashit( plugins_url( '/', __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_MAIN_FILE', __FILE__ );

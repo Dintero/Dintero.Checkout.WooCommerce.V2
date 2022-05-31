@@ -22,6 +22,11 @@ placement.
 3. Create your [API keys](https://docs.dintero.com/docs/checkout-client.html).
 4. Install the plugin on your website.
 
+== Dependencies ==
+=== Dintero Web SDK ===
+The plugin uses Dintero's Web SDK for embedding the Dintero Checkout. The SDK can be found at https://github.com/Dintero/Dintero.Checkout.Web.SDK, and is licensed with a MIT license.
+The SDK follows the same terms as when creating a Dintero account, with its [terms of service](https://www.dintero.com/terms/terms-of-service) and [privacy policy](https://www.dintero.com/legal/privacy-policy).
+
 == Installation ==
 1. Upload plugin folder to to the "/wp-content/plugins/" directory.
 2. Activate the plugin through the "Plugins" menu in WordPress.
