@@ -36,9 +36,9 @@ class Dintero_Checkout_Redirect {
 			return;
 		}
 
+		/* The transaction_id is only guaranteed when the payment is complete and authorized. That is, not on cancel. */
 		if ( empty( $transaction_id ) ) {
 			Dintero_Checkout_Logger::log( 'REDIRECT ERROR [transaction_id]: The transaction ID is missing. Redirecting customer back to checkout page.' );
-			wc_add_notice( __( 'Something went wrong (transaction id).', 'dintero-checkout-for-woocommerce' ), 'error' );
 			wp_safe_redirect( wc_get_checkout_url() );
 			exit;
 		}
@@ -90,6 +90,13 @@ class Dintero_Checkout_Redirect {
 			} else {
 				dintero_confirm_order( $order );
 			}
+		}
+
+		// Save shipping id to the order.
+		$shipping = $order->get_shipping_methods();
+		if ( ! empty( $shipping ) ) {
+			$shipping_option_id = $dintero_order['shipping_option']['id'] ?? reset( $shipping );
+			update_post_meta( $order->get_id(), '_wc_dintero_shipping_id', $shipping_option_id );
 		}
 
 		// Update the transaction with the order number.

@@ -301,9 +301,16 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			 * @var WC_Order_Item_Shipping $shipping_line The shipping line.
 			 */
 			$shipping_line = array_values( $shipping_lines )[0];
+
+			// Retrieve the shipping id from the order object itself.
+			$shipping_id = get_post_meta( $this->order->get_id(), '_wc_dintero_shipping_id', true );
+			if ( empty( $shipping_id ) ) {
+				$shipping_id = $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
+			}
+
 			return array(
-				'id'          => $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id(),
-				'line_id'     => $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id(),
+				'id'          => $shipping_id,
+				'line_id'     => $shipping_id,
 				'amount'      => absint( self::format_number( $shipping_line->get_total() + $shipping_line->get_total_tax() ) ),
 				'operator'    => '',
 				'description' => '',
