@@ -16,6 +16,7 @@ Dintero Checkout provides a frictionless checkout experience, offering card paym
 With this plugin, you can either embed or redirect our checkout in your WooCommerce installation. The plugin lets you capture, cancel, refund or partially refund orders, and adapt the checkout to B2B customers, B2C customers or both. You can also customize payment logo colors and 
 placement.
 
+
 === Getting started ===
 1. Go to [onboarding.dintero.com](https://onboarding.dintero.com/) to sign up for a Dintero account.
 2. Get your payment method application approved by Dintero.
