@@ -82,6 +82,7 @@ class Dintero_Checkout_Order_Management {
 
 		if ( empty( $order->get_transaction_id() ) ) {
 			$order->add_order_note( __( 'The order is missing a transaction ID.', 'dintero-checkout-for-woocommerce' ) );
+			$order->update_status( 'on-hold' );
 			return;
 		}
 
@@ -187,6 +188,7 @@ class Dintero_Checkout_Order_Management {
 
 		if ( empty( $order->get_transaction_id() ) ) {
 			$order->add_order_note( __( 'The order is missing a transaction ID.', 'dintero-checkout-for-woocommerce' ) );
+			$order->update_status( 'on-hold' );
 			return;
 		}
 
@@ -252,6 +254,7 @@ class Dintero_Checkout_Order_Management {
 
 		if ( empty( $order->get_transaction_id() ) ) {
 			$order->add_order_note( __( 'The order is missing a transaction ID.', 'dintero-checkout-for-woocommerce' ) );
+			$order->update_status( 'on-hold' );
 			return;
 		}
 
