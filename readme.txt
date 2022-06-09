@@ -35,6 +35,10 @@ The SDK follows the same terms as when creating a Dintero account, with its [ter
 4. Read more about the configuration process in the [plugin documentation](https://docs.krokedil.com/dintero-checkout-for-woocommerce/).
 
 == Changelog ==
+= 2022.06.09    - version 1.0.2 =
+* Fix           - Fixed some text not being translated.
+* Fix           - Orders created on callback should now have their order status updated accordingly.
+* Tweak         - An order will be set to ON HOLD if it is missing a transaction id when changing its status.
 
 = 2022.06.01    - version 1.0.1 =
 * Plugin published on wordpress.org.

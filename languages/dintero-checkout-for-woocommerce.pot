@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/Dintero.Checkout.WooCommerce.V2\n"
-"POT-Creation-Date: 2022-05-12 11:54:32+00:00\n"
+"POT-Creation-Date: 2022-06-09 08:43:55+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -20,10 +20,6 @@ msgstr ""
 
 #: classes/class-dintero-checkout-callback.php:133
 msgid "The order was not approved by Dintero."
-msgstr ""
-
-#: classes/class-dintero-checkout-confirmation.php:41
-msgid "Something went wrong (transaction id)."
 msgstr ""
 
 #: classes/class-dintero-checkout-confirmation.php:49
@@ -48,21 +44,21 @@ msgstr ""
 msgid "The order was placed successfully."
 msgstr ""
 
-#: classes/class-dintero-checkout-confirmation.php:116
+#: classes/class-dintero-checkout-confirmation.php:123
 msgid "The customer failed to authorize the payment."
 msgstr ""
 
-#: classes/class-dintero-checkout-confirmation.php:119
+#: classes/class-dintero-checkout-confirmation.php:126
 msgid ""
 "The transaction was rejected by Dintero, or an error occurred during "
 "transaction processing."
 msgstr ""
 
-#: classes/class-dintero-checkout-confirmation.php:123
+#: classes/class-dintero-checkout-confirmation.php:130
 msgid "The customer canceled the checkout payment."
 msgstr ""
 
-#: classes/class-dintero-checkout-confirmation.php:126
+#: classes/class-dintero-checkout-confirmation.php:133
 msgid "The transaction capture operation failed during auto-capture."
 msgstr ""
 
@@ -81,86 +77,86 @@ msgid "Customer redirected to Dintero payment page."
 msgstr ""
 
 #: classes/class-dintero-checkout-order-management.php:84
-#: classes/class-dintero-checkout-order-management.php:189
-#: classes/class-dintero-checkout-order-management.php:254
+#: classes/class-dintero-checkout-order-management.php:190
+#: classes/class-dintero-checkout-order-management.php:256
 msgid "The order is missing a transaction ID."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:89
+#: classes/class-dintero-checkout-order-management.php:90
 msgid "The Dintero order was rejected, and can therefore not be captured."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:95
+#: classes/class-dintero-checkout-order-management.php:96
 msgid "The order must be authorized by Dintero before it can be captured."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:101
+#: classes/class-dintero-checkout-order-management.php:102
 msgid "The Dintero order has already been captured."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:106
+#: classes/class-dintero-checkout-order-management.php:107
 msgid "The Dintero order was canceled and can no longer be captured."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:111
+#: classes/class-dintero-checkout-order-management.php:112
 msgid "The Dintero order has been refunded and can no longer be captured."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:139
+#: classes/class-dintero-checkout-order-management.php:140
 #. translators: the amount, the currency.
 msgid "The Dintero order has been captured. Captured amount: %1$.2f %2$s."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:145
-#: classes/class-dintero-checkout-order-management.php:151
+#: classes/class-dintero-checkout-order-management.php:146
+#: classes/class-dintero-checkout-order-management.php:152
 msgid "The Dintero order has been captured."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:172
+#: classes/class-dintero-checkout-order-management.php:173
 msgid "The Dintero order was rejected, and can therefore not be canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:178
+#: classes/class-dintero-checkout-order-management.php:179
 msgid "The order must be authorized by Dintero before it can be canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:194
+#: classes/class-dintero-checkout-order-management.php:196
 msgid ""
 "The Dintero order has been captured, and can therefore no longer be "
 "canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:199
+#: classes/class-dintero-checkout-order-management.php:201
 msgid "The Dintero order has already been canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:204
+#: classes/class-dintero-checkout-order-management.php:206
 msgid "The Dintero order has been refunded and can no longer be canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:230
+#: classes/class-dintero-checkout-order-management.php:232
 msgid "The Dintero order has been canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:259
+#: classes/class-dintero-checkout-order-management.php:262
 msgid ""
 "There is nothing to refund. The order has not yet been captured in "
 "WooCommerce."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:264
+#: classes/class-dintero-checkout-order-management.php:267
 msgid "The Dintero order cannot be refunded since it is canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:269
+#: classes/class-dintero-checkout-order-management.php:272
 msgid "The Dintero order has already been refunded."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:295
+#: classes/class-dintero-checkout-order-management.php:298
 msgid "The Dintero order has been partially refunded."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:299
+#: classes/class-dintero-checkout-order-management.php:302
 msgid "The Dintero order has been refunded."
 msgstr ""
 
