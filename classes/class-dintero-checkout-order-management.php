@@ -81,7 +81,8 @@ class Dintero_Checkout_Order_Management {
 		}
 
 		if ( empty( $order->get_transaction_id() ) ) {
-			$order->add_order_note( __( 'The order is missing a transaction ID.', 'dintero-chekcout-for-woocommerce' ) );
+			$order->add_order_note( __( 'The order is missing a transaction ID.', 'dintero-checkout-for-woocommerce' ) );
+			$order->update_status( 'on-hold' );
 			return;
 		}
 
@@ -186,7 +187,8 @@ class Dintero_Checkout_Order_Management {
 		}
 
 		if ( empty( $order->get_transaction_id() ) ) {
-			$order->add_order_note( __( 'The order is missing a transaction ID.', 'dintero-chekcout-for-woocommerce' ) );
+			$order->add_order_note( __( 'The order is missing a transaction ID.', 'dintero-checkout-for-woocommerce' ) );
+			$order->update_status( 'on-hold' );
 			return;
 		}
 
@@ -251,7 +253,8 @@ class Dintero_Checkout_Order_Management {
 		}
 
 		if ( empty( $order->get_transaction_id() ) ) {
-			$order->add_order_note( __( 'The order is missing a transaction ID.', 'dintero-chekcout-for-woocommerce' ) );
+			$order->add_order_note( __( 'The order is missing a transaction ID.', 'dintero-checkout-for-woocommerce' ) );
+			$order->update_status( 'on-hold' );
 			return;
 		}
 
@@ -266,7 +269,7 @@ class Dintero_Checkout_Order_Management {
 		}
 
 		if ( get_post_meta( $order_id, $this->status['refunded'], true ) ) {
-			$order->add_order_note( __( 'The Dintero order has already been refunded.', 'dintero-chekcout-for-woocommerce' ) );
+			$order->add_order_note( __( 'The Dintero order has already been refunded.', 'dintero-checkout-for-woocommerce' ) );
 			return;
 		}
 

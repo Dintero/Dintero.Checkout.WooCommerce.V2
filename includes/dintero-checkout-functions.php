@@ -103,10 +103,6 @@ function dintero_update_wc_shipping( $data ) {
  * @return void
  */
 function dintero_confirm_order( $order ) {
-	if ( ! empty( $order->get_date_paid() ) ) {
-		return;
-	}
-
 	$transaction_id = get_post_meta( $order->get_id(), '_dintero_transaction_id', true );
 	delete_post_meta( $order->get_id(), Dintero()->order_management->status( 'on_hold' ) );
 
