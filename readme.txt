@@ -6,7 +6,7 @@ Tested up to: 6.0
 Requires PHP: 7.0
 WC requires at least: 6.1.0
 WC tested up to: 6.5.1
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -35,6 +35,9 @@ The SDK follows the same terms as when creating a Dintero account, with its [ter
 4. Read more about the configuration process in the [plugin documentation](https://docs.krokedil.com/dintero-checkout-for-woocommerce/).
 
 == Changelog ==
+= 2022.06.09    - version 1.0.3 =
+* Fix           - Fix stable tag (from 1.0.2 to 1.0.3).
+
 = 2022.06.09    - version 1.0.2 =
 * Fix           - Fixed some text not being translated.
 * Fix           - Orders created on callback should now have their order status updated accordingly.
