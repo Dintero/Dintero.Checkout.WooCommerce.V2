@@ -12,7 +12,10 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 == Description ==
 Accept Visa, MasterCard, Vipps, Swish, MobilPay, Walley, invoices, and installments.
-With Dintero Checkout for WooCommerce Payment Methods, you can either embed or redirect our checkout in your WooCommerce installation. The plugin lets you capture, cancel, refund or partially refund orders, and adapt the checkout to B2B customers, B2C customers or both. You can also customize payment logo colors and placement.
+
+With Dintero Checkout for WooCommerce Payment Methods, you can either embed or redirect our checkout in your WooCommerce installation.
+
+The plugin lets you capture, cancel, refund or partially refund orders, and adapt the checkout to B2B customers, B2C customers or both. You can also customize payment logo colors and placement.
 
 Dintero is available for store owners and merchants in:
 
@@ -65,7 +68,7 @@ Yes, you need a certificate with at least TLS 1.2 to use Dintero Checkout
 
 = Does this support both production mode and sandbox mode for testing? =
 
-Yes, a Sandbox environment is instantly available for all new accounts created via [onboarding.dintero.com(https://onboarding.dintero.com).
+Yes, a Sandbox environment is instantly available for all new accounts created via [onboarding.dintero.com](https://onboarding.dintero.com).
 
 = Where can I find documentation? =
 
