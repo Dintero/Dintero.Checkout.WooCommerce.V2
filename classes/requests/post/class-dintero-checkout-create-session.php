@@ -48,11 +48,12 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			$order            = wc_get_order( $order_id );
 			$shipping_address = $helper->get_shipping_address( $order );
 			$billing_address  = $helper->get_billing_address( $order );
+			$reference        = $helper->get_merchant_reference( $order );
 		} else {
-			$helper = new Dintero_Checkout_Cart();
+			$helper    = new Dintero_Checkout_Cart();
+			$reference = $helper->get_merchant_reference();
 		}
 
-		$reference = $helper->get_merchant_reference();
 		WC()->session->set( 'dintero_merchant_reference', $reference );
 
 		$body = array(

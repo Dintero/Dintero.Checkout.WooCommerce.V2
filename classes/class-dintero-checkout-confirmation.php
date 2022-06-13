@@ -99,8 +99,6 @@ class Dintero_Checkout_Redirect {
 			update_post_meta( $order->get_id(), '_wc_dintero_shipping_id', $shipping_option_id );
 		}
 
-		// Update the transaction with the order number.
-		Dintero()->api->update_transaction( $transaction_id, $order->get_order_number() );
 		dintero_unset_sessions();
 		wp_safe_redirect( $order->get_checkout_order_received_url() );
 

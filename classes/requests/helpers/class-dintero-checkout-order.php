@@ -64,10 +64,11 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	/**
 	 * Get the merchant reference.
 	 *
+	 * @param $order WC_Order
 	 * @return string
 	 */
-	public function get_merchant_reference() {
-		return uniqid( 'dwc' );
+	public function get_merchant_reference( $order ) {
+		return $order->get_order_number() ?? strval( $order->get_id() ) ?? uniqid( 'dwc' );
 	}
 
 	/**
