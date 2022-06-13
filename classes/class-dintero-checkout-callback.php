@@ -111,6 +111,13 @@ class Dintero_Checkout_Callback {
 			die;
 		}
 
+		/*
+		 If the customer doesn't get to the confirmation page, the transaction id will not be saved to the order. */
+		$transaction_id = get_post_meta( $order->get_id(), '_dintero_transaction_id', true );
+		if ( empty( $transaction_id ) ) {
+			update_post_meta( $order->get_id(), '_transaction_id', $transaction_id );
+		}
+
 		switch ( $dintero_order['status'] ) {
 			case 'AUTHORIZED':
 				Dintero_Checkout_Logger::log( 'CALLBACK: Handling AUTHORIZED order status. Maybe triggering payment_complete.' );
