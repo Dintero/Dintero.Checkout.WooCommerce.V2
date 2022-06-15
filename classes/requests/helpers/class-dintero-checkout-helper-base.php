@@ -78,10 +78,11 @@ abstract class Dintero_Checkout_Helper_Base {
 		$rounding_line = array(
 			'id'          => 'rounding-fee',
 			'line_id'     => 'rounding-fee',
-			'description' => 'Rounding fee',
+			'description' => __( 'Rounding fee', 'dintero-checkout-for-woocommerce' ),
 			'quantity'    => 1,
 			'amount'      => 0,
 			'vat_amount'  => 0,
+			'vat'         => 0,
 		);
 
 		$order            = $body['order'];
@@ -110,10 +111,11 @@ abstract class Dintero_Checkout_Helper_Base {
 		$rounding_line = array(
 			'id'          => 'rounding-fee',
 			'line_id'     => 'rounding-fee',
-			'description' => 'Rounding fee',
+			'description' => __( 'Rounding fee', 'dintero-checkout-for-woocommerce' ),
 			'quantity'    => 1,
 			'amount'      => 0,
 			'vat_amount'  => 0,
+			'vat'         => 0,
 		);
 
 		$order_total      = $body['amount'];

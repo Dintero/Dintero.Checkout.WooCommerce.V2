@@ -64,10 +64,11 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	/**
 	 * Get the merchant reference.
 	 *
+	 * @param $order WC_Order
 	 * @return string
 	 */
-	public function get_merchant_reference() {
-		return uniqid( 'dwc' );
+	public function get_merchant_reference( $order ) {
+		return $order->get_order_number() ?? strval( $order->get_id() ) ?? uniqid( 'dwc' );
 	}
 
 	/**
@@ -150,6 +151,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			'quantity'    => absint( $order_item->get_quantity() ),
 			'amount'      => absint( self::format_number( $order_item->get_total() + $order_item->get_total_tax() ) ),
 			'vat_amount'  => absint( self::format_number( $order_item->get_total_tax() ) ),
+			'vat'         => reset( WC_Tax::get_base_tax_rates( $product->get_tax_class() ) )['rate'] ?? 0,
 		);
 	}
 
@@ -176,15 +178,19 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * @return array
 	 */
 	public function get_fee( $order_item ) {
-		$name = $order_item->get_name();
+		$name       = $order_item->get_name();
+		$amount     = absint( self::format_number( $order_item->get_total() + $order_item->get_total_tax() ) );
+		$vat_amount = absint( self::format_number( $order_item->get_total_tax() ) );
+
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
 			'id'          => $name,
 			'line_id'     => $name,
 			'description' => $name,
 			'quantity'    => 1,
-			'amount'      => absint( self::format_number( $order_item->get_total() + $order_item->get_total_tax() ) ),
-			'vat_amount'  => absint( self::format_number( $order_item->get_total_tax() ) ),
+			'amount'      => $amount,
+			'vat_amount'  => $vat_amount,
+			'vat'         => empty( $amount ) ? 0 : $vat_amount / $amount,
 		);
 	}
 
@@ -223,6 +229,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			'quantity'    => 1,
 			'tax_rate'    => 0,
 			'vat_amount'  => 0,
+			'vat'         => 0,
 			'amount'      => self::format_number( $amount * -1 ),
 		);
 	}
@@ -316,7 +323,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 				'description' => '',
 				'title'       => $shipping_line->get_method_title(),
 				'vat_amount'  => self::format_number( $shipping_line->get_total_tax() ),
-				'vat'         => ( 0 !== $shipping_line->get_total() ) ? self::format_number( $shipping_line->get_total_tax() / $shipping_line->get_total() ) : 0,
+				'vat'         => ( ! empty( floatval( $shipping_line->get_total() ) ) ) ? self::format_number( $shipping_line->get_total_tax() / $shipping_line->get_total() ) : 0,
 			);
 		}
 		return null;
