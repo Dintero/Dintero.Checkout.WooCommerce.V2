@@ -32,6 +32,8 @@ class Dintero_Checkout_Callback {
 		$merchant_reference = filter_input( INPUT_GET, 'merchant_reference', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$transaction_id     = filter_input( INPUT_GET, 'transaction_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$error              = filter_input( INPUT_GET, 'error', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$event              = filter_input( INPUT_GET, 'event', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$event_id           = filter_input( INPUT_GET, 'event_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 		if ( empty( $merchant_reference ) ) {
 			Dintero_Checkout_Logger::log( 'CALLBACK ERROR [merchant_reference]: The merchant reference is missing from the callback.' );
@@ -49,6 +51,12 @@ class Dintero_Checkout_Callback {
 		// Handle any error callbacks from Dintero.
 		if ( ! empty( $error ) ) {
 			$this->handle_error_callback( $error, $order );
+		}
+
+		/* Dintero sometimes sends two almost identical callbacks at the same time, but one of them is without an event type which should be ignored. */
+		if ( ! empty( $event_id ) && empty( $event ) ) {
+			http_response_code( 200 );
+			die;
 		}
 
 		$this->handle_callback( $transaction_id, $order );
@@ -111,17 +119,10 @@ class Dintero_Checkout_Callback {
 			die;
 		}
 
-		/*
-		 If the customer doesn't get to the confirmation page, the transaction id will not be saved to the order. */
-		$transaction_id = get_post_meta( $order->get_id(), '_dintero_transaction_id', true );
-		if ( empty( $transaction_id ) ) {
-			update_post_meta( $order->get_id(), '_transaction_id', $transaction_id );
-		}
-
 		switch ( $dintero_order['status'] ) {
 			case 'AUTHORIZED':
 				Dintero_Checkout_Logger::log( 'CALLBACK: Handling AUTHORIZED order status. Maybe triggering payment_complete.' );
-				dintero_confirm_order( $order );
+				dintero_confirm_order( $order, $transaction_id );
 				break;
 			case 'AUTHORIZATION_VOIDED':
 				Dintero_Checkout_Logger::log( 'CALLBACK: Handling AUTHORIZATION_VOIDED order status. Setting order status to CANCELLED.' );
@@ -129,7 +130,9 @@ class Dintero_Checkout_Callback {
 				$order->save();
 				break;
 			case 'CAPTURED':
-				Dintero_Checkout_Logger::log( 'CALLBACK: Handling CAPTURED order status.' );
+				Dintero_Checkout_Logger::log( 'CALLBACK: Handling CAPTURED order status. Maybe triggering payment_complete.' );
+				/* Some payment methods (e.g., Swish) are immediately captured, and thus bypass the authorized status. We have to account for this: */
+				dintero_confirm_order( $order, $transaction_id );
 				break;
 			case 'REFUNDED':
 				Dintero_Checkout_Logger::log( 'CALLBACK: Handling REFUNDED order status.' );
@@ -263,5 +266,5 @@ class Dintero_Checkout_Callback {
 
 		return $order_ids[0];
 	}
-
-} new Dintero_Checkout_Callback();
+}
+new Dintero_Checkout_Callback();

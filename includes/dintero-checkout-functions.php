@@ -99,19 +99,51 @@ function dintero_update_wc_shipping( $data ) {
 /**
  * Confirms the Dintero Order.
  *
- * @param WC_Order $order The WooCommerce order.
+ * @param WC_Order $order The WooCommerce order
+ * @param string   $transaction_id The Dintero transaction id.
  * @return void
  */
-function dintero_confirm_order( $order ) {
+function dintero_confirm_order( $order, $transaction_id ) {
+	/* Check if the order has already been processed. */
 	if ( ! empty( $order->get_date_paid() ) ) {
 		return;
 	}
 
-	$transaction_id = get_post_meta( $order->get_id(), '_dintero_transaction_id', true );
-	delete_post_meta( $order->get_id(), Dintero()->order_management->status( 'on_hold' ) );
+	$order_id = $order->get_id();
 
-	// Set a merchant_reference_2 for the Dintero order.
+	update_post_meta( $order_id, '_dintero_transaction_id', $transaction_id );
+	$dintero_order         = Dintero()->api->get_order( $transaction_id );
+	$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
+	if ( $require_authorization ) {
+		// translators: %s the Dintero transaction ID.
+		$order->update_status( 'manual-review', sprintf( __( 'The order was placed successfully, but requires further authorization by Dintero. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
+		$order->save();
+		update_post_meta( $order_id, Dintero()->order_management->status( 'on_hold' ), $transaction_id );
+		update_post_meta( $order_id, '_transaction_id', $transaction_id );
+		Dintero_Checkout_Logger::log( "REDIRECT: The WC order $order_id (transaction ID: $transaction_id) will require further authorization from Dintero." );
+	} else {
+		// translators: %s the Dintero transaction ID.
+		$order->add_order_note( sprintf( __( 'Payment via Dintero Checkout. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
+
+		$default_status = get_option( 'woocommerce_dintero_checkout_settings' )['order_statuses'];
+		if ( 'processing' !== $default_status ) {
+			update_post_meta( $order_id, '_transaction_id', $transaction_id );
+			$order->update_status( $default_status, __( 'The order was placed successfully.', 'dintero-checkout-for-woocommerce' ) );
+		} else {
+			$transaction_id = get_post_meta( $order->get_id(), '_dintero_transaction_id', true );
+			delete_post_meta( $order->get_id(), Dintero()->order_management->status( 'on_hold' ) );
+
+			$order->payment_complete( $transaction_id );
+		}
+	}
+
+	// Set the merchant_reference_2 for the Dintero order.
 	Dintero()->api->update_transaction( $transaction_id, $order->get_order_number() );
 
-	$order->payment_complete( $transaction_id );
+	// Save shipping id to the order.
+	$shipping = $order->get_shipping_methods();
+	if ( ! empty( $shipping ) ) {
+		$shipping_option_id = $dintero_order['shipping_option']['id'] ?? reset( $shipping );
+		update_post_meta( $order->get_id(), '_wc_dintero_shipping_id', $shipping_option_id );
+	}
 }
