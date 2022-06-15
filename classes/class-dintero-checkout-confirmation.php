@@ -67,44 +67,12 @@ class Dintero_Checkout_Redirect {
 	 * @return void
 	 */
 	public function handle_success( $transaction_id, $order ) {
-		$order_id = $order->get_id();
+		Dintero_Checkout_Logger::log( "REDIRECT [success]: The WC order id: {$order->get_id()} (transaction ID: $transaction_id) was placed successfully. Redirecting customer to thank-you page." );
 
-		update_post_meta( $order_id, '_dintero_transaction_id', $transaction_id );
-		$dintero_order         = Dintero()->api->get_order( $transaction_id );
-		$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
-		if ( $require_authorization ) {
-			// translators: %s the Dintero transaction ID.
-			$order->update_status( 'manual-review', sprintf( __( 'The order was placed successfully, but requires further authorization by Dintero. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
-			$order->save();
-			update_post_meta( $order_id, Dintero()->order_management->status( 'on_hold' ), $transaction_id );
-			update_post_meta( $order_id, '_transaction_id', $transaction_id );
-			Dintero_Checkout_Logger::log( "REDIRECT: The WC order $order_id (transaction ID: $transaction_id) will require further authorization from Dintero." );
-		} else {
-			// translators: %s the Dintero transaction ID.
-			$order->add_order_note( sprintf( __( 'Payment via Dintero Checkout. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
-
-			$default_status = get_option( 'woocommerce_dintero_checkout_settings' )['order_statuses'];
-			if ( 'processing' !== $default_status ) {
-				update_post_meta( $order_id, '_transaction_id', $transaction_id );
-				$order->update_status( $default_status, __( 'The order was placed successfully.', 'dintero-checkout-for-woocommerce' ) );
-			} else {
-				dintero_confirm_order( $order );
-			}
-		}
-
-		// Save shipping id to the order.
-		$shipping = $order->get_shipping_methods();
-		if ( ! empty( $shipping ) ) {
-			$shipping_option_id = $dintero_order['shipping_option']['id'] ?? reset( $shipping );
-			update_post_meta( $order->get_id(), '_wc_dintero_shipping_id', $shipping_option_id );
-		}
-
-		// Update the transaction with the order number.
-		Dintero()->api->update_transaction( $transaction_id, $order->get_order_number() );
+		dintero_confirm_order( $order, $transaction_id );
 		dintero_unset_sessions();
 		wp_safe_redirect( $order->get_checkout_order_received_url() );
 
-		Dintero_Checkout_Logger::log( "REDIRECT [success]: The WC order $order_id (transaction ID: $transaction_id) was placed succesfully. Redirecting customer to thank-you page." );
 		exit;
 	}
 
@@ -154,7 +122,7 @@ class Dintero_Checkout_Redirect {
 	 * Get the order from the reference.
 	 *
 	 * @param string $merchant_reference The merchant reference from Dintero.
-	 * @return WC_Order
+	 * @return WC_Order|null On error, null is returned. Otherwise, WC_Order.
 	 */
 	public function get_order_from_reference( $merchant_reference ) {
 		$order_id = $this->get_order_id_from_reference( $merchant_reference );
@@ -199,4 +167,5 @@ class Dintero_Checkout_Redirect {
 
 		return $order_ids[0];
 	}
-} new Dintero_Checkout_Redirect();
+}
+new Dintero_Checkout_Redirect();

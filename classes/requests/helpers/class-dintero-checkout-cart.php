@@ -103,6 +103,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			'quantity'    => $cart_item['quantity'],
 			'amount'      => self::format_number( $cart_item['line_total'] + $cart_item['line_tax'] ),
 			'vat_amount'  => self::format_number( $cart_item['line_tax'] ),
+			'vat'         => ( empty( floatval( $cart_item['line_total'] ) ) ) ? 0 : self::format_number( $cart_item['line_tax'] / $cart_item['line_total'] ),
 		);
 	}
 
@@ -151,6 +152,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			'quantity'    => 1,
 			'amount'      => self::format_number( $fee->amount + $fee->tax ),
 			'vat_amount'  => self::format_number( $fee->tax ),
+			'vat'         => empty( floatval( $fee->amount + $fee->tax ) ) ? 0 : self::format_number( $fee->tax / ( $fee->amount + $fee->tax ) ),
 		);
 	}
 
@@ -284,6 +286,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 					'quantity'    => 1,
 					'tax_rate'    => 0,
 					'vat_amount'  => 0,
+					'vat'         => 0,
 					'amount'      => $gift_card_amount,
 				);
 
@@ -306,6 +309,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 						'quantity'    => 1,
 						'tax_rate'    => 0,
 						'vat_amount'  => 0,
+						'vat'         => 0,
 						'amount'      => self::format_number( $value * -1 ),
 					);
 
@@ -326,6 +330,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 						'quantity'    => 1,
 						'tax_rate'    => 0,
 						'vat_amount'  => 0,
+						'vat'         => 0,
 						'amount'      => isset( WC()->cart->applied_gift_cards_amounts[ $gift_card_code ] ) ? self::format_number( WC()->cart->applied_gift_cards_amounts[ $gift_card_code ] * -1 ) : 0,
 					);
 
