@@ -82,6 +82,7 @@ abstract class Dintero_Checkout_Helper_Base {
 			'quantity'    => 1,
 			'amount'      => 0,
 			'vat_amount'  => 0,
+			'vat'         => 0,
 		);
 
 		$order            = $body['order'];
@@ -114,6 +115,7 @@ abstract class Dintero_Checkout_Helper_Base {
 			'quantity'    => 1,
 			'amount'      => 0,
 			'vat_amount'  => 0,
+			'vat'         => 0,
 		);
 
 		$order_total      = $body['amount'];
