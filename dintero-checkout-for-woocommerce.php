@@ -1,6 +1,6 @@
 <?php //phpcs:ignore
 /**
- * Plugin Name: Dintero Checkout for WooCommerce
+ * Plugin Name: Dintero Checkout for WooCommerce Payment Methods
  * Plugin URI: https://krokedil.com/products/
  * Description: Dintero offers a complete payment solution. Simplifying the payment process for you and the customer.
  * Author: Dintero, Krokedil
