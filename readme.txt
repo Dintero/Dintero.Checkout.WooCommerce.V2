@@ -84,7 +84,7 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 
 == Changelog ==
 = 2022.06.15    - version 1.0.4 =
-* Fix           - Fix missing transaction ID missing for some orders.
+* Fix           - Fix transaction ID missing for some orders.
 * Fix           - Fix merchant_reference_2 missing for some orders.
 * Fix           - The VAT for display purposes should now appear on the backoffice.
 * Tweak         - Streamlined the logic for in-store and callback orders.
