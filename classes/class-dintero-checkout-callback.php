@@ -32,8 +32,6 @@ class Dintero_Checkout_Callback {
 		$merchant_reference = filter_input( INPUT_GET, 'merchant_reference', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$transaction_id     = filter_input( INPUT_GET, 'transaction_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$error              = filter_input( INPUT_GET, 'error', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		$event              = filter_input( INPUT_GET, 'event', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		$event_id           = filter_input( INPUT_GET, 'event_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 		if ( empty( $merchant_reference ) ) {
 			Dintero_Checkout_Logger::log( 'CALLBACK ERROR [merchant_reference]: The merchant reference is missing from the callback.' );
@@ -51,12 +49,6 @@ class Dintero_Checkout_Callback {
 		// Handle any error callbacks from Dintero.
 		if ( ! empty( $error ) ) {
 			$this->handle_error_callback( $error, $order );
-		}
-
-		/* Dintero sometimes sends two almost identical callbacks at the same time, but one of them is without an event type which should be ignored. */
-		if ( ! empty( $event_id ) && empty( $event ) ) {
-			http_response_code( 200 );
-			die;
 		}
 
 		$this->handle_callback( $transaction_id, $order );
