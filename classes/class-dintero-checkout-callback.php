@@ -19,6 +19,7 @@ class Dintero_Checkout_Callback {
 	 */
 	public function __construct() {
 		add_action( 'woocommerce_api_dintero_callback', array( $this, 'callback' ) );
+		add_action( 'dintero_scheduled_callback', array( $this, 'handle_callback' ), 10, 3 );
 	}
 
 	/**
@@ -39,19 +40,55 @@ class Dintero_Checkout_Callback {
 			die;
 		}
 
-		// Get the order relevant for the callback.
-		$order = $this->get_order_from_reference( $merchant_reference );
-		if ( empty( $order ) ) {
-			http_response_code( 400 );
-			die;
+		$this->maybe_schedule_callback( $transaction_id, $merchant_reference, $error );
+
+		http_response_code( 200 );
+		die;
+	}
+
+	/**
+	 * Maybe schedules a callback handler.
+	 *
+	 * Only schedules one if there are none already pending for the same transaction id and reference.
+	 * This is done to prevent race conditions between simultaneous callbacks from Dintero that can happen
+	 * on rare occasions. We can do this since we dont trust the data from Dintero in the callback, and will
+	 * always fetch the order from their API when handling a callback.
+	 *
+	 * @param string $transaction_id The dintero transaction id.
+	 * @param string $merchant_reference The Merchant Reference from Dintero.
+	 * @param string $error Any error message from Dintero.
+	 * @return void
+	 */
+	public function maybe_schedule_callback( $transaction_id, $merchant_reference, $error ) {
+		$as_args          = array(
+			'hook'   => 'dintero_scheduled_callback',
+			'status' => ActionScheduler_Store::STATUS_PENDING,
+		);
+		$sheduled_actions = as_get_scheduled_actions( $as_args, OBJECT );
+
+		/**
+		 * Loop all actions to check if this one has been scheduled already.
+		 *
+		 * @var ActionScheduler_Action $action The action from the Action scheduler.
+		 */
+		foreach ( $sheduled_actions as $action ) {
+			$action_args = $action->get_args();
+			if ( $merchant_reference === $action_args['merchant_reference'] && $transaction_id === $action_args['transaction_id'] ) {
+				Dintero_Checkout_Logger::log( "CALLBACK [action_scheduler]: The merchant reference $merchant_reference and transaction id $transaction_id has already been scheduled for processing." );
+				return;
+			}
 		}
 
-		// Handle any error callbacks from Dintero.
-		if ( ! empty( $error ) ) {
-			$this->handle_error_callback( $error, $order );
-		}
-
-		$this->handle_callback( $transaction_id, $order );
+		// If we get here, we should be good to create a new scheduled action, since none are currently scheduled for this order.
+		as_schedule_single_action(
+			time() + 60, // 1 Minute in the future.
+			'dintero_scheduled_callback',
+			array(
+				'transaction_id'     => $transaction_id,
+				'merchant_reference' => $merchant_reference,
+				'error'              => $error,
+			)
+		);
 	}
 
 	/**
@@ -77,7 +114,7 @@ class Dintero_Checkout_Callback {
 				$note = 'The transaction capture operation failed during auto-capture.';
 				break;
 			default:
-				$note       = 'Unknown event.';
+				$note       = "Unknown event - [$error]";
 				$order_note = false;
 				break;
 		}
@@ -86,29 +123,35 @@ class Dintero_Checkout_Callback {
 		if ( $order_note ) {
 			$order->add_order_note( $note );
 		}
-		http_response_code( 200 );
-		die;
 	}
 
 	/**
 	 * Handle normal callbacks from Dintero.
 	 *
-	 * @param string   $transaction_id The Transaction id from Dintero.
-	 * @param WC_Order $order The WooCommerce order.
+	 * @param string $transaction_id The Transaction id from Dintero.
+	 * @param string $merchant_reference The Merchant Reference from Dintero.
+	 * @param string $error Any error message from Dintero.
 	 * @return void
 	 */
-	public function handle_callback( $transaction_id, $order ) {
-		if ( empty( $transaction_id ) ) {
-			Dintero_Checkout_Logger::log( 'CALLBACK ERROR [transaction_id]: The transaction id is missing from the callback.' );
-			http_response_code( 400 );
-			die;
+	public function handle_callback( $transaction_id, $merchant_reference, $error ) {
+		// Get the order relevant for the callback.
+		$order = $this->get_order_from_reference( $merchant_reference );
+		if ( empty( $order ) ) {
+			Dintero_Checkout_Logger::log( "CALLBACK ERROR [wc_order]: Could not find a WooCommerce Order with the merchant reference $merchant_reference" );
+			return;
+		}
+
+		// Handle any error callbacks from Dintero.
+		if ( ! empty( $error ) ) {
+			$this->handle_error_callback( $error, $order );
+			return;
 		}
 
 		// Get the order from Dintero.
 		$dintero_order = Dintero()->api->get_order( $transaction_id );
 		if ( is_wp_error( $dintero_order ) ) {
-			http_response_code( 400 );
-			die;
+			Dintero_Checkout_Logger::log( 'CALLBACK ERROR [dintero_order]: Failed to retrieve the order from Dintero.' );
+			return;
 		}
 
 		switch ( $dintero_order['status'] ) {
@@ -139,9 +182,6 @@ class Dintero_Checkout_Callback {
 				Dintero_Checkout_Logger::log( "CALLBACK: Unknown order status on callback. {$dintero_order['status']}" );
 				break;
 		}
-
-		http_response_code( 200 );
-		die;
 	}
 
 	/**
