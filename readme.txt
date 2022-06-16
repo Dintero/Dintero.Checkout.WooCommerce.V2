@@ -84,7 +84,7 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 
 == Changelog ==
 = 2022.06.16    - version 1.0.5 =
-* Fix           - Fix callback not being handled for certain events.
+* Fix           - Callbacks are now scheduled for later processing. This should fix an issue with certain callback events not being handled.
 
 = 2022.06.15    - version 1.0.4 =
 * Fix           - Fix missing transaction ID missing for some orders.
