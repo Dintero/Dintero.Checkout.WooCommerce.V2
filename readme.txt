@@ -6,7 +6,7 @@ Tested up to: 6.0
 Requires PHP: 7.0
 WC requires at least: 6.1.0
 WC tested up to: 6.5.1
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -83,6 +83,9 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2022.06.16    - version 1.0.5 =
+* Fix           - Fix callback not being handled for certain events.
+
 = 2022.06.15    - version 1.0.4 =
 * Fix           - Fix missing transaction ID missing for some orders.
 * Fix           - Fix merchant_reference_2 missing for some orders.
