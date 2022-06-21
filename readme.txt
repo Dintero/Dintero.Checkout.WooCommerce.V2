@@ -24,20 +24,20 @@ Dintero is available for store owners and merchants in:
 
 === Why choose Dintero Checkout ===
 
-==== Payment Methods ====
+= Payment Methods =
 
 Dintero Checkout provides a frictionless checkout experience with no hidden fees. It is a one stop shop for digital payment, offering card payments, invoice, installments and mobile payment solutions.
 
-==== API ====
+= API =
 
 Dintero checkout supports any business model, and with our APIs you can automate and simplify the user experience for your customers.
 
-==== Backoffice ====
+= Backoffice =
 
 No more multiple logins. With our powerful Backoffice, there is one place to view all payments, all payouts, and all reports. You can even do reconciliation.
 
 
-==== Getting started ====
+=== Getting started ===
 
 It’s  easy to get started with Dintero Checkout for WooCommerce .
 
@@ -49,7 +49,9 @@ It’s  easy to get started with Dintero Checkout for WooCommerce .
 6. Create API keys in Dintero Backoffice, and enter them into the Dintero plugin’s settings.
 
 == Dependencies ==
-=== Dintero Web SDK ===
+
+= Dintero Web SDK =
+
 The plugin uses Dintero's Web SDK for embedding the Dintero Checkout. The SDK can be found at [https://github.com/Dintero/Dintero.Checkout.Web.SDK](https://github.com/Dintero/Dintero.Checkout.Web.SDK), and is licensed with a MIT license.
 The SDK follows the same terms as when creating a Dintero account, with its [terms of service](https://www.dintero.com/terms/terms-of-service) and [privacy policy](https://www.dintero.com/legal/privacy-policy).
 
