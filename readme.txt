@@ -24,32 +24,32 @@ Dintero is available for store owners and merchants in:
 
 === Why choose Dintero Checkout ===
 
-==== Payment Methods ====
+= Payment Methods =
 
 Dintero Checkout provides a frictionless checkout experience with no hidden fees. It is a one stop shop for digital payment, offering card payments, invoice, installments and mobile payment solutions.
 
-==== API ====
+= API =
 
 Dintero checkout supports any business model, and with our APIs you can automate and simplify the user experience for your customers.
 
-==== Backoffice ====
+= Backoffice =
 
 No more multiple logins. With our powerful Backoffice, there is one place to view all payments, all payouts, and all reports. You can even do reconciliation.
 
 
-==== Getting started ====
+=== Getting started ===
 
-It’s  easy to get started with Dintero Checkout for WooCommerce .
+Get started with Dintero Checkout for WooCommerce Payment Methods in 4 easy steps.
 
-1. Create a Dintero account at onboarding.dintero.com.
-2. Verify your Dintero account by clicking the link in the email we’ll send you.
-3. Return to [onboarding.dintero.com](https://onboarding.dintero.com), and create a password.
-4. Log into [Dintero Backoffice](https://backoffice.dintero.com), apply for payment methods, and wait for approval by Dintero.
+1. [Create a Dintero account](https://dintero.com/get-started?utm_source=wordpressplugin&utm_medium=plugin&utm_campaign=WPplugin22&utm_content=Plugin-a1)
+4. Log into [Dintero Backoffice](https://backoffice.dintero.com), apply for payment methods and we’ll notify you once approved.
 5. Install the Dintero plugin on your website.
 6. Create API keys in Dintero Backoffice, and enter them into the Dintero plugin’s settings.
 
 == Dependencies ==
-=== Dintero Web SDK ===
+
+= Dintero Web SDK =
+
 The plugin uses Dintero's Web SDK for embedding the Dintero Checkout. The SDK can be found at [https://github.com/Dintero/Dintero.Checkout.Web.SDK](https://github.com/Dintero/Dintero.Checkout.Web.SDK), and is licensed with a MIT license.
 The SDK follows the same terms as when creating a Dintero account, with its [terms of service](https://www.dintero.com/terms/terms-of-service) and [privacy policy](https://www.dintero.com/legal/privacy-policy).
 
