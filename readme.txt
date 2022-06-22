@@ -39,12 +39,10 @@ No more multiple logins. With our powerful Backoffice, there is one place to vie
 
 === Getting started ===
 
-It’s  easy to get started with Dintero Checkout for WooCommerce .
+Get started with Dintero Checkout for WooCommerce Payment Methods in 4 easy steps.
 
-1. Create a Dintero account at onboarding.dintero.com.
-2. Verify your Dintero account by clicking the link in the email we’ll send you.
-3. Return to [onboarding.dintero.com](https://onboarding.dintero.com), and create a password.
-4. Log into [Dintero Backoffice](https://backoffice.dintero.com), apply for payment methods, and wait for approval by Dintero.
+1. [Create a Dintero account](https://dintero.com/get-started?utm_source=wordpressplugin&utm_medium=plugin&utm_campaign=WPplugin22&utm_content=Plugin-a1)
+4. Log into [Dintero Backoffice](https://backoffice.dintero.com), apply for payment methods and we’ll notify you once approved.
 5. Install the Dintero plugin on your website.
 6. Create API keys in Dintero Backoffice, and enter them into the Dintero plugin’s settings.
 
