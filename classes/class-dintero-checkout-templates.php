@@ -28,6 +28,13 @@ class Dintero_Checkout_Templates {
 	public $settings;
 
 	/**
+	 * The layout for embedded checkout
+	 *
+	 * @var mixed|string
+	 */
+	protected $checkout_layout = null;
+
+	/**
 	 * Returns the *Singleton* instance of this class.
 	 *
 	 * @return self::$instance The *Singleton* instance.
@@ -43,7 +50,8 @@ class Dintero_Checkout_Templates {
 	 * Class constructor.
 	 */
 	public function __construct() {
-		$this->settings = get_option( 'woocommerce_dintero_checkout_settings' );
+		$this->settings        = get_option( 'woocommerce_dintero_checkout_settings' );
+		$this->checkout_layout = $this->settings['checkout_layout'] ?? 'two_column_right';
 		if ( 'embedded' === $this->settings['form_factor'] && 'yes' === $this->settings['enabled'] ) {
 			// Common.
 			add_filter( 'wc_get_template', array( $this, 'override_template' ), 999, 2 );
@@ -54,6 +62,7 @@ class Dintero_Checkout_Templates {
 			add_action( 'dintero_express_order_review', 'dintero_checkout_wc_show_another_gateway_button', 20 );
 			add_action( 'dintero_express_form', array( $this, 'express_form' ), 20 );
 			add_action( 'dintero_express_iframe', array( $this, 'add_wc_form' ) );
+			add_filter( 'body_class', array( $this, 'add_body_class' ) );
 		}
 	}
 
@@ -139,7 +148,7 @@ class Dintero_Checkout_Templates {
 			WC()->session->set( 'chosen_payment_method', 'dintero_checkout' );
 			// Retrieve the template for Dintero Checkout template.
 			$maybe_template             = locate_template( 'woocommerce/dintero-checkout-embedded.php' );
-			$checkout_embedded_template = ( $maybe_template ) ? $maybe_template : DINTERO_CHECKOUT_PATH . '/templates/dintero-checkout-embedded.php';
+			$checkout_embedded_template = ( $maybe_template ) ?: DINTERO_CHECKOUT_PATH . '/templates/dintero-checkout-embedded.php';
 
 			return $checkout_embedded_template;
 		}
@@ -184,6 +193,46 @@ class Dintero_Checkout_Templates {
 		?>
 		<div id='dintero-checkout-iframe'></div>
 		<?php
+	}
+
+	/**
+	 * Add checkout page body class, embedded only.
+	 *
+	 * @param array $class CSS classes used in body tag.
+	 *
+	 * @return array
+	 */
+	public function add_body_class( $class ) {
+		if ( is_checkout() && ! is_wc_endpoint_url( 'order-received' ) ) {
+
+			// Don't display Dintero body classes if we have a cart that doesn't need payment.
+			if ( method_exists( WC()->cart, 'needs_payment' ) && ! WC()->cart->needs_payment() ) {
+				return $class;
+			}
+
+			if ( WC()->session->get( 'chosen_payment_method' ) ) {
+				$first_gateway = WC()->session->get( 'chosen_payment_method' );
+			} else {
+				$available_payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
+				reset( $available_payment_gateways );
+				$first_gateway = key( $available_payment_gateways );
+			}
+
+			if ( 'dintero_checkout' === $first_gateway && 'two_column_left' === $this->checkout_layout ) {
+				$class[] = 'dintero-checkout-one-selected';
+				$class[] = 'dintero-checkout-two-column-left';
+			}
+
+			if ( 'dintero_checkout' === $first_gateway && 'two_column_right' === $this->checkout_layout ) {
+				$class[] = 'dintero-checkout-one-selected';
+				$class[] = 'dintero-checkout-two-column-right';
+			}
+
+			if ( 'dintero_checkout' === $first_gateway && 'one_column_checkout' === $this->checkout_layout ) {
+				$class[] = 'dintero-checkout-one-selected';
+			}
+		}
+		return $class;
 	}
 }
 

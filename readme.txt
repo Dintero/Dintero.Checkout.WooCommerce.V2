@@ -6,7 +6,7 @@ Tested up to: 6.0
 Requires PHP: 7.0
 WC requires at least: 6.1.0
 WC tested up to: 6.5.1
-Stable tag: 1.0.5
+Stable tag: 1.0.6
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -83,6 +83,9 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2022.06.27    - version 1.0.6 =
+* Feature       - You can now display the embedded express checkout horizontally ("two-column" layout).
+
 = 2022.06.16    - version 1.0.5 =
 * Fix           - Callbacks are now scheduled for later processing. This should fix an issue with certain callback events not being handled.
 
