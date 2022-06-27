@@ -145,7 +145,7 @@ class Dintero_Checkout_Templates {
 	 */
 	public function replace_payment_method( $template, $template_name ) {
 		if ( 'checkout/payment.php' === $template_name ) {
-			// WC()->session->set( 'chosen_payment_method', 'dintero_checkout' );
+			WC()->session->set( 'chosen_payment_method', 'dintero_checkout' );
 			// Retrieve the template for Dintero Checkout template.
 			$maybe_template             = locate_template( 'woocommerce/dintero-checkout-embedded.php' );
 			$checkout_embedded_template = ( $maybe_template ) ?: DINTERO_CHECKOUT_PATH . '/templates/dintero-checkout-embedded.php';
