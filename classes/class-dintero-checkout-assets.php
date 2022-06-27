@@ -21,8 +21,32 @@ class Dintero_Checkout_Assets {
 		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
 		if ( 'embedded' === $settings['form_factor'] ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'dintero_load_css' ) );
 		}
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+	}
+	/**
+	 * Loads style for the plugin.
+	 */
+	public function dintero_load_css() {
+		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
+		if ( 'express' !== $settings['checkout_type'] ) {
+			return;
+		}
+		if ( ! is_checkout() ) {
+			return;
+		}
+		if ( is_order_received_page() ) {
+			return;
+		}
+
+		wp_register_style(
+			'dintero-checkout-style',
+			DINTERO_CHECKOUT_URL . '/assets/css/dintero-checkout-express.css',
+			array(),
+			DINTERO_CHECKOUT_VERSION
+		);
+		wp_enqueue_style( 'dintero-checkout-style' );
 	}
 
 	/**
