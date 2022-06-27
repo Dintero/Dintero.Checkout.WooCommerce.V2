@@ -98,6 +98,18 @@ class Dintero_Settings_Fields {
 					'express'  => __( 'Dintero Checkout Express', 'dintero-checkout-for-woocommerce' ),
 				),
 			),
+			'checkout_layout'                         => array(
+				'title'       => __( 'Checkout layout', 'dintero-checkout-for-woocommerce' ),
+				'type'        => 'select',
+				'options'     => array(
+					'one_column_checkout' => __( 'One column checkout', 'dintero-checkout-for-woocommerce' ),
+					'two_column_right'    => __( 'Two column checkout (Dintero checkout in right column)', 'dintero-checkout-for-woocommerce' ),
+					'two_column_left'     => __( 'Two column checkout (Dintero checkout in left column)', 'dintero-checkout-for-woocommerce' ),
+				),
+				'description' => __( 'Select the Checkout layout.', 'dintero-checkout-for-woocommerce' ),
+				'default'     => 'two_column_right',
+				'desc_tip'    => false,
+			),
 			'form_factor_title'                       => array(
 				'title' => __( 'Form factor', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'title',
