@@ -111,6 +111,9 @@ function dintero_confirm_order( $order, $transaction_id ) {
 
 	$order_id = $order->get_id();
 
+	// Save the environment mode for use in the meta box.
+	update_post_meta( $order_id, '_wc_dintero_checkout_environment', 'yes' === get_option( 'woocommerce_dintero_checkout_settings' )['test_mode'] ? 'Test' : 'Production' );
+
 	update_post_meta( $order_id, '_dintero_transaction_id', $transaction_id );
 	$dintero_order         = Dintero()->api->get_order( $transaction_id );
 	$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
