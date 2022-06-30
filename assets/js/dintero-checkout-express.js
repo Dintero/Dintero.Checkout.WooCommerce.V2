@@ -442,7 +442,7 @@ jQuery( function( $ ) {
 		},
 
 		/**
-		 * Logs the message to the klarna checkout log in WooCommerce.
+		 * Logs the message to the Dintero Checkout log in WooCommerce.
 		 *
 		 * @param {string} message
 		 */

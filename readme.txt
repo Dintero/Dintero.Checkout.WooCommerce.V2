@@ -5,8 +5,8 @@ Requires at least: 5.8.3
 Tested up to: 6.0
 Requires PHP: 7.0
 WC requires at least: 6.1.0
-WC tested up to: 6.5.1
-Stable tag: 1.0.6
+WC tested up to: 6.6.1
+Stable tag: 1.0.7
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -83,6 +83,9 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2022.06.30    - version 1.0.7 =
+* Feature        - Added a meta box (must be enabled in the "Screen options") to the order page that displays the Dintero order's status, which payment method was chosen, as well as the environment (test v. production).
+
 = 2022.06.27    - version 1.0.6 =
 * Feature       - You can now display the embedded express checkout horizontally ("two-column" layout).
 
