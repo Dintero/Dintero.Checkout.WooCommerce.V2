@@ -52,8 +52,8 @@ class Dintero_Checkout_Meta_Box {
 			$this->print_error_content( __( 'The order has not been authorized by Dintero.', 'dintero-checkout-for-woocommerce' ) );
 			return;
 		}
-		// False if automatic settings are enabled, true if not. If true then show the option.
-		if ( ! empty( get_post_meta( $order_id, '_transaction_id', true ) ) || ! empty( get_post_meta( $order_id, '_wc_klarna_order_id', true ) ) ) {
+
+		if ( ! empty( get_post_meta( $order_id, '_transaction_id', true ) ) ) {
 
 			$dintero_order = Dintero()->api->get_order( $order->get_transaction_id() );
 
