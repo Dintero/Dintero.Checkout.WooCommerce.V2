@@ -26,7 +26,7 @@ Dintero is available for store owners and merchants in:
 
 = Payment Methods =
 
-Dintero Checkout provides a frictionless checkout experience with no hidden fees. It is a one stop shop for digital payment, offering card payments, invoice, installments and mobile payment solutions.
+Dintero Checkout provides a frictionless checkout experience with no hidden fees. It is a one-stop shop for digital payment, offering card payments, invoice, installments and mobile payment solutions.
 
 = API =
 
@@ -43,7 +43,7 @@ Get started with Dintero Checkout for WooCommerce Payment Methods in 4 easy step
 
 1. [Create a Dintero account](https://dintero.com/get-started?utm_source=wordpressplugin&utm_medium=plugin&utm_campaign=WPplugin22&utm_content=Plugin-a1)
 4. Log into [Dintero Backoffice](https://backoffice.dintero.com), apply for payment methods and we’ll notify you once approved.
-5. Install the Dintero plugin on your website.
+5. [Install the Dintero plugin](https://www.dintero.com/our-services/dintero-checkout/install-woocommerce-plugin?utm_source=wordpressplugin&utm_medium=plugin&utm_campaign=WPplugin22&utm_content=Plugin-a2) on your website.
 6. Create API keys in Dintero Backoffice, and enter them into the Dintero plugin’s settings.
 
 == Dependencies ==
@@ -54,7 +54,7 @@ The plugin uses Dintero's Web SDK for embedding the Dintero Checkout. The SDK ca
 The SDK follows the same terms as when creating a Dintero account, with its [terms of service](https://www.dintero.com/terms/terms-of-service) and [privacy policy](https://www.dintero.com/legal/privacy-policy).
 
 == Installation ==
-1. Upload plugin folder to to the "/wp-content/plugins/" directory.
+1. Upload plugin folder to the "/wp-content/plugins/" directory.
 2. Activate the plugin through the "Plugins" menu in WordPress.
 3. Go WooCommerce Settings –> Payment Gateways and configure your Dintero Checkout settings.
 4. Read more about the configuration process in the [plugin documentation](https://docs.krokedil.com/dintero-checkout-for-woocommerce/).
