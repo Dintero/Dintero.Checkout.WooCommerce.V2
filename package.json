@@ -9,12 +9,8 @@
     "@babel/core": "^7.14.3",
     "@babel/plugin-transform-runtime": "^7.14.3",
     "@babel/preset-env": "^7.14.4",
-    "@wordpress/eslint-plugin": "^10.0.2",
+    "@wordpress/eslint-plugin": "^12.6.0",
     "babel-loader": "^8.2.2",
-    "eslint": "7.32.0",
-    "eslint-config-prettier": "8.3.0",
-    "eslint-plugin-import": "2.23.4",
-    "eslint-plugin-prettier": "3.4.0",
     "file-loader": "^6.2.0",
     "grunt": "^1.4.1",
     "grunt-contrib-cssmin": "^4.0.0",
@@ -35,6 +31,7 @@
     "build": "yarn makepot && yarn cssmin && yarn jsmin"
   },
   "dependencies": {
+    "@dintero/checkout-web-sdk": "^0.4.3",
     "grunt-cli": "^1.4.3",
     "grunt-zip": "^0.18.2"
   }

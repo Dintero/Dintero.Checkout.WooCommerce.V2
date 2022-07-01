@@ -61,9 +61,9 @@ jQuery( function( $ ) {
 				onSession( event, checkout ) {
 					// Check for address changes and update shipping.
 					dinteroCheckoutForWooCommerce.updateAddress( event.session.order.billing_address, event.session.order.shipping_address );
-					if(event.session.order.shipping_option && dinteroCheckoutParams.shipping_in_iframe) {
+					if ( event.session.order.shipping_option && dinteroCheckoutParams.shipping_in_iframe ) {
 						// @TODO only if shipping in iframe.
-						dinteroCheckoutForWooCommerce.shippingMethodChanged(event.session.order.shipping_option);
+						dinteroCheckoutForWooCommerce.shippingMethodChanged( event.session.order.shipping_option );
 					}
 				},
 				onPayment( event, checkout ) {
@@ -341,33 +341,33 @@ jQuery( function( $ ) {
 			}
 		},
 
-		shippingMethodChanged: function (shipping) {
-			$('#dintero_shipping_data').val(JSON.stringify(shipping));
-			$( 'body' ).trigger( 'dintero_shipping_option_changed', [ shipping ]);
+		shippingMethodChanged( shipping ) {
+			$( '#dintero_shipping_data' ).val( JSON.stringify( shipping ) );
+			$( 'body' ).trigger( 'dintero_shipping_option_changed', [ shipping ] );
 			$( 'body' ).trigger( 'update_checkout' );
 		},
 
 		/**
 		 * Display Shipping Price in order review if Display shipping methods in iframe settings is active.
 		 */
-		 maybeDisplayShippingPrice: function() {
+		 maybeDisplayShippingPrice() {
 			// Check if we already have set the price. If we have, return.
-			if( $('.dintero-shipping').length ) {
+			if ( $( '.dintero-shipping' ).length ) {
 				return;
 			}
 			if ( 'dintero_checkout' === dinteroCheckoutForWooCommerce.paymentMethod && dinteroCheckoutParams.shipping_in_iframe ) {
 				if ( $( '#shipping_method input[type=\'radio\']' ).length ) {
 					// Multiple shipping options available.
 					$( '#shipping_method input[type=\'radio\']:checked' ).each( function() {
-						var idVal = $( this ).attr( 'id' );
-						var shippingPrice = $( 'label[for=\'' + idVal + '\']' ).text();
+						const idVal = $( this ).attr( 'id' );
+						const shippingPrice = $( 'label[for=\'' + idVal + '\']' ).text();
 						$( '.woocommerce-shipping-totals td' ).html( shippingPrice );
 						$( '.woocommerce-shipping-totals td' ).addClass( 'dintero-shipping' );
-					});
+					} );
 				} else {
 					// Only one shipping option available.
-					var idVal = $( '#shipping_method input[name=\'shipping_method[0]\']' ).attr( 'id' );
-					var shippingPrice = $( 'label[for=\'' + idVal + '\']' ).text();
+					const idVal = $( '#shipping_method input[name=\'shipping_method[0]\']' ).attr( 'id' );
+					const shippingPrice = $( 'label[for=\'' + idVal + '\']' ).text();
 					$( '.woocommerce-shipping-totals td' ).html( shippingPrice );
 					$( '.woocommerce-shipping-totals td' ).addClass( 'dintero-shipping' );
 				}
