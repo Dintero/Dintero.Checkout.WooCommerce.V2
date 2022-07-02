@@ -1605,6 +1605,11 @@
   "resolved" "https://registry.npmjs.org/ast-types-flow/-/ast-types-flow-0.0.7.tgz"
   "version" "0.0.7"
 
+"async@~3.1.0":
+  "integrity" "sha512-X5Dj8hK1pJNC2Wzo2Rcp9FBVdJMGRR/S7V+lH46s8GVFhtbo5O4Le5GECCF/8PISVdkUA6mMPvgz7qTTD1rf1g=="
+  "resolved" "https://registry.npmjs.org/async/-/async-3.1.1.tgz"
+  "version" "3.1.1"
+
 "async@~3.2.0":
   "integrity" "sha512-iAB+JbDEGXhyIUavoDl9WP/Jj106Kz9DEn1DPgYw5ruDn0e3Wgi3sKFm55sASdGBNOQB8F59d9qQ7deqrHA8wQ=="
   "resolved" "https://registry.npmjs.org/async/-/async-3.2.4.tgz"
@@ -1724,7 +1729,7 @@
   "resolved" "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001361.tgz"
   "version" "1.0.30001361"
 
-"chalk@^2.0.0":
+"chalk@^2.0.0", "chalk@^2.4.2":
   "integrity" "sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ=="
   "resolved" "https://registry.npmjs.org/chalk/-/chalk-2.4.2.tgz"
   "version" "2.4.2"
@@ -2726,6 +2731,14 @@
     "lodash" "~4.17.21"
     "underscore.string" "~3.3.5"
     "which" "~2.0.2"
+
+"grunt-move@^1.0.3":
+  "integrity" "sha512-hzfoRZZeq04bOz/iOgUNhza3T3ahd6yw86+bAZtCNfXLcg3z5QWaaow/cbV0SGdlb19VuG5bbKHUdK+NtseoiA=="
+  "resolved" "https://registry.npmjs.org/grunt-move/-/grunt-move-1.0.3.tgz"
+  "version" "1.0.3"
+  dependencies:
+    "async" "~3.1.0"
+    "chalk" "^2.4.2"
 
 "grunt-retro@~0.6.0":
   "integrity" "sha512-kqnvNUAngOhkDckEQPYFDqNcRlculVp/Sy+gCe4ey7utM4BCaENVf2JfDeK488mj/0cgmAZyXwpW6w9l1OAxMg=="

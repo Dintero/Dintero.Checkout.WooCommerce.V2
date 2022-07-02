@@ -104,7 +104,7 @@ class Dintero_Checkout_Assets {
 			return;
 		}
 
-		$sdk_url = plugins_url( 'node_modules/@dintero/checkout-web-sdk/dist/dintero-checkout-web-sdk.umd.min.js', DINTERO_CHECKOUT_MAIN_FILE );
+		$sdk_url = plugins_url( 'assets/js/dintero-checkout-web-sdk.umd.min.js', DINTERO_CHECKOUT_MAIN_FILE );
 		wp_register_script(
 			'dintero-checkout-sdk',
 			$sdk_url,
