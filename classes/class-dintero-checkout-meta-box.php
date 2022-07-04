@@ -82,7 +82,7 @@ class Dintero_Checkout_Meta_Box {
 
 		?>
 		<div class='dintero-checkout-meta-box-content'>
-		<strong><?php esc_html_e( 'Dintero order status: ', 'dintero-checkout-for-woocommerce' ); ?> </strong> <?php echo esc_html( $dintero_order['status'] ); ?><br/>
+		<strong><?php esc_html_e( 'Dintero order status: ', 'dintero-checkout-for-woocommerce' ); ?> </strong> <?php echo esc_html( ucfirst( strtolower( str_replace( '_', ' ', $dintero_order['status'] ) ) ) ); ?><br/>
 		<strong><?php esc_html_e( 'Payment method: ', 'dintero-checkout-for-woocommerce' ); ?> </strong> <?php echo esc_html( $payment_method ); ?><br/>
 		<?php if ( ! empty( $environment ) ) : ?>
 		<strong><?php esc_html_e( 'Environment: ', 'dintero-checkout-for-woocommerce' ); ?> </strong><?php echo esc_html( $environment ); ?><br/>
