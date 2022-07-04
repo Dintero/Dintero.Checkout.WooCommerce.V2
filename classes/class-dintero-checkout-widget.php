@@ -99,9 +99,9 @@ class Dintero_Checkout_Widget extends WP_Widget {
 		return $instance;
 	}
 
-    private function environment($settings) {
-        return ( 'yes' === $settings['test_mode'] ) ? 'T' : 'P';
-    }
+	private function environment( $settings ) {
+		return ( 'yes' === $settings['test_mode'] ) ? 'T' : 'P';
+	}
 
 	/**
 	 * Outputs the HTML content for showing the icons.
@@ -114,12 +114,12 @@ class Dintero_Checkout_Widget extends WP_Widget {
 	private function print_icon( $icon_color = 'cecece', $background_color = false ) {
 		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
 
-		$variant  = 'colors';
-		$color    = $icon_color;
-		$width    = 600;
-		$template = 'dintero_left_frame';
-		$account_id  = $this->environment($settings) . $settings['account_id'];
-		$profile  = $settings['profile_id'];
+		$variant    = 'colors';
+		$color      = $icon_color;
+		$width      = 600;
+		$template   = 'dintero_left_frame';
+		$account_id = $this->environment( $settings ) . $settings['account_id'];
+		$profile    = $settings['profile_id'];
 
 		if ( 'yes' !== $settings['branding_logo_color'] ) {
 			$variant = 'mono';
