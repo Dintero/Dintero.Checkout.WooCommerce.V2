@@ -99,6 +99,10 @@ class Dintero_Checkout_Widget extends WP_Widget {
 		return $instance;
 	}
 
+    private function environment($settings) {
+        return ( 'yes' === $settings['test_mode'] ) ? 'T' : 'P';
+    }
+
 	/**
 	 * Outputs the HTML content for showing the icons.
 	 *
@@ -114,7 +118,7 @@ class Dintero_Checkout_Widget extends WP_Widget {
 		$color    = $icon_color;
 		$width    = 600;
 		$template = 'dintero_left_frame';
-		$account_id  = $settings['account_id'];
+		$account_id  = $this->environment($settings) . $settings['account_id'];
 		$profile  = $settings['profile_id'];
 
 		if ( 'yes' !== $settings['branding_logo_color'] ) {
