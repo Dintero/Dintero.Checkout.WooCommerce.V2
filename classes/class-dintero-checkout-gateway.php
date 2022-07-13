@@ -63,23 +63,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return string
 		 */
 		public function get_icon() {
-			$settings = get_option( 'woocommerce_dintero_checkout_settings' );
-
-			$variant  = 'colors';
-			$color    = 'cecece';
-			$width    = 600;
-			$template = 'dintero_left_frame';
-			$profile  = $settings['profile_id'];
-
-			if ( 'yes' !== $settings['branding_logo_color'] ) {
-				$variant = 'mono';
-				$color   = str_replace( '#', '', $settings['branding_logo_color_custom'] );
-			}
-
-			$icon_url = "https://checkout.dintero.com/v1/branding/profiles/$profile/variant/$variant/color/$color/width/$width/$template.svg";
-
-			return '<img src="' . esc_attr( $icon_url ) . '" style="max-width: 90%" alt="Dintero Logo" />';
-
+			return '<img src="' . esc_attr( dintero_get_brand_image_url() ) . '" style="max-width: 90%" alt="Dintero Logo" />';
 		}
 
 		/**

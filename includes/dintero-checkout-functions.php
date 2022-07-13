@@ -150,3 +150,27 @@ function dintero_confirm_order( $order, $transaction_id ) {
 		update_post_meta( $order->get_id(), '_wc_dintero_shipping_id', $shipping_option_id );
 	}
 }
+
+/**
+ * The URL to the branding image.
+ *
+ * @param  string $icon_color A hexadecimal RGB value for the foreground color. Default is #cecece.
+ * @return string URL
+ */
+function dintero_get_brand_image_url( $icon_color = 'cecece' ) {
+	$settings = get_option( 'woocommerce_dintero_checkout_settings' );
+
+	$variant  = 'colors';
+	$color    = $icon_color;
+	$width    = 600;
+	$template = 'dintero_left_frame';
+	$account  = ( ( 'yes' === $settings['test_mode'] ) ? 'T' : 'P' ) . $settings['account_id'];
+	$profile  = $settings['profile_id'];
+
+	if ( 'yes' !== $settings['branding_logo_color'] ) {
+		$variant = 'mono';
+		$color   = str_replace( '#', '', $settings['branding_logo_color_custom'] );
+	}
+
+	return "https://checkout.dintero.com/v1/branding/accounts/$account/profiles/$profile/variant/$variant/color/$color/width/$width/$template.svg";
+}
