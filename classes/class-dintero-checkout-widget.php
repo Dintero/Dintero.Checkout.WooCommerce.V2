@@ -99,10 +99,6 @@ class Dintero_Checkout_Widget extends WP_Widget {
 		return $instance;
 	}
 
-	private function environment( $settings ) {
-		return ( 'yes' === $settings['test_mode'] ) ? 'T' : 'P';
-	}
-
 	/**
 	 * Outputs the HTML content for showing the icons.
 	 *

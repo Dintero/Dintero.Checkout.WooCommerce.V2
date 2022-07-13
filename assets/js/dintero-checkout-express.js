@@ -1,6 +1,6 @@
 jQuery( function( $ ) {
 	/* Check if WP has added our localized parameters (refer to class-dintero-checkout-assets.php.) */
-	if ( typeof dinteroCheckoutParams === undefined ) {
+	if ( ! dinteroCheckoutParams ) {
 		return;
 	}
 
@@ -123,7 +123,7 @@ jQuery( function( $ ) {
 			} );
 		},
 
-		unsetSession( redirect_url ) {
+		unsetSession( redirectUrl ) {
 			$.ajax( {
 				type: 'POST',
 				dataType: 'json',
@@ -131,8 +131,8 @@ jQuery( function( $ ) {
 					nonce: dinteroCheckoutParams.unset_session_nonce,
 				},
 				url: dinteroCheckoutParams.unset_session_url,
-				complete( ) {
-					window.location.replace( redirect_url );
+				complete() {
+					window.location.replace( redirectUrl );
 				},
 			} );
 		},
@@ -350,7 +350,7 @@ jQuery( function( $ ) {
 		/**
 		 * Display Shipping Price in order review if Display shipping methods in iframe settings is active.
 		 */
-		 maybeDisplayShippingPrice() {
+		maybeDisplayShippingPrice() {
 			// Check if we already have set the price. If we have, return.
 			if ( $( '.dintero-shipping' ).length ) {
 				return;
@@ -408,7 +408,7 @@ jQuery( function( $ ) {
 						if ( data.messages ) {
 							// Strip HTML code from messages.
 							const messages = data.messages.replace( /<\/?[^>]+(>|$)\s+/g, '' );
-							console.error( 'Dintero error: ', messages );
+							dinteroCheckoutForWooCommerce.printNotice( messages );
 							dinteroCheckoutForWooCommerce.logToFile( 'Checkout error | ' + messages );
 							dinteroCheckoutForWooCommerce.failOrder( 'submission', messages, callback );
 						} else {
@@ -439,6 +439,17 @@ jQuery( function( $ ) {
 			$( dinteroCheckoutForWooCommerce.checkoutFormSelector ).removeClass( 'processing' );
 			$( dinteroCheckoutForWooCommerce.checkoutFormSelector ).unblock();
 			$( '.woocommerce-checkout-review-order-table' ).unblock();
+		},
+
+		printNotice( message, noticeType = 'error' ) {
+			/* There are two wrappers for some reason hence the first() to prevent duplicate notices. */
+			$( '.woocommerce-notices-wrapper' ).first().append( `<div class='woocommerce-${ noticeType }' role='alert'>${ message }</div>` );
+			if ( 'error' === noticeType ) {
+				$( document.body ).trigger( 'checkout_error', [ message ] );
+			}
+			$( 'html, body' ).animate( {
+				scrollTop: ( $( '.woocommerce-notices-wrapper' ).offset().top - 100 ),
+			}, 1000 );
 		},
 
 		/**
