@@ -11,7 +11,7 @@ License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 == Description ==
-Accept Visa, MasterCard, Vipps, Swish, MobilPay, Walley, invoices, and installments.
+Accept Visa, MasterCard, Vipps, Swish, MobilePay, Walley, invoices, and installments.
 
 With Dintero Checkout for WooCommerce Payment Methods, you can either embed or redirect our checkout in your WooCommerce installation.
 
