@@ -2,16 +2,16 @@
 Contributors: dintero, krokedil, NiklasHogefjord
 Tags: woocommerce, dintero, ecommerce, e-commerce, checkout
 Requires at least: 5.8.3
-Tested up to: 6.0
+Tested up to: 6.0.1
 Requires PHP: 7.0
 WC requires at least: 6.1.0
 WC tested up to: 6.6.1
-Stable tag: 1.0.7
+Stable tag: 1.0.8
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 == Description ==
-Accept Visa, MasterCard, Vipps, Swish, MobilPay, Walley, invoices, and installments.
+Accept Visa, MasterCard, Vipps, Swish, MobilePay, Walley, invoices, and installments.
 
 With Dintero Checkout for WooCommerce Payment Methods, you can either embed or redirect our checkout in your WooCommerce installation.
 
@@ -26,7 +26,7 @@ Dintero is available for store owners and merchants in:
 
 = Payment Methods =
 
-Dintero Checkout provides a frictionless checkout experience with no hidden fees. It is a one stop shop for digital payment, offering card payments, invoice, installments and mobile payment solutions.
+Dintero Checkout provides a frictionless checkout experience with no hidden fees. It is a one-stop shop for digital payment, offering card payments, invoice, installments and mobile payment solutions.
 
 = API =
 
@@ -43,7 +43,7 @@ Get started with Dintero Checkout for WooCommerce Payment Methods in 4 easy step
 
 1. [Create a Dintero account](https://dintero.com/get-started?utm_source=wordpressplugin&utm_medium=plugin&utm_campaign=WPplugin22&utm_content=Plugin-a1)
 4. Log into [Dintero Backoffice](https://backoffice.dintero.com), apply for payment methods and we’ll notify you once approved.
-5. Install the Dintero plugin on your website.
+5. [Install the Dintero plugin](https://www.dintero.com/our-services/dintero-checkout/install-woocommerce-plugin?utm_source=wordpressplugin&utm_medium=plugin&utm_campaign=WPplugin22&utm_content=Plugin-a2) on your website.
 6. Create API keys in Dintero Backoffice, and enter them into the Dintero plugin’s settings.
 
 == Dependencies ==
@@ -54,7 +54,7 @@ The plugin uses Dintero's Web SDK for embedding the Dintero Checkout. The SDK ca
 The SDK follows the same terms as when creating a Dintero account, with its [terms of service](https://www.dintero.com/terms/terms-of-service) and [privacy policy](https://www.dintero.com/legal/privacy-policy).
 
 == Installation ==
-1. Upload plugin folder to to the "/wp-content/plugins/" directory.
+1. Upload plugin folder to the "/wp-content/plugins/" directory.
 2. Activate the plugin through the "Plugins" menu in WordPress.
 3. Go WooCommerce Settings –> Payment Gateways and configure your Dintero Checkout settings.
 4. Read more about the configuration process in the [plugin documentation](https://docs.krokedil.com/dintero-checkout-for-woocommerce/).
@@ -83,8 +83,15 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2022.07.14    - version 1.0.8 =
+* Tweak         - Removed obsolete setting.
+* Tweak         - Tweaked meta box formatting.
+* Tweak         - The access token is no longer logged.
+* Fix           - Fixed branding image not appearing on checkout page, and in the widget.
+* Enhancement   - Checkout error will not appear as a notice on the checkout page.
+
 = 2022.06.30    - version 1.0.7 =
-* Feature        - Added a meta box (must be enabled in the "Screen options") to the order page that displays the Dintero order's status, which payment method was chosen, as well as the environment (test v. production).
+* Feature       - Added a meta box (must be enabled in the "Screen options") to the order page that displays the Dintero order's status, which payment method was chosen, as well as the environment (test v. production).
 
 = 2022.06.27    - version 1.0.6 =
 * Feature       - You can now display the embedded express checkout horizontally ("two-column" layout).

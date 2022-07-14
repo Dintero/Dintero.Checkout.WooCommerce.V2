@@ -50,6 +50,10 @@ class Dintero_Checkout_Logger {
 	 * @return array
 	 */
 	public static function format_data( $data ) {
+		if ( isset( $data['request']['headers']['authorization'] ) ) {
+			$data['request']['headers']['authorization'] = '[redacted]';
+		}
+
 		if ( isset( $data['request']['body'] ) ) {
 			$request_body            = json_decode( $data['request']['body'], true );
 			$data['request']['body'] = ( ! empty( $request_body ) ) ? $request_body : $data['request']['body'];

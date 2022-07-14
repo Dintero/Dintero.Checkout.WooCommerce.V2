@@ -1,6 +1,6 @@
 jQuery( function( $ ) {
 	/* Check if WP has added our localized parameters (refer to class-dintero-checkout-assets.php.) */
-	if ( typeof dinteroCheckoutParams === undefined ) {
+	if ( ! dinteroCheckoutParams ) {
 		return;
 	}
 
@@ -61,9 +61,9 @@ jQuery( function( $ ) {
 				onSession( event, checkout ) {
 					// Check for address changes and update shipping.
 					dinteroCheckoutForWooCommerce.updateAddress( event.session.order.billing_address, event.session.order.shipping_address );
-					if(event.session.order.shipping_option && dinteroCheckoutParams.shipping_in_iframe) {
+					if ( event.session.order.shipping_option && dinteroCheckoutParams.shipping_in_iframe ) {
 						// @TODO only if shipping in iframe.
-						dinteroCheckoutForWooCommerce.shippingMethodChanged(event.session.order.shipping_option);
+						dinteroCheckoutForWooCommerce.shippingMethodChanged( event.session.order.shipping_option );
 					}
 				},
 				onPayment( event, checkout ) {
@@ -123,7 +123,7 @@ jQuery( function( $ ) {
 			} );
 		},
 
-		unsetSession( redirect_url ) {
+		unsetSession( redirectUrl ) {
 			$.ajax( {
 				type: 'POST',
 				dataType: 'json',
@@ -131,8 +131,8 @@ jQuery( function( $ ) {
 					nonce: dinteroCheckoutParams.unset_session_nonce,
 				},
 				url: dinteroCheckoutParams.unset_session_url,
-				complete( ) {
-					window.location.replace( redirect_url );
+				complete() {
+					window.location.replace( redirectUrl );
 				},
 			} );
 		},
@@ -341,33 +341,33 @@ jQuery( function( $ ) {
 			}
 		},
 
-		shippingMethodChanged: function (shipping) {
-			$('#dintero_shipping_data').val(JSON.stringify(shipping));
-			$( 'body' ).trigger( 'dintero_shipping_option_changed', [ shipping ]);
+		shippingMethodChanged( shipping ) {
+			$( '#dintero_shipping_data' ).val( JSON.stringify( shipping ) );
+			$( 'body' ).trigger( 'dintero_shipping_option_changed', [ shipping ] );
 			$( 'body' ).trigger( 'update_checkout' );
 		},
 
 		/**
 		 * Display Shipping Price in order review if Display shipping methods in iframe settings is active.
 		 */
-		 maybeDisplayShippingPrice: function() {
+		maybeDisplayShippingPrice() {
 			// Check if we already have set the price. If we have, return.
-			if( $('.dintero-shipping').length ) {
+			if ( $( '.dintero-shipping' ).length ) {
 				return;
 			}
 			if ( 'dintero_checkout' === dinteroCheckoutForWooCommerce.paymentMethod && dinteroCheckoutParams.shipping_in_iframe ) {
 				if ( $( '#shipping_method input[type=\'radio\']' ).length ) {
 					// Multiple shipping options available.
 					$( '#shipping_method input[type=\'radio\']:checked' ).each( function() {
-						var idVal = $( this ).attr( 'id' );
-						var shippingPrice = $( 'label[for=\'' + idVal + '\']' ).text();
+						const idVal = $( this ).attr( 'id' );
+						const shippingPrice = $( 'label[for=\'' + idVal + '\']' ).text();
 						$( '.woocommerce-shipping-totals td' ).html( shippingPrice );
 						$( '.woocommerce-shipping-totals td' ).addClass( 'dintero-shipping' );
-					});
+					} );
 				} else {
 					// Only one shipping option available.
-					var idVal = $( '#shipping_method input[name=\'shipping_method[0]\']' ).attr( 'id' );
-					var shippingPrice = $( 'label[for=\'' + idVal + '\']' ).text();
+					const idVal = $( '#shipping_method input[name=\'shipping_method[0]\']' ).attr( 'id' );
+					const shippingPrice = $( 'label[for=\'' + idVal + '\']' ).text();
 					$( '.woocommerce-shipping-totals td' ).html( shippingPrice );
 					$( '.woocommerce-shipping-totals td' ).addClass( 'dintero-shipping' );
 				}
@@ -408,7 +408,7 @@ jQuery( function( $ ) {
 						if ( data.messages ) {
 							// Strip HTML code from messages.
 							const messages = data.messages.replace( /<\/?[^>]+(>|$)\s+/g, '' );
-							console.error( 'Dintero error: ', messages );
+							dinteroCheckoutForWooCommerce.printNotice( messages );
 							dinteroCheckoutForWooCommerce.logToFile( 'Checkout error | ' + messages );
 							dinteroCheckoutForWooCommerce.failOrder( 'submission', messages, callback );
 						} else {
@@ -439,6 +439,17 @@ jQuery( function( $ ) {
 			$( dinteroCheckoutForWooCommerce.checkoutFormSelector ).removeClass( 'processing' );
 			$( dinteroCheckoutForWooCommerce.checkoutFormSelector ).unblock();
 			$( '.woocommerce-checkout-review-order-table' ).unblock();
+		},
+
+		printNotice( message, noticeType = 'error' ) {
+			/* There are two wrappers for some reason hence the first() to prevent duplicate notices. */
+			$( '.woocommerce-notices-wrapper' ).first().append( `<div class='woocommerce-${ noticeType }' role='alert'>${ message }</div>` );
+			if ( 'error' === noticeType ) {
+				$( document.body ).trigger( 'checkout_error', [ message ] );
+			}
+			$( 'html, body' ).animate( {
+				scrollTop: ( $( '.woocommerce-notices-wrapper' ).offset().top - 100 ),
+			}, 1000 );
 		},
 
 		/**
