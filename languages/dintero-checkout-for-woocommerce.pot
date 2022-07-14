@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/Dintero.Checkout.WooCommerce.V2\n"
-"POT-Creation-Date: 2022-06-30 12:03:48+00:00\n"
+"POT-Creation-Date: 2022-07-13 23:17:55+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -53,11 +53,11 @@ msgstr ""
 msgid "Dintero Checkout"
 msgstr ""
 
-#: classes/class-dintero-checkout-gateway.php:121
+#: classes/class-dintero-checkout-gateway.php:105
 msgid "Dintero Order created with reference "
 msgstr ""
 
-#: classes/class-dintero-checkout-gateway.php:146
+#: classes/class-dintero-checkout-gateway.php:130
 msgid "Customer redirected to Dintero payment page."
 msgstr ""
 
@@ -300,19 +300,19 @@ msgid "Choose your payment method in our checkout."
 msgstr ""
 
 #: classes/class-dintero-checkout-settings-fields.php:142
-#: classes/class-dintero-checkout-settings-fields.php:237
+#: classes/class-dintero-checkout-settings-fields.php:231
 msgid "Logo color"
 msgstr ""
 
 #: classes/class-dintero-checkout-settings-fields.php:144
-#: classes/class-dintero-checkout-settings-fields.php:240
-#: classes/class-dintero-checkout-settings-fields.php:250
+#: classes/class-dintero-checkout-settings-fields.php:234
+#: classes/class-dintero-checkout-settings-fields.php:244
 msgid "Default color"
 msgstr ""
 
 #: classes/class-dintero-checkout-settings-fields.php:148
-#: classes/class-dintero-checkout-settings-fields.php:243
-#: classes/class-dintero-checkout-settings-fields.php:253
+#: classes/class-dintero-checkout-settings-fields.php:237
+#: classes/class-dintero-checkout-settings-fields.php:247
 msgid "Custom color (HEX)"
 msgstr ""
 
@@ -368,7 +368,6 @@ msgid "Display Shipping in the iframe"
 msgstr ""
 
 #: classes/class-dintero-checkout-settings-fields.php:192
-#: classes/class-dintero-checkout-settings-fields.php:234
 msgid "Enable"
 msgstr ""
 
@@ -382,11 +381,7 @@ msgstr ""
 msgid "Branding"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:231
-msgid "Enable logos in footer"
-msgstr ""
-
-#: classes/class-dintero-checkout-settings-fields.php:247
+#: classes/class-dintero-checkout-settings-fields.php:241
 msgid "Footer background color"
 msgstr ""
 
