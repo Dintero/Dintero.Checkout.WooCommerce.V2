@@ -88,7 +88,7 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 * Tweak         - Tweaked meta box formatting.
 * Tweak         - The access token is no longer logged.
 * Fix           - Fixed branding image not appearing on checkout page, and in the widget.
-* Enhancement   - Checkout error will not appear as a notice on the checkout page.
+* Enhancement   - Checkout error will now appear as a notice on the checkout page.
 
 = 2022.06.30    - version 1.0.7 =
 * Feature       - Added a meta box (must be enabled in the "Screen options") to the order page that displays the Dintero order's status, which payment method was chosen, as well as the environment (test v. production).
