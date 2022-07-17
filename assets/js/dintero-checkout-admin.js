@@ -9,7 +9,7 @@ jQuery( function( $ ) {
 			logo_custom_color: $(
 				'#woocommerce_dintero_checkout_branding_logo_color_custom'
 			),
-			toggle_logo_color() {
+			toggle_logo_color: () => {
 				if ( dwc.branding.logo_color_checkbox.is( ':checked' ) ) {
 					dwc.branding.logo_custom_color.parents( 'tr' ).hide();
 					dwc.branding.logo_color_checkbox
@@ -21,14 +21,31 @@ jQuery( function( $ ) {
 				}
 			},
 		},
+		express_button: {
+			button: $( '#woocommerce_dintero_checkout_express_show_product_button' ),
+			image: $( '#woocommerce_dintero_checkout_express_button_image' ).parents( 'tr' ),
+			corner_radius: $( '#woocommerce_dintero_checkout_express_button_corner_radius' ).parents( 'tr' ),
+			hide: () => {
+				dwc.express_button.image.fadeOut();
+				dwc.express_button.corner_radius.fadeOut();
+			},
+			show: () => {
+				dwc.express_button.image.fadeIn();
+				dwc.express_button.corner_radius.fadeIn();
+			},
+			toggle: () => dwc.express_button.button.is( ':checked' ) ? dwc.express_button.show() : dwc.express_button.hide(),
+		},
 		register_events() {
 			dwc.branding.logo_color_checkbox.on(
 				'change',
 				dwc.branding.toggle_logo_color
 			);
+
+			dwc.express_button.button.on( 'change', dwc.express_button.toggle );
 		},
 		startup_check() {
 			dwc.branding.toggle_logo_color();
+			dwc.express_button.toggle();
 		},
 		onSave() {
 			/* If no custom color was set, assume default state. */

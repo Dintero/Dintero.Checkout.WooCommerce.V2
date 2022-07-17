@@ -193,8 +193,6 @@ class Dintero_Settings_Fields {
 				'desc_tip' => __( 'Will make the shipping selection happen in the Dintero checkout iframe instead of the shipping section in WooCommerce.', 'dintero-checkout-for-woocommerce' ),
 			),
 
-			/*
-			TODO: These options will be added in a future iteration.
 			'express_show_shipping'                   => array(
 				'title'    => __( 'Show shipping info in Express', 'dintero-checkout-for-woocommerce' ),
 				'type'     => 'checkbox',
@@ -221,7 +219,7 @@ class Dintero_Settings_Fields {
 				'title' => __( 'Express button corner radius', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'text',
 			),
-			*/
+
 			/* End of "Dintero Checkout Express Settings". */
 			'branding_title'                          => array(
 				'title' => __( 'Branding', 'dintero-checkout-for-woocommerce' ),
