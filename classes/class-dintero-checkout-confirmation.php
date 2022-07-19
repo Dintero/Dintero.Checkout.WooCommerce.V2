@@ -36,13 +36,6 @@ class Dintero_Checkout_Redirect {
 			return;
 		}
 
-		/* The transaction_id is only guaranteed when the payment is complete and authorized. That is, not on cancel. */
-		if ( empty( $transaction_id ) ) {
-			Dintero_Checkout_Logger::log( 'REDIRECT ERROR [transaction_id]: The transaction ID is missing. Redirecting customer back to checkout page.' );
-			wp_safe_redirect( wc_get_checkout_url() );
-			exit;
-		}
-
 		// Get the order from the merchant reference.
 		$order = $this->get_order_from_reference( $merchant_reference );
 		if ( empty( $order ) ) {
@@ -54,6 +47,13 @@ class Dintero_Checkout_Redirect {
 		$error = filter_input( INPUT_GET, 'error', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( ! empty( $error ) ) {
 			$this->handle_error( $error, $order );
+		}
+
+		/* The transaction_id is only guaranteed when the payment is complete and authorized. That is, not on cancel. */
+		if ( empty( $transaction_id ) ) {
+			Dintero_Checkout_Logger::log( 'REDIRECT ERROR [transaction_id]: The transaction ID is missing. Redirecting customer back to checkout page.' );
+			wp_safe_redirect( wc_get_checkout_url() );
+			exit;
 		}
 
 		$this->handle_success( $transaction_id, $order );
