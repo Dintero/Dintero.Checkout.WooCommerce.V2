@@ -5,6 +5,10 @@
  * @package Dintero_Checkout/Classes
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 class Dintero_Checkout_Express_Button {
 
 	public function __construct() {
@@ -14,12 +18,11 @@ class Dintero_Checkout_Express_Button {
 
 	public function express_button_placement() {
 		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
-
-		if ( 'yes' !== $settings['express_show_product_button'] ) {
+		if ( 'yes' !== $settings['express_show_product_button'] || 'yes' !== $settings['enabled'] ) {
 			return;
 		}
 
-		$image_url     = 'https://assets.dintero.com/logo/dintero-express-btn-' . $settings['express_button_image'] . '.svg';
+		$image_url     = esc_url( 'https://assets.dintero.com/logo/dintero-express-btn-' . $settings['express_button_image'] . '.svg' );
 		$border_radius = $settings['express_button_corner_radius'];
 
 		$style = 'background: url(' . $image_url . ') no-repeat; background-size: cover; background-position: center; min-height: 44px;';
@@ -27,17 +30,17 @@ class Dintero_Checkout_Express_Button {
 			$style .= 'border-radius: ' . $border_radius . 'px;';
 		}
 
-		echo '<a style="' . $style . '" href="#"></a>';
+		$url = wp_nonce_url( '?wc-ajax=dintero_checkout_express_button', 'dintero_checkout_express_button', 'nonce' );
+		echo '<a style="' . $style . '" href="' . $url . '"></a>';
 	}
 
 	public function express_button_placement_cart() {
 		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
-
-		if ( 'yes' !== $settings['express_show_product_button'] ) {
+		if ( 'yes' !== $settings['express_show_product_button'] || 'yes' !== $settings['enabled'] ) {
 			return;
 		}
 
-		$image_url     = 'https://assets.dintero.com/logo/dintero-express-btn-' . $settings['express_button_image'] . '.svg';
+		$image_url     = esc_url( 'https://assets.dintero.com/logo/dintero-express-btn-' . $settings['express_button_image'] . '.svg' );
 		$border_radius = $settings['express_button_corner_radius'];
 
 		$style = 'background: url(' . $image_url . ') no-repeat; background-size: cover; background-position: center; min-height: 44px; width: 142px; float: right; margin-left: 5px;';
@@ -45,7 +48,8 @@ class Dintero_Checkout_Express_Button {
 			$style .= 'border-radius: ' . $border_radius . 'px;';
 		}
 
-		echo '<button type="button" class="button" title="Buy now with Dintero!" style="' . $style . '"></button>';
+		$url = wp_nonce_url( '?wc-ajax=dintero_checkout_express_button', 'dintero_checkout_express_button', 'nonce' );
+		echo '<a style="' . $style . '" href="' . $url . '"></a>';
 	}
 
 } new Dintero_Checkout_Express_Button();

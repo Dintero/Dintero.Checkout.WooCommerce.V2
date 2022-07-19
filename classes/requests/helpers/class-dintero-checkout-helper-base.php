@@ -63,8 +63,12 @@ abstract class Dintero_Checkout_Helper_Base {
 				return;
 			}
 
-			$body['express']['shipping_options'] = $is_shipping_in_iframe ? $helper->get_express_shipping_options() : array( $helper->get_shipping_option() );
-			$body['express']['shipping_mode']    = 'shipping_required';
+			if ( $is_shipping_in_iframe ) {
+				$body['express']['shipping_options'] = $helper->get_express_shipping_options();
+			} else {
+				$body['express']['shipping_options'] = ! empty( $helper->get_shipping_option() ) ? array( $helper->get_shipping_option() ) : array();
+			}
+			$body['express']['shipping_mode'] = 'shipping_required';
 		}
 	}
 
