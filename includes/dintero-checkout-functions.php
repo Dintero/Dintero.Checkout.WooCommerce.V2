@@ -115,7 +115,11 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	update_post_meta( $order_id, '_wc_dintero_checkout_environment', 'yes' === get_option( 'woocommerce_dintero_checkout_settings' )['test_mode'] ? 'Test' : 'Production' );
 
 	update_post_meta( $order_id, '_dintero_transaction_id', $transaction_id );
-	$dintero_order         = Dintero()->api->get_order( $transaction_id );
+	$dintero_order = Dintero()->api->get_order( $transaction_id );
+
+	// Check if the order is missing customer data, and set if it is.
+	dintero_update_customer_data( $order, $dintero_order );
+
 	$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
 	if ( $require_authorization ) {
 		// translators: %s the Dintero transaction ID.
@@ -149,6 +153,70 @@ function dintero_confirm_order( $order, $transaction_id ) {
 		$shipping_option_id = $dintero_order['shipping_option']['id'] ?? reset( $shipping );
 		update_post_meta( $order->get_id(), '_wc_dintero_shipping_id', $shipping_option_id );
 	}
+}
+
+/**
+ * Check if the WC order is missing customer data, update the order if it is.
+ *
+ * The customer data is retrieved from the corresponding Dintero order.
+ * A guest purchase via Express Button is always missing the customer data in the corresponding WC order.
+ *
+ * @param  WC_Order $order The WC order.
+ * @param  array    $dintero The corresponding Dintero order.
+ * @return void
+ */
+function dintero_update_customer_data( $order, $dintero ) {
+	$order_data = $order->get_base_data();
+
+	foreach ( $order_data['billing'] as $field => $value ) {
+		$dintero_field = dintero_normalize_field( $field );
+		if ( ! $dintero_field ) {
+			continue;
+		}
+
+		if ( empty( $value ) ) {
+			call_user_func( array( $order, 'set_billing_' . $field ), $dintero['billing_address'][ $dintero_field ] );
+		}
+	}
+
+	foreach ( $order_data['shipping'] as $field => $value ) {
+		$dintero_field = dintero_normalize_field( $field );
+		if ( ! $dintero_field ) {
+			continue;
+		}
+
+		/* Default to billing data if none is available for shipping. "Express Button" only has billing. */
+		$dintero_value = ! empty( $dintero['shipping_address'][ $dintero_field ] ) ? $dintero['shipping_address'][ $dintero_field ] : $dintero['billing_address'][ $dintero_field ];
+
+		if ( empty( $value ) ) {
+			call_user_func( array( $order, 'set_shipping_' . $field ), $dintero_value );
+		}
+	}
+}
+
+/**
+ * Given the WC field name, the corresponding Dintero field name is returned (if available).
+ *
+ * WC and Dintero use different names for the fields (e.g., city v. postal_place). Some WC fields (e.g., state) has no corresponding Dintero field.
+ *
+ * @param  string $field A WC field (e.g., address_1).
+ * @return string|false The corresponding Dintero field if available, otherwise FALSE.
+ */
+function dintero_normalize_field( $field ) {
+	$wc_to_dintero = array(
+		'first_name' => 'first_name',
+		'last_name'  => 'last_name',
+		'company'    => 'business_name',
+		'address_1'  => 'address_line',
+		'address_2'  => 'address_line_2',
+		'city'       => 'postal_place',
+		'postcode'   => 'postal_code',
+		'country'    => 'country',
+		'phone'      => 'phone_number',
+		'email'      => 'email',
+	);
+
+	return $wc_to_dintero[ $field ] ?? false;
 }
 
 /**

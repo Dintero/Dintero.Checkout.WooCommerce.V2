@@ -156,25 +156,25 @@ class Dintero_Checkout_Callback {
 
 		switch ( $dintero_order['status'] ) {
 			case 'AUTHORIZED':
-				Dintero_Checkout_Logger::log( 'CALLBACK: Handling AUTHORIZED order status. Maybe triggering payment_complete.' );
+				Dintero_Checkout_Logger::log( sprintf( 'CALLBACK: WC Order: %s. Handling AUTHORIZED order status. Maybe triggering payment_complete.', $order->get_order_number() ) );
 				dintero_confirm_order( $order, $transaction_id );
 				break;
 			case 'AUTHORIZATION_VOIDED':
-				Dintero_Checkout_Logger::log( 'CALLBACK: Handling AUTHORIZATION_VOIDED order status. Setting order status to CANCELLED.' );
+				Dintero_Checkout_Logger::log( sprintf( 'CALLBACK: WC Order: %s. Handling AUTHORIZATION_VOIDED order status. Setting order status to CANCELLED.', $order->get_order_number() ) );
 				$order->update_status( 'cancelled', __( 'The order was CANCELED in the Dintero.', 'dintero-checkout-for-woocommerce' ) );
 				$order->save();
 				break;
 			case 'CAPTURED':
-				Dintero_Checkout_Logger::log( 'CALLBACK: Handling CAPTURED order status. Maybe triggering payment_complete.' );
+				Dintero_Checkout_Logger::log( sprintf( 'CALLBACK: WC Order: %s. Handling CAPTURED order status. Maybe triggering payment_complete.' ), $order->get_order_number() );
 				/* Some payment methods (e.g., Swish) are immediately captured, and thus bypass the authorized status. We have to account for this: */
 				dintero_confirm_order( $order, $transaction_id );
 				break;
 			case 'REFUNDED':
-				Dintero_Checkout_Logger::log( 'CALLBACK: Handling REFUNDED order status.' );
+				Dintero_Checkout_Logger::log( sprintf( 'CALLBACK: WC Order: %s. Handling REFUNDED order status.' ), $order->get_order_number() );
 				break;
 			case 'DECLINED':
 			case 'FAILED':
-				Dintero_Checkout_Logger::log( "CALLBACK: Handling {$dintero_order['status']} order status. Setting order status to FAILED." );
+				Dintero_Checkout_Logger::log( sprintf( 'CALLBACK: WC Order: %s. Handling order status. Setting order status to FAILED.', $order->get_order_number() ) );
 				$order->update_status( 'failed', __( 'The order was not approved by Dintero.', 'dintero-checkout-for-woocommerce' ) );
 				$order->save();
 				break;
