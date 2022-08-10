@@ -55,6 +55,27 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 */
 		public function init_form_fields() {
 			$this->form_fields = Dintero_Settings_Fields::setting_fields();
+
+			add_filter( 'woocommerce_order_button_text', array( $this, 'order_button_text' ) );
+			add_filter( 'woocommerce_pay_order_button_text', array( $this, 'order_button_text' ) );
+		}
+
+		/**
+		 * Retrieve the text for the order button.
+		 *
+		 * Hook: woocommerce_order_button_text
+		 * Hook: woocommerce_pay_order_button_text
+		 *
+		 * @param  string $button_text
+		 * @return string
+		 */
+		public function order_button_text( $button_text ) {
+			$settings = get_option( 'woocommerce_dintero_checkout_settings' );
+			if ( ! empty( $settings['redirect_select_another_method_text'] ) ) {
+				return $settings['redirect_select_another_method_text'];
+			}
+
+			return $button_text;
 		}
 
 		/**
