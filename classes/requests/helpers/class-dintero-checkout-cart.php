@@ -58,8 +58,8 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		$cart = WC()->cart->get_cart();
 
 		// Get cart items.
-		foreach ( $cart as $key => $cart_item ) {
-			$formatted_cart_items[] = $this->get_cart_item( $cart_item, $key );
+		foreach ( $cart as $cart_item_key => $cart_item ) {
+			$formatted_cart_items[] = $this->get_cart_item( $cart_item, $cart_item_key );
 		}
 
 		/**
@@ -90,16 +90,16 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 * Get the formatted order line from a cart item.
 	 *
 	 * @param array  $cart_item The cart item.
-	 * @param string $key The cart item hash.
+	 * @param string $cart_item_key The cart item hash.
 	 * @return array
 	 */
-	public function get_cart_item( $cart_item, $key ) {
+	public function get_cart_item( $cart_item, $cart_item_key ) {
 		$id      = ( empty( $cart_item['variation_id'] ) ) ? $cart_item['product_id'] : $cart_item['variation_id'];
 		$product = wc_get_product( $id );
 
 		return array(
 			'id'          => $this->get_product_sku( $product ),
-			'line_id'     => $key,
+			'line_id'     => $cart_item_key,
 			'description' => $this->get_product_name( $cart_item ),
 			'quantity'    => $cart_item['quantity'],
 			'amount'      => self::format_number( $cart_item['line_total'] + $cart_item['line_tax'] ),
