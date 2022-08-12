@@ -56,8 +56,11 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		public function init_form_fields() {
 			$this->form_fields = Dintero_Settings_Fields::setting_fields();
 
+			add_filter( 'woocommerce_order_button_text', array( 'Dintero_Settings_Fields', 'order_button_text' ) );
+			add_filter( 'woocommerce_pay_order_button_text', array( 'Dintero_Settings_Fields', 'order_button_text' ) );
 			add_action( 'update_option_woocommerce_dintero_checkout_settings', array( 'Dintero_Settings_Fields', 'maybe_update_access_token' ), 10, 2 );
 		}
+
 
 		/**
 		 * Add payment gateway icon on the checkout page.
