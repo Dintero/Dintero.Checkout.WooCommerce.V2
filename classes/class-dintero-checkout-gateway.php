@@ -55,6 +55,8 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 */
 		public function init_form_fields() {
 			$this->form_fields = Dintero_Settings_Fields::setting_fields();
+
+			add_action( 'update_option_woocommerce_dintero_checkout_settings', array( 'Dintero_Settings_Fields', 'maybe_update_access_token' ), 10, 2 );
 		}
 
 		/**
