@@ -269,4 +269,17 @@ class Dintero_Settings_Fields {
 
 		return $button_text;
 	}
+
+	/**
+	 * Delete the access token when the merchant switch between test v. production mode.
+	 *
+	 * @param  array $new_settings The Dintero WooCommerce settings that were changed.
+	 * @param  array $old_settings The Dintero WooCommerce settings before the change.
+	 * @return void Maybe delete the dintero_checkout_access_token transient.
+	 */
+	public static function maybe_update_access_token( $new_settings, $old_settings ) {
+		if ( $new_settings['test_mode'] !== $old_settings['test_mode'] ) {
+			delete_transient( 'dintero_checkout_access_token' );
+		}
+	}
 }
