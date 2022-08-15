@@ -59,6 +59,13 @@ jQuery( function( $ ) {
 				sid: dinteroCheckoutParams.SID,
 				language: dinteroCheckoutParams.language,
 				onSession( event, checkout ) {
+					// If the session expires, the order object will be missing.
+					if ( event.session === undefined || event.session.order === undefined ) {
+						// Refresh the session to display the error message from Dintero. The error itself should be handled by any of other event handlers.
+						checkout.refreshSession();
+						return;
+					}
+
 					// Check for address changes and update shipping.
 					dinteroCheckoutForWooCommerce.updateAddress( event.session.order.billing_address, event.session.order.shipping_address );
 					if ( event.session.order.shipping_option && dinteroCheckoutParams.shipping_in_iframe ) {
@@ -89,6 +96,10 @@ jQuery( function( $ ) {
 				onSessionCancel( event, checkout ) {
 					checkout.destroy();
 					dinteroCheckoutForWooCommerce.unsetSession( event.href );
+				},
+				onSessionNotFound( event, checkout ) {
+					/* Unset the session, and redirect the customer back to the checkout page (the same page). The checkout will automatically be destroyed. */
+					dinteroCheckoutForWooCommerce.unsetSession( window.location.pathname );
 				},
 				onSessionLocked( event, checkout, callback ) {
 					dinteroCheckoutForWooCommerce.isLocked = true;
