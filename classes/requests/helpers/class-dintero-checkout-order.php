@@ -144,9 +144,19 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		$id      = ( empty( $order_item['variation_id'] ) ) ? $order_item['product_id'] : $order_item['variation_id'];
 		$product = wc_get_product( $id );
 
+		if ( is_a( $this->order, 'WC_Order_Refund' ) ) {
+			// Retrieve the same get_id that was set in the checkout.
+			$line_id = wc_get_order_item_meta( $order_item->get_meta( '_refunded_item_id' ), 'dintero_checkout_line_id', true );
+			if ( empty( $line_id ) ) {
+				$line_id = $order_item->get_meta( '_refunded_item_id' );
+			}
+		} else {
+			$line_id = $order_item->get_meta( 'dintero_checkout_line_id' );
+		}
+
 		return array(
 			'id'          => $this->get_product_sku( $product ),
-			'line_id'     => $this->get_product_sku( $product ),
+			'line_id'     => strval( $line_id ),
 			'description' => $order_item->get_name(),
 			'quantity'    => absint( $order_item->get_quantity() ),
 			'amount'      => absint( self::format_number( $order_item->get_total() + $order_item->get_total_tax() ) ),
