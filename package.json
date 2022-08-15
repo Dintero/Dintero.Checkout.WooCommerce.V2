@@ -31,7 +31,7 @@
         "moveJS": "npx grunt move",
         "lint": "npx eslint -c ./.eslintrc.json --ext .js assets/js --fix",
         "webpack:dev": "npx webpack --mode=development --watch",
-        "build": "yarn makepot && yarn cssmin && yarn jsmin && yarn moveJS"
+        "build": "yarn lint && yarn makepot && yarn cssmin && yarn jsmin && yarn moveJS"
     },
     "dependencies": {
         "@dintero/checkout-web-sdk": "^0.4.3",
