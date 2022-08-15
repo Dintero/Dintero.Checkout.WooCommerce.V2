@@ -251,4 +251,35 @@ class Dintero_Settings_Fields {
 
 		return apply_filters( 'dintero_checkout_settings', $settings );
 	}
+
+	/**
+	 * Retrieve the text for the order button.
+	 *
+	 * Hook: woocommerce_order_button_text
+	 * Hook: woocommerce_pay_order_button_text
+	 *
+	 * @param  string $button_text
+	 * @return string
+	 */
+	public static function order_button_text( $button_text ) {
+		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
+		if ( ! empty( $settings['redirect_select_another_method_text'] ) ) {
+			return $settings['redirect_select_another_method_text'];
+		}
+
+		return $button_text;
+	}
+
+	/**
+	 * Delete the access token when the merchant switch between test v. production mode.
+	 *
+	 * @param  array $new_settings The Dintero WooCommerce settings that were changed.
+	 * @param  array $old_settings The Dintero WooCommerce settings before the change.
+	 * @return void Maybe delete the dintero_checkout_access_token transient.
+	 */
+	public static function maybe_update_access_token( $new_settings, $old_settings ) {
+		if ( $new_settings['test_mode'] !== $old_settings['test_mode'] ) {
+			delete_transient( 'dintero_checkout_access_token' );
+		}
+	}
 }

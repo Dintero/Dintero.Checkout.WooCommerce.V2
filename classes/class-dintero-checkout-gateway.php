@@ -46,6 +46,30 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 					'process_admin_options',
 				)
 			);
+
+			/**
+			 * Adds cart_item_key to be used as a unique line add as a meta data to the order item. This applies to both embedded and redirect flow.
+			 */
+			add_action(
+				'woocommerce_add_order_item_meta',
+				function( $item_id, $values, $key ) {
+					wc_add_order_item_meta( $item_id, 'dintero_checkout_line_id', $key, true );
+				},
+				10,
+				3
+			);
+
+			/**
+			 * By default, a custom meta data will be displayed on the order page. Since the meta data dintero_checkout_line_id is an implementation detail,
+			 * we should hide it on the order page.
+			 */
+			add_filter(
+				'woocommerce_hidden_order_itemmeta',
+				function( $hidden_meta ) {
+					$hidden_meta[] = 'dintero_checkout_line_id';
+					return $hidden_meta;
+				}
+			);
 		}
 
 		/**
@@ -55,7 +79,12 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 */
 		public function init_form_fields() {
 			$this->form_fields = Dintero_Settings_Fields::setting_fields();
+
+			add_filter( 'woocommerce_order_button_text', array( 'Dintero_Settings_Fields', 'order_button_text' ) );
+			add_filter( 'woocommerce_pay_order_button_text', array( 'Dintero_Settings_Fields', 'order_button_text' ) );
+			add_action( 'update_option_woocommerce_dintero_checkout_settings', array( 'Dintero_Settings_Fields', 'maybe_update_access_token' ), 10, 2 );
 		}
+
 
 		/**
 		 * Add payment gateway icon on the checkout page.

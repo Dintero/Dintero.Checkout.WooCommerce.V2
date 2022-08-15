@@ -5,8 +5,8 @@ Requires at least: 5.8.3
 Tested up to: 6.0.1
 Requires PHP: 7.0
 WC requires at least: 6.1.0
-WC tested up to: 6.6.1
-Stable tag: 1.0.8
+WC tested up to: 6.7.0
+Stable tag: 1.1.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -83,6 +83,12 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2022.08.15    - version 1.1.0 =
+* Feature       - Added compatibility with bundle products.
+* Tweak         - Handle expired session during checkout (embedded only).
+* Fix           - New access token is now automatically generated whenever switching between test and production mode.
+* Fix           - The "Go to payment" option label (redirect only) should now apply on the correct buttons.
+
 = 2022.07.14    - version 1.0.8 =
 * Tweak         - Removed obsolete setting.
 * Tweak         - Tweaked meta box formatting.
