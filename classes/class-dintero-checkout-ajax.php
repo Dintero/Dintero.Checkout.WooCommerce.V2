@@ -47,7 +47,6 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_key( $_POST['nonce'] ) : '';
 		if ( ! wp_verify_nonce( $nonce, 'dintero_checkout_wc_change_payment_method' ) ) {
 			wp_send_json_error( 'bad_nonce' );
-			exit;
 		}
 		$available_gateways         = WC()->payment_gateways()->get_available_payment_gateways();
 		$switch_to_dintero_checkout = isset( $_POST['dintero_checkout'] ) ? sanitize_text_field( wp_unslash( $_POST['dintero_checkout'] ) ) : '';
@@ -72,7 +71,6 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 		);
 
 		wp_send_json_success( $data );
-		wp_die();
 	}
 
 	/**
@@ -84,14 +82,12 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_key( $_POST['nonce'] ) : '';
 		if ( ! wp_verify_nonce( $nonce, 'dintero_checkout_wc_log_js' ) ) {
 			wp_send_json_error( 'bad_nonce' );
-			exit;
 		}
 		$posted_message            = isset( $_POST['message'] ) ? sanitize_text_field( wp_unslash( $_POST['message'] ) ) : '';
 		$dintero_checkout_order_id = WC()->session->get( 'dintero_checkout_order_id' );
 		$message                   = "Frontend JS $dintero_checkout_order_id: $posted_message";
 		Dintero_Checkout_Logger::log( $message );
 		wp_send_json_success();
-		wp_die();
 	}
 
 	/**
@@ -103,7 +99,6 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_key( $_POST['nonce'] ) : '';
 		if ( ! wp_verify_nonce( $nonce, 'dintero_checkout_unset_session' ) ) {
 			wp_send_json_error( 'bad_nonce' );
-			exit;
 		}
 
 		dintero_unset_sessions();
@@ -119,7 +114,6 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_key( $_POST['nonce'] ) : '';
 		if ( ! wp_verify_nonce( $nonce, 'dintero_checkout_print_notice' ) ) {
 			wp_send_json_error( 'bad_nonce' );
-			exit;
 		}
 
 		$notice_type = filter_input( INPUT_POST, 'notice_type', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
