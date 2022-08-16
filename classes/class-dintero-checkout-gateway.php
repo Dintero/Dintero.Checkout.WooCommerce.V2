@@ -53,20 +53,20 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			add_action(
 				'woocommerce_add_order_item_meta',
 				function( $item_id, $values, $key ) {
-					wc_add_order_item_meta( $item_id, 'dintero_checkout_line_id', $key, true );
+					wc_add_order_item_meta( $item_id, '_dintero_checkout_line_id', $key, true );
 				},
 				10,
 				3
 			);
 
 			/**
-			 * By default, a custom meta data will be displayed on the order page. Since the meta data dintero_checkout_line_id is an implementation detail,
+			 * By default, a custom meta data will be displayed on the order page. Since the meta data _dintero_checkout_line_id is an implementation detail,
 			 * we should hide it on the order page.
 			 */
 			add_filter(
 				'woocommerce_hidden_order_itemmeta',
 				function( $hidden_meta ) {
-					$hidden_meta[] = 'dintero_checkout_line_id';
+					$hidden_meta[] = '_dintero_checkout_line_id';
 					return $hidden_meta;
 				}
 			);
