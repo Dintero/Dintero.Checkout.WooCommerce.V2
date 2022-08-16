@@ -42,12 +42,39 @@ function dintero_unset_sessions() {
 /**
  * Prints error message as notices.
  *
+ * Sometimes an error message cannot be printed (e.g., in a cronjob environment) where there is
+ * no front end to display the error message, or otherwise irrelevant for a human. For that reason, we have to check if the print functions are undefined.
+ *
  * @param WP_Error $wp_error A WordPress error object.
  * @return void
  */
 function dintero_print_error_message( $wp_error ) {
+	if ( is_ajax() ) {
+		if ( function_exists( 'wc_add_notice' ) ) {
+			$print = 'wc_add_notice';
+		}
+	} else {
+		if ( function_exists( 'wc_print_notice' ) ) {
+			$print = 'wc_print_notice';
+		}
+	}
+
+	if ( ! isset( $print ) ) {
+		return;
+	}
+
 	foreach ( $wp_error->get_error_messages() as $error ) {
-		wc_add_notice( ( is_array( $error ) ) ? $error['message'] : $error, 'error' );
+		$message = is_array( $error ) ? implode( ' ', $error ) : $error;
+
+		if ( is_ajax() ) {
+			if ( function_exists( 'wc_add_notice' ) ) {
+				$print( $message, 'error' );
+			}
+		} else {
+			if ( function_exists( 'wc_print_notice' ) ) {
+				$print( $message, 'error' );
+			}
+		}
 	}
 }
 
