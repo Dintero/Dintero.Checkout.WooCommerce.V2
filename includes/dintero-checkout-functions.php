@@ -67,14 +67,9 @@ function dintero_print_error_message( $wp_error ) {
 		$message = is_array( $error ) ? implode( ' ', $error ) : $error;
 
 		if ( is_ajax() ) {
-			if ( function_exists( 'wc_add_notice' ) ) {
+			if ( function_exists( $print ) ) {
 				$print( $message, 'error' );
 			}
-		} else {
-			if ( function_exists( 'wc_print_notice' ) ) {
-				$print( $message, 'error' );
-			}
-		}
 	}
 }
 
