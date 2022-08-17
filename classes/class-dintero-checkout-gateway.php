@@ -48,13 +48,15 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			);
 
 			/**
-			 * Adds cart_item_id to be used as a unique line add as a meta data to the order item. This applies to both embedded and redirect flow.
+			 * Adds cart_item_key to the order item's meta data to be used as a unique line id. This applies to both embedded and redirect flow.
 			 */
 			add_action(
-				'woocommerce_new_order_item',
-				function( $item_id ) {
-					wc_add_order_item_meta( $item_id, '_dintero_checkout_line_id', $item_id, true );
-				}
+				'woocommerce_checkout_create_order_line_item',
+				function( $item, $cart_item_key ) {
+					$item->update_meta_data( '_dintero_checkout_line_id', $cart_item_key );
+				},
+				10,
+				2
 			);
 
 			/**
