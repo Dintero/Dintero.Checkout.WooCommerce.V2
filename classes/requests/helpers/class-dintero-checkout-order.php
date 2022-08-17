@@ -145,9 +145,9 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		$product = wc_get_product( $id );
 
 		if ( is_a( $this->order, 'WC_Order_Refund' ) ) {
-			$line_id = wc_get_order_item_meta( $order_item->get_meta( '_refunded_item_id' ), '_cart_item_key', true );
+			$line_id = wc_get_order_item_meta( $order_item->get_meta( '_refunded_item_id' ), '_dintero_checkout_line_id', true );
 		} else {
-			$line_id = $order_item->get_meta( '_cart_item_key' );
+			$line_id = $order_item->get_meta( '_dintero_checkout_line_id' );
 		}
 
 		$vat_rate = WC_Tax::get_base_tax_rates( $product->get_tax_class() );
