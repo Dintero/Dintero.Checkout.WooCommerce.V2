@@ -154,6 +154,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			$line_id = $order_item->get_meta( '_dintero_checkout_line_id' );
 		}
 
+		$vat_rate = WC_Tax::get_base_tax_rates( $product->get_tax_class() );
+
 		return array(
 			'id'          => $this->get_product_sku( $product ),
 			'line_id'     => strval( $line_id ),
@@ -161,7 +163,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			'quantity'    => absint( $order_item->get_quantity() ),
 			'amount'      => absint( self::format_number( $order_item->get_total() + $order_item->get_total_tax() ) ),
 			'vat_amount'  => absint( self::format_number( $order_item->get_total_tax() ) ),
-			'vat'         => reset( WC_Tax::get_base_tax_rates( $product->get_tax_class() ) )['rate'] ?? 0,
+			'vat'         => reset( $vat_rate )['rate'] ?? 0,
 		);
 	}
 
