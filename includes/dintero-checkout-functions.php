@@ -65,11 +65,7 @@ function dintero_print_error_message( $wp_error ) {
 
 	foreach ( $wp_error->get_error_messages() as $error ) {
 		$message = is_array( $error ) ? implode( ' ', $error ) : $error;
-
-		if ( is_ajax() ) {
-			if ( function_exists( $print ) ) {
-				$print( $message, 'error' );
-			}
+		$print( $message, 'error' );
 	}
 }
 
