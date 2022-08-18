@@ -48,20 +48,20 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			);
 
 			/**
-			 * Adds cart_item_key to be used as a unique line add as a meta data to the order item. This applies to both embedded and redirect flow.
+			 * Adds cart_item_key to the order item's meta data to be used as a unique line id. This applies to both embedded and redirect flow.
 			 */
 			add_action(
-				'woocommerce_add_order_item_meta',
-				function( $item_id, $values, $key ) {
-					wc_add_order_item_meta( $item_id, '_dintero_checkout_line_id', $key, true );
+				'woocommerce_checkout_create_order_line_item',
+				function( $item, $cart_item_key ) {
+					$item->update_meta_data( '_dintero_checkout_line_id', $cart_item_key );
 				},
 				10,
-				3
+				2
 			);
 
 			/**
 			 * By default, a custom meta data will be displayed on the order page. Since the meta data _dintero_checkout_line_id is an implementation detail,
-			 * we should hide it on the order page.
+			 * we should hide it on the order page. The meta key has to be prefixed with an underscore (_) to also hide the meta data beyond the order page (e.g., in emails, PDF documents).
 			 */
 			add_filter(
 				'woocommerce_hidden_order_itemmeta',

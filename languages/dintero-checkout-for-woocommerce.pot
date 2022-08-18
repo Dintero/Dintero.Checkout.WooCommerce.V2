@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/Dintero.Checkout.WooCommerce.V2\n"
-"POT-Creation-Date: 2022-08-15 12:09:48+00:00\n"
+"POT-Creation-Date: 2022-08-18 10:32:47+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -53,11 +53,11 @@ msgstr ""
 msgid "Dintero Checkout"
 msgstr ""
 
-#: classes/class-dintero-checkout-gateway.php:110
+#: classes/class-dintero-checkout-gateway.php:134
 msgid "Dintero Order created with reference "
 msgstr ""
 
-#: classes/class-dintero-checkout-gateway.php:135
+#: classes/class-dintero-checkout-gateway.php:159
 msgid "Customer redirected to Dintero payment page."
 msgstr ""
 
@@ -405,13 +405,13 @@ msgstr ""
 msgid "Background color:"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-cart.php:285
-#: classes/requests/helpers/class-dintero-checkout-cart.php:308
-#: classes/requests/helpers/class-dintero-checkout-order.php:228
+#: classes/requests/helpers/class-dintero-checkout-cart.php:286
+#: classes/requests/helpers/class-dintero-checkout-cart.php:309
+#: classes/requests/helpers/class-dintero-checkout-order.php:240
 msgid "Gift card"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-cart.php:329
+#: classes/requests/helpers/class-dintero-checkout-cart.php:330
 msgid "Gift card:"
 msgstr ""
 
@@ -429,23 +429,23 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:25
+#: includes/dintero-checkout-functions.php:20
 msgid "Select another payment method"
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:122
+#: includes/dintero-checkout-functions.php:134
 #. translators: %s the Dintero transaction ID.
 msgid ""
 "The order was placed successfully, but requires further authorization by "
 "Dintero. Transaction ID: %s"
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:129
+#: includes/dintero-checkout-functions.php:141
 #. translators: %s the Dintero transaction ID.
 msgid "Payment via Dintero Checkout. Transaction ID: %s"
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:134
+#: includes/dintero-checkout-functions.php:146
 msgid "The order was placed successfully."
 msgstr ""
 

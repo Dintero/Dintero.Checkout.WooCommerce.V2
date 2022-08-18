@@ -145,23 +145,25 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		$product = wc_get_product( $id );
 
 		if ( is_a( $this->order, 'WC_Order_Refund' ) ) {
-			// Retrieve the same get_id that was set in the checkout.
 			$line_id = wc_get_order_item_meta( $order_item->get_meta( '_refunded_item_id' ), '_dintero_checkout_line_id', true );
-			if ( empty( $line_id ) ) {
-				$line_id = $order_item->get_meta( '_refunded_item_id' );
-			}
 		} else {
 			$line_id = $order_item->get_meta( '_dintero_checkout_line_id' );
 		}
 
+		/* If $line_id is empty, the order was most likely placed in an older version of Dintero (< v1.1.0). */
+		if ( empty( $line_id ) ) {
+			$line_id = $this->get_product_sku( $product );
+		}
+
+		$vat_rate = WC_Tax::get_base_tax_rates( $product->get_tax_class() );
 		return array(
 			'id'          => $this->get_product_sku( $product ),
-			'line_id'     => strval( $line_id ),
+			'line_id'     => $line_id,
 			'description' => $order_item->get_name(),
 			'quantity'    => absint( $order_item->get_quantity() ),
 			'amount'      => absint( self::format_number( $order_item->get_total() + $order_item->get_total_tax() ) ),
 			'vat_amount'  => absint( self::format_number( $order_item->get_total_tax() ) ),
-			'vat'         => reset( WC_Tax::get_base_tax_rates( $product->get_tax_class() ) )['rate'] ?? 0,
+			'vat'         => reset( $vat_rate )['rate'] ?? 0,
 		);
 	}
 
