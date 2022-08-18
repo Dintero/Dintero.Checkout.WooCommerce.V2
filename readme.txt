@@ -6,7 +6,7 @@ Tested up to: 6.0.1
 Requires PHP: 7.0
 WC requires at least: 6.1.0
 WC tested up to: 6.7.0
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -83,6 +83,11 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2022.08.18    - version 1.1.2 =
+* Tweak         - Better error handling especially in situations where there is no front end to display the error message (e.g., in a cronjob environment).
+* Fix           - Fixed various PHP notices.
+* Fix           - Fixed backward compatibility problem for orders that were placed prior to version 1.1.0. 
+
 = 2022.08.16    - version 1.1.1 =
 * Fix           - The metadata 'dintero_checkout_line_id' should now be hidden.
 
