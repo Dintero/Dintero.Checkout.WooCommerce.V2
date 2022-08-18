@@ -150,6 +150,11 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			$line_id = $order_item->get_meta( '_dintero_checkout_line_id' );
 		}
 
+		/* If $line_id is empty, the order was most likely placed in an older version of Dintero (< v1.1.0). */
+		if ( empty( $line_id ) ) {
+			$line_id = $this->get_product_sku( $product );
+		}
+
 		$vat_rate = WC_Tax::get_base_tax_rates( $product->get_tax_class() );
 		return array(
 			'id'          => $this->get_product_sku( $product ),
