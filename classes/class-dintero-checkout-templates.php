@@ -58,6 +58,7 @@ class Dintero_Checkout_Templates {
 			add_action( 'dintero_iframe', array( $this, 'iframe' ) );
 
 			// Express.
+			add_action( 'dintero_express_after_order_review', array( $this, 'dintero_express_add_extra_checkout_fields' ) );
 			add_action( 'dintero_express_order_review', array( $this, 'express_order_review' ) );
 			add_action( 'dintero_express_order_review', 'dintero_checkout_wc_show_another_gateway_button', 20 );
 			add_action( 'dintero_express_form', array( $this, 'express_form' ), 20 );
@@ -234,6 +235,18 @@ class Dintero_Checkout_Templates {
 		}
 		return $class;
 	}
+
+	/**
+	 * Adds the extra checkout field div to the checkout page.
+	 */
+	public function dintero_express_add_extra_checkout_fields() {
+		do_action( 'dintero_express_before_extra_fields' );
+		?>
+		<div id="dintero-express-extra-checkout-fields"></div>
+		<?php
+		do_action( 'dintero_express_after_extra_fields' );
+	}
+
 }
 
 Dintero_Checkout_Templates::get_instance();
