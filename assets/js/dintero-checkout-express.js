@@ -239,7 +239,7 @@ jQuery( function( $ ) {
 		 */
 		moveExtraCheckoutFields() {
 			// Move order comments.
-			$( '.woocommerce-additional-fields' ).appendTo( '#dintero-checkout-extra-checkout-fields' );
+			$( '.woocommerce-additional-fields' ).appendTo( '#dintero-express-extra-checkout-fields' );
 
 			const form = $( 'form[name="checkout"] input, form[name="checkout"] select, textarea' );
 			for ( let i = 0; i < form.length; i++ ) {
@@ -253,9 +253,9 @@ jQuery( function( $ ) {
 				if ( -1 === $.inArray( name, dinteroCheckoutParams.standardWooCheckoutFields ) ) {
 					// This is not a standard Woo field, move to our div.
 					if ( 0 < $( 'p#' + name + '_field' ).length ) {
-						$( 'p#' + name + '_field' ).appendTo( '#dintero-checkout-extra-checkout-fields' );
+						$( 'p#' + name + '_field' ).appendTo( '#dintero-express-extra-checkout-fields' );
 					} else {
-						$( 'input[name="' + name + '"]' ).closest( 'p' ).appendTo( '#dintero-checkout-extra-checkout-fields' );
+						$( 'input[name="' + name + '"]' ).closest( 'p' ).appendTo( '#dintero-express-extra-checkout-fields' );
 					}
 				}
 			}

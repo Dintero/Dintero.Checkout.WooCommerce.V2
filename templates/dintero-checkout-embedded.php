@@ -1,6 +1,6 @@
 <?php
 /**
- * The Dintero Checkout Express form to be embedded.
+ * The Dintero Checkout Express form to be embedded (Dintero Checkout → Embedded).
  *
  * @package Dintero_Checkout/Templates
  */
