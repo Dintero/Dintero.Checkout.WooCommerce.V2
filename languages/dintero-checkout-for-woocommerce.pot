@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/Dintero.Checkout.WooCommerce.V2\n"
-"POT-Creation-Date: 2022-08-18 10:32:47+00:00\n"
+"POT-Creation-Date: 2022-08-22 09:17:16+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -447,6 +447,10 @@ msgstr ""
 
 #: includes/dintero-checkout-functions.php:146
 msgid "The order was placed successfully."
+msgstr ""
+
+#: templates/dintero-checkout-express.php:10
+msgid "You must be logged in to checkout."
 msgstr ""
 
 #: classes/class-dintero-checkout-order-status.php:26
