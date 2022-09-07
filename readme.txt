@@ -2,11 +2,11 @@
 Contributors: dintero, krokedil, NiklasHogefjord
 Tags: woocommerce, dintero, ecommerce, e-commerce, checkout
 Requires at least: 5.8.3
-Tested up to: 6.0.1
+Tested up to: 6.0.2
 Requires PHP: 7.0
 WC requires at least: 6.1.0
-WC tested up to: 6.8.0
-Stable tag: 1.2.0
+WC tested up to: 6.8.2
+Stable tag: 1.2.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -83,6 +83,9 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2022.09.07    - version 1.2.1 =
+* Fix           - Prevent fatal error with latest YITH WooCommerce Gift Card version.
+
 = 2022.08.24    - version 1.2.0 =
 * Feature       - Added additional checkout fields, and hooks.
 * Tweak         - Updated to most recent Web SDK.
