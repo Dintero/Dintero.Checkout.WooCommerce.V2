@@ -58,6 +58,11 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 			$this->add_express_object( $body );
 		}
 
+		// Set customer address for embedded.
+		if ( ! $this->is_express() && $this->is_embedded() ) {
+			$this->add_customer_address( $body );
+		}
+
 		$helper::add_shipping( $body, $helper, $this->is_embedded(), $this->is_express(), $this->is_shipping_in_iframe() );
 		$helper::add_rounding_line( $body );
 
@@ -84,6 +89,81 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 			default:
 				$body['express']['customer_types'] = array( 'b2c', 'b2b' );
 				break;
+		}
+
+		return $body;
+	}
+
+	/**
+	 * Adds customer addresst to the body if entered in WooCommerce.
+	 *
+	 * @param array $body The body array.
+	 * @return array
+	 */
+	public function add_customer_address( &$body ) {
+
+		// Billing address.
+		if ( ! empty( WC()->customer->get_billing_first_name() ) ) {
+			$body['billing_address']['first_name'] = WC()->customer->get_billing_first_name();
+		}
+		if ( ! empty( WC()->customer->get_billing_last_name() ) ) {
+			$body['billing_address']['last_name'] = WC()->customer->get_billing_last_name();
+		}
+		if ( ! empty( WC()->customer->get_billing_address_1() ) ) {
+			$body['billing_address']['address_line'] = WC()->customer->get_billing_address_1();
+		}
+		if ( ! empty( WC()->customer->get_billing_address_2() ) ) {
+			$body['billing_address']['address_line_2'] = WC()->customer->get_billing_address_2();
+		}
+		if ( ! empty( WC()->customer->get_billing_postcode() ) ) {
+			$body['billing_address']['postal_code'] = WC()->customer->get_billing_postcode();
+		}
+		if ( ! empty( WC()->customer->get_billing_city() ) ) {
+			$body['billing_address']['postal_place'] = WC()->customer->get_billing_city();
+		}
+		if ( ! empty( WC()->customer->get_billing_country() ) ) {
+			$body['billing_address']['country'] = WC()->customer->get_billing_country();
+		}
+		if ( ! empty( WC()->customer->get_billing_company() ) ) {
+			$body['billing_address']['business_name'] = WC()->customer->get_billing_company();
+		}
+		if ( ! empty( WC()->customer->get_billing_phone() ) ) {
+			$body['billing_address']['phone_number'] = WC()->customer->get_billing_phone();
+		}
+		if ( ! empty( WC()->customer->get_billing_email() ) ) {
+			$body['billing_address']['email'] = WC()->customer->get_billing_email();
+		}
+
+		// Shipping address.
+		if ( ! empty( WC()->customer->get_shipping_first_name() ) ) {
+			$body['shipping_address']['first_name'] = WC()->customer->get_shipping_first_name();
+		}
+		if ( ! empty( WC()->customer->get_shipping_last_name() ) ) {
+			$body['shipping_address']['last_name'] = WC()->customer->get_shipping_last_name();
+		}
+		if ( ! empty( WC()->customer->get_shipping_address_1() ) ) {
+			$body['shipping_address']['address_line'] = WC()->customer->get_shipping_address_1();
+		}
+		if ( ! empty( WC()->customer->get_shipping_address_2() ) ) {
+			$body['shipping_address']['address_line_2'] = WC()->customer->get_shipping_address_2();
+		}
+		if ( ! empty( WC()->customer->get_shipping_postcode() ) ) {
+			$body['shipping_address']['postal_code'] = WC()->customer->get_shipping_postcode();
+		}
+		if ( ! empty( WC()->customer->get_shipping_city() ) ) {
+			$body['shipping_address']['postal_place'] = WC()->customer->get_shipping_city();
+		}
+		if ( ! empty( WC()->customer->get_shipping_country() ) ) {
+			$body['shipping_address']['country'] = WC()->customer->get_shipping_country();
+		}
+		if ( ! empty( WC()->customer->get_shipping_company() ) ) {
+			$body['shipping_address']['business_name'] = WC()->customer->get_shipping_company();
+		}
+		if ( ! empty( WC()->customer->get_shipping_phone() ) ) {
+			$body['shipping_address']['phone_number'] = WC()->customer->get_shipping_phone();
+		}
+		if ( ! empty( WC()->customer->get_shipping_email() ) ) {
+			$body['shipping_address']['email'] = WC()->customer->get_shipping_email();
 		}
 
 		return $body;
