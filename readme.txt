@@ -6,7 +6,7 @@ Tested up to: 6.0.2
 Requires PHP: 7.0
 WC requires at least: 6.1.0
 WC tested up to: 6.8.2
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -83,6 +83,11 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2022.09.15    - version 1.2.2 =
+* Fix           - Fixed an issue where the embedded checkout layout would sometimes switch from two-column to single-column when trying to change payment method.
+* Fix           - Fixed an issue with switching from embedded checkout if Dintero Checkout was set as the first payment gateway.
+* Enhancement   - If customer data is available it will be used for automatically filling the payment form when the checkout page is first loaded.
+
 = 2022.09.07    - version 1.2.1 =
 * Fix           - Prevent fatal error with latest YITH WooCommerce Gift Card version.
 

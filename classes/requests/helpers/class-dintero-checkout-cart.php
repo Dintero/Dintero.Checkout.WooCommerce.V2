@@ -342,4 +342,66 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 
 		return $order_lines;
 	}
+
+
+	/**
+	 * Retrieve the customer's billing address.
+	 *
+	 * @return array An associative array representing the billing address.
+	 */
+	public function get_billing_address() {
+
+		$billing_address = array(
+			'first_name'     => WC()->customer->get_billing_first_name(),
+			'last_name'      => WC()->customer->get_billing_last_name(),
+			'address_line'   => WC()->customer->get_billing_address_1(),
+			'address_line_2' => WC()->customer->get_billing_address_2(),
+			'business_name'  => WC()->customer->get_billing_company(),
+			'postal_code'    => WC()->customer->get_billing_postcode(),
+			'postal_place'   => WC()->customer->get_billing_city(),
+			'country'        => WC()->customer->get_billing_country(),
+			'phone_number'   => dintero_sanitize_phone_number( WC()->customer->get_billing_phone() ),
+			'email'          => WC()->customer->get_billing_email(),
+		);
+
+		/* Sanitize all values. Remove all empty elements (required by Dintero). */
+		return array_filter(
+			$billing_address,
+			function( $value ) {
+				return ! empty( sanitize_text_field( $value ) );
+			}
+		);
+	}
+
+	/**
+	 * Retrieve the customer's shipping address.
+	 *
+	 * @return array An associative array representing the shipping address.
+	 */
+	public function get_shipping_address() {
+		$shipping_address = array(
+			'first_name'     => WC()->customer->get_shipping_first_name(),
+			'last_name'      => WC()->customer->get_shipping_last_name(),
+			'address_line'   => WC()->customer->get_shipping_address_1(),
+			'address_line_2' => WC()->customer->get_shipping_address_2(),
+			'business_name'  => WC()->customer->get_shipping_company(),
+			'postal_code'    => WC()->customer->get_shipping_postcode(),
+			'postal_place'   => WC()->customer->get_shipping_city(),
+			'country'        => WC()->customer->get_shipping_country(),
+			'email'          => WC()->customer->get_billing_email(),
+		);
+
+		// Check if a shipping phone number exist. Default to billing phone.
+		$phone                            = WC()->customer->get_shipping_phone();
+		$shipping_address['phone_number'] = dintero_sanitize_phone_number( ! empty( $phone ) ? $phone : WC()->customer->get_billing_phone() );
+
+		/* Sanitize all values. Remove all empty elements (required by Dintero). */
+		return array_filter(
+			$shipping_address,
+			function( $value ) {
+				return ! empty( sanitize_text_field( $value ) );
+			}
+		);
+	}
+
 }

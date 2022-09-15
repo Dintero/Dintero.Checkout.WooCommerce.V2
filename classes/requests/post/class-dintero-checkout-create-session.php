@@ -43,17 +43,14 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 		if ( ! empty( $this->arguments['order_id'] ) || is_wc_endpoint_url( 'order-pay' ) ) {
 			$key      = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 			$order_id = is_wc_endpoint_url( 'order-pay' ) ? wc_get_order_id_by_order_key( sanitize_key( $key ) ) : $this->arguments['order_id'];
+			$order    = wc_get_order( $order_id );
 
-			$helper           = new Dintero_Checkout_Order( $order_id );
-			$order            = wc_get_order( $order_id );
-			$shipping_address = $helper->get_shipping_address( $order );
-			$billing_address  = $helper->get_billing_address( $order );
-			$reference        = $helper->get_merchant_reference( $order );
+			$helper = new Dintero_Checkout_Order( $order_id );
 		} else {
-			$helper    = new Dintero_Checkout_Cart();
-			$reference = $helper->get_merchant_reference();
+			$helper = new Dintero_Checkout_Cart();
 		}
 
+		$reference = isset( $order ) ? $helper->get_merchant_reference( $order ) : $helper->get_merchant_reference();
 		WC()->session->set( 'dintero_merchant_reference', $reference );
 
 		$body = array(
@@ -78,9 +75,14 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			'profile_id' => $this->settings['profile_id'],
 		);
 
-		if ( isset( $order ) ) {
+		$billing_address = isset( $order ) ? $helper->get_billing_address( $order ) : $helper->get_billing_address();
+		if ( ! empty( $billing_address ) ) {
+			$body['order']['billing_address'] = $billing_address;
+		}
+
+		$shipping_address = isset( $order ) ? $helper->get_shipping_address( $order ) : $helper->get_shipping_address();
+		if ( ! empty( $shipping_address ) ) {
 			$body['order']['shipping_address'] = $shipping_address;
-			$body['order']['billing_address']  = $billing_address;
 		}
 
 		if ( ! Dintero_Checkout_Callback::is_localhost() ) {
