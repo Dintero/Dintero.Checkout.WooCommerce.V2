@@ -129,7 +129,7 @@ class Dintero_Checkout_Templates {
 			}
 
 			// If another gateway was, but is made unavailable during checkout, and Dintero Checkout is available, and is the first gateway...
-			if ( ! in_array( $chosen_payment_method, $available_gateways, true ) && 'dintero_checkout' === array_key_first( $available_gateways ) ) {
+			if ( ! isset( $available_gateways[ $chosen_payment_method ] ) && 'dintero_checkout' === array_key_first( $available_gateways ) ) {
 				return $checkout_express_template;
 			}
 		}
