@@ -209,7 +209,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			$packages       = WC()->shipping()->get_packages();
 			$chosen_methods = WC()->session->get( 'chosen_shipping_methods' );
 			if ( empty( $chosen_methods ) || count( $chosen_methods ) > 1 ) {
-				return null;
+				return array();
 			}
 			$chosen_shipping = $chosen_methods[0];
 			foreach ( $packages as $i => $package ) {
@@ -222,7 +222,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		}
 
 		if ( empty( $shipping_method ) ) {
-			return null;
+			return array();
 		}
 
 		return array(
