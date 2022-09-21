@@ -66,7 +66,7 @@ abstract class Dintero_Checkout_Helper_Base {
 				$body['express']['shipping_options'] = $helper->get_express_shipping_options();
 			} else {
 				$shipping_option                     = $helper->get_shipping_option();
-				$body['express']['shipping_options'] = empty( $shipping_option ) ? array() : $shipping_option;
+				$body['express']['shipping_options'] = empty( $shipping_option ) ? array() : array( $shipping_option );
 			}
 
 			$body['express']['shipping_mode'] = 'shipping_required';
