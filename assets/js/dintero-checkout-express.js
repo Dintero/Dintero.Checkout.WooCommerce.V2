@@ -147,7 +147,6 @@ jQuery( function( $ ) {
 				},
 			} );
 		},
-
 		/**
 		 * Triggers on document ready.
 		 */
@@ -386,18 +385,55 @@ jQuery( function( $ ) {
 		},
 
 		/**
+		 * Block form fields from being modified by the user.
+		 */
+		blockForm() {
+			/* Order review. */
+			$( '.woocommerce-checkout-review-order-table' ).block( {
+				message: dinteroCheckoutParams.pip_text,
+				overlayCSS: {
+					background: '#fff',
+				},
+				css: {
+					width: 'fit-content',
+					height: 'fit-content',
+					padding: '0.2em 0.8em',
+					border: 'none',
+				},
+				blockMsgClass: 'dintero-checkout-pip',
+			} );
+
+			/* Additional checkout fields. */
+			$( '#dintero-express-extra-checkout-fields' ).block( {
+				message: null,
+				overlayCSS: {
+					background: '#fff',
+				},
+				blockMsgClass: 'dintero-checkout-pip',
+			} );
+
+			$( '.dintero-checkout-pip' ).siblings( '.blockOverlay' ).addClass( 'dintero-checkout-no-spinner' );
+		},
+
+		/**
+		 * Unblock form fields.
+		 */
+		unblockForm() {
+			/* Order review. */
+			$( '.woocommerce-checkout-review-order-table' ).unblock();
+
+			/* Additional checkout fields. */
+			$( '#dintero-express-extra-checkout-fields' ).unblock();
+		},
+
+		/**
 		 * Submit the order using the WooCommerce AJAX function.
 		 *
 		 * @param {callback} callback
 		 */
 		submitOrder( callback ) {
-			$( '.woocommerce-checkout-review-order-table' ).block( {
-				message: null,
-				overlayCSS: {
-					background: '#fff',
-					opacity: 0.6,
-				},
-			} );
+			this.blockForm();
+
 			$.ajax( {
 				type: 'POST',
 				url: dinteroCheckoutParams.submitOrder,
@@ -449,7 +485,7 @@ jQuery( function( $ ) {
 			$( 'body' ).trigger( 'updated_checkout' );
 			$( dinteroCheckoutForWooCommerce.checkoutFormSelector ).removeClass( 'processing' );
 			$( dinteroCheckoutForWooCommerce.checkoutFormSelector ).unblock();
-			$( '.woocommerce-checkout-review-order-table' ).unblock();
+			this.unblockForm();
 		},
 
 		printNotice( message, noticeType = 'error' ) {

@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/Dintero.Checkout.WooCommerce.V2\n"
-"POT-Creation-Date: 2022-08-22 09:17:16+00:00\n"
+"POT-Creation-Date: 2022-10-03 12:03:58+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,6 +13,10 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "X-Generator: grunt-wp-i18n 1.0.3\n"
+
+#: classes/class-dintero-checkout-assets.php:181
+msgid "Payment in progress"
+msgstr ""
 
 #: classes/class-dintero-checkout-callback.php:164
 msgid "The order was CANCELED in the Dintero."
@@ -415,8 +419,8 @@ msgstr ""
 msgid "Gift card:"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-helper-base.php:81
-#: classes/requests/helpers/class-dintero-checkout-helper-base.php:114
+#: classes/requests/helpers/class-dintero-checkout-helper-base.php:96
+#: classes/requests/helpers/class-dintero-checkout-helper-base.php:129
 msgid "Rounding fee"
 msgstr ""
 

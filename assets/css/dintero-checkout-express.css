@@ -1,3 +1,19 @@
+.dintero-checkout-pip {
+    display: block;
+    font-size: 0.9em;
+    box-shadow: 1px 1px 5px -1px grey;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.woocommerce-checkout-review-order-table .dintero-checkout-pip::before {
+    display: none;
+}
+
+.dintero-checkout-no-spinner::before {
+    display: none !important;
+}
+
 /* Desktop view / multi columns */
 @media only screen and (min-width : 769px) {
 
