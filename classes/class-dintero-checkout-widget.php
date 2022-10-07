@@ -113,7 +113,7 @@ class Dintero_Checkout_Widget extends WP_Widget {
 		?>
 			<div style="padding: 20px 0; <?php echo ( ! empty( $background_color ) ) ? esc_attr( "background-color: $background_color" ) : ''; ?> ">
 			<a href="https://www.dintero.com" target="_blank" title="<?php echo dintero_keyword_backlinks(); ?>">
-				<img loading="lazy" style="margin: 0 auto;" src="<?php echo esc_attr( $icon_url ); ?>" style="max-width: 90%" alt="Dintero Logo" />
+				<img loading="lazy" style="margin: 0 auto;" src="<?php echo esc_attr( $icon_url ); ?>" style="max-width: 90%" alt="<?php echo dintero_alt_backlinks(); ?>" />
 			</a>
 			</div>
 		<?php

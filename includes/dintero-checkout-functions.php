@@ -228,3 +228,19 @@ function dintero_keyword_backlinks() {
 
 	return $keywords[ $index % count( $keywords ) ];
 }
+
+/**
+ * Generates the 'alt' text for the image used for the purpose of backlinks.
+ *
+ * @return string
+ */
+function dintero_alt_backlinks() {
+	switch ( substr( get_locale(), 0, 2 ) ) {
+		case 'sv':
+			return 'Dintero logo, klicka här för att visa Dinteros hemsida.';
+		case 'nb':
+			return 'Dintero logo, klikk for å vis Dinteros nettside.';
+		default:
+			return "Dintero logo, click to view Dintero's website.";
+	}
+}

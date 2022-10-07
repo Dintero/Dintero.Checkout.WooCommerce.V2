@@ -92,7 +92,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return string
 		 */
 		public function get_icon() {
-			return '<a href="https://www.dintero.com" target="_blank" title="' . dintero_keyword_backlinks() . '"><img src="' . esc_attr( dintero_get_brand_image_url() ) . '" style="max-width: 90%" alt="Dintero Logo" /></a>';
+			return '<a href="https://www.dintero.com" target="_blank" title="' . dintero_keyword_backlinks() . '"><img src="' . esc_attr( dintero_get_brand_image_url() ) . '" style="max-width: 90%" alt="' . dintero_alt_backlinks() . '" /></a>';
 		}
 
 		/**
