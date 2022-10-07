@@ -24,6 +24,7 @@ class Dintero_Checkout_Assets {
 			add_action( 'wp_enqueue_scripts', array( $this, 'dintero_load_css' ) );
 		}
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+		add_action( 'wp_head', array( $this, 'backlinks_styling' ) );
 	}
 	/**
 	 * Loads style for the plugin.
@@ -184,5 +185,30 @@ class Dintero_Checkout_Assets {
 
 		wp_enqueue_script( 'dintero-checkout-sdk' );
 		wp_enqueue_script( 'dintero-checkout' );
+	}
+
+	/**
+	 * Remove default styling applied to the backlinks.
+	 *
+	 * @hook wp_head
+	 * @return void
+	 */
+	public function backlinks_styling() {
+		?>
+	<style>
+		.payment_method_dintero_checkout a
+		.payment_method_dintero_checkout a:hover,
+		.payment_method_dintero_checkout a:focus,
+		.payment_method_dintero_checkout a:active {
+			margin: 0;
+			padding: 0;
+			border: 0;
+			text-shadow: none;
+			box-shadow: none;
+			outline: none;
+			text-decoration: none;
+		}
+	</style>
+		<?php
 	}
 } new Dintero_Checkout_Assets();
