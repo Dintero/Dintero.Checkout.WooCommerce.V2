@@ -150,27 +150,27 @@ class Dintero_Checkout_Callback {
 		// Get the order from Dintero.
 		$dintero_order = Dintero()->api->get_order( $transaction_id );
 		if ( is_wp_error( $dintero_order ) ) {
-			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR [dintero_order]: Failed to retrieve the order from Dintero. WC order id: %s (transaction ID: %s).' ), $order->get_id(), $transaction_id );
+			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR [dintero_order]: Failed to retrieve the order from Dintero. WC order id: %s (transaction ID: %s).', $order->get_id(), $transaction_id ) );
 			return;
 		}
 
 		switch ( $dintero_order['status'] ) {
 			case 'AUTHORIZED':
-				Dintero_Checkout_Logger::log( sprintf( 'CALLBACK: Handling AUTHORIZED order status. Maybe triggering payment_complete. WC order id: %s (transaction ID: %s).' ), $order->get_id(), $transaction_id );
+				Dintero_Checkout_Logger::log( sprintf( 'CALLBACK: Handling AUTHORIZED order status. Maybe triggering payment_complete. WC order id: %s (transaction ID: %s).', $order->get_id(), $transaction_id ) );
 				dintero_confirm_order( $order, $transaction_id );
 				break;
 			case 'AUTHORIZATION_VOIDED':
-				Dintero_Checkout_Logger::log( sprintf( 'CALLBACK: Handling AUTHORIZATION_VOIDED order status. Setting order status to CANCELLED. WC order id: %s (transaction ID: %s).' ), $order->get_id(), $transaction_id );
+				Dintero_Checkout_Logger::log( sprintf( 'CALLBACK: Handling AUTHORIZATION_VOIDED order status. Setting order status to CANCELLED. WC order id: %s (transaction ID: %s).', $order->get_id(), $transaction_id ) );
 				$order->update_status( 'cancelled', __( 'The order was CANCELED in the Dintero.', 'dintero-checkout-for-woocommerce' ) );
 				$order->save();
 				break;
 			case 'CAPTURED':
-				Dintero_Checkout_Logger::log( sprintf( 'CALLBACK: Handling CAPTURED order status. Maybe triggering payment_complete. WC order id: %s (transaction ID: %s).' ), $order->get_id(), $transaction_id );
+				Dintero_Checkout_Logger::log( sprintf( 'CALLBACK: Handling CAPTURED order status. Maybe triggering payment_complete. WC order id: %s (transaction ID: %s).', $order->get_id(), $transaction_id ) );
 				/* Some payment methods (e.g., Swish) are immediately captured, and thus bypass the authorized status. We have to account for this: */
 				dintero_confirm_order( $order, $transaction_id );
 				break;
 			case 'REFUNDED':
-				Dintero_Checkout_Logger::log( sprintf( 'CALLBACK: Handling REFUNDED order status. WC order id: %s (transaction ID: %s).' ), $order->get_id(), $transaction_id );
+				Dintero_Checkout_Logger::log( sprintf( 'CALLBACK: Handling REFUNDED order status. WC order id: %s (transaction ID: %s).', $order->get_id(), $transaction_id ) );
 				break;
 			case 'DECLINED':
 			case 'FAILED':
