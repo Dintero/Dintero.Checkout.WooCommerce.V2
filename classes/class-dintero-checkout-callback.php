@@ -119,7 +119,7 @@ class Dintero_Checkout_Callback {
 				break;
 		}
 
-		Dintero_Checkout_Logger::log( "CALLBACK: $note" );
+		Dintero_Checkout_Logger::log( sprintf( 'CALLBACK: %s WC order id: %s.', $note, $order->get_id() ) );
 		if ( $order_note ) {
 			$order->add_order_note( $note );
 		}
@@ -137,7 +137,7 @@ class Dintero_Checkout_Callback {
 		// Get the order relevant for the callback.
 		$order = $this->get_order_from_reference( $merchant_reference );
 		if ( empty( $order ) ) {
-			Dintero_Checkout_Logger::log( "CALLBACK ERROR [wc_order]: Could not find a WooCommerce Order with the merchant reference $merchant_reference" );
+			Dintero_Checkout_Logger::log( "CALLBACK ERROR [wc_order]: Could not find a WooCommerce order with the merchant reference $merchant_reference." );
 			return;
 		}
 
@@ -150,36 +150,36 @@ class Dintero_Checkout_Callback {
 		// Get the order from Dintero.
 		$dintero_order = Dintero()->api->get_order( $transaction_id );
 		if ( is_wp_error( $dintero_order ) ) {
-			Dintero_Checkout_Logger::log( 'CALLBACK ERROR [dintero_order]: Failed to retrieve the order from Dintero.' );
+			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR [dintero_order]: Failed to retrieve the order from Dintero. WC order id: %s (transaction ID: %s).', $order->get_id(), $transaction_id ) );
 			return;
 		}
 
 		switch ( $dintero_order['status'] ) {
 			case 'AUTHORIZED':
-				Dintero_Checkout_Logger::log( 'CALLBACK: Handling AUTHORIZED order status. Maybe triggering payment_complete.' );
+				Dintero_Checkout_Logger::log( sprintf( 'CALLBACK: Handling AUTHORIZED order status. Maybe triggering payment_complete. WC order id: %s (transaction ID: %s).', $order->get_id(), $transaction_id ) );
 				dintero_confirm_order( $order, $transaction_id );
 				break;
 			case 'AUTHORIZATION_VOIDED':
-				Dintero_Checkout_Logger::log( 'CALLBACK: Handling AUTHORIZATION_VOIDED order status. Setting order status to CANCELLED.' );
+				Dintero_Checkout_Logger::log( sprintf( 'CALLBACK: Handling AUTHORIZATION_VOIDED order status. Setting order status to CANCELLED. WC order id: %s (transaction ID: %s).', $order->get_id(), $transaction_id ) );
 				$order->update_status( 'cancelled', __( 'The order was CANCELED in the Dintero.', 'dintero-checkout-for-woocommerce' ) );
 				$order->save();
 				break;
 			case 'CAPTURED':
-				Dintero_Checkout_Logger::log( 'CALLBACK: Handling CAPTURED order status. Maybe triggering payment_complete.' );
+				Dintero_Checkout_Logger::log( sprintf( 'CALLBACK: Handling CAPTURED order status. Maybe triggering payment_complete. WC order id: %s (transaction ID: %s).', $order->get_id(), $transaction_id ) );
 				/* Some payment methods (e.g., Swish) are immediately captured, and thus bypass the authorized status. We have to account for this: */
 				dintero_confirm_order( $order, $transaction_id );
 				break;
 			case 'REFUNDED':
-				Dintero_Checkout_Logger::log( 'CALLBACK: Handling REFUNDED order status.' );
+				Dintero_Checkout_Logger::log( sprintf( 'CALLBACK: Handling REFUNDED order status. WC order id: %s (transaction ID: %s).', $order->get_id(), $transaction_id ) );
 				break;
 			case 'DECLINED':
 			case 'FAILED':
-				Dintero_Checkout_Logger::log( "CALLBACK: Handling {$dintero_order['status']} order status. Setting order status to FAILED." );
+				Dintero_Checkout_Logger::log( sprintf( "CALLBACK: Handling {$dintero_order['status']} order status. Setting order status to FAILED. WC order id: %s (transaction ID: %s).", $order->get_id(), $transaction_id ) );
 				$order->update_status( 'failed', __( 'The order was not approved by Dintero.', 'dintero-checkout-for-woocommerce' ) );
 				$order->save();
 				break;
 			default:
-				Dintero_Checkout_Logger::log( "CALLBACK: Unknown order status on callback. {$dintero_order['status']}" );
+				Dintero_Checkout_Logger::log( sprintf( "CALLBACK: Unknown order status on callback. {$dintero_order['status']}. WC order id: %s (transaction ID: %s)", $order->get_id(), $transaction_id ) );
 				break;
 		}
 	}
@@ -195,7 +195,7 @@ class Dintero_Checkout_Callback {
 
 		// Check that we get a order id.
 		if ( empty( $order_id ) ) {
-			Dintero_Checkout_Logger::log( "CALLBACK ERROR [order_id]: Could not get an order_id from the merchant reference $merchant_reference" );
+			Dintero_Checkout_Logger::log( "CALLBACK ERROR [order_id]: Could not get an order_id from the merchant reference $merchant_reference." );
 			return null;
 		}
 
@@ -203,7 +203,7 @@ class Dintero_Checkout_Callback {
 
 		// Check if we get a valid order.
 		if ( empty( $order ) ) {
-			Dintero_Checkout_Logger::log( "CALLBACK ERROR [order]: Could not get an order from the merchant reference $merchant_reference" );
+			Dintero_Checkout_Logger::log( "CALLBACK ERROR [order]: Could not get an order from the merchant reference $merchant_reference." );
 			return null;
 		}
 

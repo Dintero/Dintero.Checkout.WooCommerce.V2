@@ -5,8 +5,8 @@ Requires at least: 5.8.3
 Tested up to: 6.0.2
 Requires PHP: 7.0
 WC requires at least: 6.1.0
-WC tested up to: 6.9.2
-Stable tag: 1.2.3
+WC tested up to: 6.9.4
+Stable tag: 1.3.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -83,6 +83,12 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2022.10.11    - version 1.3.0 =
+* Feature       - Added branding backlinks.
+* Fix           - The company name (if available) should now be saved to the order.
+* Fix           - Fixed an issue with a third-party plugin that prevented customers from finalizing the order.
+* Tweak         - Enhanced logging for easier troubleshooting.
+
 = 2022.10.03    - version 1.2.3 =
 - Fix           - Fixed an error in the embedded checkout that would occur if the cart contained shippable products, but no shipping method is available.
 - Fix           - The "Display shipping in the iframe" option should now work as expected.

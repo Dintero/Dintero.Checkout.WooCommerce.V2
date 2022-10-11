@@ -186,3 +186,61 @@ function dintero_get_brand_image_url( $icon_color = 'cecece' ) {
 
 	return "https://checkout.dintero.com/v1/branding/accounts/$account/profiles/$profile/variant/$variant/color/$color/width/$width/$template.svg";
 }
+
+/**
+ * Generates the keyword-variant to be used for search engine optimization purposes on icons.
+ *
+ * @return string
+ */
+function dintero_keyword_backlinks() {
+	$locale = get_locale();
+	if ( 'sv' === substr( $locale, 0, 2 ) ) {
+		$keywords = array(
+			'Dintero logo - checkout med swish, visa, mastercard, walley och mobilepay',
+			'Dintero logo - betalningslösning for woocommerce',
+			'Dintero logo - betalningslösning med swish, walley, visa, mastercard och mobilepay',
+			'Dintero logo - Split Payments för plattform och marknadsplats',
+		);
+	} elseif ( 'nb' === substr( $locale, 0, 2 ) ) {
+		$keywords = array(
+			'Dintero logo - en enkel betalingsløsning på nett',
+			'Dintero logo - checkout med vipps, visa, mastercard, walley og mobilePay',
+			'Dintero logo - checkout for woocommerce',
+			'Dintero logo - Split Payments for plattform og markedsplass',
+		);
+	} else {
+		/* For all other languages, default to the English variant. */
+		$keywords = array(
+			'Dintero logo - Dintero checkout delivers simple online payment solutions',
+			'Dintero logo - Dintero payment methods for woocommerce',
+			'Dintero logo - Simple payment solutions for woocommerce payment gateway',
+			'Dintero logo - Split Payments for platforms and marketplaces',
+		);
+	}
+
+	$index = get_transient( 'dintero_checkout_keyword_backlinks' );
+	if ( empty( $index ) ) {
+		$index = hexdec(
+			crc32( parse_url( get_site_url(), PHP_URL_HOST ) )
+		);
+		set_transient( 'dintero_checkout_keyword_backlinks', $index );
+	}
+
+	return $keywords[ $index % count( $keywords ) ];
+}
+
+/**
+ * Generates the 'alt' text for the image used for the purpose of backlinks.
+ *
+ * @return string
+ */
+function dintero_alt_backlinks() {
+	switch ( substr( get_locale(), 0, 2 ) ) {
+		case 'sv':
+			return 'Dintero logo, klicka här för att visa Dinteros hemsida.';
+		case 'nb':
+			return 'Dintero logo, klikk for å vis Dinteros nettside.';
+		default:
+			return "Dintero logo, click to view Dintero's website.";
+	}
+}

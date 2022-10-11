@@ -281,6 +281,10 @@ jQuery( function( $ ) {
 					$( '#billing_last_name' ).val( billingAddress.last_name );
 				}
 
+				if ( 'business_name' in billingAddress ) {
+					$( '#billing_company' ).val( billingAddress.business_name );
+				}
+
 				if ( 'address_line' in billingAddress ) {
 					$( '#billing_address_1' ).val( billingAddress.address_line );
 				}
@@ -322,6 +326,10 @@ jQuery( function( $ ) {
 
 				if ( 'last_name' in shippingAddress ) {
 					$( '#shipping_last_name' ).val( shippingAddress.last_name );
+				}
+
+				if ( 'business_name' in shippingAddress ) {
+					$( '#billing_company' ).val( shippingAddress.business_name );
 				}
 
 				if ( 'address_line' in shippingAddress ) {
