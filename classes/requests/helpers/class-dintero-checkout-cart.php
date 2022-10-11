@@ -101,7 +101,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			'id'          => $this->get_product_sku( $product ),
 			'line_id'     => $cart_item_key,
 			'description' => $this->get_product_name( $cart_item ),
-			'quantity'    => $cart_item['quantity'],
+			'quantity'    => absint( $cart_item['quantity'] ),
 			'amount'      => self::format_number( $cart_item['line_total'] + $cart_item['line_tax'] ),
 			'vat_amount'  => self::format_number( $cart_item['line_tax'] ),
 			'vat'         => ( empty( floatval( $cart_item['line_total'] ) ) ) ? 0 : self::format_number( $cart_item['line_tax'] / $cart_item['line_total'] ),
