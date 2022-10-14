@@ -33,3 +33,4 @@ yarn-error.log*
 # Release
 /release/
 yarn.lock
+assets/js/dintero-checkout-express.min.js.LICENSE.txt
