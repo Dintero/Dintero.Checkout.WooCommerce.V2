@@ -972,10 +972,10 @@
     "@babel/helper-validator-identifier" "^7.19.1"
     to-fast-properties "^2.0.0"
 
-"@dintero/checkout-web-sdk@^0.4.5":
-  version "0.4.5"
-  resolved "https://registry.yarnpkg.com/@dintero/checkout-web-sdk/-/checkout-web-sdk-0.4.5.tgz#a35c9df1061e51462d087f2dd821b7aa4ff2350e"
-  integrity sha512-vqqoCH/sRvhpH54W5Tc7IDID6TOA8n3AOYq4he3vbSmaqRYjmoL545Sewp9mFE8stJWm6UQVEzTY/ebuZf9zDw==
+"@dintero/checkout-web-sdk@^0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@dintero/checkout-web-sdk/-/checkout-web-sdk-0.5.0.tgz#0286c1080af44e737fddcd2d3e70299ec7a9c994"
+  integrity sha512-FtQOVRBHf2QMu9qYD6efy+8f8kIAnazj5PR6crRwOkESjXrhbU6bJmJlfnsexZurV9MHpyelc6ba2v3Lak6kPA==
   dependencies:
     native-promise-only "^0.8.1"
 
