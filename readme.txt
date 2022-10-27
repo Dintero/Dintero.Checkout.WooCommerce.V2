@@ -2,11 +2,11 @@
 Contributors: dintero, krokedil, NiklasHogefjord
 Tags: woocommerce, dintero, ecommerce, e-commerce, checkout
 Requires at least: 5.8.3
-Tested up to: 6.0.2
+Tested up to: 6.0.3
 Requires PHP: 7.0
 WC requires at least: 6.1.0
-WC tested up to: 6.9.4
-Stable tag: 1.3.0
+WC tested up to: 7.0.0
+Stable tag: 1.3.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -83,6 +83,10 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2022.10.27    - version 1.3.1 =
+* Tweak         - The setting for changing the layout should now only be shown when the chosen form factor is "embedded".
+* Tweak         - Updated to the most recent Web SDK.
+
 = 2022.10.11    - version 1.3.0 =
 * Feature       - Added branding backlinks.
 * Fix           - The company name (if available) should now be saved to the order.
