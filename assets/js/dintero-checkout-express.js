@@ -309,6 +309,19 @@ jQuery( function( $ ) {
 					$( '#billing_phone' ).val( billingAddress.phone_number );
 				}
 
+				/**
+				 * Dintero does not require first and last name for business purchases, whereas this is required by WooCommerce.
+				 * For this purpose, we have to add 'N/A' to these fields. These default values will be overwritten the
+				 * next time Dintero sends us first and last name.
+				 */
+				if ( ! $( '#billing_first_name' ).val().trim() ) {
+					$( '#billing_first_name' ).val( 'N/A' );
+				}
+
+				if ( ! $( '#billing_last_name' ).val().trim() ) {
+					$( '#billing_last_name' ).val( 'N/A' );
+				}
+
 				update = true;
 			}
 
@@ -346,6 +359,19 @@ jQuery( function( $ ) {
 
 				if ( 'country' in shippingAddress ) {
 					$( '#shipping_country' ).val( shippingAddress.country );
+				}
+
+				/**
+				 * Dintero does not require first and last name for business purchases, whereas this is required by WooCommerce.
+				 * For this purpose, we have to add 'N/A' to these fields. These default values will be overwritten the
+				 * next time Dintero sends us first and last name.
+				 */
+				if ( ! $( '#shipping_first_name' ).val().trim() ) {
+					$( '#shipping_first_name' ).val( 'N/A' );
+				}
+
+				if ( ! $( '#shipping_last_name' ).val().trim() ) {
+					$( '#shipping_last_name' ).val( 'N/A' );
 				}
 
 				update = true;

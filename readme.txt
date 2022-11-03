@@ -5,8 +5,8 @@ Requires at least: 5.8.3
 Tested up to: 6.0.3
 Requires PHP: 7.0
 WC requires at least: 6.1.0
-WC tested up to: 7.0.0
-Stable tag: 1.3.1
+WC tested up to: 7.0.1
+Stable tag: 1.3.2
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -83,6 +83,9 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2022.11.03    - version 1.3.2 =
+* Fix           - Fixed an issue where business purchases failed due to missing first and last name.
+
 = 2022.10.27    - version 1.3.1 =
 * Tweak         - The setting for changing the layout should now only be shown when the chosen form factor is "embedded".
 * Tweak         - Updated to the most recent Web SDK.
