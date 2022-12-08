@@ -366,12 +366,16 @@ jQuery( function( $ ) {
 				 * For this purpose, we have to add 'N/A' to these fields. These default values will be overwritten the
 				 * next time Dintero sends us first and last name.
 				 */
-				if ( ! $( '#shipping_first_name' ).val().trim() ) {
-					$( '#shipping_first_name' ).val( 'N/A' );
+
+				/* The billing address should never be unset, but the shipping address may be unset: */
+				let shippingFirstName = $('#shipping_first_name');
+				if ( shippingFirstName.length > 0 && ! shippingFirstName.val().trim() ) {
+					shippingFirstName.val( 'N/A' );
 				}
 
-				if ( ! $( '#shipping_last_name' ).val().trim() ) {
-					$( '#shipping_last_name' ).val( 'N/A' );
+				let shippingLastName = $('#shipping_last_name');
+				if ( shippingLastName.length > 0 && ! shippingLastName.val().trim() ) {
+					shippingLastName.val( 'N/A' );
 				}
 
 				update = true;
