@@ -368,12 +368,12 @@ jQuery( function( $ ) {
 				 */
 
 				/* The billing address should never be unset, but the shipping address may be unset: */
-				let shippingFirstName = $('#shipping_first_name');
+				const shippingFirstName = $( '#shipping_first_name' );
 				if ( shippingFirstName.length > 0 && ! shippingFirstName.val().trim() ) {
 					shippingFirstName.val( 'N/A' );
 				}
 
-				let shippingLastName = $('#shipping_last_name');
+				const shippingLastName = $( '#shipping_last_name' );
 				if ( shippingLastName.length > 0 && ! shippingLastName.val().trim() ) {
 					shippingLastName.val( 'N/A' );
 				}

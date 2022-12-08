@@ -2,11 +2,11 @@
 Contributors: dintero, krokedil, NiklasHogefjord
 Tags: woocommerce, dintero, ecommerce, e-commerce, checkout
 Requires at least: 5.8.3
-Tested up to: 6.0.3
+Tested up to: 6.1.1
 Requires PHP: 7.0
 WC requires at least: 6.1.0
-WC tested up to: 7.1.0
-Stable tag: 1.3.4
+WC tested up to: 7.2.0
+Stable tag: 1.4.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -83,6 +83,10 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2022.12.08    - version 1.4.0 =
+* Feature       - Added a direct link in the order's meta box to the corresponding backoffice transaction.
+* Fix           - Fixed a JavaScript runtime error due to the shipping fields being unset.
+
 = 2022.11.28    - version 1.3.4 =
 * Tweak         - Removed link to Dintero from payment gateway icon to prevent accidental redirection.
 
