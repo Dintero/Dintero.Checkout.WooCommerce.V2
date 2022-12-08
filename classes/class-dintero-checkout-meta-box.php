@@ -77,6 +77,9 @@ class Dintero_Checkout_Meta_Box {
 		$order_id    = get_the_ID();
 		$environment = ! empty( get_post_meta( $order_id, '_wc_dintero_checkout_environment', true ) ) ? get_post_meta( $order_id, '_wc_dintero_checkout_environment', true ) : '';
 
+		$account_id     = trim( get_option( 'woocommerce_dintero_checkout_settings', array( 'account_id' => '' ) )['account_id'] );
+		$transaction_id = get_post_meta( $order_id, '_dintero_transaction_id', true );
+
 		/* Remove duplicate words from the payment method type (e.g., swish.swish → Swish). Otherwise, prints as is (e.g., collector.invoice → Collector Invoice). */
 		$payment_method = implode( ' ', array_unique( explode( ' ', ucwords( str_replace( '.', ' ', $dintero_order['payment_product_type'] ) ) ) ) );
 
@@ -87,6 +90,13 @@ class Dintero_Checkout_Meta_Box {
 		<?php if ( ! empty( $environment ) ) : ?>
 		<strong><?php esc_html_e( 'Environment: ', 'dintero-checkout-for-woocommerce' ); ?> </strong><?php echo esc_html( $environment ); ?><br/>
 		<?php endif ?>
+		<?php
+		if ( ! empty( $account_id ) && ! empty( $transaction_id ) ) {
+			$env = 'test' === strtolower( $environment ) ? 'T' : 'P';
+			$url = esc_url( "https://backoffice.dintero.com/${env}${account_id}/payments/transactions/${transaction_id}" );
+			echo "<p><a href='" . $url . "'>View transaction details</a></p>";
+		}
+		?>
 		</div>
 		<?php
 	}
