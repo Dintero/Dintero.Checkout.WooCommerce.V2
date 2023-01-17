@@ -55,6 +55,7 @@ class Dintero_Checkout_Order_Management {
 	public function __construct() {
 		add_action( 'woocommerce_order_status_completed', array( $this, 'capture_order' ) );
 		add_action( 'woocommerce_order_status_cancelled', array( $this, 'cancel_order' ) );
+		add_action( 'woocommerce_order_status_refunded', array( $this, 'refund_order' ) );
 	}
 
 	/**
@@ -240,7 +241,7 @@ class Dintero_Checkout_Order_Management {
 	 * @param string $reason The reason for the refund.
 	 * @return boolean|null TRUE on success, FALSE on unrecoverable failure, and null if not relevant or valid.
 	 */
-	public function refund_order( $order_id, $reason ) {
+	public function refund_order( $order_id, $reason = '' ) {
 		$order = wc_get_order( $order_id );
 
 		if ( 'dintero_checkout' !== $order->get_payment_method() ) {
