@@ -248,6 +248,14 @@ class Dintero_Checkout_Order_Management {
 			return;
 		}
 
+		if ( did_action( 'woocommerce_order_status_refunded' ) ) {
+			$settings      = get_option( 'woocommerce_dintero_checkout_settings' );
+			$manual_refund = $settings['order_management_manual_refund'] ?? 'no';
+			if ( 'no' === $manual_refund || get_post_meta( $order_id, $this->status['refunded'], true ) ) {
+				return;
+			}
+		}
+
 		// Check if the order has at least been processed. This also covers for checking if the order requires further authorization.
 		if ( empty( $order->get_date_paid() ) ) {
 			return;
