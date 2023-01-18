@@ -57,8 +57,7 @@ The SDK follows the same terms as when creating a Dintero account, with its [ter
 1. Upload plugin folder to the "/wp-content/plugins/" directory.
 2. Activate the plugin through the "Plugins" menu in WordPress.
 3. Go WooCommerce Settings –> Payment Gateways and configure your Dintero Checkout settings.
-4. Read more about the configuration process in the [plugin documentation](https://docs.krokedil.com/dintero-checkout-for-woocommerce/).
-
+4. Read more about the configuration process in the [plugin documentation](https://www.dintero.com/our-services/dintero-checkout/install-woocommerce-plugin).
 
 == Frequently Asked Questions ==
 
@@ -72,7 +71,7 @@ Yes, a Sandbox environment is instantly available for all new accounts created v
 
 = Where can I find documentation? =
 
-Go [here](https://www.dintero.com/our-services/dintero-checkout/woocommerce) to find a more thorough documentation.
+Go [here](https://www.dintero.com/our-services/dintero-checkout/install-woocommerce-plugin) to find a more thorough documentation.
 
 = Where can I get support? =
 
