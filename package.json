@@ -16,7 +16,7 @@
         "grunt": "^1.4.1",
         "grunt-contrib-cssmin": "^4.0.0",
         "grunt-contrib-uglify": "^5.0.1",
-        "grunt-move": "^1.0.3",
+        "grunt-move": "^2.0.0",
         "grunt-wp-i18n": "^1.0.3",
         "prettier": "2.3.2",
         "webpack": "^5.70.0",
