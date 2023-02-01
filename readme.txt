@@ -6,7 +6,7 @@ Tested up to: 6.1.1
 Requires PHP: 7.0
 WC requires at least: 6.1.0
 WC tested up to: 7.2.0
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,12 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2023.02.01    - version 1.5.0 =
+* Feature       - Manually changing the order status to "Refunded" will now refund the corresponding Dintero order. This behavior must be enabled in the plugin's settings (see "Refund by changing order status").
+* Fix           - Delay filling placeholder data until the purchase is about to be finalized. This fixes the issue with first and last name having "N/A" as a value for certain B2B purchases.
+* Tweak         - Updated SDK.
+* Tweak         - Updated WordPress catalog README.
+
 = 2022.12.08    - version 1.4.0 =
 * Feature       - Added a direct link in the order's meta box to the corresponding backoffice transaction.
 * Fix           - Fixed a JavaScript runtime error due to the shipping fields being unset.
