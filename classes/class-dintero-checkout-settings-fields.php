@@ -170,6 +170,17 @@ class Dintero_Settings_Fields {
 					'on-hold'    => __( 'On-hold', 'dintero-checkout-for-woocommerce' ),
 				),
 			),
+			/* Order Management */
+			'order_management_title'                  => array(
+				'title' => __( 'Order Management', 'dintero-checkout-for-woocommerce' ),
+				'type'  => 'title',
+			),
+			'order_management_manual_refund'          => array(
+				'title'   => __( 'Refund by changing order status', 'dintero-checkout-for-woocommerce' ),
+				'label'   => __( 'Trigger refund in Dintero when WooCommerce order status is manually changed to <u>Refunded</u>.', 'dintero-checkout-for-woocommerce' ),
+				'type'    => 'checkbox',
+				'default' => 'no',
+			),
 			/* The Dintero Checkout Express Settings */
 			'dintero_checkout_express_settings_title' => array(
 				'title' => __( 'Dintero Checkout Express Settings', 'dintero-checkout-for-woocommerce' ),

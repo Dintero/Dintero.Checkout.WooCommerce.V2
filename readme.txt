@@ -6,7 +6,7 @@ Tested up to: 6.1.1
 Requires PHP: 7.0
 WC requires at least: 6.1.0
 WC tested up to: 7.2.0
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -57,8 +57,7 @@ The SDK follows the same terms as when creating a Dintero account, with its [ter
 1. Upload plugin folder to the "/wp-content/plugins/" directory.
 2. Activate the plugin through the "Plugins" menu in WordPress.
 3. Go WooCommerce Settings –> Payment Gateways and configure your Dintero Checkout settings.
-4. Read more about the configuration process in the [plugin documentation](https://docs.krokedil.com/dintero-checkout-for-woocommerce/).
-
+4. Read more about the configuration process in the [plugin documentation](https://www.dintero.com/our-services/dintero-checkout/install-woocommerce-plugin).
 
 == Frequently Asked Questions ==
 
@@ -72,7 +71,7 @@ Yes, a Sandbox environment is instantly available for all new accounts created v
 
 = Where can I find documentation? =
 
-Go [here](https://www.dintero.com/our-services/dintero-checkout/woocommerce) to find a more thorough documentation.
+Go [here](https://www.dintero.com/our-services/dintero-checkout/install-woocommerce-plugin) to find a more thorough documentation.
 
 = Where can I get support? =
 
@@ -83,6 +82,12 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2023.02.01    - version 1.5.0 =
+* Feature       - Manually changing the order status to "Refunded" will now refund the corresponding Dintero order. This behavior must be enabled in the plugin's settings (see "Refund by changing order status").
+* Fix           - Delay filling placeholder data until the purchase is about to be finalized. This fixes the issue with first and last name having "N/A" as a value for certain B2B purchases.
+* Tweak         - Updated SDK.
+* Tweak         - Updated WordPress catalog README.
+
 = 2022.12.08    - version 1.4.0 =
 * Feature       - Added a direct link in the order's meta box to the corresponding backoffice transaction.
 * Fix           - Fixed a JavaScript runtime error due to the shipping fields being unset.

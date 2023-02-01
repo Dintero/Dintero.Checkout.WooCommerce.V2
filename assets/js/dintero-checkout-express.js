@@ -122,7 +122,7 @@ jQuery( function( $ ) {
 						},
 					} );
 					dinteroCheckoutForWooCommerce.validation = true;
-					dinteroCheckoutForWooCommerce.updateAddress( event.session.order.billing_address, event.session.order.shipping_address );
+					dinteroCheckoutForWooCommerce.updateAddress( event.session.order.billing_address, event.session.order.shipping_address, true );
 					if ( 0 < $( 'form.checkout #terms' ).length ) {
 						$( 'form.checkout #terms' ).prop( 'checked', true );
 					}
@@ -261,7 +261,7 @@ jQuery( function( $ ) {
 		},
 
 		/* Maybe update the shipping and billing address. */
-		updateAddress( billingAddress, shippingAddress ) {
+		updateAddress( billingAddress, shippingAddress, finalize = false ) {
 			let update = false;
 
 			if ( billingAddress ) {
@@ -314,12 +314,14 @@ jQuery( function( $ ) {
 				 * For this purpose, we have to add 'N/A' to these fields. These default values will be overwritten the
 				 * next time Dintero sends us first and last name.
 				 */
-				if ( ! $( '#billing_first_name' ).val().trim() ) {
-					$( '#billing_first_name' ).val( 'N/A' );
-				}
+				if ( finalize ) {
+					if ( ! $( '#billing_first_name' ).val().trim() ) {
+						$( '#billing_first_name' ).val( 'N/A' );
+					}
 
-				if ( ! $( '#billing_last_name' ).val().trim() ) {
-					$( '#billing_last_name' ).val( 'N/A' );
+					if ( ! $( '#billing_last_name' ).val().trim() ) {
+						$( '#billing_last_name' ).val( 'N/A' );
+					}
 				}
 
 				update = true;
@@ -368,14 +370,16 @@ jQuery( function( $ ) {
 				 */
 
 				/* The billing address should never be unset, but the shipping address may be unset: */
-				const shippingFirstName = $( '#shipping_first_name' );
-				if ( shippingFirstName.length > 0 && ! shippingFirstName.val().trim() ) {
-					shippingFirstName.val( 'N/A' );
-				}
+				if ( finalize ) {
+					const shippingFirstName = $( '#shipping_first_name' );
+					if ( shippingFirstName.length > 0 && ! shippingFirstName.val().trim() ) {
+						shippingFirstName.val( 'N/A' );
+					}
 
-				const shippingLastName = $( '#shipping_last_name' );
-				if ( shippingLastName.length > 0 && ! shippingLastName.val().trim() ) {
-					shippingLastName.val( 'N/A' );
+					const shippingLastName = $( '#shipping_last_name' );
+					if ( shippingLastName.length > 0 && ! shippingLastName.val().trim() ) {
+						shippingLastName.val( 'N/A' );
+					}
 				}
 
 				update = true;
