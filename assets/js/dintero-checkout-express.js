@@ -320,7 +320,7 @@ jQuery( function( $ ) {
 					}
 
 					if ( ! $( '#billing_last_name' ).val().trim() ) {
-						$( '#billing_last_name' ).val( 'N/A' );
+						$( '#billing_last_name' ).val( '⠀' );
 					}
 				}
 
@@ -333,7 +333,9 @@ jQuery( function( $ ) {
 					shippingAddress.last_name = shippingAddress.last_name || shippingAddress.co_address.split( ' ' )[ 1 ] || shippingAddress.business_name;
 				}
 
-				$( '#ship-to-different-address-checkbox' ).prop( 'checked', true );
+				if ( shippingAddress.length > 1 ) {
+					$( '#ship-to-different-address-checkbox' ).prop( 'checked', true );
+				}
 
 				if ( 'first_name' in shippingAddress ) {
 					$( '#shipping_first_name' ).val( shippingAddress.first_name );
@@ -378,7 +380,7 @@ jQuery( function( $ ) {
 
 					const shippingLastName = $( '#shipping_last_name' );
 					if ( shippingLastName.length > 0 && ! shippingLastName.val().trim() ) {
-						shippingLastName.val( 'N/A' );
+						shippingLastName.val( '⠀' );
 					}
 				}
 
@@ -504,6 +506,14 @@ jQuery( function( $ ) {
 							dinteroCheckoutForWooCommerce.logToFile( 'Checkout error | No message' );
 							dinteroCheckoutForWooCommerce.failOrder( 'submission', 'Checkout error', callback );
 						}
+
+						$( '#shipping_first_name' ).val( ( i, value ) => {
+							return value === 'N/A' ? '' : 'N/A';
+						} );
+
+						$( '#shipping_last_name' ).val( ( i, value ) => {
+							return value === '⠀' ? '' : '⠀';
+						} );
 					}
 				},
 				error( data ) {
