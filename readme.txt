@@ -6,7 +6,7 @@ Tested up to: 6.1.1
 Requires PHP: 7.0
 WC requires at least: 6.1.0
 WC tested up to: 7.2.0
-Stable tag: 1.5.0
+Stable tag: 1.5.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,11 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2023.03.09    - version 1.5.1 =
+* Fix           - Email notification should now be sent as expected when changing order status from "Manual review" provided that email notifications is enabled in the WooCommerce settings.
+* Fix           - Fixed an issue where placing an order failed when the shipping address fields were unset, and Embedded Dintero Checkout was used. 
+* Tweak         - A blank character is used as a placeholder when shipping first and last name is not available. Previously, this was "N/A".
+
 = 2023.02.01    - version 1.5.0 =
 * Feature       - Manually changing the order status to "Refunded" will now refund the corresponding Dintero order. This behavior must be enabled in the plugin's settings (see "Refund by changing order status").
 * Fix           - Delay filling placeholder data until the purchase is about to be finalized. This fixes the issue with first and last name having "N/A" as a value for certain B2B purchases.
