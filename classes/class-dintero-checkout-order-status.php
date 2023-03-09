@@ -19,6 +19,8 @@ class Dintero_Checkout_Order_Status {
 	 */
 	public function __construct() {
 
+		add_action( 'woocommerce_order_status_changed', array( $this, 'send_email_notification' ), 10, 3 );
+
 		/* Register the custom status. */
 		add_filter(
 			'wc_order_statuses',
@@ -85,6 +87,63 @@ class Dintero_Checkout_Order_Status {
 
 		/* Release held stock for an order. */
 		add_action( 'woocommerce_order_status_manual-review', 'wc_release_stock_for_order', 11 );
+	}
+
+
+	/**
+	 * Send the correct email to the customer when the order status is changed.
+	 *
+	 * @param int    $order_id The order id.
+	 * @param string $old_status The old order status.
+	 * @param string $new_status The new order status.
+	 */
+	public function send_email_notification( $order_id, $old_status, $new_status ) {
+		if ( 'manual-review' === $old_status ) {
+			switch ( $new_status ) {
+				case 'processing':
+					if ( WC()->mailer->emails['WC_Email_Customer_Processing_Order']->is_enabled() ?? false ) {
+						WC()->mailer->emails['WC_Email_Customer_Processing_Order']->trigger( $order_id );
+					}
+					break;
+				case 'completed':
+					if ( WC()->mailer->emails['WC_Email_Customer_Completed_Order']->is_enabled() ?? false ) {
+						WC()->mailer->emails['WC_Email_Customer_Completed_Order']->trigger( $order_id );
+					}
+					break;
+				case 'cancelled':
+					if ( WC()->mailer->emails['WC_Email_Cancelled_Order']->is_enabled() ?? false ) {
+						WC()->mailer->emails['WC_Email_Cancelled_Order']->trigger( $order_id );
+					}
+					break;
+				case 'refunded':
+					if ( WC()->mailer->emails['WC_Email_Customer_Refunded_Order']->is_enabled() ?? false ) {
+						WC()->mailer->emails['WC_Email_Customer_Refunded_Order']->trigger( $order_id );
+					}
+					break;
+				case 'failed':
+					if ( WC()->mailer->emails['WC_Email_Failed_Order']->is_enabled() ?? false ) {
+						WC()->mailer->emails['WC_Email_Failed_Order']->trigger( $order_id );
+					}
+					break;
+				case 'on-hold':
+					if ( WC()->mailer->emails['WC_Email_Customer_On_Hold_Order']->is_enabled() ?? false ) {
+						WC()->mailer->emails['WC_Email_Customer_On_Hold_Order']->trigger( $order_id );
+					}
+					break;
+				case 'pending':
+					if ( WC()->mailer->emails['WC_Email_Customer_Pending_Order']->is_enabled() ?? false ) {
+						WC()->mailer->emails['WC_Email_Customer_Pending_Order']->trigger( $order_id );
+					}
+					break;
+				case 'pending-payment':
+					if ( WC()->mailer->emails['WC_Email_Customer_Pending_Order']->is_enabled() ?? false ) {
+						WC()->mailer->emails['WC_Email_Customer_Pending_Order']->trigger( $order_id );
+					}
+					break;
+				default:
+					break;
+			}
+		}
 	}
 
 } new Dintero_Checkout_Order_Status();
