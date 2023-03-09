@@ -47,11 +47,23 @@ class Dintero_Checkout_Order_Status {
 		add_action( 'woocommerce_order_status_manual-review', 'wc_release_stock_for_order', 11 );
 	}
 
+	/**
+	 * Registers the custom order status.
+	 *
+	 * @param array $order_statuses
+	 * @return array
+	 */
 	public function register_custom_wc_status( $order_statuses ) {
 		$order_statuses['wc-manual-review'] = _x( 'Manual review', 'Order status', 'dintero-checkout-for-woocommerce' );
 		return $order_statuses;
 	}
 
+	/**
+	 * Registers the custom order status as a valid post entry.
+	 *
+	 * @param array $post_statuses
+	 * @return array
+	 */
 	public function register_custom_post_status( $post_statuses ) {
 		$post_statuses['wc-manual-review'] = array(
 			'label'                     => _x( 'Manual review', 'Order status', 'dintero-checkout-for-woocommerce' ),
@@ -67,11 +79,24 @@ class Dintero_Checkout_Order_Status {
 		return $post_statuses;
 	}
 
+	/**
+	 * Registers the custom order status as a valid status for payment_processing.
+	 *
+	 * @param array $order_statuses
+	 * @return array
+	 */
 	public function register_on_payment_complete( $order_statuses ) {
 		array_push( $order_statuses, 'manual-review' );
 		return $order_statuses;
 	}
 
+	/**
+	 * Permit an order with the order status "Manual review" to be editable in the order page.
+	 *
+	 * @param bool     $is_editable
+	 * @param WC_Order $order
+	 * @return bool
+	 */
 	public function register_as_editable_status( $is_editable, $order ) {
 		return ( 'manual-review' === $order->get_status() ) ? true : $is_editable;
 	}
