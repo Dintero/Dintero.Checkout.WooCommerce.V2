@@ -157,13 +157,14 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 
 		$vat_rate = WC_Tax::get_base_tax_rates( $product->get_tax_class() );
 		return array(
-			'id'          => $this->get_product_sku( $product ),
-			'line_id'     => $line_id,
-			'description' => $order_item->get_name(),
-			'quantity'    => absint( $order_item->get_quantity() ),
-			'amount'      => absint( self::format_number( $order_item->get_total() + $order_item->get_total_tax() ) ),
-			'vat_amount'  => absint( self::format_number( $order_item->get_total_tax() ) ),
-			'vat'         => reset( $vat_rate )['rate'] ?? 0,
+			'id'            => $this->get_product_sku( $product ),
+			'line_id'       => $line_id,
+			'description'   => $order_item->get_name(),
+			'quantity'      => absint( $order_item->get_quantity() ),
+			'amount'        => absint( self::format_number( $order_item->get_total() + $order_item->get_total_tax() ) ),
+			'vat_amount'    => absint( self::format_number( $order_item->get_total_tax() ) ),
+			'vat'           => reset( $vat_rate )['rate'] ?? 0,
+			'thumbnail_url' => $this->get_product_image_url( $product ),
 		);
 	}
 
@@ -430,5 +431,21 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 				return ! empty( sanitize_text_field( $value ) );
 			}
 		);
+	}
+
+	/**
+	 * Get the product's image URL.
+
+	 * @param  WC_Product|WC_Order_Item_Product $product Product.
+	 * @return string $image_url Product image URL. Empty string if no image is found.
+	 */
+	public function get_product_image_url( $product ) {
+		$image_url = '';
+		if ( $product->get_image_id() > 0 ) {
+			$image_id  = $product->get_image_id();
+			$image_url = wp_get_attachment_image_url( $image_id, 'shop_single', false );
+		}
+
+		return $image_url;
 	}
 }
