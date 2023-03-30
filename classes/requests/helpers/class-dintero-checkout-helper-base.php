@@ -146,4 +146,20 @@ abstract class Dintero_Checkout_Helper_Base {
 			$body['items'][] = $rounding_line;
 		}
 	}
+
+	/**
+	 * Get the product's image URL.
+
+	 * @param  WC_Product|WC_Order_Item_Product $product Product.
+	 * @return string|false $image_url Product image URL. FALSE if no image is found.
+	 */
+	public static function get_product_image_url( $product ) {
+		$image_url = false;
+		if ( $product->get_image_id() > 0 ) {
+			$image_id  = $product->get_image_id();
+			$image_url = wp_get_attachment_image_url( $image_id, 'shop_single', false );
+		}
+
+		return $image_url;
+	}
 }

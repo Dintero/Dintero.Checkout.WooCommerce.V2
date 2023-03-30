@@ -97,7 +97,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		$id      = ( empty( $cart_item['variation_id'] ) ) ? $cart_item['product_id'] : $cart_item['variation_id'];
 		$product = wc_get_product( $id );
 
-		return array(
+		$cart_item = array(
 			'id'          => $this->get_product_sku( $product ),
 			'line_id'     => $cart_item_key,
 			'description' => $this->get_product_name( $cart_item ),
@@ -106,6 +106,13 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			'vat_amount'  => self::format_number( $cart_item['line_tax'] ),
 			'vat'         => ( empty( floatval( $cart_item['line_total'] ) ) ) ? 0 : self::format_number( $cart_item['line_tax'] / $cart_item['line_total'] ),
 		);
+
+		$thumbnail_url = self::get_product_image_url( $product );
+		if ( ! empty( $thumbnail_url ) ) {
+			$cart_item['thumbnail_url'] = $thumbnail_url;
+		}
+
+		return $cart_item;
 	}
 
 	/**
@@ -403,5 +410,4 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			}
 		);
 	}
-
 }
