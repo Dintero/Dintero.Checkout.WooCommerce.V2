@@ -40,13 +40,6 @@ class Dintero_Checkout_Callback {
 			die;
 		}
 
-		$response = Dintero()->api->get_order(
-			$transaction_id,
-			array(
-				'includes' => array( 'card.payment_token', 'card.recurrence_token' ),
-			)
-		);
-
 		$this->maybe_schedule_callback( $transaction_id, $merchant_reference, $error );
 
 		http_response_code( 200 );

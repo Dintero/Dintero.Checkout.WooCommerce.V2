@@ -84,9 +84,6 @@ if ( class_exists( 'WC_Subscription' ) ) {
 
 			if ( ! is_wp_error( $dintero_order ) && isset( $dintero_order['card'] ) ) {
 				$card = $dintero_order['card'];
-				if ( isset( $card['payment_token'] ) ) {
-					update_post_meta( $order_id, '_dintero_payment_token', $card['payment_token'] );
-				}
 				if ( isset( $card['recurrence_token'] ) ) {
 					update_post_meta( $order_id, '_dintero_recurrence_token', $card['recurrence_token'] );
 				}
@@ -97,18 +94,16 @@ if ( class_exists( 'WC_Subscription' ) ) {
 		 * Retrieve the necessary tokens required for subscriptions (unattended) payments.
 		 *
 		 * @param  int $order_id The WooCommerce order id.
-		 * @return array The recurrence token and payment token. If none are found, the value of these indices will be empty.
+		 * @return array The recurrence token. If none are found, the value will be empty.
 		 */
 		public static function retrieve_recurring_tokens( $order_id ) {
 			$recurrence_token = get_post_meta( $order_id, '_dintero_recurrence_token', true );
-			$payment_token    = get_post_meta( $order_id, '_dintero_payment_token', true );
 
 			if ( empty( $recurrence_token ) ) {
 				$subscriptions = wcs_get_subscriptions_for_renewal_order( $order_id );
 				foreach ( $subscriptions as $subscription ) {
 					$parent_order     = $subscription->get_parent();
 					$recurrence_token = get_post_meta( $parent_order->get_id(), '_dintero_recurrence_token', true );
-					$payment_token    = get_post_meta( $parent_order->get_id(), '_dintero_payment_token', true );
 
 					if ( ! empty( $recurrence_token ) && ! empty( $payment_token ) ) {
 						break;
@@ -118,7 +113,6 @@ if ( class_exists( 'WC_Subscription' ) ) {
 
 			return array(
 				'recurrence_token' => $recurrence_token,
-				'payment_token'    => $payment_token,
 			);
 		}
 
