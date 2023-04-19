@@ -75,6 +75,11 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			'profile_id' => $this->settings['profile_id'],
 		);
 
+		// Dintero only supports subscriptions with card payments. Required for recurring payments.
+		$body['configuration']['payex']['creditcard']['enabled']                   = true;
+		$body['configuration']['payex']['creditcard']['generate_recurrence_token'] = true;
+		$body['configuration']['payex']['creditcard']['generate_payment_token']    = true;
+
 		$billing_address = isset( $order ) ? $helper->get_billing_address( $order ) : $helper->get_billing_address();
 		if ( ! empty( $billing_address ) ) {
 			$body['order']['billing_address'] = $billing_address;

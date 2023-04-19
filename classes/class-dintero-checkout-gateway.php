@@ -122,6 +122,11 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 */
 		public function process_payment( $order_id ) {
 
+			if ( class_exists( 'WC_Subscriptions_Order' ) && WC_Subscriptions_Order::order_contains_subscription( $order_id ) ) {
+				$order = wc_get_order( $order_id );
+				$sub   = WC_Subscriptions_Order::get_total_initial_payment( $order );
+			}
+
 			/* For all form factors, redirect is used for order-pay since the cart object (used for embedded) is not available. */
 			if ( 'embedded' === $this->form_factor && ! is_wc_endpoint_url( 'order-pay' ) ) {
 				$result = $this->process_embedded_payment( $order_id );

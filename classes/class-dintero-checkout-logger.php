@@ -24,7 +24,7 @@ class Dintero_Checkout_Logger {
 	 * Logs a single event.
 	 *
 	 * @static
-	 * @param array $data The data to log.
+	 * @param array|string $data The data to log.
 	 * @return void
 	 */
 	public static function log( $data ) {

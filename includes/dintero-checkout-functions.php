@@ -127,7 +127,12 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	update_post_meta( $order_id, '_wc_dintero_checkout_environment', 'yes' === get_option( 'woocommerce_dintero_checkout_settings' )['test_mode'] ? 'Test' : 'Production' );
 
 	update_post_meta( $order_id, '_dintero_transaction_id', $transaction_id );
-	$dintero_order         = Dintero()->api->get_order( $transaction_id );
+
+	// Save the payment and recurring token if we have to.
+	Dintero_Checkout_Subscription::save_recurring_token( $order_id, $transaction_id );
+
+	$dintero_order = Dintero()->api->get_order( $transaction_id );
+
 	$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
 	if ( $require_authorization ) {
 		// translators: %s the Dintero transaction ID.
@@ -157,7 +162,7 @@ function dintero_confirm_order( $order, $transaction_id ) {
 
 	// Save shipping id to the order.
 	$shipping = $order->get_shipping_methods();
-	if ( ! empty( $shipping ) ) {
+	if ( ! empty( $shipping ) && empty( $order->get_meta( '_wc_dintero_shipping_id' ) ) ) {
 		$shipping_option_id = $dintero_order['shipping_option']['id'] ?? reset( $shipping );
 		update_post_meta( $order->get_id(), '_wc_dintero_shipping_id', $shipping_option_id );
 	}

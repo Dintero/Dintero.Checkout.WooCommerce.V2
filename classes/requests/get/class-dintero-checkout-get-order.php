@@ -31,6 +31,11 @@ class Dintero_Checkout_Get_Order extends Dintero_Checkout_Request_Get {
 	 * @return string
 	 */
 	public function get_request_url() {
-		return "{$this->get_api_url_base()}transactions/{$this->arguments['dintero_id']}";
+		if ( ! empty( $this->arguments['params'] ) ) {
+			$params = http_build_query( $this->arguments['params'] );
+			return "{$this->get_api_url_base()}transactions/{$this->arguments['dintero_id']}?{$params}";
+		} else {
+			return "{$this->get_api_url_base()}transactions/{$this->arguments['dintero_id']}";
+		}
 	}
 }

@@ -40,6 +40,13 @@ class Dintero_Checkout_Callback {
 			die;
 		}
 
+		$response = Dintero()->api->get_order(
+			$transaction_id,
+			array(
+				'includes' => array( 'card.payment_token', 'card.recurrence_token' ),
+			)
+		);
+
 		$this->maybe_schedule_callback( $transaction_id, $merchant_reference, $error );
 
 		http_response_code( 200 );
@@ -153,6 +160,9 @@ class Dintero_Checkout_Callback {
 			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR [dintero_order]: Failed to retrieve the order from Dintero. WC order id: %s (transaction ID: %s).', $order->get_id(), $transaction_id ) );
 			return;
 		}
+
+		// Save the payment and recurring token if we have to.
+		Dintero_Checkout_Subscription::save_recurring_token( $order->get_id(), $transaction_id );
 
 		switch ( $dintero_order['status'] ) {
 			case 'AUTHORIZED':
