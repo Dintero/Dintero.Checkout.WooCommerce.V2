@@ -50,7 +50,7 @@ if ( class_exists( 'WC_Subscription' ) ) {
 		 * @return void
 		 */
 		public function process_scheduled_payment( $amount_to_charge, $renewal_order ) {
-			$initiate_payment = Dintero()->api->sessions_pay( self::get_parent_order( $renewal_order->get_id() )->get_id() );
+			$initiate_payment = Dintero()->api->sessions_pay( $renewal_order->get_id() );
 			if ( is_wp_error( $initiate_payment ) ) {
 				$renewal_order->update_status( 'failed', $initiate_payment->get_error_message() );
 				return;
