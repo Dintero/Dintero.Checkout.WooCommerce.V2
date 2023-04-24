@@ -59,8 +59,8 @@ if ( class_exists( 'WC_Subscription' ) ) {
 			$renewal_order->add_order_note(
 				sprintf(
 					/* translators: %s: subscription id */
-					__( 'Subscription renewal was made successfully via Dintero Checkout. Subscription ID: %s', 'dintero-checkout-for-woocommerce' ),
-					$initiate_payment['id']
+					__( 'Subscription renewal was made successfully via Dintero Checkout. Recurrence token: %s', 'dintero-checkout-for-woocommerce' ),
+					$initiate_payment['customer']['tokens']['payex.creditcard']['recurrence_token']
 				)
 			);
 
