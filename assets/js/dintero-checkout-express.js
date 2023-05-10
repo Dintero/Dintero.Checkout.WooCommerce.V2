@@ -500,10 +500,10 @@ jQuery( function( $ ) {
 							// Strip HTML code from messages.
 							const messages = data.messages.replace( /<\/?[^>]+(>|$)\s+/g, '' );
 							dinteroCheckoutForWooCommerce.printNotice( messages );
-							dinteroCheckoutForWooCommerce.logToFile( 'Checkout error | ' + messages );
+							dinteroCheckoutForWooCommerce.logToFile( dinteroCheckoutParams.SID + ' | Checkout error | ' + messages );
 							dinteroCheckoutForWooCommerce.failOrder( 'submission', messages, callback );
 						} else {
-							dinteroCheckoutForWooCommerce.logToFile( 'Checkout error | No message' );
+							dinteroCheckoutForWooCommerce.logToFile( dinteroCheckoutParams.SID + ' | Checkout error | No message' );
 							dinteroCheckoutForWooCommerce.failOrder( 'submission', 'Checkout error', callback );
 						}
 
@@ -520,9 +520,9 @@ jQuery( function( $ ) {
 					console.log( 'error data', data );
 					console.log( 'error data response text', data.responseText );
 					try {
-						dinteroCheckoutForWooCommerce.logToFile( 'AJAX error | ' + JSON.stringify( data ) );
+						dinteroCheckoutForWooCommerce.logToFile( dinteroCheckoutParams.SID + ' | AJAX error | ' + JSON.stringify( data ) );
 					} catch ( e ) {
-						dinteroCheckoutForWooCommerce.logToFile( 'AJAX error | Failed to parse error message.' );
+						dinteroCheckoutForWooCommerce.logToFile( dinteroCheckoutParams.SID + ' | AJAX error | Failed to parse error message.' );
 					}
 					dinteroCheckoutForWooCommerce.failOrder( 'ajax-error', 'Internal Server Error', callback );
 				},
