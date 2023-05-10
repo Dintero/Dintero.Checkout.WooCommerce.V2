@@ -64,7 +64,17 @@ function dintero_print_error_message( $wp_error ) {
 	}
 
 	foreach ( $wp_error->get_error_messages() as $error ) {
-		$message = is_array( $error ) ? implode( ' ', $error ) : $error;
+		$message = $error;
+		if ( is_array( $error ) ) {
+			$error   = array_filter(
+				$error,
+				function( $e ) {
+					return ! empty( $e );
+				}
+			);
+			$message = implode( ' ', $error );
+		}
+
 		$print( $message, 'error' );
 	}
 }
