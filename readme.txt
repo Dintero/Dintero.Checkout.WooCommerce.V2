@@ -6,7 +6,7 @@ Tested up to: 6.1.1
 Requires PHP: 7.0
 WC requires at least: 6.1.0
 WC tested up to: 7.2.0
-Stable tag: 1.5.1
+Stable tag: 1.6.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,12 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2023.05.10    - version 1.6.0 =
+* Feature       - If the product image and/or thumbnail is available, their URL will be sent in the request.
+* Tweak         - The access token is now always renewed whenever the settings are updated.
+* Tweak         - To easier identify checkout issues, the SID is logged in case of AJAX or other frontend WooCommerce errors.
+* Tweak         - Updated SDK to v0.5.5.
+
 = 2023.03.09    - version 1.5.1 =
 * Fix           - Email notification should now be sent as expected when changing order status from "Manual review" provided that email notifications is enabled in the WooCommerce settings.
 * Fix           - Fixed an issue where placing an order failed when the shipping address fields were unset, and Embedded Dintero Checkout was used. 
