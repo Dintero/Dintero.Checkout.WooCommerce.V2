@@ -47,12 +47,6 @@ class Dintero_Checkout_Meta_Box {
 		$order_id = get_the_ID();
 		$order    = wc_get_order( $order_id );
 
-		// Check if the order has been paid.
-		if ( empty( $order->get_date_paid() ) && ! in_array( $order->get_status(), array( 'on-hold' ), true ) ) {
-			$this->print_error_content( __( 'The order has not been authorized by Dintero.', 'dintero-checkout-for-woocommerce' ) );
-			return;
-		}
-
 		if ( ! empty( get_post_meta( $order_id, '_transaction_id', true ) ) ) {
 
 			$dintero_order = Dintero()->api->get_order( $order->get_transaction_id() );
@@ -63,6 +57,10 @@ class Dintero_Checkout_Meta_Box {
 			}
 
 			$this->print_content( $dintero_order );
+
+			if ( empty( $order->get_date_paid() ) && ! in_array( $order->get_status(), array( 'on-hold' ), true ) ) {
+				$this->print_error_content( __( 'The order has not been authorized by Dintero.', 'dintero-checkout-for-woocommerce' ) );
+			}
 		}
 	}
 
