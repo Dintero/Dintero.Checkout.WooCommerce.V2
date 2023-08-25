@@ -399,11 +399,10 @@ class Dintero_Checkout_Order_Management {
 		}
 
 		if ( 'ON_HOLD' !== $dintero_order['status'] ) {
-			$order->delete_meta_data( $this->status( 'on_hold' ) );
-			$order->save();
+			dintero_confirm_order( $order, $order->get_transaction_id() );
 		}
 
-		return empty( $order->get_meta( $this->status( 'on_hold' ) ) );
+		return 'ON_HOLD' !== $dintero_order;
 	}
 
 	/**
