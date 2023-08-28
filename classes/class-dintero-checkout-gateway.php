@@ -131,7 +131,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			$order     = wc_get_order( $order_id );
 			$reference = WC()->session->get( 'dintero_merchant_reference' );
 			update_post_meta( $order_id, '_dintero_merchant_reference', $reference );
-			$order->add_order_note( __( 'Dintero Order created with reference ', 'dintero-checkout-for-woocommerce' ) . $reference );
+			$order->add_order_note( __( 'Dintero order created with reference ', 'dintero-checkout-for-woocommerce' ) . $reference );
 
 			return array(
 				'result' => 'success',

@@ -2,11 +2,11 @@
 Contributors: dintero, krokedil, NiklasHogefjord
 Tags: woocommerce, dintero, ecommerce, e-commerce, checkout
 Requires at least: 5.8.3
-Tested up to: 6.1.1
+Tested up to: 6.3.0
 Requires PHP: 7.0
 WC requires at least: 6.1.0
-WC tested up to: 7.2.0
-Stable tag: 1.6.0
+WC tested up to: 7.9.0
+Stable tag: 1.6.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,11 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2023.08.28    - version 1.6.1 =
+* Fix           - Fixed an issue where you could no longer cancel an on-hold orders if the default order status was set to on-hold for not yet authorized orders.
+* Fix           - Fixed an issue where orders pending authorization were locked even after being authorized.
+* Tweak         - The order information will now be displayed in the meta box even while pending authorization.
+
 = 2023.05.10    - version 1.6.0 =
 * Feature       - If the product image and/or thumbnail is available, their URL will be sent in the request.
 * Tweak         - The access token is now always renewed whenever the settings are updated.

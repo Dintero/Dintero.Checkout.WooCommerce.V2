@@ -179,7 +179,7 @@ class Dintero_Checkout_Callback {
 				$order->save();
 				break;
 			default:
-				Dintero_Checkout_Logger::log( sprintf( "CALLBACK: Unknown order status on callback. {$dintero_order['status']}. WC order id: %s (transaction ID: %s)", $order->get_id(), $transaction_id ) );
+				Dintero_Checkout_Logger::log( sprintf( "CALLBACK: Unknown order status on callback: {$dintero_order['status']}. WC order id: %s (transaction ID: %s)", $order->get_id(), $transaction_id ) );
 				break;
 		}
 	}
