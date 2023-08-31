@@ -123,7 +123,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		}
 
 		if ( class_exists( 'YITH_YWGC_Cart_Checkout' ) ) {
-			$yith_gift_cards = get_post_meta( $this->order->get_id(), '_ywgc_applied_gift_cards', true );
+			$yith_gift_cards = $this->order->get_meta( '_ywgc_applied_gift_cards' );
 			if ( $yith_gift_cards ) {
 				foreach ( $yith_gift_cards as $code => $amount ) {
 					$order_lines[] = $this->get_gift_card( YITH_YWGC()->get_gift_card_by_code( $code ) );
@@ -330,7 +330,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			$shipping_line = array_values( $shipping_lines )[0];
 
 			// Retrieve the shipping id from the order object itself.
-			$shipping_id = get_post_meta( $this->order->get_id(), '_wc_dintero_shipping_id', true );
+			$shipping_id = $this->order->get_meta( '_wc_dintero_shipping_id' );
 			if ( empty( $shipping_id ) ) {
 				$shipping_id = $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
 			}

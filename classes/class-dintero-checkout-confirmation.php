@@ -113,7 +113,7 @@ class Dintero_Checkout_Redirect {
 			wc_add_notice( $note, 'error' );
 		}
 
-		Dintero_Checkout_Logger::log( "REDIRECT ERROR [$error]: $note WC order id: $order_id / %s: %s", $note, $order_id );
+		Dintero_Checkout_Logger::log( "REDIRECT ERROR [$error]: $note WC order id: $order_id / %s: %s" );
 		wp_safe_redirect( wc_get_checkout_url() );
 		exit;
 	}
@@ -151,21 +151,18 @@ class Dintero_Checkout_Redirect {
 	 * @return int
 	 */
 	public function get_order_id_from_reference( $merchant_reference ) {
-		$query_args = array(
-			'fields'      => 'ids',
-			'post_type'   => wc_get_order_types(),
-			'post_status' => array_keys( wc_get_order_statuses() ),
-			'meta_key'    => '_dintero_merchant_reference', // phpcs:ignore WordPress.DB.SlowDBQuery -- Slow DB Query is ok here, we need to limit to our meta key.
-			'meta_value'  => $merchant_reference, // phpcs:ignore WordPress.DB.SlowDBQuery -- Slow DB Query is ok here, we need to limit to our meta key.
+		$orders = wc_get_orders(
+			array(
+				'meta_key'   => '_dintero_merchant_reference',
+				'meta_value' => $merchant_reference,
+				'limit'      => 1,
+				'orderby'    => 'date',
+				'order'      => 'DESC',
+			)
 		);
 
-		$order_ids = get_posts( $query_args );
-
-		if ( empty( $order_ids ) ) {
-			return null;
-		}
-
-		return $order_ids[0];
+		$order = reset( $orders );
+		return $order->get_id() ?? 0;
 	}
 }
 new Dintero_Checkout_Redirect();

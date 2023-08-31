@@ -87,7 +87,7 @@ class Dintero_Checkout_Order_Management {
 			return;
 		}
 
-		if ( get_post_meta( $order_id, $this->status['rejected'], true ) ) {
+		if ( $order->get_meta( $this->status['rejected'] ) ) {
 			$order->add_order_note( __( 'The Dintero order was rejected, and can therefore not be captured.', 'dintero-checkout-for-woocommerce' ) );
 			return;
 		}
@@ -99,17 +99,17 @@ class Dintero_Checkout_Order_Management {
 			return;
 		}
 
-		if ( get_post_meta( $order_id, $this->status['captured'], true ) ) {
+		if ( $order->get_meta( $this->status['captured'] ) ) {
 			$order->add_order_note( __( 'The Dintero order has already been captured.', 'dintero-checkout-for-woocommerce' ) );
 			return;
 		}
 
-		if ( get_post_meta( $order_id, $this->status['canceled'], true ) ) {
+		if ( $order->get_meta( $this->status['canceled'] ) ) {
 			$order->add_order_note( __( 'The Dintero order was canceled and can no longer be captured.', 'dintero-checkout-for-woocommerce' ) );
 			return;
 		}
 
-		if ( get_post_meta( $order_id, $this->status['refunded'], true ) ) {
+		if ( $order->get_meta( $this->status['refunded'] ) ) {
 			$order->add_order_note( __( 'The Dintero order has been refunded and can no longer be captured.', 'dintero-checkout-for-woocommerce' ) );
 			return;
 		}
@@ -154,7 +154,8 @@ class Dintero_Checkout_Order_Management {
 		}
 
 		$order->add_order_note( $note );
-		update_post_meta( $order_id, $this->status['captured'], current_time( ' Y-m-d H:i:s' ) );
+		$order->update_meta_data( $this->status['captured'], current_time( ' Y-m-d H:i:s' ) );
+		$order->save();
 	}
 
 	/**
@@ -170,7 +171,7 @@ class Dintero_Checkout_Order_Management {
 			return;
 		}
 
-		if ( get_post_meta( $order_id, $this->status['rejected'], true ) ) {
+		if ( $order->get_meta( $this->status['rejected'] ) ) {
 			$order->add_order_note( __( 'The Dintero order was rejected, and can therefore not be canceled.', 'dintero-checkout-for-woocommerce' ) );
 			return;
 		}
@@ -193,17 +194,17 @@ class Dintero_Checkout_Order_Management {
 			return;
 		}
 
-		if ( get_post_meta( $order_id, $this->status['captured'], true ) ) {
+		if ( $order->get_meta( $this->status['captured'] ) ) {
 			$order->add_order_note( __( 'The Dintero order has been captured, and can therefore no longer be canceled.', 'dintero-checkout-for-woocommerce' ) );
 			return;
 		}
 
-		if ( get_post_meta( $order_id, $this->status['canceled'], true ) ) {
+		if ( $order->get_meta( $this->status['canceled'] ) ) {
 			$order->add_order_note( __( 'The Dintero order has already been canceled.', 'dintero-checkout-for-woocommerce' ) );
 			return;
 		}
 
-		if ( get_post_meta( $order_id, $this->status['refunded'], true ) ) {
+		if ( $order->get_meta( $this->status['refunded'] ) ) {
 			$order->add_order_note( __( 'The Dintero order has been refunded and can no longer be canceled.', 'dintero-checkout-for-woocommerce' ) );
 			return;
 		}
@@ -231,7 +232,8 @@ class Dintero_Checkout_Order_Management {
 		}
 
 		$order->add_order_note( __( 'The Dintero order has been canceled.', 'dintero-checkout-for-woocommerce' ) );
-		update_post_meta( $order_id, $this->status['canceled'], current_time( ' Y-m-d H:i:s' ) );
+		$order->update_meta_data( $this->status['canceled'], current_time( ' Y-m-d H:i:s' ) );
+		$order->save();
 	}
 
 	/**
@@ -251,7 +253,7 @@ class Dintero_Checkout_Order_Management {
 		if ( did_action( 'woocommerce_order_status_refunded' ) ) {
 			$settings      = get_option( 'woocommerce_dintero_checkout_settings' );
 			$manual_refund = $settings['order_management_manual_refund'] ?? 'no';
-			if ( 'no' === $manual_refund || get_post_meta( $order_id, $this->status['refunded'], true ) ) {
+			if ( 'no' === $manual_refund || $order->get_meta( $this->status['refunded'] ) ) {
 				return;
 			}
 		}
@@ -267,17 +269,17 @@ class Dintero_Checkout_Order_Management {
 			return;
 		}
 
-		if ( ! get_post_meta( $order_id, $this->status['captured'], true ) ) {
+		if ( ! $order->get_meta( $this->status['captured'] ) ) {
 			$order->add_order_note( __( 'There is nothing to refund. The order has not yet been captured in WooCommerce.', 'dintero-checkout-for-woocommerce' ) );
 			return;
 		}
 
-		if ( get_post_meta( $order_id, $this->status['canceled'], true ) ) {
+		if ( $order->get_meta( $this->status['canceled'] ) ) {
 			$order->add_order_note( __( 'The Dintero order cannot be refunded since it is canceled.', 'dintero-checkout-for-woocommerce' ) );
 			return;
 		}
 
-		if ( get_post_meta( $order_id, $this->status['refunded'], true ) ) {
+		if ( $order->get_meta( $this->status['refunded'] ) ) {
 			$order->add_order_note( __( 'The Dintero order has already been refunded.', 'dintero-checkout-for-woocommerce' ) );
 			return;
 		}
@@ -305,12 +307,14 @@ class Dintero_Checkout_Order_Management {
 
 		if ( $this->is_partially_refunded( $order_id ) ) {
 			$order->add_order_note( __( 'The Dintero order has been partially refunded.', 'dintero-checkout-for-woocommerce' ) );
-			update_post_meta( $order_id, $this->status['partially_refunded'], current_time( ' Y-m-d H:i:s' ) );
+			$order->update_meta_data( $this->status['partially_refunded'], current_time( ' Y-m-d H:i:s' ) );
 
 		} else {
 			$order->add_order_note( __( 'The Dintero order has been refunded.', 'dintero-checkout-for-woocommerce' ) );
-			update_post_meta( $order_id, $this->status['refunded'], current_time( ' Y-m-d H:i:s' ) );
+			$order->update_meta_data( $this->status['refunded'], current_time( ' Y-m-d H:i:s' ) );
 		}
+
+		$order->save();
 
 		return true;
 	}
@@ -333,7 +337,7 @@ class Dintero_Checkout_Order_Management {
 			}
 		}
 
-		return ! empty( get_post_meta( $order_id, $this->status['captured'], true ) );
+		return ! empty( $order->get_meta( $this->status['captured'] ) );
 	}
 
 	/**
@@ -354,7 +358,7 @@ class Dintero_Checkout_Order_Management {
 			}
 		}
 
-		return ! empty( get_post_meta( $order_id, $this->status['canceled'], true ) );
+		return ! empty( $order->get_meta( $this->status['canceled'] ) );
 	}
 
 	/**
@@ -375,7 +379,7 @@ class Dintero_Checkout_Order_Management {
 			}
 		}
 
-		return ! empty( get_post_meta( $order_id, $this->status['refunded'], true ) );
+		return ! empty( $order->get_meta( $this->status['refunded'] ) );
 	}
 
 	/**

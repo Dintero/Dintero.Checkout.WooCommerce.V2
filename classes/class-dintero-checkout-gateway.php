@@ -52,8 +52,9 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			 */
 			add_action(
 				'woocommerce_checkout_create_order_line_item',
-				function( $item, $cart_item_key ) {
+				function ( $item, $cart_item_key ) {
 					$item->update_meta_data( '_dintero_checkout_line_id', $cart_item_key );
+					$item->save();
 				},
 				10,
 				2
@@ -65,7 +66,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			 */
 			add_filter(
 				'woocommerce_hidden_order_itemmeta',
-				function( $hidden_meta ) {
+				function ( $hidden_meta ) {
 					$hidden_meta[] = '_dintero_checkout_line_id';
 					return $hidden_meta;
 				}
@@ -130,8 +131,9 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		public function process_embedded_payment( $order_id ) {
 			$order     = wc_get_order( $order_id );
 			$reference = WC()->session->get( 'dintero_merchant_reference' );
-			update_post_meta( $order_id, '_dintero_merchant_reference', $reference );
+			$order->update_meta_data( '_dintero_merchant_reference', $reference );
 			$order->add_order_note( __( 'Dintero order created with reference ', 'dintero-checkout-for-woocommerce' ) . $reference );
+			$order->save();
 
 			return array(
 				'result' => 'success',
@@ -148,7 +150,8 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			$order     = wc_get_order( $order_id );
 			$session   = Dintero()->api->create_session( $order_id );
 			$reference = WC()->session->get( 'dintero_merchant_reference' );
-			update_post_meta( $order_id, '_dintero_merchant_reference', $reference );
+			$order->update_meta_data( $order_id, '_dintero_merchant_reference', $reference );
+			$order->save();
 
 			if ( is_wp_error( $session ) ) {
 				return array(

@@ -9,6 +9,38 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController;
+
+/**
+ * Equivalent to WP's get_the_ID() with HPOS support.
+ *
+ * @return int the order ID or false.
+ */
+//phpcs:ignore
+function dintero_get_the_ID() {
+	$hpos_enabled = dintero_is_hpos_enabled();
+	$order_id     = $hpos_enabled ? filter_input( INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT ) : get_the_ID();
+	if ( empty( $order_id ) ) {
+		return false;
+	}
+
+	return $order_id;
+}
+
+/**
+ * Whether HPOS is enabled.
+ *
+ * @return bool
+ */
+function dintero_is_hpos_enabled() {
+	// CustomOrdersTableController was introduced in WC 6.4.
+	if ( class_exists( CustomOrdersTableController::class ) ) {
+		return wc_get_container()->get( CustomOrdersTableController::class )->custom_orders_table_usage_is_enabled();
+	}
+
+	return false;
+}
+
 /**
  * Add a button for changing gateway (intended to be used on the checkout page).
  *
@@ -53,10 +85,8 @@ function dintero_print_error_message( $wp_error ) {
 		if ( function_exists( 'wc_add_notice' ) ) {
 			$print = 'wc_add_notice';
 		}
-	} else {
-		if ( function_exists( 'wc_print_notice' ) ) {
-			$print = 'wc_print_notice';
-		}
+	} elseif ( function_exists( 'wc_print_notice' ) ) {
+		$print = 'wc_print_notice';
 	}
 
 	if ( ! isset( $print ) ) {
@@ -68,7 +98,7 @@ function dintero_print_error_message( $wp_error ) {
 		if ( is_array( $error ) ) {
 			$error   = array_filter(
 				$error,
-				function( $e ) {
+				function ( $e ) {
 					return ! empty( $e );
 				}
 			);
@@ -130,7 +160,6 @@ function dintero_confirm_order( $order, $transaction_id ) {
 
 	// Save the environment mode for use in the meta box.
 	$order->update_meta_data( '_wc_dintero_checkout_environment', 'yes' === get_option( 'woocommerce_dintero_checkout_settings' )['test_mode'] ? 'Test' : 'Production' );
-
 	$order->update_meta_data( '_dintero_transaction_id', $transaction_id );
 	$dintero_order         = Dintero()->api->get_order( $transaction_id );
 	$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
@@ -143,6 +172,7 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	} else {
 		// Check if the order has already been processed.
 		if ( ! empty( $order->get_date_paid() ) ) {
+			$order->save();
 			return;
 		}
 
@@ -177,7 +207,8 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	$shipping = $order->get_shipping_methods();
 	if ( ! empty( $shipping ) ) {
 		$shipping_option_id = $dintero_order['shipping_option']['id'] ?? reset( $shipping );
-		update_post_meta( $order->get_id(), '_wc_dintero_shipping_id', $shipping_option_id );
+		$order->update_meta_data( '_wc_dintero_shipping_id', $shipping_option_id );
+		$order->save();
 	}
 }
 
