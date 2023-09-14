@@ -50,10 +50,10 @@ class Dintero_Checkout_Refund_Order extends Dintero_Checkout_Request_Post {
 		}
 
 		return array(
-			'capture_reference' => strval( $this->arguments['order_id'] ),
-			'amount'            => $helper->get_order_total(),
-			'items'             => $order_lines,
-			'reason'            => $this->arguments['reason'],
+			'refund_reference' => strval( $this->arguments['order_id'] ),
+			'amount'           => $helper->get_order_total(),
+			'items'            => $order_lines,
+			'reason'           => $this->arguments['reason'],
 		);
 	}
 }
