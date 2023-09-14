@@ -64,7 +64,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	/**
 	 * Get the merchant reference.
 	 *
-	 * @param $order WC_Order
+	 * @param WC_Order $order The WooCommerce order.
 	 * @return string
 	 */
 	public function get_merchant_reference( $order ) {
@@ -330,7 +330,15 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			$shipping_line = array_values( $shipping_lines )[0];
 
 			// Retrieve the shipping id from the order object itself.
-			$shipping_id = get_post_meta( $this->order->get_id(), '_wc_dintero_shipping_id', true );
+			$shipping_id = $this->order->get_meta( '_wc_dintero_shipping_id' );
+
+			// WC_Order_Refund do not share the same meta data as WC_Order, and is thus missing the shipping id meta data.
+			if ( empty( $shipping_id ) ) {
+				$parent_order = wc_get_order( $this->order->get_parent_id() );
+				$shipping_id  = $parent_order->get_meta( '_wc_dintero_shipping_id' );
+			}
+
+			// If the shipping id is still missing, default to the shipping line data.
 			if ( empty( $shipping_id ) ) {
 				$shipping_id = $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
 			}
@@ -402,7 +410,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		/* Sanitize all values. Remove all empty elements (required by Dintero). */
 		return array_filter(
 			$billing_address,
-			function( $value ) {
+			function ( $value ) {
 				return ! empty( sanitize_text_field( $value ) );
 			}
 		);
@@ -434,10 +442,9 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		/* Sanitize all values. Remove all empty elements (required by Dintero). */
 		return array_filter(
 			$shipping_address,
-			function( $value ) {
+			function ( $value ) {
 				return ! empty( sanitize_text_field( $value ) );
 			}
 		);
 	}
-
 }
