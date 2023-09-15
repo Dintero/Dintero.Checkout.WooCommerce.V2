@@ -161,13 +161,22 @@ class Dintero_Settings_Fields {
 				'title' => __( 'Order statuses', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'title',
 			),
-			'order_statuses'                          => array(
-				'title'   => 'Default order status when authorized',
+			'order_status_authorized'                 => array(
+				'title'   => 'Default order status when <u>authorized</u>',
 				'type'    => 'select',
 				'default' => 'processing',
 				'options' => array(
 					'processing' => __( 'Processing', 'dintero-checkout-for-woocommerce' ),
 					'on-hold'    => __( 'On-hold', 'dintero-checkout-for-woocommerce' ),
+				),
+			),
+			'order_status_pending_authorization'      => array(
+				'title'   => 'Default order status when <u>pending authorization</u>',
+				'type'    => 'select',
+				'default' => 'manual-review',
+				'options' => array(
+					'manual-review' => __( 'Manual review', 'dintero-checkout-for-woocommerce' ),
+					'on-hold'       => __( 'On-hold', 'dintero-checkout-for-woocommerce' ),
 				),
 			),
 			/* Order Management */
