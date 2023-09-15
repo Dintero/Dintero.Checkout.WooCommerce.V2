@@ -85,7 +85,10 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		 * @var WC_Order_Item_Product $order_item WooCommerce order item product.
 		 */
 		foreach ( $this->order->get_items() as $order_item ) {
-			$order_lines[] = $this->get_order_line( $order_item );
+			$order_line = $this->get_order_line( $order_item );
+			if ( ! empty( $order_line ) ) {
+				$order_lines[] = $order_line;
+			}
 		}
 
 		/**
@@ -96,7 +99,10 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		if ( count( $this->order->get_items( 'shipping' ) ) > 1 ) {
 			/* If there is more than one shipping option, it will be part of the order.items to support multiple shipping packages. */
 			foreach ( $this->order->get_items( 'shipping' ) as $order_item ) {
-				$order_lines[] = $this->get_shipping_option( $order_item );
+				$order_line = $this->get_shipping_option( $order_item );
+				if ( ! empty( $order_line ) ) {
+					$order_lines[] = $order_line;
+				}
 			}
 		}
 
@@ -143,6 +149,15 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	public function get_order_line( $order_item ) {
 		$id      = ( empty( $order_item['variation_id'] ) ) ? $order_item['product_id'] : $order_item['variation_id'];
 		$product = wc_get_product( $id );
+
+		// Check if the product has been permanently deleted.
+		if ( empty( $product ) ) {
+			if ( method_exists( $this->order, 'add_order_note' ) ) {
+				$this->order->add_order_note( __( 'This order contain a product that was permanently deleted. Cannot proceed with action.', 'dintero-checkout-for-woocommerce' ) );
+				$this->order->save();
+			}
+			return array();
+		}
 
 		if ( is_a( $this->order, 'WC_Order_Refund' ) ) {
 			$line_id = wc_get_order_item_meta( $order_item->get_meta( '_refunded_item_id' ), '_dintero_checkout_line_id', true );
@@ -297,7 +312,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		}
 
 		if ( empty( $shipping_method ) ) {
-			return null;
+			return array();
 		}
 
 		return array(
@@ -402,7 +417,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		/* Sanitize all values. Remove all empty elements (required by Dintero). */
 		return array_filter(
 			$billing_address,
-			function( $value ) {
+			function ( $value ) {
 				return ! empty( sanitize_text_field( $value ) );
 			}
 		);
@@ -434,10 +449,9 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		/* Sanitize all values. Remove all empty elements (required by Dintero). */
 		return array_filter(
 			$shipping_address,
-			function( $value ) {
+			function ( $value ) {
 				return ! empty( sanitize_text_field( $value ) );
 			}
 		);
 	}
-
 }
