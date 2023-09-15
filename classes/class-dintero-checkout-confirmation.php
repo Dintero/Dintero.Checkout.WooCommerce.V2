@@ -113,7 +113,7 @@ class Dintero_Checkout_Redirect {
 			wc_add_notice( $note, 'error' );
 		}
 
-		Dintero_Checkout_Logger::log( "REDIRECT ERROR [$error]: $note WC order id: $order_id / %s: %s" );
+		Dintero_Checkout_Logger::log( "REDIRECT ERROR [$error]: $note WC order id: $order_id" );
 		wp_safe_redirect( wc_get_checkout_url() );
 		exit;
 	}
