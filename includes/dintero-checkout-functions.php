@@ -157,17 +157,22 @@ function dintero_update_wc_shipping( $data ) {
  */
 function dintero_confirm_order( $order, $transaction_id ) {
 	$order_id = $order->get_id();
+	$settings = get_option( 'woocommerce_dintero_checkout_settings' );
 
 	// Save the environment mode for use in the meta box.
-	$order->update_meta_data( '_wc_dintero_checkout_environment', 'yes' === get_option( 'woocommerce_dintero_checkout_settings' )['test_mode'] ? 'Test' : 'Production' );
+	$order->update_meta_data( '_wc_dintero_checkout_environment', 'yes' === $settings['test_mode'] ? 'Test' : 'Production' );
+
 	$order->update_meta_data( '_dintero_transaction_id', $transaction_id );
 	$dintero_order         = Dintero()->api->get_order( $transaction_id );
 	$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
 	if ( $require_authorization ) {
 		$order->set_transaction_id( $transaction_id );
 		$order->update_meta_data( Dintero()->order_management->status( 'on_hold' ), $transaction_id );
+
+		$default_pending_authorization = $settings['order_status_pending_authorization'] ?? 'manual-review';
+
 		// translators: %s the Dintero transaction ID.
-		$order->update_status( 'manual-review', sprintf( __( 'The order was placed successfully, but requires further authorization by Dintero. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
+		$order->update_status( $default_pending_authorization, sprintf( __( 'The order was placed successfully, but requires further authorization by Dintero. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
 		Dintero_Checkout_Logger::log( "REDIRECT: The WC order $order_id (transaction ID: $transaction_id) will require further authorization from Dintero." );
 	} else {
 		// Check if the order has already been processed.
@@ -184,10 +189,10 @@ function dintero_confirm_order( $order, $transaction_id ) {
 			$order->add_order_note( sprintf( __( 'The order was placed successfully via Dintero Checkout. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
 		}
 
-		$default_status = get_option( 'woocommerce_dintero_checkout_settings' )['order_statuses'];
-		if ( 'processing' !== $default_status ) {
+		$default_status_authorized = $settings['order_status_authorized'] ?? 'processing';
+		if ( 'processing' !== $default_status_authorized ) {
 			$order->set_transaction_id( $transaction_id );
-			$order->set_status( $default_status );
+			$order->set_status( $default_status_authorized );
 			if ( ! $order->get_date_paid( 'edit' ) ) {
 				$order->set_date_paid( time() );
 			}

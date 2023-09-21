@@ -5,8 +5,8 @@ Requires at least: 5.8.3
 Tested up to: 6.3.0
 Requires PHP: 7.0
 WC requires at least: 6.1.0
-WC tested up to: 7.9.0
-Stable tag: 1.6.1
+WC tested up to: 8.0.1
+Stable tag: 1.7.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,11 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2023.09.20    - version 1.7.0 =
+* Feature       - You can now set the default order status for orders pending authorization to "on-hold". Defaults to "manual-review".
+* Fix           - An attempt to capture order that contain a product that has been permanently removed will now fail without causing an critical error.
+* Fix           - Fixed an issue where a refund would fail due to missing order metadata, and the default shipping line data would be used instead of the one stored in the parent order.
+
 = 2023.08.28    - version 1.6.1 =
 * Fix           - Fixed an issue where you could no longer cancel an on-hold orders if the default order status was set to on-hold for not yet authorized orders.
 * Fix           - Fixed an issue where orders pending authorization were locked even after being authorized.
