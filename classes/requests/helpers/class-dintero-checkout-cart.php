@@ -357,7 +357,6 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 * @return array An associative array representing the billing address.
 	 */
 	public function get_billing_address() {
-
 		$billing_address = array(
 			'first_name'     => WC()->customer->get_billing_first_name(),
 			'last_name'      => WC()->customer->get_billing_last_name(),
@@ -374,8 +373,8 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		/* Sanitize all values. Remove all empty elements (required by Dintero). */
 		return array_filter(
 			$billing_address,
-			function( $value ) {
-				return ! empty( sanitize_text_field( $value ) );
+			function ( $value ) {
+				return ! empty( wc_clean( $value ) );
 			}
 		);
 	}
@@ -405,8 +404,8 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		/* Sanitize all values. Remove all empty elements (required by Dintero). */
 		return array_filter(
 			$shipping_address,
-			function( $value ) {
-				return ! empty( sanitize_text_field( $value ) );
+			function ( $value ) {
+				return ! empty( wc_clean( $value ) );
 			}
 		);
 	}
