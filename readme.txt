@@ -6,7 +6,7 @@ Tested up to: 6.3.0
 Requires PHP: 7.0
 WC requires at least: 6.1.0
 WC tested up to: 8.0.1
-Stable tag: 1.7.0
+Stable tag: 1.7.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,9 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2023.09.26    - version 1.7.1 =
+* Fix           - Fixed an issue related to Embedded Dintero Checkout where if a guest user entered their billing and shipping information, WooCommerce wouldn't pass all the available field data for prefilling the form fields in the Dintero payment.
+
 = 2023.09.20    - version 1.7.0 =
 * Feature       - You can now set the default order status for orders pending authorization to "on-hold". Defaults to "manual-review".
 * Fix           - An attempt to capture order that contain a product that has been permanently removed will now fail without causing an critical error.
