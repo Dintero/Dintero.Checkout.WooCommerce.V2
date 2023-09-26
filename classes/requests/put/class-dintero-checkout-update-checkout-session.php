@@ -53,6 +53,19 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 			'remove_lock' => true,
 		);
 
+		// Only non-express checkout must be updated through API since the fields are entered in WC.
+		if ( 'checkout' === $this->settings['checkout_type'] ) {
+			$billing_address = $helper->get_billing_address();
+			if ( ! empty( $billing_address ) ) {
+				$body['order']['billing_address'] = $billing_address;
+			}
+
+			$shipping_address = $helper->get_shipping_address();
+			if ( ! empty( $shipping_address ) ) {
+				$body['order']['shipping_address'] = $shipping_address;
+			}
+		}
+
 		// Set if express or not.
 		if ( $this->is_express() && $this->is_embedded() ) {
 			$this->add_express_object( $body );

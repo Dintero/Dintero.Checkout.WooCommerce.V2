@@ -426,7 +426,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		return array_filter(
 			$billing_address,
 			function ( $value ) {
-				return ! empty( sanitize_text_field( $value ) );
+				return ! empty( wc_clean( $value ) );
 			}
 		);
 	}
@@ -458,7 +458,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		return array_filter(
 			$shipping_address,
 			function ( $value ) {
-				return ! empty( sanitize_text_field( $value ) );
+				return ! empty( wc_clean( $value ) );
 			}
 		);
 	}
