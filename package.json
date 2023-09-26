@@ -9,7 +9,7 @@
         "@babel/core": "^7.14.3",
         "@babel/plugin-transform-runtime": "^7.14.3",
         "@babel/preset-env": "^7.14.4",
-        "@wordpress/eslint-plugin": "^12.6.0",
+        "@wordpress/eslint-plugin": "^16.0.0",
         "babel-loader": "^8.2.2",
         "eslint": "^8.19.0",
         "file-loader": "^6.2.0",
@@ -25,15 +25,16 @@
     "scripts": {
         "clear:transients": "docker-compose run --rm wp-cli wp wc tool run clear_transients --user=1",
         "clear:session": "docker-compose run --rm wp-cli wp wc tool run clear_sessions --user=1",
-        "makepot": "npx grunt makepot",
-        "cssmin": "npx grunt cssmin",
-        "jsmin": "npx webpack",
-        "moveJS": "npx grunt move",
-        "lint": "npx eslint -c ./.eslintrc.json --ext .js assets/js --fix",
-        "webpack:dev": "npx webpack --mode=development --watch",
+        "makepot": "yarn grunt makepot",
+        "cssmin": "yarn grunt cssmin",
+        "jsmin": "yarn webpack",
+        "moveJS": "yarn grunt move",
+        "lint": "yarn eslint -c ./.eslintrc.json --ext .js assets/js --fix",
+        "webpack:dev": "yarn webpack --mode=development --watch",
         "build": "yarn lint && yarn makepot && yarn cssmin && yarn jsmin && yarn moveJS"
     },
     "dependencies": {
+        "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
         "@dintero/checkout-web-sdk": "^0.5.0",
         "grunt-cli": "^1.4.3",
         "grunt-zip": "^0.18.2"
