@@ -178,7 +178,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			$order     = wc_get_order( $order_id );
 			$session   = Dintero()->api->create_session( $order_id );
 			$reference = WC()->session->get( 'dintero_merchant_reference' );
-			$order->update_meta_data( $order_id, '_dintero_merchant_reference', $reference );
+			$order->update_meta_data( '_dintero_merchant_reference', $reference );
 			$order->save();
 
 			if ( is_wp_error( $session ) ) {

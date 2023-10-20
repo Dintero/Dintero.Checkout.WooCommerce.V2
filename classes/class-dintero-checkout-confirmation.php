@@ -154,16 +154,15 @@ class Dintero_Checkout_Redirect {
 		$key    = '_dintero_merchant_reference';
 		$orders = wc_get_orders(
 			array(
-				'meta_key'   => $key,
-				'meta_value' => $merchant_reference,
-				'limit'      => 1,
-				'orderby'    => 'date',
-				'order'      => 'DESC',
+				$key      => $merchant_reference,
+				'limit'   => 1,
+				'orderby' => 'date',
+				'order'   => 'DESC',
 			)
 		);
 
 		$order = reset( $orders );
-		if ( $merchant_reference !== $order->get_meta( $key ) ) {
+		if ( empty( $order ) || $merchant_reference !== $order->get_meta( $key ) ) {
 			return 0;
 		}
 
