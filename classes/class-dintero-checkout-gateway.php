@@ -112,7 +112,25 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return boolean
 		 */
 		public function is_available() {
-			return ( 'yes' === $this->enabled );
+			if ( ! 'yes' === $this->enabled ) {
+				return false;
+			}
+
+			if ( is_wc_endpoint_url( 'order-pay' ) ) {
+				$order_id = absint( get_query_var( 'order-pay', 0 ) );
+				$order    = wc_get_order( $order_id );
+				if ( empty( $order ) || 0.0 === floatval( $order->get_total() ) ) {
+					return false;
+				}
+
+				return true;
+			}
+
+			if ( ! isset( WC()->cart ) ) {
+				return false;
+			}
+
+			return 0.0 < floatval( WC()->cart->total );
 		}
 
 		/**
