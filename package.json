@@ -1,6 +1,6 @@
 {
     "name": "dintero-checkout-for-woocommerce",
-    "version": "1.6.0",
+    "version": "1.8.0",
     "main": "index.js",
     "repository": "git@github.com:Dintero/Dintero.Checkout.WooCommerce.V2.git",
     "author": "Krokedil <info@krokedil.se>",
@@ -31,7 +31,7 @@
         "moveJS": "yarn grunt move",
         "lint": "yarn eslint -c ./.eslintrc.json --ext .js assets/js --fix",
         "webpack:dev": "yarn webpack --mode=development --watch",
-        "build": "yarn lint && yarn makepot && yarn cssmin && yarn jsmin && yarn moveJS"
+        "build": "yarn makepot && yarn cssmin && yarn jsmin && yarn moveJS && yarn lint"
     },
     "dependencies": {
         "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
