@@ -24,7 +24,7 @@ class Dintero_Checkout_Logger {
 	 * Logs a single event.
 	 *
 	 * @static
-	 * @param array $data The data to log.
+	 * @param array|string $data The data to log.
 	 * @return void
 	 */
 	public static function log( $data ) {
@@ -46,8 +46,8 @@ class Dintero_Checkout_Logger {
 	/**
 	 * Formats the log data to prevent json error.
 	 *
-	 * @param string $data Json string of data.
-	 * @return array
+	 * @param array|string $data An array with request/response data or a string.
+	 * @return array|string
 	 */
 	public static function format_data( $data ) {
 		if ( isset( $data['request']['headers']['authorization'] ) ) {

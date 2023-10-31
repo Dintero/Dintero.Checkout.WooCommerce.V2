@@ -113,7 +113,7 @@ class Dintero_Checkout_Redirect {
 			wc_add_notice( $note, 'error' );
 		}
 
-		Dintero_Checkout_Logger::log( "REDIRECT ERROR [$error]: $note WC order id: $order_id / %s: %s", $note, $order_id );
+		Dintero_Checkout_Logger::log( "REDIRECT ERROR [$error]: $note WC order id: $order_id" );
 		wp_safe_redirect( wc_get_checkout_url() );
 		exit;
 	}
@@ -125,7 +125,7 @@ class Dintero_Checkout_Redirect {
 	 * @return WC_Order|null On error, null is returned. Otherwise, WC_Order.
 	 */
 	public function get_order_from_reference( $merchant_reference ) {
-		$order_id = $this->get_order_id_from_reference( $merchant_reference );
+		$order_id = dintero_get_order_id_by_merchant_reference( $merchant_reference );
 
 		// Check that we get a order id.
 		if ( empty( $order_id ) ) {
@@ -142,30 +142,6 @@ class Dintero_Checkout_Redirect {
 		}
 
 		return $order;
-	}
-
-	/**
-	 * Get a order id from the merchant reference.
-	 *
-	 * @param string $merchant_reference The merchant reference from dintero.
-	 * @return int
-	 */
-	public function get_order_id_from_reference( $merchant_reference ) {
-		$query_args = array(
-			'fields'      => 'ids',
-			'post_type'   => wc_get_order_types(),
-			'post_status' => array_keys( wc_get_order_statuses() ),
-			'meta_key'    => '_dintero_merchant_reference', // phpcs:ignore WordPress.DB.SlowDBQuery -- Slow DB Query is ok here, we need to limit to our meta key.
-			'meta_value'  => $merchant_reference, // phpcs:ignore WordPress.DB.SlowDBQuery -- Slow DB Query is ok here, we need to limit to our meta key.
-		);
-
-		$order_ids = get_posts( $query_args );
-
-		if ( empty( $order_ids ) ) {
-			return null;
-		}
-
-		return $order_ids[0];
 	}
 }
 new Dintero_Checkout_Redirect();

@@ -188,10 +188,10 @@ class Dintero_Checkout_Callback {
 	 * Get the order from the reference.
 	 *
 	 * @param string $merchant_reference The merchant reference from Dintero.
-	 * @return WC_Order
+	 * @return WC_Order|null
 	 */
 	public function get_order_from_reference( $merchant_reference ) {
-		$order_id = $this->get_order_id_from_reference( $merchant_reference );
+		$order_id = dintero_get_order_id_by_merchant_reference( $merchant_reference );
 
 		// Check that we get a order id.
 		if ( empty( $order_id ) ) {
@@ -272,31 +272,6 @@ class Dintero_Checkout_Callback {
 	 */
 	public static function is_localhost() {
 		return ( isset( $_SERVER['REMOTE_ADDR'] ) && in_array( $_SERVER['REMOTE_ADDR'], array( '127.0.0.1', '::1' ), true ) || isset( $_SERVER['HTTP_HOST'] ) && 'localhost' === substr( wp_unslash( $_SERVER['HTTP_HOST'] ), 0, 9 ) ); // phpcs:ignore
-	}
-
-
-	/**
-	 * Get a order id from the merchant reference.
-	 *
-	 * @param string $merchant_reference The merchant reference from dintero.
-	 * @return int
-	 */
-	public function get_order_id_from_reference( $merchant_reference ) {
-		$query_args = array(
-			'fields'      => 'ids',
-			'post_type'   => wc_get_order_types(),
-			'post_status' => array_keys( wc_get_order_statuses() ),
-			'meta_key'    => '_dintero_merchant_reference', // phpcs:ignore WordPress.DB.SlowDBQuery -- Slow DB Query is ok here, we need to limit to our meta key.
-			'meta_value'  => $merchant_reference, // phpcs:ignore WordPress.DB.SlowDBQuery -- Slow DB Query is ok here, we need to limit to our meta key.
-		);
-
-		$order_ids = get_posts( $query_args );
-
-		if ( empty( $order_ids ) ) {
-			return null;
-		}
-
-		return $order_ids[0];
 	}
 }
 new Dintero_Checkout_Callback();

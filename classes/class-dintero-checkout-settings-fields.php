@@ -257,16 +257,6 @@ class Dintero_Settings_Fields {
 				'title' => __( 'Custom color (HEX)', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'color',
 			),
-			'branding_footer_background_color'        => array(
-				'title'   => __( 'Footer background color', 'dintero-checkout-for-woocommerce' ),
-				'type'    => 'checkbox',
-				'default' => 'yes',
-				'label'   => __( 'Default color', 'dintero-checkout-for-woocommerce' ),
-			),
-			'branding_footer_background_color_custom' => array(
-				'title' => __( 'Custom color (HEX)', 'dintero-checkout-for-woocommerce' ),
-				'type'  => 'color',
-			),
 		);
 
 		return apply_filters( 'dintero_checkout_settings', $settings );

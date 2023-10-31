@@ -44,7 +44,11 @@ class Dintero_Checkout_Widget extends WP_Widget {
 			),
 		);
 		echo wp_kses( $args['before_widget'], $allowed_html );
-		$this->print_icon( $instance['icon_color'], $instance['background_color'] );
+		if ( 'on' === $instance['use_default'] ) {
+			$this->print_icon();
+		} else {
+			$this->print_icon( $instance['icon_color'], $instance['background_color'] );
+		}
 		echo wp_kses( $args['after_widget'], $allowed_html );
 	}
 
@@ -57,21 +61,21 @@ class Dintero_Checkout_Widget extends WP_Widget {
 	 * @return void
 	 */
 	public function form( $instance ) {
-		$use_default      = $this->get_field_id( 'use_default' );
-		$icon_color       = $this->get_field_id( 'icon_color' );
-		$background_color = $this->get_field_id( 'background_color' );
+		$use_default      = 'use_default';
+		$icon_color       = 'icon_color';
+		$background_color = 'background_color';
 		?>
 		<p>
-			<input type="checkbox" class="checkbox" id="<?php echo esc_attr( $use_default ); ?>" name="<?php echo esc_attr( $use_default ); ?>" /></label>
-			<label for="<?php echo esc_attr( $use_default ); ?>"><?php esc_html_e( 'Default icon color', 'dintero-checkout-for-woocommerce' ); ?>
+			<input type="checkbox" class="checkbox" id="<?php echo esc_attr( $this->get_field_id( $use_default ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'use_default' ) ); ?>" /></label>
+			<label for="<?php echo esc_attr( $this->get_field_id( $use_default ) ); ?>"><?php esc_html_e( 'Default icon color', 'dintero-checkout-for-woocommerce' ); ?>
 		</p>
 		<p>
-			<label for="<?php echo esc_attr( $icon_color ); ?>"><?php esc_html_e( 'Icon color:', 'dintero-checkout-for-woocommerce' ); ?>
-			<input type="color" class="widefat colorpick" value="#cecece" id="<?php echo esc_attr( $icon_color ); ?>" name="<?php echo esc_attr( $icon_color ); ?>"  /></label>
+			<label for="<?php echo esc_attr( $this->get_field_id( $icon_color ) ); ?>"><?php esc_html_e( 'Icon color:', 'dintero-checkout-for-woocommerce' ); ?>
+			<input type="color" class="widefat colorpick" value="#cecece" id="<?php echo esc_attr( $this->get_field_id( $icon_color ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'icon_color' ) ); ?>"  /></label>
 		</p>
 		<p>
-			<label for="<?php echo esc_attr( $background_color ); ?>"><?php esc_html_e( 'Background color:', 'dintero-checkout-for-woocommerce' ); ?>
-			<input type="color" class="widefat colorpick" value="#ffffff" id="<?php echo esc_attr( $background_color ); ?>" name="<?php echo esc_attr( $background_color ); ?>"  /></label>
+			<label for="<?php echo esc_attr( $this->get_field_id( $background_color ) ); ?>"><?php esc_html_e( 'Background color:', 'dintero-checkout-for-woocommerce' ); ?>
+			<input type="color" class="widefat colorpick" value="#ffffff" id="<?php echo esc_attr( $this->get_field_id( $background_color ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'background_color' ) ); ?>"  /></label>
 		</p>
 		<?php
 	}
@@ -87,13 +91,13 @@ class Dintero_Checkout_Widget extends WP_Widget {
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance                     = $old_instance;
-		$instance['use_default']      = ( isset( $new_instance['use_default'] ) ) ? $new_instance['use_default'] : $old_instance['use_default'];
-		$instance['background_color'] = ( isset( $new_instance['background_color'] ) ) ? wp_strip_all_tags( $new_instance['background_color'] ) : '';
+		$instance['use_default']      = ( isset( $new_instance['use_default'] ) ) ? $new_instance['use_default'] : 'off';
+		$instance['background_color'] = ( isset( $new_instance['background_color'] ) ) ? wc_clean( $new_instance['background_color'] ) : '';
 
-		if ( 'on' !== $instance['use_default'] ) {
-			$instance['icon_color'] = ( isset( $new_instance['icon_color'] ) ) ? wp_strip_all_tags( $new_instance['icon_color'] ) : '';
-		} else {
+		if ( 'on' === $instance['use_default'] ) {
 			$instance['icon_color'] = 'cecece';
+		} else {
+			$instance['icon_color'] = ( isset( $new_instance['icon_color'] ) ) ? wc_clean( $new_instance['icon_color'] ) : '';
 		}
 
 		return $instance;
