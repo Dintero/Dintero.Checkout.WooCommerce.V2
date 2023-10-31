@@ -11,11 +11,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+
 /**
  * Dintero_Meta_Box
  */
 class Dintero_Checkout_Meta_Box {
 
+	/**
+	 * Class constructor.
+	 */
 	public function __construct() {
 		add_action( 'add_meta_boxes', array( $this, 'dintero_checkout_meta_box' ) );
 	}
@@ -27,11 +31,11 @@ class Dintero_Checkout_Meta_Box {
 	 * @return void
 	 */
 	public function dintero_checkout_meta_box( $post_type ) {
-		if ( 'shop_order' === $post_type ) {
-			$order_id = get_the_ID();
+		if ( in_array( $post_type, array( 'woocommerce_page_wc-orders', 'shop_order' ), true ) ) {
+			$order_id = dintero_get_the_ID();
 			$order    = wc_get_order( $order_id );
 			if ( 'dintero_checkout' === $order->get_payment_method() ) {
-				add_meta_box( 'dintero_checkout_meta_box', __( 'Dintero Checkout', 'dintero-checkout-for-woocommerce' ), array( $this, 'dintero_meta_box_content' ), 'shop_order', 'side', 'core' );
+				add_meta_box( 'dintero_checkout_meta_box', __( 'Dintero Checkout', 'dintero-checkout-for-woocommerce' ), array( $this, 'dintero_meta_box_content' ), $post_type, 'side', 'core' );
 			}
 		}
 	}
@@ -44,10 +48,9 @@ class Dintero_Checkout_Meta_Box {
 	 * @return void
 	 */
 	public function dintero_meta_box_content() {
-		$order_id = get_the_ID();
-		$order    = wc_get_order( $order_id );
+		$order = wc_get_order( dintero_get_the_ID() );
 
-		if ( ! empty( get_post_meta( $order_id, '_transaction_id', true ) ) ) {
+		if ( ! empty( $order->get_transaction_id() ) ) {
 
 			$dintero_order = Dintero()->api->get_order( $order->get_transaction_id() );
 
@@ -72,11 +75,11 @@ class Dintero_Checkout_Meta_Box {
 	 * @return void
 	 */
 	public function print_content( $dintero_order ) {
-		$order_id    = get_the_ID();
-		$environment = ! empty( get_post_meta( $order_id, '_wc_dintero_checkout_environment', true ) ) ? get_post_meta( $order_id, '_wc_dintero_checkout_environment', true ) : '';
+		$order       = wc_get_order( dintero_get_the_ID() );
+		$environment = ! empty( $order->get_meta( '_wc_dintero_checkout_environment' ) ) ? $order->get_meta( '_wc_dintero_checkout_environment' ) : '';
 
 		$account_id     = trim( get_option( 'woocommerce_dintero_checkout_settings', array( 'account_id' => '' ) )['account_id'] );
-		$transaction_id = get_post_meta( $order_id, '_dintero_transaction_id', true );
+		$transaction_id = $order->get_meta( '_dintero_transaction_id' );
 
 		/* Remove duplicate words from the payment method type (e.g., swish.swish → Swish). Otherwise, prints as is (e.g., collector.invoice → Collector Invoice). */
 		$payment_method = implode( ' ', array_unique( explode( ' ', ucwords( str_replace( '.', ' ', $dintero_order['payment_product_type'] ) ) ) ) );

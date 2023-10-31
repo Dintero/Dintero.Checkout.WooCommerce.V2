@@ -9,6 +9,38 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController;
+
+/**
+ * Equivalent to WP's get_the_ID() with HPOS support.
+ *
+ * @return int the order ID or false.
+ */
+//phpcs:ignore
+function dintero_get_the_ID() {
+	$hpos_enabled = dintero_is_hpos_enabled();
+	$order_id     = $hpos_enabled ? filter_input( INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT ) : get_the_ID();
+	if ( empty( $order_id ) ) {
+		return false;
+	}
+
+	return $order_id;
+}
+
+/**
+ * Whether HPOS is enabled.
+ *
+ * @return bool
+ */
+function dintero_is_hpos_enabled() {
+	// CustomOrdersTableController was introduced in WC 6.4.
+	if ( class_exists( CustomOrdersTableController::class ) ) {
+		return wc_get_container()->get( CustomOrdersTableController::class )->custom_orders_table_usage_is_enabled();
+	}
+
+	return false;
+}
+
 /**
  * Add a button for changing gateway (intended to be used on the checkout page).
  *
@@ -54,7 +86,7 @@ function dintero_print_error_message( $wp_error ) {
 			$print = 'wc_add_notice';
 		}
 	} elseif ( function_exists( 'wc_print_notice' ) ) {
-			$print = 'wc_print_notice';
+		$print = 'wc_print_notice';
 	}
 
 	if ( ! isset( $print ) ) {
@@ -145,6 +177,7 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	} else {
 		// Check if the order has already been processed.
 		if ( ! empty( $order->get_date_paid() ) ) {
+			$order->save();
 			return;
 		}
 
@@ -179,7 +212,8 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	$shipping = $order->get_shipping_methods();
 	if ( ! empty( $shipping ) ) {
 		$shipping_option_id = $dintero_order['shipping_option']['id'] ?? reset( $shipping );
-		update_post_meta( $order->get_id(), '_wc_dintero_shipping_id', $shipping_option_id );
+		$order->update_meta_data( '_wc_dintero_shipping_id', $shipping_option_id );
+		$order->save();
 	}
 }
 
@@ -263,4 +297,28 @@ function dintero_alt_backlinks() {
 		default:
 			return "Dintero logo, click to view Dintero's website.";
 	}
+}
+/**
+ * Get a order id from the merchant reference.
+ *
+ * @param string $merchant_reference The merchant reference from dintero.
+ * @return int The WC order ID or 0 if no match was found.
+ */
+function dintero_get_order_id_by_merchant_reference( $merchant_reference ) {
+	$key    = '_dintero_merchant_reference';
+	$orders = wc_get_orders(
+		array(
+			$key      => $merchant_reference,
+			'limit'   => 1,
+			'orderby' => 'date',
+			'order'   => 'DESC',
+		)
+	);
+
+	$order = reset( $orders );
+	if ( empty( $order ) || $merchant_reference !== $order->get_meta( $key ) ) {
+		return 0;
+	}
+
+	return $order->get_id() ?? 0;
 }

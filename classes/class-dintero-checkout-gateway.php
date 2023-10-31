@@ -50,26 +50,37 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			/**
 			 * Adds cart_item_key to the order item's meta data to be used as a unique line id. This applies to both embedded and redirect flow.
 			 */
-			add_action(
-				'woocommerce_checkout_create_order_line_item',
-				function( $item, $cart_item_key ) {
-					$item->update_meta_data( '_dintero_checkout_line_id', $cart_item_key );
-				},
-				10,
-				2
-			);
+			add_action( 'woocommerce_checkout_create_order_line_item', array( $this, 'create_order_line_item' ), 10, 2 );
 
 			/**
 			 * By default, a custom meta data will be displayed on the order page. Since the meta data _dintero_checkout_line_id is an implementation detail,
 			 * we should hide it on the order page. The meta key has to be prefixed with an underscore (_) to also hide the meta data beyond the order page (e.g., in emails, PDF documents).
 			 */
-			add_filter(
-				'woocommerce_hidden_order_itemmeta',
-				function( $hidden_meta ) {
-					$hidden_meta[] = '_dintero_checkout_line_id';
-					return $hidden_meta;
-				}
-			);
+			add_filter( 'woocommerce_hidden_order_itemmeta', array( $this, 'hidden_order_itemmeta' ) );
+		}
+
+		/**
+		 * Add line ID to uniquely identify order item.
+		 *
+		 * @param WC_Order_Item_Product $item
+		 * @param string                $cart_item_key
+		 *
+		 * @return void
+		 */
+		public function create_order_line_item( $item, $cart_item_key ) {
+			$item->update_meta_data( '_dintero_checkout_line_id', $cart_item_key );
+			$item->save();
+		}
+
+		/**
+		 * Hide order line ID on the order page.
+		 *
+		 * @param array $hidden_meta The itemmeta.
+		 * @return array
+		 */
+		public function hidden_order_itemmeta( $hidden_meta ) {
+			$hidden_meta[] = '_dintero_checkout_line_id';
+			return $hidden_meta;
 		}
 
 		/**
@@ -101,7 +112,25 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return boolean
 		 */
 		public function is_available() {
-			return ( 'yes' === $this->enabled );
+			if ( 'yes' !== $this->enabled ) {
+				return false;
+			}
+
+			if ( is_wc_endpoint_url( 'order-pay' ) ) {
+				$order_id = absint( get_query_var( 'order-pay', 0 ) );
+				$order    = wc_get_order( $order_id );
+				if ( empty( $order ) || 0.0 === floatval( $order->get_total() ) ) {
+					return false;
+				}
+
+				return true;
+			}
+
+			if ( ! isset( WC()->cart ) ) {
+				return false;
+			}
+
+			return 0.0 < floatval( WC()->cart->total );
 		}
 
 		/**
@@ -130,8 +159,9 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		public function process_embedded_payment( $order_id ) {
 			$order     = wc_get_order( $order_id );
 			$reference = WC()->session->get( 'dintero_merchant_reference' );
-			update_post_meta( $order_id, '_dintero_merchant_reference', $reference );
+			$order->update_meta_data( '_dintero_merchant_reference', $reference );
 			$order->add_order_note( __( 'Dintero order created with reference ', 'dintero-checkout-for-woocommerce' ) . $reference );
+			$order->save();
 
 			return array(
 				'result' => 'success',
@@ -148,7 +178,8 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			$order     = wc_get_order( $order_id );
 			$session   = Dintero()->api->create_session( $order_id );
 			$reference = WC()->session->get( 'dintero_merchant_reference' );
-			update_post_meta( $order_id, '_dintero_merchant_reference', $reference );
+			$order->update_meta_data( '_dintero_merchant_reference', $reference );
+			$order->save();
 
 			if ( is_wp_error( $session ) ) {
 				return array(
