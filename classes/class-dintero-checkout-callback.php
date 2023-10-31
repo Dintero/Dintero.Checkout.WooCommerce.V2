@@ -191,7 +191,7 @@ class Dintero_Checkout_Callback {
 	 * @return WC_Order|null
 	 */
 	public function get_order_from_reference( $merchant_reference ) {
-		$order_id = $this->get_order_id_from_reference( $merchant_reference );
+		$order_id = dintero_get_order_id_by_merchant_reference( $merchant_reference );
 
 		// Check that we get a order id.
 		if ( empty( $order_id ) ) {
@@ -272,32 +272,6 @@ class Dintero_Checkout_Callback {
 	 */
 	public static function is_localhost() {
 		return ( isset( $_SERVER['REMOTE_ADDR'] ) && in_array( $_SERVER['REMOTE_ADDR'], array( '127.0.0.1', '::1' ), true ) || isset( $_SERVER['HTTP_HOST'] ) && 'localhost' === substr( wp_unslash( $_SERVER['HTTP_HOST'] ), 0, 9 ) ); // phpcs:ignore
-	}
-
-
-	/**
-	 * Get a order id from the merchant reference.
-	 *
-	 * @param string $merchant_reference The merchant reference from dintero.
-	 * @return int
-	 */
-	public function get_order_id_from_reference( $merchant_reference ) {
-		$key    = '_dintero_merchant_reference';
-		$orders = wc_get_orders(
-			array(
-				$key      => $merchant_reference,
-				'limit'   => 1,
-				'orderby' => 'date',
-				'order'   => 'DESC',
-			)
-		);
-
-		$order = reset( $orders );
-		if ( empty( $order ) || $merchant_reference !== $order->get_meta( $key ) ) {
-			return 0;
-		}
-
-		return $order->get_id() ?? 0;
 	}
 }
 new Dintero_Checkout_Callback();

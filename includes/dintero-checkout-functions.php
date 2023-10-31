@@ -298,3 +298,27 @@ function dintero_alt_backlinks() {
 			return "Dintero logo, click to view Dintero's website.";
 	}
 }
+/**
+ * Get a order id from the merchant reference.
+ *
+ * @param string $merchant_reference The merchant reference from dintero.
+ * @return int The WC order ID or 0 if no match was found.
+ */
+function dintero_get_order_id_by_merchant_reference( $merchant_reference ) {
+	$key    = '_dintero_merchant_reference';
+	$orders = wc_get_orders(
+		array(
+			$key      => $merchant_reference,
+			'limit'   => 1,
+			'orderby' => 'date',
+			'order'   => 'DESC',
+		)
+	);
+
+	$order = reset( $orders );
+	if ( empty( $order ) || $merchant_reference !== $order->get_meta( $key ) ) {
+		return 0;
+	}
+
+	return $order->get_id() ?? 0;
+}
