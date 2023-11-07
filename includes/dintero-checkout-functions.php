@@ -308,10 +308,11 @@ function dintero_get_order_id_by_merchant_reference( $merchant_reference ) {
 	$key    = '_dintero_merchant_reference';
 	$orders = wc_get_orders(
 		array(
-			$key      => $merchant_reference,
-			'limit'   => 1,
-			'orderby' => 'date',
-			'order'   => 'DESC',
+			'meta_key'   => $key,
+			'meta_value' => $merchant_reference,
+			'limit'      => 1,
+			'orderby'    => 'date',
+			'order'      => 'DESC',
 		)
 	);
 
