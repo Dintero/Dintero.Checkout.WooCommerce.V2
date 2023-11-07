@@ -6,7 +6,7 @@ Tested up to: 6.3.0
 Requires PHP: 7.0
 WC requires at least: 6.1.0
 WC tested up to: 8.0.1
-Stable tag: 1.8.0
+Stable tag: 1.8.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,9 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2023.11.07    - version 1.8.1 =
+* Fix           - Fixed an issue where the order could not be identified by merchant reference.
+
 = 2023.10.31    - version 1.8.0 =
 * Feature       - Added support for WooCommerce's "High-Performance Order Storage" ("HPOS).
 * Tweak         - The plugin "Footer background color" setting has been removed. Please, use the more versatile and customizable [branding widget](https://docs.krokedil.com/dintero-checkout-for-woocommerce/get-started/introduction/#dintero-checkout-branding-widget) instead.
