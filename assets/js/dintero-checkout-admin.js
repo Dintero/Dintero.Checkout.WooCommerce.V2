@@ -38,13 +38,16 @@ jQuery( function( $ ) {
 		},
 		toggle_form_factor() {
 			const siblings = dwc.form_factor.parents( 'tr' ).siblings();
-			const checkoutLayout = $( '#woocommerce_dintero_checkout_checkoutLayout' ).parents( 'tr' );
+			const checkoutLayout = $('#woocommerce_dintero_checkout_checkoutLayout').parents('tr');
+			const popOut = $('#woocommerce_dintero_checkout_checkout_popout').parents('tr');
 
 			if ( dwc.form_factor.val() === 'embedded' ) {
 				siblings.fadeOut();
+				popOut.fadeIn();
 				checkoutLayout.fadeIn();
 			} else {
 				siblings.fadeIn();
+				popOut.fadeOut();
 				checkoutLayout.fadeOut();
 			}
 		},
