@@ -122,6 +122,12 @@ class Dintero_Settings_Fields {
 					'redirect' => __( 'Redirect', 'dintero-checkout-for-woocommerce' ),
 				),
 			),
+			'checkout_popout'                         => array(
+				'title'       => __( 'Enable pop-out modal', 'dintero-checkout-for-woocommerce' ),
+				'description' => __( 'Only available in embedded checkout.', 'dintero-checkout-for-woocommerce' ),
+				'type'        => 'checkbox',
+				'default'     => 'no',
+			),
 			/* The "Redirect box" is hidden until the form factor Redirect is selected. */
 			'redirect_title'                          => array(
 				'title'       => __( 'Title', 'dintero-checkout-for-woocommerce' ),
