@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/Dintero.Checkout.WooCommerce.V2\n"
-"POT-Creation-Date: 2023-11-07 10:31:11+00:00\n"
+"POT-Creation-Date: 2023-11-21 08:57:52+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -279,126 +279,134 @@ msgstr ""
 msgid "Redirect"
 msgstr ""
 
+#: classes/class-dintero-checkout-settings-fields.php:126
+msgid "Enable pop-out modal"
+msgstr ""
+
 #: classes/class-dintero-checkout-settings-fields.php:127
+msgid "Only available in embedded checkout."
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:133
 msgid "Title"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:129
+#: classes/class-dintero-checkout-settings-fields.php:135
 msgid ""
 "Payment method title (appears on checkout page if more than one payment "
 "method is available)."
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:134
+#: classes/class-dintero-checkout-settings-fields.php:140
 msgid "Description"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:136
+#: classes/class-dintero-checkout-settings-fields.php:142
 msgid ""
 "Payment method description (appears on checkout page if more than one "
 "payment method is available)."
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:139
+#: classes/class-dintero-checkout-settings-fields.php:145
 msgid "Choose your payment method in our checkout."
-msgstr ""
-
-#: classes/class-dintero-checkout-settings-fields.php:142
-#: classes/class-dintero-checkout-settings-fields.php:251
-msgid "Logo color"
-msgstr ""
-
-#: classes/class-dintero-checkout-settings-fields.php:144
-#: classes/class-dintero-checkout-settings-fields.php:254
-msgid "Default color"
 msgstr ""
 
 #: classes/class-dintero-checkout-settings-fields.php:148
 #: classes/class-dintero-checkout-settings-fields.php:257
-msgid "Custom color (HEX)"
+msgid "Logo color"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:152
-msgid "\"Go to payment\" button"
+#: classes/class-dintero-checkout-settings-fields.php:150
+#: classes/class-dintero-checkout-settings-fields.php:260
+msgid "Default color"
 msgstr ""
 
 #: classes/class-dintero-checkout-settings-fields.php:154
+#: classes/class-dintero-checkout-settings-fields.php:263
+msgid "Custom color (HEX)"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:158
+msgid "\"Go to payment\" button"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:160
 msgid ""
 "Customize the <em>\"Go to payment\"</em> button text that is displayed in "
 "checkout if other payment methods than Dintero Checkout are available. "
 "Leave blank to use the default (and translatable) text."
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:157
+#: classes/class-dintero-checkout-settings-fields.php:163
 msgid "Enter your text here (optional)"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:161
+#: classes/class-dintero-checkout-settings-fields.php:167
 msgid "Order statuses"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:169
+#: classes/class-dintero-checkout-settings-fields.php:175
 msgid "Processing"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:170
-#: classes/class-dintero-checkout-settings-fields.php:179
+#: classes/class-dintero-checkout-settings-fields.php:176
+#: classes/class-dintero-checkout-settings-fields.php:185
 msgid "On-hold"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:178
+#: classes/class-dintero-checkout-settings-fields.php:184
 msgid "Manual review"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:184
+#: classes/class-dintero-checkout-settings-fields.php:190
 msgid "Order Management"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:188
+#: classes/class-dintero-checkout-settings-fields.php:194
 msgid "Refund by changing order status"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:189
+#: classes/class-dintero-checkout-settings-fields.php:195
 msgid ""
 "Trigger refund in Dintero when WooCommerce order status is manually changed "
 "to <u>Refunded</u>."
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:195
+#: classes/class-dintero-checkout-settings-fields.php:201
 msgid "Dintero Checkout Express Settings"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:199
+#: classes/class-dintero-checkout-settings-fields.php:205
 msgid "Allowed customer types"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:203
+#: classes/class-dintero-checkout-settings-fields.php:209
 msgid "Consumers and businesses"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:204
+#: classes/class-dintero-checkout-settings-fields.php:210
 msgid "Business only"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:205
+#: classes/class-dintero-checkout-settings-fields.php:211
 msgid "Consumer only"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:209
+#: classes/class-dintero-checkout-settings-fields.php:215
 msgid "Display Shipping in the iframe"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:212
+#: classes/class-dintero-checkout-settings-fields.php:218
 msgid "Enable"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:213
+#: classes/class-dintero-checkout-settings-fields.php:219
 msgid ""
 "Will make the shipping selection happen in the Dintero checkout iframe "
 "instead of the shipping section in WooCommerce."
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:247
+#: classes/class-dintero-checkout-settings-fields.php:253
 msgid "Branding"
 msgstr ""
 

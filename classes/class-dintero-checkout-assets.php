@@ -180,7 +180,7 @@ class Dintero_Checkout_Assets {
 				'print_notice_nonce'          => wp_create_nonce( 'dintero_checkout_print_notice' ),
 				'shipping_in_iframe'          => ( isset( $settings['express_shipping_in_iframe'] ) && 'yes' === $settings['express_shipping_in_iframe'] && 'express' === $settings['checkout_type'] ),
 				'pip_text'                    => __( 'Payment in progress', 'dintero-checkout-for-woocommerce' ),
-
+				'popOut'                      => 'yes' === ( $settings['checkout_popout'] ?? 'no' ) ? true : false,
 			)
 		);
 
