@@ -202,7 +202,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			$chosen_method_id  = $chosen_shipping_methods[ $package_index ];
 
 			$shipping_method    = $available_methods[ $chosen_method_id ];
-			$shipping_options[] = $this->get_shipping_item( $shipping_method );
+			$shipping_options[] = $this->get_shipping_item( $shipping_method, $package_index );
 		}
 
 		return $shipping_options;
@@ -253,9 +253,10 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 * Formats the shipping method to be used in order.items.
 	 *
 	 * @param WC_Shipping_Rate $shipping_method The WooCommerce shipping method.
+	 * @param int              $package_index The index of the shipping package.
 	 * @return array
 	 */
-	public function get_shipping_item( $shipping_method ) {
+	public function get_shipping_item( $shipping_method, $package_index ) {
 		return apply_filters(
 			'dintero_checkout_shipping_item',
 			array(
@@ -268,7 +269,8 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 				'quantity'   => 1,
 				'type'       => 'shipping',
 			),
-			$shipping_method
+			$shipping_method,
+			$package_index
 		);
 	}
 

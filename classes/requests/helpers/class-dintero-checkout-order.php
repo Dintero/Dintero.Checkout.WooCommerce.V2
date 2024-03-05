@@ -99,8 +99,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		 */
 		if ( $include_all_shipping_lines || count( $this->order->get_items( 'shipping' ) ) > 1 ) {
 			/* If there is more than one shipping option, it will be part of the order.items to support multiple shipping packages. */
-			foreach ( $this->order->get_items( 'shipping' ) as $order_item ) {
-				$order_line = $this->get_shipping_option( $order_item );
+			foreach ( array_values( $this->order->get_items( 'shipping' ) ) as $item_index => $order_item ) {
+				$order_line = $this->get_shipping_option( $order_item, $item_index );
 				if ( ! empty( $order_line ) ) {
 					$order_lines[] = $order_line;
 				}
@@ -274,9 +274,10 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * Formats the shipping method to be used in order.items.
 	 *
 	 * @param WC_Shipping_Rate $shipping_method The shipping method from WooCommerce.
+	 * @param int|null         $shipping_index The index of the shipping package.
 	 * @return array
 	 */
-	public function get_shipping_item( $shipping_method ) {
+	public function get_shipping_item( $shipping_method, $shipping_index ) {
 		return apply_filters(
 			'dintero_checkout_shipping_item',
 			array(
@@ -291,7 +292,9 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 				'quantity'   => 1,
 				/* Dintero needs to know this is an order with multiple shipping options by setting the 'type'. */
 				'type'       => 'shipping',
-			) . $shipping_method
+			),
+			$shipping_method,
+			$shipping_index
 		);
 	}
 
@@ -299,9 +302,10 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * Gets the formatted order line from shipping.
 	 *
 	 * @param WC_Order_Item_Shipping $shipping_method WooCommerce order item shipping.
+	 * @param int|null               $shipping_index Shipping option index.
 	 * @return array
 	 */
-	public function get_shipping_option( $shipping_method = null ) {
+	public function get_shipping_option( $shipping_method = null, $shipping_index = null ) {
 		if ( empty( $shipping_method ) ) {
 			if ( count( $this->order->get_items( 'shipping' ) ) === 1 ) {
 				/**
@@ -333,7 +337,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 				'vat_amount'      => self::format_number( $shipping_method->get_total_tax() ),
 				'vat'             => ( empty( floatval( $shipping_method->get_total() ) ) ) ? 0 : self::format_number( $shipping_method->get_total_tax() / $shipping_method->get_total() ),
 			),
-			$shipping_method
+			$shipping_method,
+			$shipping_index
 		);
 	}
 
@@ -378,7 +383,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 					'vat_amount'  => self::format_number( $shipping_line->get_total_tax() ),
 					'vat'         => ( ! empty( floatval( $shipping_line->get_total() ) ) ) ? self::format_number( $shipping_line->get_total_tax() / $shipping_line->get_total() ) : 0,
 				),
-				$shipping_line
+				$shipping_line,
+				null
 			);
 		}
 		return null;
@@ -406,9 +412,9 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			$shipping_ids = array( $shipping_ids[0] );
 		}
 
-		foreach ( $shipping_ids as  $shipping_id ) {
+		foreach ( $shipping_ids as $shipping_index => $shipping_id ) {
 			$shipping_method  = $shipping_rates[ $shipping_id ];
-			$shipping_lines[] = ( $is_multiple_shipping ) ? $this->get_shipping_item( $shipping_method ) : $this->get_shipping_option( $shipping_method );
+			$shipping_lines[] = ( $is_multiple_shipping ) ? $this->get_shipping_item( $shipping_method, $shipping_index ) : $this->get_shipping_option( $shipping_method );
 		}
 
 		return $shipping_lines;
