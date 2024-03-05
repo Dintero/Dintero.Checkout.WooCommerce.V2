@@ -276,7 +276,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * @return array
 	 */
 	public function get_shipping_item( $shipping_method ) {
-		return array(
+		return apply_filters( 'dintero_checkout_shipping_item', array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
 			'id'         => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
 			'line_id'    => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
@@ -288,7 +288,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			'quantity'   => 1,
 			/* Dintero needs to know this is an order with multiple shipping options by setting the 'type'. */
 			'type'       => 'shipping',
-		);
+		). $shipping_method );
 	}
 
 	/**
@@ -315,7 +315,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			return array();
 		}
 
-		return array(
+		return apply_filters('dintero_checkout_shipping_option', array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
 			'id'              => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
 			'line_id'         => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
@@ -326,7 +326,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			'delivery_method' => 'unspecified',
 			'vat_amount'      => self::format_number( $shipping_method->get_total_tax() ),
 			'vat'             => ( empty( floatval( $shipping_method->get_total() ) ) ) ? 0 : self::format_number( $shipping_method->get_total_tax() / $shipping_method->get_total() ),
-		);
+		), $shipping_method );
 	}
 
 	/**
@@ -358,7 +358,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 				$shipping_id = $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
 			}
 
-			return array(
+			return apply_filters('dintero_checkout_shipping_option', array(
 				'id'          => $shipping_id,
 				'line_id'     => $shipping_id,
 				'amount'      => absint( self::format_number( $shipping_line->get_total() + $shipping_line->get_total_tax() ) ),
@@ -367,7 +367,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 				'title'       => $shipping_line->get_method_title(),
 				'vat_amount'  => self::format_number( $shipping_line->get_total_tax() ),
 				'vat'         => ( ! empty( floatval( $shipping_line->get_total() ) ) ) ? self::format_number( $shipping_line->get_total_tax() / $shipping_line->get_total() ) : 0,
-			);
+			), $shipping_line );
 		}
 		return null;
 	}

@@ -255,7 +255,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 * @return array
 	 */
 	public function get_shipping_item( $shipping_method ) {
-		return array(
+		return apply_filters( 'dintero_checkout_shipping_item', array(
 			'id'         => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
 			'line_id'    => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
 			'amount'     => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping_tax() ),
@@ -264,7 +264,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			'vat'        => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ),
 			'quantity'   => 1,
 			'type'       => 'shipping',
-		);
+		), $shipping_method );
 	}
 
 	/**
