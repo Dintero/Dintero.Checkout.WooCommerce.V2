@@ -74,9 +74,10 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	/**
 	 * Gets formatted cart items.
 	 *
+	 * @param bool $include_all_shipping_lines Whether to include all shipping lines or not
 	 * @return array Formatted cart items.
 	 */
-	public function get_order_lines() {
+	public function get_order_lines( $include_all_shipping_lines = false ) {
 		$order_lines = array();
 
 		/**
@@ -96,7 +97,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		 *
 		 * @var WC_Order_Item_Shipping $order_item WooCommerce order item shipping.
 		 */
-		if ( count( $this->order->get_items( 'shipping' ) ) > 1 ) {
+		if ( $include_all_shipping_lines || count( $this->order->get_items( 'shipping' ) ) > 1 ) {
 			/* If there is more than one shipping option, it will be part of the order.items to support multiple shipping packages. */
 			foreach ( $this->order->get_items( 'shipping' ) as $order_item ) {
 				$order_line = $this->get_shipping_option( $order_item );

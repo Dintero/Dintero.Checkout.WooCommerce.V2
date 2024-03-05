@@ -259,4 +259,17 @@ abstract class Dintero_Checkout_Request {
 
 		return true;
 	}
+
+	/**
+	 * Returns if express shipping should be shown.
+	 *
+	 * @return boolean
+	 */
+	public function show_express_shipping() {
+		if ( 'no' === $this->settings['express_show_shipping'] ) {
+			return false;
+		}
+
+		return true;
+	}
 }

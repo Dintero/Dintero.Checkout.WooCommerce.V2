@@ -44,9 +44,10 @@ abstract class Dintero_Checkout_Helper_Base {
 	 * @param bool                                         $is_embedded If the request is for an embedded checkout.
 	 * @param bool                                         $is_express If the request is for an express checkout.
 	 * @param bool                                         $is_shipping_in_iframe If the request is for shipping selections in the iframe.
+	 * @param bool                                         $show_express_shipping If we should show shipping options in express checkout.
 	 * @return void
 	 */
-	public static function add_shipping( &$body, $helper, $is_embedded, $is_express, $is_shipping_in_iframe ) {
+	public static function add_shipping( &$body, $helper, $is_embedded, $is_express, $is_shipping_in_iframe, $show_express_shipping ) {
 		// We will always need this if shipping is available, so it will always be added.
 		$shipping_option = $helper->get_shipping_option();
 		if ( ! empty( $shipping_option ) ) {
@@ -56,7 +57,7 @@ abstract class Dintero_Checkout_Helper_Base {
 		// If its express we need to add the express options.
 		if ( $is_embedded && $is_express ) {
 			// If the cart does not need shipping, unset shipping, set empty array and shipping_not_required.
-			if ( ! WC()->cart->needs_shipping() ) {
+			if ( ! $show_express_shipping || ! WC()->cart->needs_shipping() ) {
 				unset( $body['order']['shipping_option'] );
 				$body['express']['shipping_options'] = array();
 				$body['express']['shipping_mode']    = 'shipping_not_required';

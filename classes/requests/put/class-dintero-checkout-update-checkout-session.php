@@ -45,7 +45,7 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 				'amount'     => $helper->get_order_total(),
 				'currency'   => $helper->get_currency(),
 				'vat_amount' => $helper->get_tax_total(),
-				'items'      => $helper->get_order_lines(),
+				'items'      => $helper->get_order_lines( ! $this->show_express_shipping() ),
 				'store'      => array(
 					'id' => preg_replace( '/(https?:\/\/|www.|\/\s*$)/i', '', get_home_url() ),
 				),
@@ -71,7 +71,7 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 			$this->add_express_object( $body );
 		}
 
-		$helper::add_shipping( $body, $helper, $this->is_embedded(), $this->is_express(), $this->is_shipping_in_iframe() );
+		$helper::add_shipping( $body, $helper, $this->is_embedded(), $this->is_express(), $this->is_shipping_in_iframe(), $this->show_express_shipping() );
 		$helper::add_rounding_line( $body );
 
 		return $body;

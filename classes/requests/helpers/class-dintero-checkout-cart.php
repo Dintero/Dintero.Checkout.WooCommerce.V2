@@ -52,9 +52,10 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	/**
 	 * Gets formatted cart items.
 	 *
+	 * @param bool $include_all_shipping_lines Whether to include all shipping lines or not
 	 * @return array Formatted cart items.
 	 */
-	public function get_order_lines() {
+	public function get_order_lines( $include_all_shipping_lines = false ) {
 		$cart = WC()->cart->get_cart();
 
 		// Get cart items.
@@ -73,7 +74,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		}
 
 		// Get cart shipping.
-		if ( WC()->cart->needs_shipping() && count( WC()->shipping->get_packages() ) > 1 ) {
+		if ( WC()->cart->needs_shipping() && ( $include_all_shipping_lines || count( WC()->shipping->get_packages() ) > 1 ) ) {
 			// Handle multiple shipping lines.
 			$formatted_cart_items = array_merge( $formatted_cart_items, $this->get_shipping_items() );
 		}
