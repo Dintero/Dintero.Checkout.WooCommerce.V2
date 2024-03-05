@@ -251,7 +251,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	/**
 	 * Formats the shipping method to be used in order.items.
 	 *
-	 * @param WC_Shipping_rate $shipping_method The WooCommerce shipping method.
+	 * @param WC_Shipping_Rate $shipping_method The WooCommerce shipping method.
 	 * @return array
 	 */
 	public function get_shipping_item( $shipping_method ) {
