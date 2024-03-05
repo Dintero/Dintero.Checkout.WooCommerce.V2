@@ -193,13 +193,16 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	public function get_shipping_items() {
 		$shipping_options = array();
 
-		$shipping_ids   = array_unique( WC()->session->get( 'chosen_shipping_methods' ) );
-		$shipping_rates = WC()->shipping->get_packages()[0]['rates'];
+        $chosen_shipping_methods = WC()->session->get( 'chosen_shipping_methods' );
+        $shipping_packages =  WC()->shipping->get_packages();
 
-		foreach ( $shipping_ids as  $shipping_id ) {
-			$shipping_method    = $shipping_rates[ $shipping_id ];
+        foreach ( $shipping_packages as $package_index => $package ) {
+			$available_methods = $package['rates'];
+			$chosen_method_id  = $chosen_shipping_methods[ $package_index ];
+
+			$shipping_method = $available_methods[ $chosen_method_id ];
 			$shipping_options[] = $this->get_shipping_item( $shipping_method );
-		}
+        }
 
 		return $shipping_options;
 	}
