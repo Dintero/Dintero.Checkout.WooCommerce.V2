@@ -256,8 +256,8 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 */
 	public function get_shipping_item( $shipping_method ) {
 		return array(
-			'id'         => $shipping_method->get_id(),
-			'line_id'    => $shipping_method->get_id(),
+			'id'         => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
+			'line_id'    => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
 			'amount'     => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping_tax() ),
 			'title'      => $shipping_method->get_label(),
 			'vat_amount' => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() ),
