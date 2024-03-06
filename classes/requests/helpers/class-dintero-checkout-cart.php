@@ -52,9 +52,10 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	/**
 	 * Gets formatted cart items.
 	 *
+	 * @param bool $include_all_shipping_lines Whether to include all shipping lines or not
 	 * @return array Formatted cart items.
 	 */
-	public function get_order_lines() {
+	public function get_order_lines( $include_all_shipping_lines = false ) {
 		$cart = WC()->cart->get_cart();
 
 		// Get cart items.
@@ -73,7 +74,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		}
 
 		// Get cart shipping.
-		if ( WC()->cart->needs_shipping() && count( WC()->shipping->get_packages() ) > 1 ) {
+		if ( WC()->cart->needs_shipping() && ( $include_all_shipping_lines || count( WC()->shipping->get_packages() ) > 1 ) ) {
 			// Handle multiple shipping lines.
 			$formatted_cart_items = array_merge( $formatted_cart_items, $this->get_shipping_items() );
 		}
@@ -193,12 +194,15 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	public function get_shipping_items() {
 		$shipping_options = array();
 
-		$shipping_ids   = array_unique( WC()->session->get( 'chosen_shipping_methods' ) );
-		$shipping_rates = WC()->shipping->get_packages()[0]['rates'];
+		$chosen_shipping_methods = WC()->session->get( 'chosen_shipping_methods' );
+		$shipping_packages       = WC()->shipping->get_packages();
 
-		foreach ( $shipping_ids as  $shipping_id ) {
-			$shipping_method    = $shipping_rates[ $shipping_id ];
-			$shipping_options[] = $this->get_shipping_item( $shipping_method );
+		foreach ( $shipping_packages as $package_index => $package ) {
+			$available_methods = $package['rates'];
+			$chosen_method_id  = $chosen_shipping_methods[ $package_index ];
+
+			$shipping_method    = $available_methods[ $chosen_method_id ];
+			$shipping_options[] = $this->get_shipping_item( $shipping_method, $package_index );
 		}
 
 		return $shipping_options;
@@ -248,19 +252,25 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	/**
 	 * Formats the shipping method to be used in order.items.
 	 *
-	 * @param WC_Shipping_rate $shipping_method The WooCommerce shipping method.
+	 * @param WC_Shipping_Rate $shipping_method The WooCommerce shipping method.
+	 * @param int              $package_index The index of the shipping package.
 	 * @return array
 	 */
-	public function get_shipping_item( $shipping_method ) {
-		return array(
-			'id'         => $shipping_method->get_id(),
-			'line_id'    => $shipping_method->get_id(),
-			'amount'     => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping_tax() ),
-			'title'      => $shipping_method->get_label(),
-			'vat_amount' => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() ),
-			'vat'        => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ),
-			'quantity'   => 1,
-			'type'       => 'shipping',
+	public function get_shipping_item( $shipping_method, $package_index ) {
+		return apply_filters(
+			'dintero_checkout_shipping_item',
+			array(
+				'id'         => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
+				'line_id'    => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
+				'amount'     => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping_tax() ),
+				'title'      => $shipping_method->get_label(),
+				'vat_amount' => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() ),
+				'vat'        => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ),
+				'quantity'   => 1,
+				'type'       => 'shipping',
+			),
+			$shipping_method,
+			$package_index
 		);
 	}
 

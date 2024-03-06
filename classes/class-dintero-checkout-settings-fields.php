@@ -218,16 +218,15 @@ class Dintero_Settings_Fields {
 				'label'    => __( 'Enable', 'dintero-checkout-for-woocommerce' ),
 				'desc_tip' => __( 'Will make the shipping selection happen in the Dintero checkout iframe instead of the shipping section in WooCommerce.', 'dintero-checkout-for-woocommerce' ),
 			),
-
-			/*
-			TODO: These options will be added in a future iteration.
 			'express_show_shipping'                   => array(
 				'title'    => __( 'Show shipping info in Express', 'dintero-checkout-for-woocommerce' ),
 				'type'     => 'checkbox',
-				'default'  => 'no',
+				'default'  => 'yes',
 				'label'    => __( 'Enable', 'dintero-checkout-for-woocommerce' ),
-				'desc_tip' => __( 'Disable if you sell digital products.', 'dintero-checkout-for-woocommerce' ),
+				'desc_tip' => __( 'Disable if you sell digital products or handle shipping outside Dintero.', 'dintero-checkout-for-woocommerce' ),
 			),
+			/*
+			TODO: These options will be added in a future iteration.
 			'express_show_product_button'             => array(
 				'title'   => __( 'Show Express button on product page', 'dintero-checkout-for-woocommerce' ),
 				'type'    => 'checkbox',
