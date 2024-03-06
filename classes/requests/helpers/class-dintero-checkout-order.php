@@ -338,7 +338,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 				'vat'             => ( empty( floatval( $shipping_method->get_total() ) ) ) ? 0 : self::format_number( $shipping_method->get_total_tax() / $shipping_method->get_total() ),
 			),
 			$shipping_method,
-			$shipping_index
+			$shipping_index,
+			$this->order,
 		);
 	}
 
@@ -384,7 +385,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 					'vat'         => ( ! empty( floatval( $shipping_line->get_total() ) ) ) ? self::format_number( $shipping_line->get_total_tax() / $shipping_line->get_total() ) : 0,
 				),
 				$shipping_line,
-				null
+				null,
+				$this->order,
 			);
 		}
 		return null;
