@@ -212,7 +212,7 @@ class Dintero_Settings_Fields {
 				),
 			),
 			'express_shipping_in_iframe'              => array(
-				'title'    => __( 'Display Shipping in the iframe', 'dintero-checkout-for-woocommerce' ),
+				'title'    => __( 'Display shipping in the iframe', 'dintero-checkout-for-woocommerce' ),
 				'type'     => 'checkbox',
 				'default'  => 'no',
 				'label'    => __( 'Enable', 'dintero-checkout-for-woocommerce' ),
@@ -221,7 +221,7 @@ class Dintero_Settings_Fields {
 			'express_show_shipping'                   => array(
 				'title'    => __( 'Show shipping info in Express', 'dintero-checkout-for-woocommerce' ),
 				'type'     => 'checkbox',
-				'default'  => 'yes',
+				'default'  => 'no',
 				'label'    => __( 'Enable', 'dintero-checkout-for-woocommerce' ),
 				'desc_tip' => __( 'Disable if you sell digital products or handle shipping outside Dintero.', 'dintero-checkout-for-woocommerce' ),
 			),
