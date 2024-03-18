@@ -253,10 +253,10 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 * Formats the shipping method to be used in order.items.
 	 *
 	 * @param WC_Shipping_Rate $shipping_method The WooCommerce shipping method.
-	 * @param int              $package_index The index of the shipping package.
+	 * @param int|null         $package_index The index of the shipping package.
 	 * @return array
 	 */
-	public function get_shipping_item( $shipping_method, $package_index ) {
+	public function get_shipping_item( $shipping_method, $package_index = null ) {
 		return apply_filters(
 			'dintero_checkout_shipping_item',
 			array(

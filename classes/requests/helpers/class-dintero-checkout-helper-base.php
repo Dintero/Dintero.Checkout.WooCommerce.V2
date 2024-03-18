@@ -47,7 +47,7 @@ abstract class Dintero_Checkout_Helper_Base {
 	 * @param bool                                         $show_express_shipping If we should show shipping options in express checkout.
 	 * @return void
 	 */
-	public static function add_shipping( &$body, $helper, $is_embedded, $is_express, $is_shipping_in_iframe, $show_express_shipping ) {
+	public static function add_shipping( &$body, $helper, $is_embedded, $is_express, $is_shipping_in_iframe, $show_express_shipping = true ) {
 		// We will always need this if shipping is available, so it will always be added.
 		$shipping_option = $helper->get_shipping_option();
 		if ( ! empty( $shipping_option ) ) {

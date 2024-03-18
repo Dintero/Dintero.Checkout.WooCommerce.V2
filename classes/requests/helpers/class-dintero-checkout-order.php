@@ -277,7 +277,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * @param int|null         $shipping_index The index of the shipping package.
 	 * @return array
 	 */
-	public function get_shipping_item( $shipping_method, $shipping_index ) {
+	public function get_shipping_item( $shipping_method, $shipping_index = null ) {
 		return apply_filters(
 			'dintero_checkout_shipping_item',
 			array(
