@@ -17,6 +17,25 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 	class Dintero_Checkout_Gateway extends WC_Payment_Gateway {
 
 		/**
+		 * Whether test mode is enabled.
+		 *
+		 * @var boolean
+		 */
+		public $test_mode;
+		/**
+		 * Whether logging to WC log is enabled.
+		 *
+		 * @var boolean
+		 */
+		public $logging;
+		/**
+		 * Checkout form factor.
+		 *
+		 * @var string
+		 */
+		public $form_factor;
+
+		/**
 		 * Class constructor.
 		 */
 		public function __construct() {
@@ -28,6 +47,16 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				array(
 					'products',
 					'refunds',
+					'subscriptions',
+					'subscription_cancellation',
+					'subscription_suspension',
+					'subscription_reactivation',
+					'subscription_amount_changes',
+					'subscription_date_changes',
+					'subscription_payment_method_change',
+					'subscription_payment_method_change_customer',
+					'subscription_payment_method_change_admin',
+					'multiple_subscriptions',
 				)
 			);
 			$this->init_form_fields();
@@ -62,8 +91,8 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		/**
 		 * Add line ID to uniquely identify order item.
 		 *
-		 * @param WC_Order_Item_Product $item
-		 * @param string                $cart_item_key
+		 * @param WC_Order_Item_Product $item The WC order item.
+		 * @param string                $cart_item_key The order item's unique key.
 		 *
 		 * @return void
 		 */
@@ -201,7 +230,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @param int    $order_id The WooCommerce order id.
 		 * @param float  $amount The amount to refund.
 		 * @param string $reason The reason for the refund.
-		 * @return array|WP_Error
+		 * @return boolean|null
 		 */
 		public function process_refund( $order_id, $amount = null, $reason = '' ) {
 			return Dintero()->order_management->refund_order( $order_id, $reason );
