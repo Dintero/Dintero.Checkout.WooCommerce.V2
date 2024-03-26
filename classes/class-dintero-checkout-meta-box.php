@@ -99,8 +99,8 @@ class Dintero_Checkout_Meta_Box {
 		<?php
 		if ( ! empty( $account_id ) && ! empty( $transaction_id ) ) {
 			$env = 'test' === strtolower( $environment ) ? 'T' : 'P';
-			$url = esc_url( "https://backoffice.dintero.com/${env}${account_id}/payments/transactions/${transaction_id}" );
-			echo "<p><a href='" . $url . "'>View transaction details</a></p>";
+			$url = esc_url( "https://backoffice.dintero.com/{$env}{$account_id}/payments/transactions/{$transaction_id}" );
+			echo "<p><a href='" . esc_url( $url ) . "'>View transaction details</a></p>";
 		}
 		?>
 		</div>
@@ -110,7 +110,7 @@ class Dintero_Checkout_Meta_Box {
 	/**
 	 * Prints the content of the meta box containing only the specified error message.
 	 *
-	 * @param string $error_message
+	 * @param string $error_message Error message.
 	 * @return void
 	 */
 	public function print_error_content( $error_message ) {
@@ -120,4 +120,5 @@ class Dintero_Checkout_Meta_Box {
 		</div>
 		<?php
 	}
-} new Dintero_Checkout_Meta_Box();
+}
+new Dintero_Checkout_Meta_Box();
