@@ -22,7 +22,8 @@ class Dintero_Checkout_Refund_Order extends Dintero_Checkout_Request_Post {
 	public function __construct( $arguments ) {
 		parent::__construct( $arguments );
 
-		$this->log_title = 'Refund Dintero order.';
+		$this->log_title      = 'Refund Dintero order.';
+		$this->request_filter = 'dintero_checkout_refund_order_args';
 	}
 
 	/**

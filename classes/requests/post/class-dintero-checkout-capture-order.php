@@ -22,7 +22,8 @@ class Dintero_Checkout_Capture_Order extends Dintero_Checkout_Request_Post {
 	public function __construct( $arguments ) {
 		parent::__construct( $arguments );
 
-		$this->log_title = 'Capture Dintero order.';
+		$this->log_title      = 'Capture Dintero order.';
+		$this->request_filter = 'dintero_checkout_capture_order_args';
 	}
 
 	/**

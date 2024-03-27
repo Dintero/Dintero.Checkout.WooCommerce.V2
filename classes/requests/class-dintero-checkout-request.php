@@ -47,6 +47,13 @@ abstract class Dintero_Checkout_Request {
 	 */
 	protected $settings;
 
+	/**
+	 * Filter to use for the request args.
+	 *
+	 * @var string
+	 */
+	protected $request_filter = 'dintero_checkout_request_args';
+
 
 	/**
 	 * Class constructor.
@@ -153,7 +160,7 @@ abstract class Dintero_Checkout_Request {
 	/**
 	 * Make the request.
 	 *
-	 * @return object|WP_Error
+	 * @return array|WP_Error
 	 */
 	public function request() {
 		$url      = $this->get_request_url();

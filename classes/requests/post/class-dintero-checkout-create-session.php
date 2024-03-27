@@ -22,7 +22,8 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 	public function __construct( $arguments ) {
 		parent::__construct( $arguments );
 
-		$this->log_title = 'Create Dintero session.';
+		$this->log_title      = 'Create Dintero session.';
+		$this->request_filter = 'dintero_checkout_create_session_args';
 	}
 
 	/**

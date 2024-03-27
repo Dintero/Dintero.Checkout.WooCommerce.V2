@@ -31,12 +31,15 @@ abstract class Dintero_Checkout_Request_Put extends Dintero_Checkout_Request {
 	 */
 	protected function get_request_args() {
 		$body = wp_json_encode( apply_filters( 'dintero_checkout_request_args', $this->get_body() ) );
-		return array(
-			'headers'    => $this->get_request_headers( $body ),
-			'user-agent' => $this->get_user_agent(),
-			'method'     => $this->method,
-			'timeout'    => apply_filters( 'dintero_checkout_request_timeout', 10 ),
-			'body'       => $body,
+		return apply_filters(
+			$this->request_filter,
+			array(
+				'headers'    => $this->get_request_headers(),
+				'user-agent' => $this->get_user_agent(),
+				'method'     => $this->method,
+				'timeout'    => apply_filters( 'dintero_checkout_request_timeout', 10 ),
+				'body'       => $body,
+			)
 		);
 	}
 
