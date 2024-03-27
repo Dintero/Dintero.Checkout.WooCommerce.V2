@@ -163,7 +163,12 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	$order->update_meta_data( '_wc_dintero_checkout_environment', 'yes' === $settings['test_mode'] ? 'Test' : 'Production' );
 
 	$order->update_meta_data( '_dintero_transaction_id', $transaction_id );
-	$dintero_order         = Dintero()->api->get_order( $transaction_id );
+	$dintero_order = Dintero()->api->get_order( $transaction_id );
+
+	/* Remove duplicate words from the payment method type (e.g., swish.swish → Swish). Otherwise, prints as is (e.g., collector.invoice → Collector Invoice). */
+	$payment_method = implode( ' ', array_unique( explode( ' ', ucwords( str_replace( '.', ' ', wc_get_var( $dintero_order['payment_product_type'], $order->get_meta( '_dintero_payment_method' ) ) ) ) ) ) );
+	$order->update_meta_data( '_dintero_payment_method', $payment_method );
+
 	$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
 	if ( $require_authorization ) {
 		$order->set_transaction_id( $transaction_id );
