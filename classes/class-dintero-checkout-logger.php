@@ -58,6 +58,11 @@ class Dintero_Checkout_Logger {
 			$request_body            = json_decode( $data['request']['body'], true );
 			$data['request']['body'] = ( ! empty( $request_body ) ) ? $request_body : $data['request']['body'];
 		}
+
+		if ( isset( $data['response']['body']['body'] ) ) {
+			$response_body                    = json_decode( $data['response']['body']['body'], true );
+			$data['response']['body']['body'] = ( ! empty( $response_body ) ) ? $response_body : $data['response']['body']['body'];
+		}
 		return $data;
 	}
 
