@@ -159,6 +159,15 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				return false;
 			}
 
+			// Mixed checkout not allowed.
+			if ( class_exists( 'WC_Subscriptions_Product' ) && Dintero_Checkout_Subscription::cart_has_subscription() ) {
+				foreach ( WC()->cart->cart_contents as $key => $item ) {
+					if ( ! WC_Subscriptions_Product::is_subscription( $item['data'] ) ) {
+						return false;
+					}
+				}
+			}
+
 			return 0.0 < floatval( WC()->cart->total );
 		}
 
