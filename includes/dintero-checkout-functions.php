@@ -151,7 +151,7 @@ function dintero_update_wc_shipping( $data ) {
 /**
  * Confirms the Dintero Order.
  *
- * @param WC_Order $order The WooCommerce order
+ * @param WC_Order $order The Woo order.
  * @param string   $transaction_id The Dintero transaction id.
  * @return void
  */
@@ -161,9 +161,17 @@ function dintero_confirm_order( $order, $transaction_id ) {
 
 	// Save the environment mode for use in the meta box.
 	$order->update_meta_data( '_wc_dintero_checkout_environment', 'yes' === $settings['test_mode'] ? 'Test' : 'Production' );
-
 	$order->update_meta_data( '_dintero_transaction_id', $transaction_id );
-	$dintero_order         = Dintero()->api->get_order( $transaction_id );
+
+	// Request the payment token in the response.
+	$dintero_order = Dintero()->api->get_order( $transaction_id, array( 'includes' => 'card.payment_token' ) );
+
+	// Save the payment token if available.
+	$payment_token = wc_get_var( $dintero_order['card']['payment_token'] );
+	if ( $payment_token ) {
+		Dintero_Checkout_Subscription::save_payment_token( $order_id, $payment_token );
+	}
+
 	$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
 	if ( $require_authorization ) {
 		$order->set_transaction_id( $transaction_id );
@@ -210,7 +218,7 @@ function dintero_confirm_order( $order, $transaction_id ) {
 
 	// Save shipping id to the order.
 	$shipping = $order->get_shipping_methods();
-	if ( ! empty( $shipping ) ) {
+	if ( ! empty( $shipping ) && empty( $order->get_meta( '_wc_dintero_shipping_id' ) ) ) {
 		$shipping_option_id = $dintero_order['shipping_option']['id'] ?? reset( $shipping );
 		$order->update_meta_data( '_wc_dintero_shipping_id', $shipping_option_id );
 		$order->save();
@@ -322,4 +330,18 @@ function dintero_get_order_id_by_merchant_reference( $merchant_reference ) {
 	}
 
 	return $order->get_id() ?? 0;
+}
+
+/**
+ * Retrieve the error message(s).
+ *
+ * @param WP_Error $error An instance of WP_Error.
+ * @return string
+ */
+function dintero_retrieve_error_message( $error ) {
+	$message = $error->get_error_message();
+	if ( is_array( $message ) ) {
+		$message = implode( ' ', $message );
+	}
+	return $message;
 }

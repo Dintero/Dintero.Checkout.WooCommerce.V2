@@ -27,17 +27,17 @@ class Dintero_Checkout_API {
 		$request  = new Dintero_Checkout_Create_Session( $args );
 		$response = $request->request();
 		return $this->check_for_api_error( $response );
-
 	}
 
 	/**
 	 * Retrieve information about a WooCommerce order from Dintero.
 	 *
 	 * @param string $dintero_id The Dintero transaction id.
+	 * @param array  $params Additional URL query parameters.
 	 * @return array An associative array on success and failure. Check for is_error index.
 	 */
-	public function get_order( $dintero_id ) {
-		$args     = array( 'dintero_id' => $dintero_id );
+	public function get_order( $dintero_id, $params = array() ) {
+		$args     = array_merge( array( 'params' => $params ), array( 'dintero_id' => $dintero_id ) );
 		$request  = new Dintero_Checkout_Get_Order( $args );
 		$response = $request->request();
 		return $this->check_for_api_error( $response );
@@ -151,6 +151,18 @@ class Dintero_Checkout_API {
 		);
 		$response = $request->request();
 
+		return $this->check_for_api_error( $response );
+	}
+
+	/**
+	 * Initiate payment without customer involvement.
+	 *
+	 * @param int $order_id WC order ID.
+	 * @return array|WP_Error
+	 */
+	public function sessions_pay( $order_id ) {
+		$request  = new Dintero_Checkout_Sessions_Pay( array( 'order_id' => $order_id ) );
+		$response = $request->request();
 		return $this->check_for_api_error( $response );
 	}
 
