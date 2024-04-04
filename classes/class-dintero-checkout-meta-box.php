@@ -83,8 +83,7 @@ class Dintero_Checkout_Meta_Box {
 
 		$payment_method = $order->get_meta( '_dintero_payment_method' );
 		if ( empty( $payment_method ) ) {
-			/* Remove duplicate words from the payment method type (e.g., swish.swish → Swish). Otherwise, prints as is (e.g., collector.invoice → Collector Invoice). */
-			$payment_method = implode( ' ', array_unique( explode( ' ', ucwords( str_replace( '.', ' ', $dintero_order['payment_product_type'] ) ) ) ) );
+			$payment_method = dintero_get_payment_method_name( $dintero_order['payment_product_type'] );
 			$order->update_meta_data( '_dintero_payment_method', $payment_method );
 			$order->save();
 		}
