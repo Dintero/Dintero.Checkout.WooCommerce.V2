@@ -70,6 +70,13 @@ class Dintero_Settings_Fields {
 				'desc_tip'    => true,
 				'description' => __( 'Test payment window profile ID. Found under (SETTINGS → Payment windows) in Dintero Backoffice.', 'dintero-checkout-for-woocommerce' ),
 			),
+			'subscription_profile_id'                 => array(
+				'title'       => __( 'Profile ID for subscriptions', 'dintero-checkout-for-woocommerce' ),
+				'type'        => 'text',
+				'default'     => '',
+				'desc_tip'    => true,
+				'description' => __( 'The profile to apply if the cart or order contain subscriptions. Found under (SETTINGS → Payment windows) in Dintero Backoffice.', 'dintero-checkout-for-woocommerce' ),
+			),
 			'test_mode'                               => array(
 				'title'       => __( 'Enable test mode:', 'dintero-checkout-for-woocommerce' ),
 				'label'       => ' ',
