@@ -163,7 +163,12 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	$order->update_meta_data( '_wc_dintero_checkout_environment', 'yes' === $settings['test_mode'] ? 'Test' : 'Production' );
 
 	$order->update_meta_data( '_dintero_transaction_id', $transaction_id );
-	$dintero_order         = Dintero()->api->get_order( $transaction_id );
+	$dintero_order = Dintero()->api->get_order( $transaction_id );
+
+	/* Remove duplicate words from the payment method type (e.g., swish.swish → Swish). Otherwise, prints as is (e.g., collector.invoice → Collector Invoice). */
+	$payment_method = dintero_get_payment_method_name( wc_get_var( $dintero_order['payment_product_type'], $order->get_meta( '_dintero_payment_method' ) ) );
+	$order->update_meta_data( '_dintero_payment_method', $payment_method );
+
 	$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
 	if ( $require_authorization ) {
 		$order->set_transaction_id( $transaction_id );
@@ -322,4 +327,32 @@ function dintero_get_order_id_by_merchant_reference( $merchant_reference ) {
 	}
 
 	return $order->get_id() ?? 0;
+}
+
+/**
+ * Retrieve the payment method name from a payment product type string.
+ *
+ * Remove duplicate words from the payment method type (e.g., swish.swish → Swish).
+ * Otherwise, prints as is (e.g., collector.invoice → Collector Invoice).
+ *
+ * @param string $payment_product_type The payment product type.
+ * @return string
+ */
+function dintero_get_payment_method_name( $payment_product_type ) {
+	if ( ! is_string( $payment_product_type ) ) {
+		return $payment_product_type;
+	}
+
+	// Remove any dots (e.g., "collector.invoice" → "collector invoice").
+	$payment_method = str_replace( '.', ' ', $payment_product_type );
+	// Change to uppercase (e.g., "collector invoice" → "Collector Invoice").
+	$payment_method = ucwords( $payment_method );
+	// Convert into array (e.g., "Collector Invoice" → ["Collector", "Invoice"] ).
+	$payment_method = explode( ' ', $payment_method );
+	// Remove any duplicates ( e.g., ["Swish", "Swish"] → ["Swish"] ).
+	$payment_method = array_unique( $payment_method );
+	// Convert to string (e.g., "Collector Invoice" or "Swish").
+	$payment_method = implode( $payment_method );
+
+	return $payment_method;
 }

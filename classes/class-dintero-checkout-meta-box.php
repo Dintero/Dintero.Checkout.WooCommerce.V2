@@ -81,8 +81,12 @@ class Dintero_Checkout_Meta_Box {
 		$account_id     = trim( get_option( 'woocommerce_dintero_checkout_settings', array( 'account_id' => '' ) )['account_id'] );
 		$transaction_id = $order->get_meta( '_dintero_transaction_id' );
 
-		/* Remove duplicate words from the payment method type (e.g., swish.swish → Swish). Otherwise, prints as is (e.g., collector.invoice → Collector Invoice). */
-		$payment_method = implode( ' ', array_unique( explode( ' ', ucwords( str_replace( '.', ' ', $dintero_order['payment_product_type'] ) ) ) ) );
+		$payment_method = $order->get_meta( '_dintero_payment_method' );
+		if ( empty( $payment_method ) ) {
+			$payment_method = dintero_get_payment_method_name( $dintero_order['payment_product_type'] );
+			$order->update_meta_data( '_dintero_payment_method', $payment_method );
+			$order->save();
+		}
 
 		?>
 		<div class='dintero-checkout-meta-box-content'>
@@ -94,8 +98,8 @@ class Dintero_Checkout_Meta_Box {
 		<?php
 		if ( ! empty( $account_id ) && ! empty( $transaction_id ) ) {
 			$env = 'test' === strtolower( $environment ) ? 'T' : 'P';
-			$url = esc_url( "https://backoffice.dintero.com/${env}${account_id}/payments/transactions/${transaction_id}" );
-			echo "<p><a href='" . $url . "'>View transaction details</a></p>";
+			$url = esc_url( "https://backoffice.dintero.com/{$env}{$account_id}/payments/transactions/{$transaction_id}" );
+			echo "<p><a href='" . esc_url( $url ) . "'>View transaction details</a></p>";
 		}
 		?>
 		</div>
@@ -105,7 +109,7 @@ class Dintero_Checkout_Meta_Box {
 	/**
 	 * Prints the content of the meta box containing only the specified error message.
 	 *
-	 * @param string $error_message
+	 * @param string $error_message Error message.
 	 * @return void
 	 */
 	public function print_error_content( $error_message ) {
@@ -115,4 +119,5 @@ class Dintero_Checkout_Meta_Box {
 		</div>
 		<?php
 	}
-} new Dintero_Checkout_Meta_Box();
+}
+new Dintero_Checkout_Meta_Box();
