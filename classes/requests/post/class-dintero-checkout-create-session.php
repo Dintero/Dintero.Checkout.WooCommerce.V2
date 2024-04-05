@@ -51,8 +51,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			$helper = new Dintero_Checkout_Cart();
 		}
 
-		$reference = isset( $order ) ? $helper->get_merchant_reference( $order ) : $helper->get_merchant_reference();
-		WC()->session->set( 'dintero_merchant_reference', $reference );
+		WC()->session->set( 'dintero_merchant_reference', $helper->get_merchant_reference() );
 
 		$body = array(
 			'url'        => array(
@@ -66,7 +65,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			'order'      => array(
 				'amount'             => $helper->get_order_total(),
 				'currency'           => $helper->get_currency(),
-				'merchant_reference' => $reference,
+				'merchant_reference' => $helper->get_merchant_reference(),
 				'vat_amount'         => $helper->get_tax_total(),
 				'items'              => $helper->get_order_lines(),
 				'store'              => array(
@@ -76,12 +75,12 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			'profile_id' => $this->settings['profile_id'],
 		);
 
-		$billing_address = isset( $order ) ? $helper->get_billing_address( $order ) : $helper->get_billing_address();
+		$billing_address = $helper->get_billing_address();
 		if ( ! empty( $billing_address ) ) {
 			$body['order']['billing_address'] = $billing_address;
 		}
 
-		$shipping_address = isset( $order ) ? $helper->get_shipping_address( $order ) : $helper->get_shipping_address();
+		$shipping_address = $helper->get_shipping_address();
 		if ( ! empty( $shipping_address ) ) {
 			$body['order']['shipping_address'] = $shipping_address;
 		}

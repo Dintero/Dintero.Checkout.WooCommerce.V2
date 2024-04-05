@@ -49,7 +49,7 @@ class Dintero_Checkout_Sessions_Pay extends Dintero_Checkout_Request_Post {
 				'order'         => array(
 					'amount'             => $helper->get_order_total(),
 					'currency'           => $helper->get_currency(),
-					'merchant_reference' => $helper->get_merchant_reference( $order ),
+					'merchant_reference' => $helper->get_merchant_reference(),
 					'vat_amount'         => $helper->get_tax_total(),
 					'items'              => $helper->get_order_lines(),
 				),
