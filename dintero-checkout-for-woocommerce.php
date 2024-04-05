@@ -139,6 +139,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-capture-order.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-refund-order.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-sessions-pay.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-payment-token.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/put/class-dintero-checkout-update-checkout-session.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/put/class-dintero-checkout-update-transaction.php';
 			include_once DINTERO_CHECKOUT_PATH . '/includes/dintero-checkout-functions.php';
@@ -227,6 +228,6 @@ if ( ! class_exists( 'Dintero' ) ) {
  *
  * @return Dintero
  */
-function Dintero() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName
+function Dintero() { // phpcs:ignore
 	return Dintero::get_instance();
 }

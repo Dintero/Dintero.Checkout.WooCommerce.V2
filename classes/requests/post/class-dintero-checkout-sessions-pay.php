@@ -54,8 +54,8 @@ class Dintero_Checkout_Sessions_Pay extends Dintero_Checkout_Request_Post {
 					'items'              => $helper->get_order_lines(),
 				),
 				'customer'      => array(
-					'email'        => $order->get_billing_email(),
-					'phone_number' => $order->get_billing_phone(),
+					'email'        => $helper->get_billing_address()['email'],
+					'phone_number' => $helper->get_billing_address()['phone_number'],
 					'tokens'       => array(
 						'payex.creditcard' => array(
 							'payment_token' => Dintero_Checkout_Subscription::get_payment_token( $order->get_id() ),

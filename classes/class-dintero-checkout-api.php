@@ -34,7 +34,7 @@ class Dintero_Checkout_API {
 	 *
 	 * @param string $dintero_id The Dintero transaction id.
 	 * @param array  $params Additional URL query parameters.
-	 * @return array An associative array on success and failure. Check for is_error index.
+	 * @return array|WP_Error An associative array on success and failure. Check for is_error index.
 	 */
 	public function get_order( $dintero_id, $params = array() ) {
 		$args     = array_merge( array( 'params' => $params ), array( 'dintero_id' => $dintero_id ) );
@@ -157,11 +157,27 @@ class Dintero_Checkout_API {
 	/**
 	 * Initiate payment without customer involvement.
 	 *
+	 * Used for renewal payments.
+	 *
 	 * @param int $order_id WC order ID.
 	 * @return array|WP_Error
 	 */
 	public function sessions_pay( $order_id ) {
 		$request  = new Dintero_Checkout_Sessions_Pay( array( 'order_id' => $order_id ) );
+		$response = $request->request();
+		return $this->check_for_api_error( $response );
+	}
+
+	/**
+	 * Create payment and recurrence tokens without reserving or charging any amount.
+	 *
+	 * Used on checkout and order-pay pages. For renewal payments, @see Dintero_Checkout_API::sessions_pay.
+	 *
+	 * @param int|false $order_id Woo order ID. Defaults to false (used for cart).
+	 * @return array|WP_Error
+	 */
+	public function create_payment_token( $order_id ) {
+		$request  = new Dintero_Checkout_Payment_Token( array( 'order_id' => $order_id ) );
 		$response = $request->request();
 		return $this->check_for_api_error( $response );
 	}

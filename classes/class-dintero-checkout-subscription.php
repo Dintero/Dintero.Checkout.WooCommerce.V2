@@ -57,18 +57,37 @@ if ( class_exists( 'WC_Subscription' ) ) {
 			add_filter( 'woocommerce_payment_complete', array( $this, 'set_subscription_as_captured' ) );
 
 			// TODO: Override the redirect URLs to redirect back to the change payment method page on failure or to the subscription view on success.
-			add_filter( 'dintero_checkout_create_hpp_args', array( $this, 'set_subscription_order_redirect_urls' ) );
-			// TODO: Override the subscription cost when change payment method.
-			add_filter( 'dintero_checkout_create_session_args', array( $this, 'set_subscription_to_free' ) );
+			add_filter( 'dintero_checkout_payment_token_args', array( $this, 'set_subscription_order_redirect_urls' ) );
 			// TODO: On successful payment method change, the customer is redirected back to the subscription view page. We need to handle the redirect and create a recurring token.
 			add_action( 'woocommerce_account_view-subscription_endpoint', array( $this, 'handle_redirect_from_change_payment_method' ) );
 
+			// Ensure wp_safe_redirect do not redirect back to default dashboard or home page on change_payment_method.
+			add_filter( 'allowed_redirect_hosts', array( $this, 'extend_allowed_domains_list' ) );
+
 			// Show the recurring token on the subscription page in the billing fields.
 			add_action( 'woocommerce_admin_order_data_after_billing_address', array( $this, 'show_payment_token' ) );
-			// Ensure wp_safe_redirect do not redirect back to default dashboard or home page.
-			add_filter( 'allowed_redirect_hosts', array( $this, 'extend_allowed_domains_list' ) );
 		}
 
+		/**
+		 * Flags a free or trial subscription parent order as captured.
+		 *
+		 * This is required to prevent Order Management from attempting to process the order for capture when the customer sets the order to completed as there is nothing to capture.
+		 *
+		 * @param  int $order_id WooCommerce order ID.
+		 * @return int WooCommerce order ID.
+		 */
+		public function set_subscription_as_captured( $order_id ) {
+			$order = wc_get_order( $order_id );
+			if ( self::GATEWAY_ID !== $order->get_payment_method() ) {
+				return $order_id;
+			}
+
+			if ( self::order_has_subscription( $order ) && 0.0 === floatval( $order->get_total() ) ) {
+				$order->update_meta_data( '_wc_dintero_captured', 'trial' );
+				$order->save();
+			}
+
+			return $order_id;
 		}
 
 		/**
@@ -132,6 +151,111 @@ if ( class_exists( 'WC_Subscription' ) ) {
 			return $renewal_order;
 		}
 
+		/**
+		 * Cancel the customer token to prevent further payments using the token.
+		 *
+		 * Note: When changing payment method, WC Subscriptions will cancel the subscription with existing payment gateway (which triggers this functions), and create a new one. Thus the new subscription must generate a new customer token.
+		 *
+		 * @see WC_Subscriptions_Change_Payment_Gateway::update_payment_method
+		 *
+		 * @param mixed $subscription WC_Subscription.
+		 * @return void
+		 */
+		public function cancel_scheduled_payment( $subscription ) {
+			// Prevent a recursion of this function when we save the subscription.
+			if ( did_action( 'woocommerce_subscription_cancelled_' . self::GATEWAY_ID ) > 1 ) {
+				return;
+			}
+
+			// Dintero does not need to handle subscription cancellation.
+		}
+
+		/**
+		 * Set the session URLs for change payment method request.
+		 *
+		 * Used for changing payment method.
+		 *
+		 * @see Dintero_Checkout_Payment_Token
+		 *
+		 * @param array $request The Dintero request.
+		 * @return array
+		 */
+		public function set_subscription_order_redirect_urls( $request ) {
+			if ( ! self::is_change_payment_method() ) {
+				return $request;
+			}
+
+			$order_id     = filter_input( INPUT_GET, 'change_payment_method', FILTER_SANITIZE_NUMBER_INT );
+			$order_key    = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_SPECIAL_CHARS );
+			$subscription = self::get_subscription( $order_id );
+
+			// Verify the integrity of the order id.
+			if ( ! hash_equals( $subscription->get_order_key(), $order_key ) ) {
+				return $request;
+			}
+
+			$body                   = json_decode( $request['body'], true );
+			$body['session']['url'] = array(
+				'return_url' => $subscription->get_view_order_url(),
+			);
+
+			$request['body'] = wp_json_encode( $body );
+			return $request;
+		}
+
+		/**
+		 * Handle the redirect from the change payment method page.
+		 *
+		 * @param int $subscription_id The subscription ID.
+		 * @return void
+		 */
+		public function handle_redirect_from_change_payment_method( $subscription_id ) {
+			$subscription = self::get_subscription( $subscription_id );
+
+			if ( isset( $_REQUEST['error'] ) ) {
+				$reason = sanitize_text_field( wp_unslash( $_REQUEST['error'] ) );
+
+				if ( 'cancelled' === $reason ) {
+					$message = __( 'Change payment method to Dintero for subscription failed. Customer cancelled the checkout payment.', 'dintero-checkout-for-woocommerce' );
+				} elseif ( 'authorization' === $reason ) {
+					$message = __( 'Change payment method to Dintero for subscription failed. Customer did not authorize the payment.', 'dintero-checkout-for-woocommerce' );
+				} else {
+					$message = __( 'Change payment method to Dintero for subscription failed. An error may have occurred during transaction processing or was rejected by Dintero.', 'dintero-checkout-for-woocommerce' );
+				}
+
+				// Woo will always consider a redirect back to the view order URL as a successful payment method change.
+				// And a notice saying, 'Payment method updated.'  will appear. We must therefore indicate otherwise.
+				if ( function_exists( 'wc_print_notice' ) ) {
+					wc_print_notice( $message, 'error' );
+				}
+
+				$subscription->add_order_note( $message );
+				$subscription->save();
+				return;
+			}
+
+			$transaction_id = filter_input( INPUT_GET, 'transaction_id', FILTER_SANITIZE_SPECIAL_CHARS );
+			$response       = Dintero()->api->get_order( $transaction_id, array( 'includes' => 'card.payment_token' ) );
+			if ( is_wp_error( $response ) ) {
+				$message = sprintf(
+				/* translators: Error message. */
+					__( 'Failed to create payment token. Reason: %s', 'dintero-checkout-for-woocommerce' ),
+					$response->get_error_message()
+				);
+			} else {
+				$payment_token = wc_get_var( $response['customer']['tokens']['payex.creditcard']['payment_token'] );
+				$message       = sprintf(
+				/* translators: Payment token. */
+					__( 'Payment token created: %s', 'dintero-checkout-for-woocommerce' ),
+					$payment_token
+				);
+
+				self::save_payment_token( $subscription_id, $payment_token );
+			}
+
+			$subscription->add_order_note( $message );
+			$subscription->save();
+		}
 
 		/**
 		 * Save the recurring token to the order and its subscription(s).
@@ -276,6 +400,16 @@ if ( class_exists( 'WC_Subscription' ) ) {
 		}
 
 		/**
+		 * Retrieve a WC_Subscription from order ID.
+		 *
+		 * @param int $order_id  Woo order ID.
+		 * @return bool|WC_Subscription The subscription object, or false if it cannot be found.
+		 */
+		public static function get_subscription( $order_id ) {
+			return ! function_exists( 'wcs_get_subscription' ) ? false : wcs_get_subscription( $order_id );
+		}
+
+		/**
 		 * Add Dintero redirect payment page as allowed external url for wp_safe_redirect.
 		 * We do this because WooCommerce Subscriptions use wp_safe_redirect when processing a payment method change request (from v5.1.0).
 		 *
@@ -283,7 +417,7 @@ if ( class_exists( 'WC_Subscription' ) ) {
 		 * @return array
 		 */
 		public function extend_allowed_domains_list( $hosts ) {
-			// TODO: Add hosts.
+			$hosts[] = 'checkout.dintero.com';
 			return $hosts;
 		}
 
