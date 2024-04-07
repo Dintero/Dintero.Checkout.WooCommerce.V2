@@ -34,7 +34,8 @@ abstract class Dintero_Checkout_Request_Get extends Dintero_Checkout_Request {
 				'headers'    => $this->get_request_headers(),
 				'user-agent' => $this->get_user_agent(),
 				'method'     => $this->method,
-			)
+			),
+			$this
 		);
 	}
 }

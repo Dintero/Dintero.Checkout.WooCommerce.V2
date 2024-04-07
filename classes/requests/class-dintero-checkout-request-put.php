@@ -39,7 +39,8 @@ abstract class Dintero_Checkout_Request_Put extends Dintero_Checkout_Request {
 				'method'     => $this->method,
 				'timeout'    => apply_filters( 'dintero_checkout_request_timeout', 10 ),
 				'body'       => $body,
-			)
+			),
+			$this
 		);
 	}
 

@@ -75,6 +75,15 @@ abstract class Dintero_Checkout_Request {
 	}
 
 	/**
+	 * Get the arguments.
+	 *
+	 * @return array
+	 */
+	public function arguments() {
+		return $this->arguments;
+	}
+
+	/**
 	 * Retrieve the environment flag
 	 *
 	 * @return string T for test mode or P for production mode.
