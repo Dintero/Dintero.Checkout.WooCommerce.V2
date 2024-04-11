@@ -26,39 +26,19 @@ if ( class_exists( 'WC_Subscription' ) ) {
 			add_action( 'woocommerce_scheduled_subscription_payment_' . self::GATEWAY_ID, array( $this, 'process_scheduled_payment' ), 10, 2 );
 			add_action( 'woocommerce_subscription_cancelled_' . self::GATEWAY_ID, array( $this, 'cancel_scheduled_payment' ) );
 
+			// Since the metadata about the shipping is stored to the order, and it is required, we must include this in the subsequent renewal orders too.
 			add_action( 'wcs_renewal_order_created', array( $this, 'copy_meta_fields_to_renewal_order' ), 10, 2 );
 
-			add_filter(
-				'dintero_checkout_create_session_args',
-				function ( $request ) {
-					$body = json_decode( $request['body'], true );
+			// Request Dintero to create a payment token, and pass along the subscription profile ID when creating a new session.
+			add_filter( 'dintero_checkout_create_session_args', array( $this, 'set_session_options' ) );
 
-					if ( self::cart_has_subscription() ) {
-						// Dintero only supports subscriptions with card payments. Required for recurring payments.
-						$body['configuration']['payex']['creditcard'] = array(
-							'enabled'                => true,
-							'generate_payment_token' => true,
-						);
+			// Set the return_url for change payment method.
+			add_filter( 'dintero_checkout_payment_token_args', array( $this, 'set_subscription_order_redirect_urls' ), 10, 2 );
 
-						// Only allow free orders if the cart contains a subscription (not limited to trial subscription as a subscription can become free if a 100% discount coupon is applied).
-						if ( 0.0 === floatval( $body['order']['amount'] ) ) {
-							// TODO: Handle free trial.
-						}
-					}
+			// Whether the gateway should be available when handling subscriptions.
+			add_filter( 'dintero_checkout_is_available', array( $this, 'is_available' ) );
 
-					$request['body'] = wp_json_encode( $body );
-					return $request;
-				}
-			);
-
-			// TODO: Modify the GET request to always include the payment and recurrence token. This is currently handled in the dintero_confirm_order utility function.
-
-			// TODO: For free or trial subscription, we set the order as captured to prevent OM from setting the order to on-hold when the merchant set the order to "Completed".
-			add_filter( 'woocommerce_payment_complete', array( $this, 'set_subscription_as_captured' ) );
-
-			// TODO: Override the redirect URLs to redirect back to the change payment method page on failure or to the subscription view on success.
-			add_filter( 'dintero_checkout_payment_token_args', array( $this, 'set_subscription_order_redirect_urls' ) );
-			// TODO: On successful payment method change, the customer is redirected back to the subscription view page. We need to handle the redirect and create a recurring token.
+			// On successful payment method change, the customer is redirected back to the subscription view page. We need to handle the redirect and create a recurring token.
 			add_action( 'woocommerce_account_view-subscription_endpoint', array( $this, 'handle_redirect_from_change_payment_method' ) );
 
 			// Ensure wp_safe_redirect do not redirect back to default dashboard or home page on change_payment_method.
@@ -66,28 +46,6 @@ if ( class_exists( 'WC_Subscription' ) ) {
 
 			// Show the recurring token on the subscription page in the billing fields.
 			add_action( 'woocommerce_admin_order_data_after_billing_address', array( $this, 'show_payment_token' ) );
-		}
-
-		/**
-		 * Flags a free or trial subscription parent order as captured.
-		 *
-		 * This is required to prevent Order Management from attempting to process the order for capture when the customer sets the order to completed as there is nothing to capture.
-		 *
-		 * @param  int $order_id WooCommerce order ID.
-		 * @return int WooCommerce order ID.
-		 */
-		public function set_subscription_as_captured( $order_id ) {
-			$order = wc_get_order( $order_id );
-			if ( self::GATEWAY_ID !== $order->get_payment_method() ) {
-				return $order_id;
-			}
-
-			if ( self::order_has_subscription( $order ) && 0.0 === floatval( $order->get_total() ) ) {
-				$order->update_meta_data( '_wc_dintero_captured', 'trial' );
-				$order->save();
-			}
-
-			return $order_id;
 		}
 
 		/**
@@ -110,19 +68,20 @@ if ( class_exists( 'WC_Subscription' ) ) {
 				return;
 			}
 
-			$renewal_order->add_order_note(
-				sprintf(
-					/* translators: %s: subscription id */
-					__( 'Subscription renewal was made successfully via Dintero Checkout. Payment token: %s', 'dintero-checkout-for-woocommerce' ),
-					$payment_token
-				)
+			$success_message = sprintf(
+				/* translators: %s: subscription id */
+				__( 'Subscription renewal was made successfully via Dintero Checkout. Payment token: %s', 'dintero-checkout-for-woocommerce' ),
+				$payment_token
 			);
+			$renewal_order->add_order_note( $success_message );
 
 			$dintero_order_id = wc_get_var( $initiate_payment['id'] );
 			$subscriptions    = wcs_get_subscriptions_for_renewal_order( $renewal_order->get_id() );
 			foreach ( $subscriptions as $subscription ) {
 				if ( isset( $dintero_order_id ) ) {
 					$subscription->payment_complete( $dintero_order_id );
+					$subscription->add_order_note( $success_message );
+					$subscription->save();
 				} else {
 					$subscription->payment_failed();
 				}
@@ -162,12 +121,71 @@ if ( class_exists( 'WC_Subscription' ) ) {
 		 * @return void
 		 */
 		public function cancel_scheduled_payment( $subscription ) {
-			// Prevent a recursion of this function when we save the subscription.
+			// Prevent a recursion of this function when we save() to the subscription.
 			if ( did_action( 'woocommerce_subscription_cancelled_' . self::GATEWAY_ID ) > 1 ) {
 				return;
 			}
 
 			// Dintero does not need to handle subscription cancellation.
+		}
+
+		/**
+		 * Whether the gateway should be available.
+		 *
+		 * @param bool $is_available Whether the gateway is available.
+		 * @return bool
+		 */
+		public function is_available( $is_available ) {
+			// Allow free orders when changing subscription payment method.
+			if ( self::is_change_payment_method() ) {
+				return true;
+			}
+
+			if ( self::cart_has_subscription() ) {
+
+				// Mixed checkout not allowed.
+				if ( class_exists( 'WC_Subscriptions_Product' ) ) {
+					foreach ( WC()->cart->cart_contents as $key => $item ) {
+						if ( ! WC_Subscriptions_Product::is_subscription( $item['data'] ) ) {
+							return false;
+						}
+					}
+				}
+
+				// Only allow free orders if the cart contains a subscription (not limited to trial subscription as a subscription can become free if a 100% discount coupon is applied).
+				if ( floatval( WC()->cart->total ) === 0.0 ) {
+					return true;
+				}
+			}
+
+			return $is_available;
+		}
+
+		/**
+		 * Set required session options when processing subscriptions in the checkout.
+		 *
+		 * @param array $request The request data.
+		 * @return array
+		 */
+		public function set_session_options( $request ) {
+			if ( ! self::cart_has_subscription() ) {
+				return $request;
+			}
+
+			$body = json_decode( $request['body'], true );
+
+			// Dintero only supports subscriptions with card payments. Required for recurring payments.
+			$body['configuration']['payex']['creditcard'] = array(
+				'enabled'                => true,
+				'generate_payment_token' => true,
+			);
+
+			// Use the Profile ID for subscriptions.
+			$settings           = get_option( 'woocommerce_dintero_checkout_settings' );
+			$body['profile_id'] = wc_get_var( $settings['subscription_profile_id'], 'default' );
+
+			$request['body'] = wp_json_encode( $body );
+			return $request;
 		}
 
 		/**
@@ -177,29 +195,20 @@ if ( class_exists( 'WC_Subscription' ) ) {
 		 *
 		 * @see Dintero_Checkout_Payment_Token
 		 *
-		 * @param array $request The Dintero request.
+		 * @param array                          $request The request data.
+		 * @param Dintero_Checkout_Payment_Token $instance An instance of the request class.
 		 * @return array
 		 */
-		public function set_subscription_order_redirect_urls( $request ) {
+		public function set_subscription_order_redirect_urls( $request, $instance ) {
 			if ( ! self::is_change_payment_method() ) {
 				return $request;
 			}
 
-			$order_id     = filter_input( INPUT_GET, 'change_payment_method', FILTER_SANITIZE_NUMBER_INT );
-			$order_key    = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_SPECIAL_CHARS );
-			$subscription = self::get_subscription( $order_id );
+			$body                                 = json_decode( $request['body'], true );
+			$subscription                         = self::get_subscription( $instance->arguments()['order_id'] );
+			$body['session']['url']['return_url'] = $subscription->get_view_order_url();
+			$request['body']                      = wp_json_encode( $body );
 
-			// Verify the integrity of the order id.
-			if ( ! hash_equals( $subscription->get_order_key(), $order_key ) ) {
-				return $request;
-			}
-
-			$body                   = json_decode( $request['body'], true );
-			$body['session']['url'] = array(
-				'return_url' => $subscription->get_view_order_url(),
-			);
-
-			$request['body'] = wp_json_encode( $body );
 			return $request;
 		}
 

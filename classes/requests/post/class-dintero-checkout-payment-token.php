@@ -43,9 +43,8 @@ class Dintero_Checkout_Payment_Token extends Dintero_Checkout_Request_Post {
 	 * @return array
 	 */
 	public function get_body() {
-		$order_id     = $this->arguments['order_id'];
-		$subscription = Dintero_Checkout_Subscription::get_subscription( $order_id );
-		$helper       = new Dintero_Checkout_Order( $order_id );
+		$order_id = $this->arguments['order_id'];
+		$helper   = ! empty( $order_id ) ? new Dintero_Checkout_Order( $order_id ) : new Dintero_Checkout_Cart();
 
 		$body = array(
 			'session'        => array(
@@ -54,11 +53,11 @@ class Dintero_Checkout_Payment_Token extends Dintero_Checkout_Request_Post {
 					'merchant_reference' => $helper->get_merchant_reference(),
 				),
 				'url'      => array(
-					'return_url' => $subscription->get_change_payment_method_url(),
+					'return_url' => add_query_arg( 'gateway', 'dintero', home_url() ),
 				),
 				'customer' => array(
-					'email'        => $subscription->get_billing_email(),
-					'phone_number' => $subscription->get_billing_phone(),
+					'email'        => $helper->get_billing_address()['email'],
+					'phone_number' => $helper->get_billing_address()['phone_number'],
 				),
 			),
 			'token_provider' => array(
@@ -70,6 +69,7 @@ class Dintero_Checkout_Payment_Token extends Dintero_Checkout_Request_Post {
 		if ( ! Dintero_Checkout_Callback::is_localhost() ) {
 			$body['url']['callback_url'] = Dintero_Checkout_Callback::callback_url();
 		}
+
 		return $body;
 	}
 }

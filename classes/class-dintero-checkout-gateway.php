@@ -141,13 +141,19 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return boolean
 		 */
 		public function is_available() {
+			return apply_filters( 'dintero_checkout_is_available', $this->check_availability(), $this );
+		}
+
+		/**
+		 * Check if the gateway should be available.
+		 *
+		 * This function is extracted to create the 'dintero_checkout_is_available' filter.
+		 *
+		 * @return bool
+		 */
+		private function check_availability() {
 			if ( 'yes' !== $this->enabled ) {
 				return false;
-			}
-
-			// Allow free orders when changing subscription payment method.
-			if ( Dintero_Checkout_Subscription::is_change_payment_method() ) {
-				return true;
 			}
 
 			if ( is_wc_endpoint_url( 'order-pay' ) ) {
@@ -164,15 +170,6 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				return false;
 			}
 
-			// Mixed checkout not allowed.
-			if ( class_exists( 'WC_Subscriptions_Product' ) && Dintero_Checkout_Subscription::cart_has_subscription() ) {
-				foreach ( WC()->cart->cart_contents as $key => $item ) {
-					if ( ! WC_Subscriptions_Product::is_subscription( $item['data'] ) ) {
-						return false;
-					}
-				}
-			}
-
 			return 0.0 < floatval( WC()->cart->total );
 		}
 
@@ -183,15 +180,17 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return array An associative array containing the success status and redirect URl.
 		 */
 		public function process_payment( $order_id ) {
+			$order = wc_get_order( $order_id );
+
 			if ( Dintero_Checkout_Subscription::is_change_payment_method() ) {
-				return $this->process_subscription( $order_id );
+				return $this->process_redirect_payment( $order );
 			}
 
 			/* For all form factors, redirect is used for order-pay since the cart object (used for embedded) is not available. */
 			if ( 'embedded' === $this->form_factor && ! is_wc_endpoint_url( 'order-pay' ) ) {
-				$result = $this->process_embedded_payment( $order_id );
+				$result = $this->process_embedded_payment( $order );
 			} else {
-				$result = $this->process_redirect_payment( $order_id );
+				$result = $this->process_redirect_payment( $order );
 			}
 			return $result;
 		}
@@ -199,14 +198,14 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		/**
 		 * Process an embedded payment method.
 		 *
-		 * @param int $order_id The WooCommerce Order ID.
+		 * @param WC_Order $order The Woo order.
 		 * @return array
 		 */
-		public function process_embedded_payment( $order_id ) {
-			$order     = wc_get_order( $order_id );
+		public function process_embedded_payment( $order ) {
 			$reference = WC()->session->get( 'dintero_merchant_reference' );
 			$order->update_meta_data( '_dintero_merchant_reference', $reference );
-			$order->add_order_note( __( 'Dintero order created with reference ', 'dintero-checkout-for-woocommerce' ) . $reference );
+			// translators: %s: merchant reference number.
+			$order->add_order_note( sprintf( __( 'Dintero order created with reference %s', 'dintero-checkout-for-woocommerce' ), $reference ) );
 			$order->save();
 
 			return array(
@@ -217,12 +216,11 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		/**
 		 * Process a redirect payment.
 		 *
-		 * @param int $order_id The Woo Order ID.
+		 * @param WC_Order $order The Woo Order.
 		 * @return array
 		 */
-		public function process_redirect_payment( $order_id ) {
-			$order   = wc_get_order( $order_id );
-			$session = Dintero()->api->create_session( $order_id );
+		public function process_redirect_payment( $order ) {
+			$session = 0.0 === floatval( $order->get_total() ) ? Dintero()->api->create_payment_token( $order->get_id() ) : Dintero()->api->create_session( $order->get_id() );
 
 			$reference = WC()->session->get( 'dintero_merchant_reference' );
 			$order->update_meta_data( '_dintero_merchant_reference', $reference );
@@ -235,32 +233,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			}
 
 			$order->add_order_note( __( 'Customer redirected to Dintero payment page.', 'dintero-checkout-for-woocommerce' ) );
-
-			return array(
-				'result'   => 'success',
-				'redirect' => $session['url'],
-			);
-		}
-
-		/**
-		 * Process a subscription payment.
-		 *
-		 * @param int $order_id The Woo Order ID.
-		 * @return array
-		 */
-		public function process_subscription( $order_id ) {
-			$order   = wc_get_order( $order_id );
-			$session = Dintero()->api->create_payment_token( $order_id );
-
-			$reference = WC()->session->get( 'dintero_merchant_reference' );
-			$order->update_meta_data( '_dintero_merchant_reference', $reference );
 			$order->save();
-
-			if ( is_wp_error( $session ) ) {
-				return array(
-					'result' => 'error',
-				);
-			}
 
 			return array(
 				'result'   => 'success',

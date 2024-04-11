@@ -46,7 +46,15 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 * @return string
 	 */
 	public function get_merchant_reference() {
-		return uniqid( 'dwc' );
+		// A new merchant reference will be generated _every_ time this method is called. However, this is not desired behavior as when want to retrieve the merchant reference, you're already operating in a single, long-lived session.
+		// Therefore, we must check if a merchant reference already exists before generating a new one.
+		$merchant_reference = WC()->session->get( 'dintero_merchant_reference' );
+		if ( empty( $merchant_reference ) ) {
+			$merchant_reference = uniqid( 'dwc' );
+			WC()->session->set( 'dintero_merchant_reference', $merchant_reference );
+		}
+
+		return $merchant_reference;
 	}
 
 	/**
@@ -73,7 +81,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		}
 
 		// Get cart shipping.
-		if ( WC()->cart->needs_shipping() && count( WC()->shipping->get_packages() ) > 1 ) {
+		if ( WC()->cart->needs_shipping() && WC()->cart->show_shipping() && count( WC()->shipping->get_packages() ) > 1 ) {
 			// Handle multiple shipping lines.
 			$formatted_cart_items = array_merge( $formatted_cart_items, $this->get_shipping_items() );
 		}
@@ -134,7 +142,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	/**
 	 * Gets the product name.
 	 *
-	 * @param object $cart_item The cart item.
+	 * @param array $cart_item The cart item.
 	 * @return string
 	 */
 	public function get_product_name( $cart_item ) {
@@ -174,10 +182,59 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	public function get_express_shipping_options() {
 		$shipping_options = array();
 
-		$packages = WC()->shipping->get_packages();
-		foreach ( $packages as $i => $package ) {
-			foreach ( $package['rates'] as $shipping_method ) {
-				$shipping_options[] = $this->get_shipping_option( $shipping_method );
+		if ( WC()->cart->needs_shipping() && WC()->cart->show_shipping() ) {
+			$chosen_shipping_methods = WC()->session->get( 'chosen_shipping_methods' );
+
+			// If the cart contain only free trial, we'll ignore the shipping methods. The shipping method will still be included in the subscription renewal.
+			if ( class_exists( 'WC_Subscriptions_Cart' ) && \WC_Subscriptions_Cart::all_cart_items_have_free_trial() ) {
+
+				// When a renewal fails for free trial subscription, it will need payment. Only on the initial subscription is payment not needed, and we must therefore not charge for shipping.
+				if ( ! WC()->cart->needs_payment() ) {
+					return $shipping_options;
+				}
+			}
+
+			if ( empty( $chosen_shipping_methods ) ) {
+				return $shipping_options;
+			}
+
+			$shipping_ids = array_unique( $chosen_shipping_methods );
+
+			// Calculate shipping since WC Subscriptions will reset the shipping. See WC_Subscriptions_Cart::maybe_restore_shipping_methods().
+			WC()->shipping()->calculate_shipping( WC()->cart->get_shipping_packages() );
+
+			// Remove shipping package for free trials. See WC_Subscriptions_Cart::set_cart_shipping_packages().
+			$packages = WC()->shipping->get_packages();
+			foreach ( $packages as $index => $package ) {
+				foreach ( $package['contents'] as $cart_item_key => $cart_item ) {
+					if ( class_exists( 'WC_Subscriptions_Product' ) && \WC_Subscriptions_Product::get_trial_length( $cart_item['data'] ) > 0 ) {
+						unset( $packages[ $index ]['contents'][ $cart_item_key ] );
+					}
+				}
+
+				if ( empty( $packages[ $index ]['contents'] ) ) {
+					unset( $packages[ $index ] );
+				}
+			}
+
+			$shipping_rates = reset( $packages )['rates'] ?? array();
+			if ( empty( $shipping_rates ) ) {
+				return $shipping_options;
+			}
+
+			foreach ( $shipping_ids as $key => $shipping_id ) {
+				// Skip shipping lines for free trials.
+				if ( class_exists( 'WC_Subscriptions_Cart' ) && \WC_Subscriptions_Cart::cart_contains_subscription() ) {
+					$pattern = '/_after_a_\d+_\w+_trial/';
+					if ( preg_match( $pattern, $key ) ) {
+						continue;
+					}
+				}
+
+				if ( $shipping_rates[ $shipping_id ] ?? false ) {
+					$shipping_rate      = $shipping_rates[ $shipping_id ];
+					$shipping_options[] = $this->get_shipping_option( $shipping_rate );
+				}
 			}
 		}
 
@@ -213,18 +270,9 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 */
 	public function get_shipping_option( $shipping_method = null ) {
 		if ( empty( $shipping_method ) ) {
-			$packages       = WC()->shipping()->get_packages();
-			$chosen_methods = WC()->session->get( 'chosen_shipping_methods' );
-			if ( empty( $chosen_methods ) || count( $chosen_methods ) > 1 ) {
-				return array();
-			}
-			$chosen_shipping = $chosen_methods[0];
-			foreach ( $packages as $i => $package ) {
-				foreach ( $package['rates'] as $method ) {
-					if ( $chosen_shipping === $method->id ) {
-						$shipping_method = $method;
-					}
-				}
+			$shipping_method = $this->get_express_shipping_options();
+			if ( ! empty( $shipping_method ) ) {
+				return reset( $shipping_method );
 			}
 		}
 

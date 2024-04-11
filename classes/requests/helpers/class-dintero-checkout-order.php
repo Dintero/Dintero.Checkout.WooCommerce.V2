@@ -354,7 +354,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			// WC_Order_Refund do not share the same meta data as WC_Order, and is thus missing the shipping id meta data.
 			if ( empty( $shipping_id ) ) {
 				$parent_order = wc_get_order( $this->order->get_parent_id() );
-				$shipping_id  = $parent_order->get_meta( '_wc_dintero_shipping_id' );
+				// The initial subscription does not have a parent order, we must therefore account for this.
+				$shipping_id = ! empty( $parent_order ) ? $parent_order->get_meta( '_wc_dintero_shipping_id' ) : '';
 			}
 
 			// If the shipping id is still missing, default to the shipping line data.

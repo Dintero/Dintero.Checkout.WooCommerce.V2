@@ -173,10 +173,10 @@ class Dintero_Checkout_API {
 	 *
 	 * Used on checkout and order-pay pages. For renewal payments, @see Dintero_Checkout_API::sessions_pay.
 	 *
-	 * @param int|false $order_id Woo order ID. Defaults to false (used for cart).
+	 * @param int|false $order_id Woo order ID. Defaults to null (used for cart).
 	 * @return array|WP_Error
 	 */
-	public function create_payment_token( $order_id ) {
+	public function create_payment_token( $order_id = null ) {
 		$request  = new Dintero_Checkout_Payment_Token( array( 'order_id' => $order_id ) );
 		$response = $request->request();
 		return $this->check_for_api_error( $response );

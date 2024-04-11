@@ -79,10 +79,6 @@ class Dintero_Checkout_Templates {
 			return $template;
 		}
 
-		if ( ! WC()->cart->needs_payment() ) {
-			return $template;
-		}
-
 		/* For all form factors, redirect is used for order-pay since the cart object (used for embedded) is not available. */
 		if ( is_wc_endpoint_url( 'order-pay' ) ) {
 			return $template;
@@ -206,11 +202,6 @@ class Dintero_Checkout_Templates {
 	public function add_body_class( $class ) {
 		if ( is_checkout() && ! is_wc_endpoint_url( 'order-received' ) ) {
 
-			// Don't display Dintero body classes if we have a cart that doesn't need payment.
-			if ( method_exists( WC()->cart, 'needs_payment' ) && ! WC()->cart->needs_payment() ) {
-				return $class;
-			}
-
 			if ( WC()->session->get( 'chosen_payment_method' ) ) {
 				$first_gateway = WC()->session->get( 'chosen_payment_method' );
 			} else {
@@ -246,7 +237,6 @@ class Dintero_Checkout_Templates {
 		<?php
 		do_action( 'dintero_express_after_extra_fields' );
 	}
-
 }
 
 Dintero_Checkout_Templates::get_instance();

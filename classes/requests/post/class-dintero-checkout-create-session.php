@@ -41,24 +41,11 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 	 * @return array
 	 */
 	public function get_body() {
-		if ( ! empty( $this->arguments['order_id'] ) || is_wc_endpoint_url( 'order-pay' ) ) {
-			$key      = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-			$order_id = is_wc_endpoint_url( 'order-pay' ) ? wc_get_order_id_by_order_key( sanitize_key( $key ) ) : $this->arguments['order_id'];
-			$helper   = new Dintero_Checkout_Order( $order_id );
-		} else {
-			$helper = new Dintero_Checkout_Cart();
-		}
-
-		WC()->session->set( 'dintero_merchant_reference', $helper->get_merchant_reference() );
+		$helper = ! empty( $this->arguments['order_id'] ) ? new Dintero_Checkout_Order( $this->arguments['order_id'] ) : new Dintero_Checkout_Cart();
 
 		$body = array(
 			'url'        => array(
-				'return_url' => add_query_arg(
-					array(
-						'gateway' => 'dintero',
-					),
-					home_url()
-				),
+				'return_url' => add_query_arg( 'gateway', 'dintero', home_url() ),
 			),
 			'order'      => array(
 				'amount'             => $helper->get_order_total(),
