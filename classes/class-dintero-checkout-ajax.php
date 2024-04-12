@@ -29,6 +29,7 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 			'dintero_checkout_wc_log_js'                => true,
 			'dintero_checkout_unset_session'            => true,
 			'dintero_checkout_print_notice'             => true,
+			'dintero_checkout_verify_order_total'       => true,
 		);
 		foreach ( $ajax_events as $ajax_event => $nopriv ) {
 			add_action( 'wp_ajax_woocommerce_' . $ajax_event, array( __CLASS__, $ajax_event ) );
@@ -106,7 +107,7 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 
 
 	/**
-	 * Prints checkout noticesfrom Dintero.
+	 * Prints checkout notices from Dintero.
 	 *
 	 * @return void
 	 */
@@ -118,6 +119,28 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 
 		$notice_type = filter_input( INPUT_POST, 'notice_type', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		wc_add_notice( filter_input( INPUT_POST, 'message', FILTER_SANITIZE_FULL_SPECIAL_CHARS ), $notice_type );
+	}
+
+	/**
+	 * Verify that the cart amount matches the WC order total.
+	 *
+	 * @return void
+	 */
+	public static function dintero_checkout_verify_order_total() {
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_key( $_POST['nonce'] ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'dintero_checkout_print_notice' ) ) {
+			wp_send_json_error( 'bad_nonce' );
+		}
+
+		$amount    = filter_input( INPUT_POST, 'amount', FILTER_SANITIZE_NUMBER_INT );
+		$wc_amount = Dintero_Checkout_Helper_Base::format_number( WC()->order->total );
+
+		if ( $amount !== $wc_amount ) {
+			wc_add_notice( 'Dintero: Amount does not match. Please try again.', 'error' );
+			wp_send_json_error( -1 * abs( $amount - $wc_amount ) );
+		}
+
+		wp_send_json_success( $wc_amount );
 	}
 }
 Dintero_Checkout_Ajax::init();

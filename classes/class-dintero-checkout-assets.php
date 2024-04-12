@@ -178,6 +178,8 @@ class Dintero_Checkout_Assets {
 				'unset_session_nonce'         => wp_create_nonce( 'dintero_checkout_unset_session' ),
 				'print_notice_url'            => WC_AJAX::get_endpoint( 'dintero_checkout_print_notice' ),
 				'print_notice_nonce'          => wp_create_nonce( 'dintero_checkout_print_notice' ),
+				'verify_checkout_total_url'   => WC_AJAX::get_endpoint( 'dintero_checkout_verify_checkout_total' ),
+				'verify_checkout_total_nonce' => wp_create_nonce( 'dintero_checkout_verify_checkout_total' ),
 				'shipping_in_iframe'          => ( isset( $settings['express_shipping_in_iframe'] ) && 'yes' === $settings['express_shipping_in_iframe'] && 'express' === $settings['checkout_type'] ),
 				'pip_text'                    => __( 'Payment in progress', 'dintero-checkout-for-woocommerce' ),
 				'popOut'                      => 'yes' === ( $settings['checkout_popout'] ?? 'no' ) ? true : false,
