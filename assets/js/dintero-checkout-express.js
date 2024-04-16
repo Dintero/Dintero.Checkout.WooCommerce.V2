@@ -150,7 +150,7 @@ jQuery( function ( $ ) {
                         }
 
                         const id = checkout.session.id
-                        dinteroCheckoutForWooCommerce.submitOrder( callback, id)
+                        dinteroCheckoutForWooCommerce.submitOrder( callback, id )
                         dinteroCheckoutForWooCommerce.validation = false
                     },
                 } )
