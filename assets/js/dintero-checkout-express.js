@@ -540,7 +540,7 @@ jQuery( function ( $ ) {
                     if ( ! data.success ) {
                         dinteroCheckoutForWooCommerce.failOrder(
                             "submit order failed",
-                            this.verifyOrderTotalError,
+                            dinteroCheckoutParams.verifyOrderTotalError,
                             callback,
                         )
                         return
@@ -606,7 +606,7 @@ jQuery( function ( $ ) {
                 error: () => {
                     dinteroCheckoutForWooCommerce.failOrder(
                         "submit order failed",
-                        this.verifyOrderTotalError,
+                        dinteroCheckoutParams.verifyOrderTotalError,
                         callback,
                     )
                 },
