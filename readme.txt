@@ -6,7 +6,7 @@ Tested up to: 6.4.1
 Requires PHP: 7.0
 WC requires at least: 6.1.0
 WC tested up to: 8.2.1
-Stable tag: 1.9.0
+Stable tag: 1.9.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,10 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2024.04.17    - version 1.9.1 =
+* Enhancement   - The payment method (also known as "payment product type") can be retrieved from the order's metadata as '_dintero_payment_method'.
+* Fix           - Display an error if order total does not match.
+
 = 2023.11.21    - version 1.9.0 =
 * Feature       - Added setting for using the new pop-out modal in embedded checkout.
 
