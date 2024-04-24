@@ -409,6 +409,21 @@ if ( class_exists( 'WC_Subscription' ) ) {
 		}
 
 		/**
+		 * Whether the cart contains only free trial subscriptions.
+		 *
+		 * If invoked from anywhere but the checkout page, this will return FALSE.
+		 *
+		 * @return boolean
+		 */
+		public static function cart_has_only_free_trial() {
+			if ( ! is_checkout() ) {
+				return false;
+			}
+
+			return ( class_exists( 'WC_Subscriptions_Cart' ) ) ? WC_Subscriptions_Cart::all_cart_items_have_free_trial() : false;
+		}
+
+		/**
 		 * Retrieve a WC_Subscription from order ID.
 		 *
 		 * @param int $order_id  Woo order ID.

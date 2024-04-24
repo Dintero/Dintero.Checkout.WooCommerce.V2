@@ -56,7 +56,7 @@ abstract class Dintero_Checkout_Helper_Base {
 		// If its express we need to add the express options.
 		if ( $is_embedded && $is_express ) {
 			// If the cart does not need shipping, unset shipping, set empty array and shipping_not_required.
-			if ( ! WC()->cart->needs_shipping() ) {
+			if ( ! WC()->cart->needs_shipping() || Dintero_Checkout_Subscription::cart_has_only_free_trial() ) {
 				unset( $body['order']['shipping_option'] );
 				$body['express']['shipping_options'] = array();
 				$body['express']['shipping_mode']    = 'shipping_not_required';

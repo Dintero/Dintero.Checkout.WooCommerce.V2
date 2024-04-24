@@ -62,17 +62,24 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
-	 * Get the merchant reference.
+	 * Get or create the merchant reference if it doesn't already exist.
 	 *
 	 * @return string
 	 */
 	public function get_merchant_reference() {
-		$merchant_reference = $this->order->get_order_number();
+		$merchant_reference = WC()->session->get( 'dintero_merchant_reference' );
 		if ( empty( $merchant_reference ) ) {
-			$merchant_reference = strval( $this->order->get_id() );
+
+			$merchant_reference = $this->order->get_order_number();
+			if ( empty( $merchant_reference ) ) {
+				$merchant_reference = strval( $this->order->get_id() );
+			}
+
+			$merchant_reference = empty( $merchant_reference ) ? uniqid( 'dwc_order', true ) : $merchant_reference;
+			WC()->session->set( 'dintero_merchant_reference', $merchant_reference );
 		}
 
-		return empty( $merchant_reference ) ? uniqid( 'dwc' ) : $merchant_reference;
+		return $merchant_reference;
 	}
 
 	/**

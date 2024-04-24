@@ -56,8 +56,8 @@ class Dintero_Checkout_Payment_Token extends Dintero_Checkout_Request_Post {
 					'return_url' => add_query_arg( 'gateway', 'dintero', home_url() ),
 				),
 				'customer' => array(
-					'email'        => $helper->get_billing_address()['email'],
-					'phone_number' => $helper->get_billing_address()['phone_number'],
+					'email'        => $helper->get_billing_address()['email'] ?? '',
+					'phone_number' => $helper->get_billing_address()['phone_number'] ?? '',
 				),
 			),
 			'token_provider' => array(
@@ -68,6 +68,25 @@ class Dintero_Checkout_Payment_Token extends Dintero_Checkout_Request_Post {
 
 		if ( ! Dintero_Checkout_Callback::is_localhost() ) {
 			$body['url']['callback_url'] = Dintero_Checkout_Callback::callback_url();
+		}
+
+		$helper->add_shipping( $body['session'], $helper, $this->is_embedded(), $this->is_express(), $this->is_shipping_in_iframe() );
+
+		// Set if express or not. For order-pay, we default to redirect flow.
+		if ( ! is_wc_endpoint_url( 'order-pay' ) && $this->is_express() && $this->is_embedded() ) {
+			$customer_types = $this->settings['express_customer_type'];
+			switch ( $customer_types ) {
+				case 'b2c':
+					$body['session']['express']['customer_types'] = array( 'b2c' );
+					break;
+				case 'b2b':
+					$body['session']['express']['customer_types'] = array( 'b2b' );
+					break;
+				case 'b2bc':
+				default:
+					$body['session']['express']['customer_types'] = array( 'b2c', 'b2b' );
+					break;
+			}
 		}
 
 		return $body;
