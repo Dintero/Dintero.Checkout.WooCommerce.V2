@@ -41,7 +41,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
-	 * Get the merchant reference.
+	 * Get or create the merchant reference if it doesn't already exist.
 	 *
 	 * @return string
 	 */
@@ -50,7 +50,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		// Therefore, we must check if a merchant reference already exists before generating a new one.
 		$merchant_reference = WC()->session->get( 'dintero_merchant_reference' );
 		if ( empty( $merchant_reference ) ) {
-			$merchant_reference = uniqid( 'dwc' );
+			$merchant_reference = uniqid( 'dwc', true );
 			WC()->session->set( 'dintero_merchant_reference', $merchant_reference );
 		}
 
