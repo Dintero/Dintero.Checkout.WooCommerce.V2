@@ -537,6 +537,7 @@ jQuery( function ( $ ) {
                 },
                 dataType: "json",
                 success: ( data ) => {
+                    console.log( "order total diff: %s", data.data )
                     if ( ! data.success ) {
                         dinteroCheckoutForWooCommerce.failOrder(
                             "submit order failed",
