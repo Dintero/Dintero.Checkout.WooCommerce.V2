@@ -536,8 +536,8 @@ jQuery( function ( $ ) {
                     nonce: dinteroCheckoutParams.verifyOrderTotalNonce,
                 },
                 dataType: "json",
-                success: (data) => {
-                    console.log('order total diff: %s', data.data)
+                success: ( data ) => {
+                    console.log( "order total diff: %s", data.data )
                     if ( ! data.success ) {
                         dinteroCheckoutForWooCommerce.failOrder(
                             "submit order failed",
