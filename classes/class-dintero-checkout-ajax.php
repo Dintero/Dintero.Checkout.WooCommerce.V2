@@ -135,14 +135,17 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 		$id      = filter_input( INPUT_POST, 'id', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$session = Dintero()->api->get_session( $id );
 
+		WC()->cart->calculate_totals();
 		$total    = $session['order']['amount'];
 		$wc_total = intval( WC()->cart->total * 100 );
 
-		if ( $total === $wc_total ) {
-			wp_send_json_success( $total - $wc_total );
+		$max_diff = 10; // minor units.
+		$diff     = $total - $wc_total;
+		if ( $max_diff > $diff ) {
+			wp_send_json_success( $diff );
 		}
 
-		wp_send_json_error( -absint( $total - $wc_total ) );
+		wp_send_json_error( $diff );
 	}
 }
 Dintero_Checkout_Ajax::init();
