@@ -42,8 +42,8 @@ class Dintero_Checkout_Refund_Order extends Dintero_Checkout_Request_Post {
 	public function get_body() {
 		$helper = new Dintero_Checkout_Order( $this->arguments['order_id'] );
 
-		$order_lines = $helper->get_order_lines();
-		$shipping    = $helper->get_shipping_object();
+		$order_lines = $helper->get_order_lines( ! $this->show_express_shipping() );
+		$shipping    = $this->show_express_shipping() ? $helper->get_shipping_object() : null;
 
 		if ( ! empty( $shipping ) ) {
 			$order_lines[] = $helper::format_shipping_for_om( $shipping );
