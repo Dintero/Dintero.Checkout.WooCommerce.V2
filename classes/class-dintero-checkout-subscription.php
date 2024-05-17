@@ -62,6 +62,11 @@ if ( class_exists( 'WC_Subscription' ) ) {
 				return;
 			}
 
+			if ( 'FAILED' === $initiate_payment['status'] ) {
+				$renewal_order->update_status( 'failed', __( 'The renewal was rejected by Dintero.', 'dintero-checkout-for-woocommerce' ) );
+				return;
+			}
+
 			$payment_token = wc_get_var( $initiate_payment['customer']['tokens']['payex.creditcard']['payment_token'] );
 			if ( empty( $payment_token ) ) {
 				$renewal_order->update_status( 'failed', __( 'The payment token could not be retrieved.', 'dintero-checkout-for-woocommerce' ) );
