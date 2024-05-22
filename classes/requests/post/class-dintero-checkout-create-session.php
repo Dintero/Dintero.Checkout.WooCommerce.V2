@@ -45,7 +45,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			$order_id = is_wc_endpoint_url( 'order-pay' ) ? wc_get_order_id_by_order_key( sanitize_key( $key ) ) : $this->arguments['order_id'];
 			$order    = wc_get_order( $order_id );
 
-			$helper = new Dintero_Checkout_Order( $order_id );
+			$helper = new Dintero_Checkout_Order( $order );
 		} else {
 			$helper = new Dintero_Checkout_Cart();
 		}
