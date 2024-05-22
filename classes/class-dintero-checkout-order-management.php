@@ -140,7 +140,7 @@ class Dintero_Checkout_Order_Management {
 				$event = array_filter(
 					array_reverse( $response['events'] ),
 					function ( $event ) {
-						return $event['event'] === 'CAPTURE';
+						return 'CAPTURE' === $event['event'];
 					}
 				);
 
