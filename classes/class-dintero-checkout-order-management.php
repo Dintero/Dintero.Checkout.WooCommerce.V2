@@ -136,10 +136,22 @@ class Dintero_Checkout_Order_Management {
 			}
 
 			if ( $response['amount'] > 0 ) {
+				// The last capture event is most likely the current capture event.
+				$event = array_filter(
+					array_reverse( $response['events'] ),
+					function ( $event ) {
+						return $event['event'] === 'CAPTURE';
+					}
+				);
+
+				// Since the amount in the response is the total amount, not the total captured amount. We need to get the amount from the last capture event.
+				$event  = reset( $event );
+				$amount = isset( $event['event'] ) ? $event['amount'] : $response['amount'];
+
 				$note = sprintf(
 					// translators: the amount, the currency.
 					__( 'The Dintero order has been captured. Captured amount: %1$.2f %2$s.', 'dintero-checkout-for-woocommerce' ),
-					substr_replace( $response['amount'], wc_get_price_decimal_separator(), -2, 0 ),
+					substr_replace( $amount, wc_get_price_decimal_separator(), -2, 0 ),
 					$response['currency']
 				);
 
