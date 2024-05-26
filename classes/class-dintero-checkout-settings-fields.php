@@ -29,8 +29,8 @@ class Dintero_Settings_Fields {
 				'description' => '',
 				'default'     => 'yes',
 			),
-			'dintero_configuration'                   => array(
-				'title' => __( 'Dintero configuration', 'dintero-checkout-for-woocommerce' ),
+			'account_settings'                        => array(
+				'title' => __( 'Account settings', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'title',
 			),
 			'account_id'                              => array(
@@ -70,6 +70,10 @@ class Dintero_Settings_Fields {
 				'desc_tip'    => true,
 				'description' => __( 'Test payment window profile ID. Found under (SETTINGS → Payment windows) in Dintero Backoffice.', 'dintero-checkout-for-woocommerce' ),
 			),
+			'checkout_settings'                       => array(
+				'title' => __( 'Checkout settings', 'dintero-checkout-for-woocommerce' ),
+				'type'  => 'title',
+			),
 			'test_mode'                               => array(
 				'title'       => __( 'Enable test mode:', 'dintero-checkout-for-woocommerce' ),
 				'label'       => ' ',
@@ -86,18 +90,6 @@ class Dintero_Settings_Fields {
 				'default'     => 'yes',
 				'desc_tip'    => true,
 			),
-			'checkout_type_title'                     => array(
-				'title' => __( 'Checkout type', 'dintero-checkout-for-woocommerce' ),
-				'type'  => 'title',
-			),
-			'checkout_type'                           => array(
-				'default' => 'express',
-				'type'    => 'select',
-				'options' => array(
-					'checkout' => __( 'Dintero Checkout', 'dintero-checkout-for-woocommerce' ),
-					'express'  => __( 'Dintero Checkout Express', 'dintero-checkout-for-woocommerce' ),
-				),
-			),
 			'checkout_layout'                         => array(
 				'title'       => __( 'Checkout layout', 'dintero-checkout-for-woocommerce' ),
 				'type'        => 'select',
@@ -110,23 +102,16 @@ class Dintero_Settings_Fields {
 				'default'     => 'two_column_right',
 				'desc_tip'    => false,
 			),
-			'form_factor_title'                       => array(
-				'title' => __( 'Form factor', 'dintero-checkout-for-woocommerce' ),
-				'type'  => 'title',
-			),
-			'form_factor'                             => array(
-				'default' => 'redirect',
+			'checkout_flow'                           => array(
+				'default' => 'express_popout',
 				'type'    => 'select',
 				'options' => array(
-					'embedded' => __( 'Embedded', 'dintero-checkout-for-woocommerce' ),
-					'redirect' => __( 'Redirect', 'dintero-checkout-for-woocommerce' ),
+					'express_popout'    => __( 'Checkout Express Pop-out (recommended)', 'dintero-checkout-for-woocommerce' ),
+					'express_embedded'  => __( 'Checkout Express Embedded', 'dintero-checkout-for-woocommerce' ),
+					'checkout_redirect' => __( 'Checkout Redirect', 'dintero-checkout-for-woocommerce' ),
+					'checkout_popout'   => __( 'Checkout Pop-out', 'dintero-checkout-for-woocommerce' ),
+					'checkout_embedded' => __( 'Checkout Embedded', 'dintero-checkout-for-woocommerce' ),
 				),
-			),
-			'checkout_popout'                         => array(
-				'title'       => __( 'Enable pop-out modal', 'dintero-checkout-for-woocommerce' ),
-				'description' => __( 'Only available in embedded checkout.', 'dintero-checkout-for-woocommerce' ),
-				'type'        => 'checkbox',
-				'default'     => 'no',
 			),
 			/* The "Redirect box" is hidden until the form factor Redirect is selected. */
 			'redirect_title'                          => array(

@@ -106,6 +106,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 				return;
 			}
 
+			include_once DINTERO_CHECKOUT_PATH . '/includes/dintero-checkout-functions.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-settings-fields.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-gateway.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-logger.php';
@@ -139,7 +140,6 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-refund-order.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/put/class-dintero-checkout-update-checkout-session.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/put/class-dintero-checkout-update-transaction.php';
-			include_once DINTERO_CHECKOUT_PATH . '/includes/dintero-checkout-functions.php';
 
 			$this->api              = new Dintero_Checkout_API();
 			$this->order_management = Dintero_Checkout_Order_Management::get_instance();

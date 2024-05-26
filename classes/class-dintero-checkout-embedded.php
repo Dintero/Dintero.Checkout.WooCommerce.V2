@@ -19,7 +19,7 @@ class Dintero_Checkout_Embedded {
 	 */
 	public function __construct() {
 		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
-		if ( 'embedded' === $settings['form_factor'] ) {
+		if ( dwc_is_embedded( $settings ) ) {
 			add_filter( 'woocommerce_checkout_fields', array( $this, 'add_shipping_data_input' ) );
 			add_action( 'woocommerce_before_calculate_totals', array( $this, 'update_shipping_method' ), 1 );
 			add_action( 'woocommerce_after_calculate_totals', array( $this, 'update_dintero_checkout_session' ), 9999 );
