@@ -103,15 +103,17 @@ class Dintero_Settings_Fields {
 				'desc_tip'    => false,
 			),
 			'checkout_flow'                           => array(
-				'default' => 'express_popout',
-				'type'    => 'select',
-				'options' => array(
+				'title'       => __( 'Checkout flow', 'dintero-checkout-for-woocommerce' ),
+				'default'     => 'express_popout',
+				'type'        => 'select',
+				'options'     => array(
 					'express_popout'    => __( 'Checkout Express Pop-out (recommended)', 'dintero-checkout-for-woocommerce' ),
 					'express_embedded'  => __( 'Checkout Express Embedded', 'dintero-checkout-for-woocommerce' ),
 					'checkout_redirect' => __( 'Checkout Redirect', 'dintero-checkout-for-woocommerce' ),
 					'checkout_popout'   => __( 'Checkout Pop-out', 'dintero-checkout-for-woocommerce' ),
 					'checkout_embedded' => __( 'Checkout Embedded', 'dintero-checkout-for-woocommerce' ),
 				),
+				'description' => __( 'Determines how the payment form will appear on the checkout page.', 'dintero-checkout-for-woocommerce' ),
 			),
 			/* The "Redirect box" is hidden until the form factor Redirect is selected. */
 			'redirect_title'                          => array(
@@ -197,7 +199,7 @@ class Dintero_Settings_Fields {
 				),
 			),
 			'express_shipping_in_iframe'              => array(
-				'title'    => __( 'Display Shipping in the iframe', 'dintero-checkout-for-woocommerce' ),
+				'title'    => __( 'Display Shipping in Checkout Express', 'dintero-checkout-for-woocommerce' ),
 				'type'     => 'checkbox',
 				'default'  => 'no',
 				'label'    => __( 'Enable', 'dintero-checkout-for-woocommerce' ),
