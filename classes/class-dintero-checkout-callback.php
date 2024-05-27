@@ -40,6 +40,13 @@ class Dintero_Checkout_Callback {
 			die;
 		}
 
+		// Per request by Dintero, if the order doesn't exist, respond with 500.
+		$maybe_order = $this->get_order_from_reference( $merchant_reference );
+		if ( empty( $maybe_order ) ) {
+			http_response_code( 500 );
+			die;
+		}
+
 		$this->maybe_schedule_callback( $transaction_id, $merchant_reference, $error );
 
 		http_response_code( 200 );
