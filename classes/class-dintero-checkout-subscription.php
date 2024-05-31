@@ -19,6 +19,8 @@ if ( class_exists( 'WC_Subscription' ) ) {
 		public const RECURRING_TOKEN = '_' . self::GATEWAY_ID . '_recurring_token';
 		public const PAYMENT_TOKEN   = '_' . self::GATEWAY_ID . '_payment_token';
 
+		public const DO_NOT_RETRY = '_' . self::GATEWAY_ID . '_do_not_retry';
+
 		/**
 		 * Register hooks.
 		 */
@@ -56,6 +58,15 @@ if ( class_exists( 'WC_Subscription' ) ) {
 		 * @return void
 		 */
 		public function process_scheduled_payment( $amount_to_charge, $renewal_order ) {
+			// If the payment token is different, we should retry anyway even if the order has previously failed.
+			$do_not_retry  = $renewal_order->get_meta( self::DO_NOT_RETRY );
+			$payment_token = self::get_payment_token( $renewal_order->get_id() );
+			if ( ! empty( $do_not_retry ) && $do_not_retry === $payment_token ) {
+				$message = __( 'This subscription has previously failed renewal, and no further renewal attempts are allowed.', 'dintero-checkout-for-woocommerce' );
+				$renewal_order->update_status( 'failed', $message );
+				return;
+			}
+
 			$initiate_payment = Dintero()->api->sessions_pay( $renewal_order->get_id() );
 			if ( is_wp_error( $initiate_payment ) ) {
 				$renewal_order->update_status( 'failed', dintero_retrieve_error_message( $initiate_payment ) );
@@ -63,7 +74,10 @@ if ( class_exists( 'WC_Subscription' ) ) {
 			}
 
 			if ( 'FAILED' === $initiate_payment['status'] ) {
-				$renewal_order->update_status( 'failed', __( 'The renewal was rejected by Dintero.', 'dintero-checkout-for-woocommerce' ) );
+				$message = __( 'The renewal was rejected by Dintero. No further renewal attempts are allowed.', 'dintero-checkout-for-woocommerce' );
+
+				$renewal_order->update_meta_data( self::DO_NOT_RETRY, $renewal_order->get_meta( self::PAYMENT_TOKEN ) );
+				$renewal_order->update_status( 'failed', $message );
 				return;
 			}
 
