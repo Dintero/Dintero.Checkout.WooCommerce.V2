@@ -58,26 +58,52 @@ if ( class_exists( 'WC_Subscription' ) ) {
 		 * @return void
 		 */
 		public function process_scheduled_payment( $amount_to_charge, $renewal_order ) {
+			$subscriptions = wcs_get_subscriptions_for_renewal_order( $renewal_order );
+
 			// If the payment token is different, we should retry anyway even if the order has previously failed.
-			$do_not_retry  = $renewal_order->get_meta( self::DO_NOT_RETRY );
+			$do_not_retry = $renewal_order->get_meta( self::DO_NOT_RETRY );
+			if ( empty( $do_not_retry ) ) {
+				// Maybe it is set in a subscription?
+				$subscription = reset( $subscription );
+				$do_not_retry = $subscription->get_meta( self::DO_NOT_RETRY );
+			}
+
 			$payment_token = self::get_payment_token( $renewal_order->get_id() );
 			if ( ! empty( $do_not_retry ) && $do_not_retry === $payment_token ) {
 				$message = __( 'This subscription has previously failed renewal, and no further renewal attempts are allowed.', 'dintero-checkout-for-woocommerce' );
-				$renewal_order->update_status( 'failed', $message );
+
+				// Note: the note must be added separately since if the order status is already 'failed', the note will not be added in an update_status() call.
+				$renewal_order->add_order_note( $message );
+
+				// No need to save(). This is already done by update_status().
+				$renewal_order->update_status( 'failed' );
+
+				self::add_order_note( $subscriptions, $message );
 				return;
 			}
 
 			$initiate_payment = Dintero()->api->sessions_pay( $renewal_order->get_id() );
 			if ( is_wp_error( $initiate_payment ) ) {
-				$renewal_order->update_status( 'failed', dintero_retrieve_error_message( $initiate_payment ) );
+				$renewal_order->add_order_note( dintero_retrieve_error_message( $initiate_payment ) );
+				$renewal_order->update_status( 'failed' );
 				return;
 			}
 
 			if ( 'FAILED' === $initiate_payment['status'] ) {
 				$message = __( 'The renewal was rejected by Dintero. No further renewal attempts are allowed.', 'dintero-checkout-for-woocommerce' );
 
-				$renewal_order->update_meta_data( self::DO_NOT_RETRY, $renewal_order->get_meta( self::PAYMENT_TOKEN ) );
-				$renewal_order->update_status( 'failed', $message );
+				// Store the payment token that shouldn't be allowed for renewal.
+				$renewal_order->update_meta_data( self::DO_NOT_RETRY, $payment_token );
+				$renewal_order->add_order_note( $message );
+				$renewal_order->update_status( 'failed' );
+
+				// Since a renewal order can have multiple subscriptions, we must add the note to each subscription.
+				foreach ( $subscriptions as $subscription ) {
+					$subscription->add_order_note( $message );
+					$subscription->update_meta_data( self::DO_NOT_RETRY, $payment_token );
+					$subscription->save();
+				}
+
 				return;
 			}
 
@@ -95,7 +121,6 @@ if ( class_exists( 'WC_Subscription' ) ) {
 			$renewal_order->add_order_note( $success_message );
 
 			$dintero_order_id = wc_get_var( $initiate_payment['id'] );
-			$subscriptions    = wcs_get_subscriptions_for_renewal_order( $renewal_order->get_id() );
 			foreach ( $subscriptions as $subscription ) {
 				if ( isset( $dintero_order_id ) ) {
 					$subscription->payment_complete( $dintero_order_id );
@@ -283,6 +308,20 @@ if ( class_exists( 'WC_Subscription' ) ) {
 
 			$subscription->add_order_note( $message );
 			$subscription->save();
+		}
+
+		public static function add_order_note( $subscriptions, $note ) {
+			if ( ! is_array( $subscriptions ) ) {
+				$subscriptions->add_order_note( $note );
+				$subscriptions->save();
+
+				return;
+			}
+
+			foreach ( $subscriptions as $subscription ) {
+				$subscription->add_order_note( $note );
+				$subscription->save();
+			}
 		}
 
 		/**
