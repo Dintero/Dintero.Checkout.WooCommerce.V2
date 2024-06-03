@@ -90,18 +90,6 @@ class Dintero_Settings_Fields {
 				'default'     => 'yes',
 				'desc_tip'    => true,
 			),
-			'checkout_layout'                         => array(
-				'title'       => __( 'Checkout layout', 'dintero-checkout-for-woocommerce' ),
-				'type'        => 'select',
-				'options'     => array(
-					'one_column_checkout' => __( 'One column checkout', 'dintero-checkout-for-woocommerce' ),
-					'two_column_right'    => __( 'Two column checkout (Dintero checkout in right column)', 'dintero-checkout-for-woocommerce' ),
-					'two_column_left'     => __( 'Two column checkout (Dintero checkout in left column)', 'dintero-checkout-for-woocommerce' ),
-				),
-				'description' => __( 'Select the Checkout layout.', 'dintero-checkout-for-woocommerce' ),
-				'default'     => 'two_column_right',
-				'desc_tip'    => false,
-			),
 			'checkout_flow'                           => array(
 				'title'       => __( 'Checkout flow', 'dintero-checkout-for-woocommerce' ),
 				'default'     => 'express_popout',
@@ -114,6 +102,18 @@ class Dintero_Settings_Fields {
 					'checkout_embedded' => __( 'Checkout Embedded', 'dintero-checkout-for-woocommerce' ),
 				),
 				'description' => __( 'Determines how the payment form will appear on the checkout page.', 'dintero-checkout-for-woocommerce' ),
+			),
+			'checkout_layout'                         => array(
+				'title'       => __( 'Checkout layout', 'dintero-checkout-for-woocommerce' ),
+				'type'        => 'select',
+				'options'     => array(
+					'one_column_checkout' => __( 'One column checkout', 'dintero-checkout-for-woocommerce' ),
+					'two_column_right'    => __( 'Two column checkout (Dintero checkout in right column)', 'dintero-checkout-for-woocommerce' ),
+					'two_column_left'     => __( 'Two column checkout (Dintero checkout in left column)', 'dintero-checkout-for-woocommerce' ),
+				),
+				'description' => __( 'Click <a href="https://www.dintero.com/checkout-layouts">here</a> to read more about checkout layouts.', 'dintero-checkout-for-woocommerce' ),
+				'default'     => 'two_column_right',
+				'desc_tip'    => false,
 			),
 			/* The "Redirect box" is hidden until the form factor Redirect is selected. */
 			'redirect_title'                          => array(
