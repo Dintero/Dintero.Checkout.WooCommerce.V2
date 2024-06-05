@@ -43,8 +43,7 @@ class Dintero_Checkout_Payment_Token extends Dintero_Checkout_Request_Post {
 	 * @return array
 	 */
 	public function get_body() {
-		$order_id = $this->arguments['order_id'];
-		$helper   = ! empty( $order_id ) ? new Dintero_Checkout_Order( $order_id ) : new Dintero_Checkout_Cart();
+		$helper = ! empty( $this->arguments['order_id'] ) ? new Dintero_Checkout_Order( wc_get_order( $this->arguments['order_id'] ) ) : new Dintero_Checkout_Cart();
 
 		$body = array(
 			'session'        => array(

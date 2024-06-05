@@ -41,7 +41,7 @@ class Dintero_Checkout_Sessions_Pay extends Dintero_Checkout_Request_Post {
 	 * @return array
 	 */
 	public function get_body() {
-		$helper = new Dintero_Checkout_Order( $this->arguments['order_id'] );
+		$helper = new Dintero_Checkout_Order( wc_get_order( $this->arguments['order_id'] ) );
 
 		$body = array(
 			'session' => array(

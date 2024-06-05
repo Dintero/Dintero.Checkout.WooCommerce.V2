@@ -41,7 +41,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 	 * @return array
 	 */
 	public function get_body() {
-		$helper = ! empty( $this->arguments['order_id'] ) ? new Dintero_Checkout_Order( $this->arguments['order_id'] ) : new Dintero_Checkout_Cart();
+		$helper = ! empty( $this->arguments['order_id'] ) ? new Dintero_Checkout_Order( wc_get_order( $this->arguments['order_id'] ) ) : new Dintero_Checkout_Cart();
 
 		$body = array(
 			'url'        => array(

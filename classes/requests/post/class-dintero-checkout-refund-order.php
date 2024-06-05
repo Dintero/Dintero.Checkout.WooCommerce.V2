@@ -41,11 +41,11 @@ class Dintero_Checkout_Refund_Order extends Dintero_Checkout_Request_Post {
 	 * @return array
 	 */
 	public function get_body() {
-		$order   = wc_get_order( $this->arguments['order_id'] );
-		$refunds = $order->get_refunds();
-		$order   = reset( $refunds );
+		$order        = wc_get_order( $this->arguments['order_id'] );
+		$refunds      = $order->get_refunds();
+		$refund_order = reset( $refunds );
 
-		$helper = new Dintero_Checkout_Order( $order );
+		$helper = new Dintero_Checkout_Order( $refund_order );
 
 		$order_lines = $helper->get_order_lines();
 		$shipping    = $helper->get_shipping_object();

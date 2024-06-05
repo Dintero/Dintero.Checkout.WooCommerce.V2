@@ -166,11 +166,12 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * @return void
 		 */
 		public function declare_wc_compatibility() {
-			// Declare HPOS compatibility.
-            // Declare Checkout Blocks incompatibility
 			if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+				// Declare HPOS compatibility.
 				\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
-                \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, false );
+
+				// Declare Checkout Blocks incompatibility.
+				\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, false );
 			}
 		}
 
