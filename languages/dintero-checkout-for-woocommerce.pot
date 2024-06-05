@@ -1,21 +1,25 @@
-# Copyright (C) 2023 
+# Copyright (C) 2024 
 # This file is distributed under the same license as the  package.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/Dintero.Checkout.WooCommerce.V2\n"
-"POT-Creation-Date: 2023-11-21 08:57:52+00:00\n"
+"POT-Creation-Date: 2024-04-25 11:08:42+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2023-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2024-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "X-Generator: grunt-wp-i18n 1.0.3\n"
 
 #: classes/class-dintero-checkout-assets.php:182
 msgid "Payment in progress"
+msgstr ""
+
+#: classes/class-dintero-checkout-assets.php:186
+msgid "The cart was modified. Please try again."
 msgstr ""
 
 #: classes/class-dintero-checkout-callback.php:164
@@ -73,15 +77,15 @@ msgstr ""
 msgid "The order has not been authorized by Dintero."
 msgstr ""
 
-#: classes/class-dintero-checkout-meta-box.php:89
+#: classes/class-dintero-checkout-meta-box.php:93
 msgid "Dintero order status: "
 msgstr ""
 
-#: classes/class-dintero-checkout-meta-box.php:90
+#: classes/class-dintero-checkout-meta-box.php:94
 msgid "Payment method: "
 msgstr ""
 
-#: classes/class-dintero-checkout-meta-box.php:92
+#: classes/class-dintero-checkout-meta-box.php:96
 msgid "Environment: "
 msgstr ""
 
@@ -464,18 +468,18 @@ msgstr ""
 msgid "Select another payment method"
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:175
+#: includes/dintero-checkout-functions.php:180
 #. translators: %s the Dintero transaction ID.
 msgid ""
 "The order was placed successfully, but requires further authorization by "
 "Dintero. Transaction ID: %s"
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:186
+#: includes/dintero-checkout-functions.php:191
 msgid "The order has been authorized."
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:189
+#: includes/dintero-checkout-functions.php:194
 #. translators: %s the Dintero transaction ID.
 msgid "The order was placed successfully via Dintero Checkout. Transaction ID: %s"
 msgstr ""

@@ -29,6 +29,7 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 			'dintero_checkout_wc_log_js'                => true,
 			'dintero_checkout_unset_session'            => true,
 			'dintero_checkout_print_notice'             => true,
+			'dintero_verify_order_total'                => true,
 		);
 		foreach ( $ajax_events as $ajax_event => $nopriv ) {
 			add_action( 'wp_ajax_woocommerce_' . $ajax_event, array( __CLASS__, $ajax_event ) );
@@ -106,7 +107,7 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 
 
 	/**
-	 * Prints checkout noticesfrom Dintero.
+	 * Prints checkout notices from Dintero.
 	 *
 	 * @return void
 	 */
@@ -118,6 +119,33 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 
 		$notice_type = filter_input( INPUT_POST, 'notice_type', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		wc_add_notice( filter_input( INPUT_POST, 'message', FILTER_SANITIZE_FULL_SPECIAL_CHARS ), $notice_type );
+	}
+
+	/**
+	 * Verify that the provided amount corresponds to the cart total.
+	 *
+	 * @return void
+	 */
+	public static function dintero_verify_order_total() {
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_key( $_POST['nonce'] ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'dintero_verify_order_total' ) ) {
+			wp_send_json_error( 'bad_nonce' );
+		}
+
+		$id      = filter_input( INPUT_POST, 'id', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$session = Dintero()->api->get_session( $id );
+
+		WC()->cart->calculate_totals();
+		$total    = $session['order']['amount'];
+		$wc_total = intval( WC()->cart->total * 100 );
+
+		$max_diff = 10; // minor units.
+		$diff     = $total - $wc_total;
+		if ( $max_diff > $diff ) {
+			wp_send_json_success( $diff );
+		}
+
+		wp_send_json_error( $diff );
 	}
 }
 Dintero_Checkout_Ajax::init();

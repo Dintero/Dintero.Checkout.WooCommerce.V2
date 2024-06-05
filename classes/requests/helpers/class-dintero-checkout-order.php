@@ -11,27 +11,21 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class for processing orders items to be used with order management.
  */
 class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
+
 	/**
 	 * The WooCommerce order.
 	 *
-	 * @var WC_Order
+	 * @var WC_Order|WC_Order_Refund
 	 */
 	public $order;
 
 	/**
 	 * Class constructor.
 	 *
-	 * @param int $order_id The WooCommerce order id.
+	 * @param WC_Order|WC_Order_Refund $order The Woo order.
 	 */
-	public function __construct( $order_id ) {
-		$order   = wc_get_order( $order_id );
-		$refunds = $order->get_refunds();
-
-		if ( count( $refunds ) > 0 ) {
-			$this->order = $refunds[0];
-		} else {
-			$this->order = $order;
-		}
+	public function __construct( $order ) {
+		$this->order = $order;
 	}
 
 	/**
@@ -40,7 +34,14 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * @return int
 	 */
 	public function get_order_total() {
-		return absint( self::format_number( $this->order->get_total() ) );
+		$order_total = self::format_number( $this->order->get_total() );
+		if ( $this->order instanceof WC_Order ) {
+			// Only available and relevant for WC_Order.
+			$refunded_total = self::format_number( $this->order->get_total_refunded() );
+			return absint( $order_total - $refunded_total );
+		}
+
+		return absint( $order_total );
 	}
 
 	/**
@@ -49,11 +50,19 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * @return int
 	 */
 	public function get_tax_total() {
-		return absint( self::format_number( $this->order->get_total_tax() ) );
+		$order_total_tax = self::format_number( $this->order->get_total_tax() );
+
+		if ( $this->order instanceof WC_Order ) {
+			// Only available and relevant for WC_Order.
+			$refunded_total_tax = self::format_number( $this->order->get_total_tax_refunded() );
+			return absint( $order_total_tax - $refunded_total_tax );
+		}
+
+		return absint( $order_total_tax );
 	}
 
 	/**
-	 * Get the cart currency.
+	 * Get the order currency.
 	 *
 	 * @return string
 	 */
@@ -99,7 +108,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		 *
 		 * @var WC_Order_Item_Product $order_item WooCommerce order item product.
 		 */
-		foreach ( $this->order->get_items() as $order_item ) {
+		foreach ( $this->get_items() as $order_item ) {
 			$order_line = $this->get_order_line( $order_item );
 			if ( ! empty( $order_line ) ) {
 				$order_lines[] = $order_line;
@@ -111,9 +120,10 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		 *
 		 * @var WC_Order_Item_Shipping $order_item WooCommerce order item shipping.
 		 */
-		if ( count( $this->order->get_items( 'shipping' ) ) > 1 ) {
+		$shipping_items = $this->get_items( 'shipping' );
+		if ( count( $shipping_items ) > 1 ) {
 			/* If there is more than one shipping option, it will be part of the order.items to support multiple shipping packages. */
-			foreach ( $this->order->get_items( 'shipping' ) as $order_item ) {
+			foreach ( $shipping_items as $order_item ) {
 				$order_line = $this->get_shipping_option( $order_item );
 				if ( ! empty( $order_line ) ) {
 					$order_lines[] = $order_line;
@@ -156,13 +166,75 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
+	 * Return an array of items/products within this order.
+	 *
+	 * Filters out any refunded items. This should ensure manual refunds are taken into consideration.
+	 *
+	 * @param string|array $types Types of line items to get (array or string).
+	 * @return WC_Order_Item[]
+	 */
+	private function get_items( $types = 'line_item' ) {
+		$order_items = $this->order->get_items( $types );
+
+		if ( $this->order instanceof WC_Order_Refund ) {
+			return $order_items;
+		}
+
+		if ( ! ( is_string( $types ) && in_array( $types, array( 'line_item', 'shipping' ), true ) ) ) {
+			return $order_items;
+		}
+
+		$refunds = $this->order->get_refunds();
+
+		// Retrieve all the items that has been refunded.
+		$refunded_order_items = array_reduce(
+			$refunds,
+			function ( $carry, $refund ) use ( $types ) {
+				$items = $refund->get_items( $types );
+				if ( ! empty( $items ) ) {
+					$carry = array_merge( $carry, $items );
+				}
+				return $carry;
+			},
+			array()
+		);
+
+		// Remove refunded items from the order items.
+		foreach ( $refunded_order_items as $refunded_order_item ) {
+			if ( $refunded_order_item instanceof WC_Order_Item_Product ) {
+				$refunded_product_id     = empty( $refunded_order_item['variation_id'] ) ? $refunded_order_item['product_id'] : $refunded_order_item['variation_id'];
+				$refunded_order_item_key = $this->get_product_sku( wc_get_product( $refunded_product_id ) );
+
+			} elseif ( $refunded_order_item instanceof WC_Order_Item_Shipping ) {
+				$refunded_order_item_key = $refunded_order_item->get_method_id() . ':' . $refunded_order_item->get_instance_id();
+			}
+
+			foreach ( $order_items as $i => $order_item ) {
+				if ( $order_item instanceof WC_Order_Item_Product ) {
+					$product_id     = empty( $order_item['variation_id'] ) ? $order_item['product_id'] : $order_item['variation_id'];
+					$order_item_key = $this->get_product_sku( wc_get_product( $product_id ) );
+
+				} elseif ( $order_item instanceof WC_Order_Item_Shipping ) {
+					$order_item_key = $order_item->get_method_id() . ':' . $order_item->get_instance_id();
+				}
+
+				if ( $refunded_order_item_key === $order_item_key ) {
+					unset( $order_items[ $i ] );
+				}
+			}
+		}
+
+		return $order_items;
+	}
+
+	/**
 	 * Get the formatted order line from a cart item.
 	 *
 	 * @param WC_Order_Item_Product $order_item WooCommerce order item product.
 	 * @return array
 	 */
 	public function get_order_line( $order_item ) {
-		$id      = ( empty( $order_item['variation_id'] ) ) ? $order_item['product_id'] : $order_item['variation_id'];
+		$id      = empty( $order_item['variation_id'] ) ? $order_item['product_id'] : $order_item['variation_id'];
 		$product = wc_get_product( $id );
 
 		// Check if the product has been permanently deleted.
@@ -314,13 +386,13 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 */
 	public function get_shipping_option( $shipping_method = null ) {
 		if ( empty( $shipping_method ) ) {
-			if ( count( $this->order->get_items( 'shipping' ) ) === 1 ) {
+			if ( count( $this->get_items( 'shipping' ) ) === 1 ) {
 				/**
 				 * Process order item shipping.
 				 *
 				 * @var WC_Order_Item_Shipping $order_item WooCommerce order item shipping.
 				 */
-				foreach ( $this->order->get_items( 'shipping' ) as $order_item ) {
+				foreach ( $this->get_items( 'shipping' ) as $order_item ) {
 					$shipping_method = $order_item;
 				}
 			}
@@ -350,7 +422,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * @return array|null
 	 */
 	public function get_shipping_object() {
-		$shipping_lines = $this->order->get_items( 'shipping' );
+		$shipping_lines = $this->get_items( 'shipping' );
+
 		if ( count( $shipping_lines ) === 1 ) {
 			/**
 			 * Process the shipping line.
@@ -382,7 +455,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 				'description' => '',
 				'title'       => $shipping_line->get_method_title(),
 				'vat_amount'  => self::format_number( $shipping_line->get_total_tax() ),
-				'vat'         => ( ! empty( floatval( $shipping_line->get_total() ) ) ) ? self::format_number( $shipping_line->get_total_tax() / $shipping_line->get_total() ) : 0,
+				'vat'         => ! empty( floatval( $shipping_line->get_total() ) ) ? self::format_number( $shipping_line->get_total_tax() / $shipping_line->get_total() ) : 0,
 			);
 		}
 		return null;

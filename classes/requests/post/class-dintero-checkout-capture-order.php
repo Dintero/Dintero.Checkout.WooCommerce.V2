@@ -41,7 +41,8 @@ class Dintero_Checkout_Capture_Order extends Dintero_Checkout_Request_Post {
 	 * @return array
 	 */
 	public function get_body() {
-		$helper = new Dintero_Checkout_Order( $this->arguments['order_id'] );
+		$order  = wc_get_order( $this->arguments['order_id'] );
+		$helper = new Dintero_Checkout_Order( $order );
 
 		$order_lines = $helper->get_order_lines();
 		$shipping    = $helper->get_shipping_object();

@@ -148,7 +148,9 @@ jQuery( function ( $ ) {
                         if ( 0 < $( "form.checkout #terms" ).length ) {
                             $( "form.checkout #terms" ).prop( "checked", true )
                         }
-                        dinteroCheckoutForWooCommerce.submitOrder( callback )
+
+                        const id = checkout.session.id
+                        dinteroCheckoutForWooCommerce.submitOrder( callback, id )
                         dinteroCheckoutForWooCommerce.validation = false
                     },
                 } )
@@ -521,65 +523,93 @@ jQuery( function ( $ ) {
          * Submit the order using the WooCommerce AJAX function.
          *
          * @param {callback} callback
+         * @param {id} id The session id.
          */
-        submitOrder( callback ) {
+        submitOrder( callback, id ) {
             this.blockForm()
 
             $.ajax( {
                 type: "POST",
-                url: dinteroCheckoutParams.submitOrder,
-                data: $( "form.checkout" ).serialize(),
-                dataType: "json",
-                success( data ) {
-                    console.log( data )
-                    try {
-                        console.log( "try" )
-                        if ( "success" === data.result ) {
-                            console.log( "submit order success", data )
-                            callback( { success: true } )
-                        } else {
-                            throw "Result failed"
-                        }
-                    } catch ( err ) {
-                        console.log( "catch error" )
-                        console.error( err )
-                        if ( data.messages ) {
-                            // Strip HTML code from messages.
-                            const messages = data.messages.replace( /<\/?[^>]+(>|$)\s+/g, "" )
-                            dinteroCheckoutForWooCommerce.printNotice( messages )
-                            dinteroCheckoutForWooCommerce.logToFile(
-                                dinteroCheckoutParams.SID + " | Checkout error | " + messages,
-                            )
-                            dinteroCheckoutForWooCommerce.failOrder( "submission", messages, callback )
-                        } else {
-                            dinteroCheckoutForWooCommerce.logToFile(
-                                dinteroCheckoutParams.SID + " | Checkout error | No message",
-                            )
-                            dinteroCheckoutForWooCommerce.failOrder( "submission", "Checkout error", callback )
-                        }
-
-                        $( "#shipping_first_name" ).val( ( i, value ) => {
-                            return value === "N/A" ? "" : "N/A"
-                        } )
-
-                        $( "#shipping_last_name" ).val( ( i, value ) => {
-                            return value === "⠀" ? "" : "⠀"
-                        } )
-                    }
+                url: dinteroCheckoutParams.verifyOrderTotalURL,
+                data: {
+                    id,
+                    nonce: dinteroCheckoutParams.verifyOrderTotalNonce,
                 },
-                error( data ) {
-                    console.log( "error data", data )
-                    console.log( "error data response text", data.responseText )
-                    try {
-                        dinteroCheckoutForWooCommerce.logToFile(
-                            dinteroCheckoutParams.SID + " | AJAX error | " + JSON.stringify( data ),
+                dataType: "json",
+                success: ( data ) => {
+                    console.log( "order total diff: %s", data.data )
+                    if ( ! data.success ) {
+                        dinteroCheckoutForWooCommerce.failOrder(
+                            "submit order failed",
+                            dinteroCheckoutParams.verifyOrderTotalError,
+                            callback,
                         )
-                    } catch ( e ) {
-                        dinteroCheckoutForWooCommerce.logToFile(
-                            dinteroCheckoutParams.SID + " | AJAX error | Failed to parse error message.",
-                        )
+                        return
                     }
-                    dinteroCheckoutForWooCommerce.failOrder( "ajax-error", "Internal Server Error", callback )
+
+                    $.ajax( {
+                        type: "POST",
+                        url: dinteroCheckoutParams.submitOrder,
+                        data: $( "form.checkout" ).serialize(),
+                        dataType: "json",
+                        success( data ) {
+                            try {
+                                console.log( "try" )
+                                if ( "success" === data.result ) {
+                                    console.log( "submit order success", data )
+                                    callback( { success: true } )
+                                } else {
+                                    throw "Result failed"
+                                }
+                            } catch ( err ) {
+                                console.log( "catch error" )
+                                console.error( err )
+                                if ( data.messages ) {
+                                    // Strip HTML code from messages.
+                                    const messages = data.messages.replace( /<\/?[^>]+(>|$)\s+/g, "" )
+                                    dinteroCheckoutForWooCommerce.printNotice( messages )
+                                    dinteroCheckoutForWooCommerce.logToFile(
+                                        dinteroCheckoutParams.SID + " | Checkout error | " + messages,
+                                    )
+                                    dinteroCheckoutForWooCommerce.failOrder( "submission", messages, callback )
+                                } else {
+                                    dinteroCheckoutForWooCommerce.logToFile(
+                                        dinteroCheckoutParams.SID + " | Checkout error | No message",
+                                    )
+                                    dinteroCheckoutForWooCommerce.failOrder( "submission", "Checkout error", callback )
+                                }
+
+                                $( "#shipping_first_name" ).val( ( i, value ) => {
+                                    return value === "N/A" ? "" : "N/A"
+                                } )
+
+                                $( "#shipping_last_name" ).val( ( i, value ) => {
+                                    return value === "⠀" ? "" : "⠀"
+                                } )
+                            }
+                        },
+                        error( data ) {
+                            console.log( "error data", data )
+                            console.log( "error data response text", data.responseText )
+                            try {
+                                dinteroCheckoutForWooCommerce.logToFile(
+                                    dinteroCheckoutParams.SID + " | AJAX error | " + JSON.stringify( data ),
+                                )
+                            } catch ( e ) {
+                                dinteroCheckoutForWooCommerce.logToFile(
+                                    dinteroCheckoutParams.SID + " | AJAX error | Failed to parse error message.",
+                                )
+                            }
+                            dinteroCheckoutForWooCommerce.failOrder( "ajax-error", "Internal Server Error", callback )
+                        },
+                    } )
+                },
+                error: () => {
+                    dinteroCheckoutForWooCommerce.failOrder(
+                        "submit order failed",
+                        dinteroCheckoutParams.verifyOrderTotalError,
+                        callback,
+                    )
                 },
             } )
         },
