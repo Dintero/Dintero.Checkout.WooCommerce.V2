@@ -64,7 +64,7 @@ if ( class_exists( 'WC_Subscription' ) ) {
 			$do_not_retry = $renewal_order->get_meta( self::DO_NOT_RETRY );
 			if ( empty( $do_not_retry ) ) {
 				// Maybe it is set in a subscription?
-				$subscription = reset( $subscription );
+				$subscription = reset( $subscriptions );
 				$do_not_retry = $subscription->get_meta( self::DO_NOT_RETRY );
 			}
 
