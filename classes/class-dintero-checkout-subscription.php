@@ -226,7 +226,10 @@ if ( class_exists( 'WC_Subscription' ) ) {
 
 			// Use the Profile ID for subscriptions.
 			$settings           = get_option( 'woocommerce_dintero_checkout_settings' );
-			$body['profile_id'] = wc_get_var( $settings['subscription_profile_id'], 'default' );
+			$body['profile_id'] = wc_get_var( $settings['subscription_profile_id'] );
+			if ( empty( $body['profile_id'] ) ) {
+				$body['profile_id'] = wc_get_var( $settings['profile_id'] );
+			}
 
 			$request['body'] = wp_json_encode( $body );
 			return $request;
