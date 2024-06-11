@@ -253,7 +253,7 @@ if ( class_exists( 'WC_Subscription' ) ) {
 
 			$body                                 = json_decode( $request['body'], true );
 			$subscription                         = self::get_subscription( $instance->arguments()['order_id'] );
-			$body['session']['url']['return_url'] = $subscription->get_view_order_url();
+			$body['session']['url']['return_url'] = add_query_arg( 'dwc_redirect', 'subscription', $subscription->get_view_order_url() );
 			$request['body']                      = wp_json_encode( $body );
 
 			return $request;
@@ -266,7 +266,15 @@ if ( class_exists( 'WC_Subscription' ) ) {
 		 * @return void
 		 */
 		public function handle_redirect_from_change_payment_method( $subscription_id ) {
+			// We need to distinguish between whether the customer has changed payment method or is viewing a subscription as this endpoint will be triggered in either case.
+			if ( wc_get_var( $_GET['dwc_redirect'], '' ) !== 'subscription' ) {
+				return;
+			}
+
 			$subscription = self::get_subscription( $subscription_id );
+			if ( 'dintero_checkout' !== $subscription->get_payment_method() ) {
+				return;
+			}
 
 			if ( isset( $_REQUEST['error'] ) ) {
 				$reason = sanitize_text_field( wp_unslash( $_REQUEST['error'] ) );
