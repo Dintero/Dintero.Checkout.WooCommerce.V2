@@ -107,7 +107,7 @@ if ( class_exists( 'WC_Subscription' ) ) {
 				return;
 			}
 
-			$payment_token = wc_get_var( $initiate_payment['customer']['tokens']['payex.creditcard']['payment_token'] );
+			$payment_token = self::get_payment_token_from_response( $initiate_payment );
 			if ( empty( $payment_token ) ) {
 				$renewal_order->update_status( 'failed', __( 'The payment token could not be retrieved.', 'dintero-checkout-for-woocommerce' ) );
 				return;
@@ -307,7 +307,7 @@ if ( class_exists( 'WC_Subscription' ) ) {
 					$response->get_error_message()
 				);
 			} else {
-				$payment_token = wc_get_var( $response['customer']['tokens']['payex.creditcard']['payment_token'] );
+				$payment_token = self::get_payment_token_from_response( $response );
 				$message       = sprintf(
 				/* translators: Payment token. */
 					__( 'Payment token created: %s', 'dintero-checkout-for-woocommerce' ),
@@ -423,6 +423,23 @@ if ( class_exists( 'WC_Subscription' ) ) {
 			}
 
 			return $token;
+		}
+
+		/**
+		 * Retrieve the payment token from a Dintero order (API response).
+		 *
+		 * @param array $dintero_order The Dintero order.
+		 * @return string|false The payment token or false if none is found.
+		 */
+		public static function get_payment_token_from_response( $dintero_order ) {
+			$payment_token = wc_get_var( $dintero_order['card']['payment_token'], false );
+			if ( empty( $payment_token ) ) {
+
+				// On renewal, the payment token is stored in the customer property.
+				$payment_token = wc_get_var( $dintero_order['customer']['tokens']['payex.creditcard']['payment_token'], false );
+			}
+
+			return $payment_token;
 		}
 
 		/**
