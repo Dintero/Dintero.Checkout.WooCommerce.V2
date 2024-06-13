@@ -396,7 +396,11 @@ jQuery( function ( $ ) {
                 }
 
                 if ( "business_name" in shippingAddress ) {
-                    $( "#billing_company" ).val( shippingAddress.business_name )
+                    if ( 0 === $( "#billing_company" ).length ) {
+                        $( "#billing_company" ).val( shippingAddress.business_name )
+                    }
+
+                    $( "#shipping_company" ).val( shippingAddress.business_name )
                 }
 
                 if ( "address_line" in shippingAddress ) {
