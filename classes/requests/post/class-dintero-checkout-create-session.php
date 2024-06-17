@@ -80,7 +80,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 		// 'billing_only' => Force shipping to the customer billing address only.
 		$shipping_destination = get_option( 'woocommerce_ship_to_destination' );
 
-		$separate_shipping = wc_string_to_bool( $this->settings['express_allow_different_billing_shipping_address'] );
+		$separate_shipping = wc_string_to_bool( $this->settings['express_allow_different_billing_shipping_address'] ?? 'no' );
 		if ( 'billing_only' !== $shipping_destination && $separate_shipping ) {
 			$customer_type = $this->settings['express_customer_type'];
 			$customer_type = 'b2bc' === $customer_type ? array( 'b2c', 'b2b' ) : $customer_type;
