@@ -218,6 +218,14 @@ class Dintero_Settings_Fields {
 				'label'    => __( 'Enable', 'dintero-checkout-for-woocommerce' ),
 				'desc_tip' => __( 'Will make the shipping selection happen in the Dintero checkout iframe instead of the shipping section in WooCommerce.', 'dintero-checkout-for-woocommerce' ),
 			),
+			'express_allow_different_billing_shipping_address' => array(
+				'title'       => __( 'Allow separate shipping address', 'dintero-checkout-for-woocommerce' ),
+				'label'       => __( 'Allow separate shipping address', 'dintero-checkout-for-woocommerce' ),
+				'type'        => 'checkbox',
+				'description' => __( 'By default, the billing address is used as the shipping address even if the customer provides the latter. If you want to allow separate billing and shipping address, enable this setting.', 'dintero-checkout-for-woocommerce' ),
+				'default'     => 'no',
+				'desc_tip'    => true,
+			),
 
 			/*
 			TODO: These options will be added in a future iteration.
