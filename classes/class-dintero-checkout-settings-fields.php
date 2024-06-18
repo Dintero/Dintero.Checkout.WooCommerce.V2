@@ -122,6 +122,7 @@ class Dintero_Settings_Fields {
 				'description' => __( 'Payment method title (appears on checkout page if more than one payment method is available).', 'Dintero-checkout-for-woocommerce' ),
 				'default'     => 'Dintero Checkout',
 				'desc_tip'    => true,
+				'class'       => 'redirect-only',
 			),
 			'redirect_description'                    => array(
 				'title'       => __( 'Description', 'dintero-checkout-for-woocommerce' ),
@@ -130,16 +131,19 @@ class Dintero_Settings_Fields {
 				'default'     => '',
 				'desc_tip'    => true,
 				'placeholder' => __( 'Choose your payment method in our checkout.', 'dintero-checkout-for-woocommerce' ),
+				'class'       => 'redirect-only',
 			),
 			'redirect_logo_color'                     => array(
 				'title'   => __( 'Logo color', 'dintero-checkout-for-woocommerce' ),
 				'type'    => 'checkbox',
 				'label'   => __( 'Default color', 'dintero-checkout-for-woocommerce' ),
 				'default' => 'yes',
+				'class'   => 'redirect-only',
 			),
 			'redirect_logo_color_custom'              => array(
 				'title' => __( 'Custom color (HEX)', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'color',
+				'class' => 'redirect-only',
 			),
 			'redirect_select_another_method_text'     => array(
 				'title'       => __( '"Go to payment" button', 'dintero-checkout-for-woocommerce' ),
@@ -148,6 +152,7 @@ class Dintero_Settings_Fields {
 				'default'     => '',
 				'desc_tip'    => true,
 				'placeholder' => __( 'Enter your text here (optional)', 'dintero-checkout-for-woocommerce' ),
+				'class'       => 'redirect-only',
 			),
 			/* End of "Redirect box". */
 			'order_statuses_title'                    => array(

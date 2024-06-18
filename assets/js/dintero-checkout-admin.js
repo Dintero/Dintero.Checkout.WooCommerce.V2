@@ -27,15 +27,27 @@ jQuery( function ( $ ) {
                 dwc.branding.logo_color_checkbox.prop( "checked", true )
             }
         },
-        toggle_express_shipping() {
+        toggle_express_shipping(isExpress) {
             const option = $( "#woocommerce_dintero_checkout_express_shipping_in_iframe" ).parents( "tr" )
 
-            if ( dwc.checkout_flow.val().includes( "express" ) ) {
+            if ( isExpress) {
                 option.fadeIn()
             } else {
                 option.fadeOut()
             }
         },
+        onFlowChange() {
+            // Posible values: express_popout, express_embedded, checkout_redirect, checkout_popout, checkout_embedded.
+            const flow = dwc.checkout_flow.val()
+
+            if (flow.includes("redirect")) {
+                $('.redirect-only').parents('tr').fadeIn()
+            } else {
+                $('.redirect-only').parents('tr').fadeOut()
+            }
+
+            dwc.toggle_express_shipping(flow.includes("express"))
+        }
     }
 
     $( document ).ready( function () {
@@ -43,8 +55,8 @@ jQuery( function ( $ ) {
         dwc.startup_check()
 
         // Only display "Display Shipping in Checkout Express" option if express checkout is selected.
-        dwc.checkout_flow.change( dwc.toggle_express_shipping )
-        dwc.toggle_express_shipping()
+        dwc.checkout_flow.change( dwc.onFlowChange )
+        dwc.onFlowChange()
 
         dwc.saveButton.on( "click", dwc.onSave )
     } )
