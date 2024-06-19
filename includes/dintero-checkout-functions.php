@@ -223,8 +223,14 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	// Save shipping id to the order.
 	$shipping = $order->get_shipping_methods();
 	if ( ! empty( $shipping ) && empty( $order->get_meta( '_wc_dintero_shipping_id' ) ) ) {
-		$shipping_option_id = $dintero_order['shipping_option']['id'] ?? reset( $shipping );
-		$order->update_meta_data( '_wc_dintero_shipping_id', $shipping_option_id );
+		$shipping_option = $dintero_order['shipping_option']['id'] ?? reset( $shipping );
+
+		// When processing a Woo subscription, the shipping option is an instance of WC_Order_Item_Shipping.
+		if ( is_object( $shipping_option ) ) {
+			$shipping_option = $shipping_option->get_method_id() . ':' . $shipping_option->get_instance_id();
+		}
+
+		$order->update_meta_data( '_wc_dintero_shipping_id', $shipping_option );
 		$order->save();
 	}
 }

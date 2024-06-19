@@ -146,7 +146,7 @@ if ( class_exists( 'WC_Subscription' ) ) {
 		 */
 		public function copy_meta_fields_to_renewal_order( $renewal_order, $subscription ) {
 			$parent_order = $subscription->get_parent();
-			if ( $parent_order->get_meta( '_wc_dintero_shipping_id', true ) ) {
+			if ( $parent_order->get_meta( '_wc_dintero_shipping_id' ) ) {
 				$renewal_order->update_meta_data( '_wc_dintero_shipping_id', $parent_order->get_meta( '_wc_dintero_shipping_id' ) );
 				$renewal_order->save();
 			}
