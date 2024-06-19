@@ -6,7 +6,7 @@ Tested up to: 6.4.1
 Requires PHP: 7.0
 WC requires at least: 6.1.0
 WC tested up to: 8.2.1
-Stable tag: 1.9.3
+Stable tag: 1.10.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,12 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2024.06.19    - version 1.10.0 =
+* Feature       - Add support for different billing and shipping address in Express checkout.
+* Fix           - The shipping company should now be saved to the order as intended.
+* Tweak         - WooCommerce Blocks is not yet supported.
+* Tweak         - Updated Web SDK to v0.8.8.
+
 = 2024.05.27    - version 1.9.3 =
 * Tweak         - Respond with a 500 status code in callback if the order is not found.
 * Tweak         - Account for manually refunded items in calculation when performing a capture.
