@@ -21,7 +21,8 @@ class Dintero_Checkout_Get_Access_Token extends Dintero_Checkout_Request_Post {
 	public function __construct( $arguments ) {
 		parent::__construct( $arguments );
 
-		$this->log_title = 'Get access token';
+		$this->log_title      = 'Get access token';
+		$this->request_filter = 'dintero_checkout_get_access_token_args';
 	}
 
 	/**

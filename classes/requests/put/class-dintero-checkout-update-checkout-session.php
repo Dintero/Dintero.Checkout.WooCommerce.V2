@@ -21,7 +21,8 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 	public function __construct( $arguments ) {
 		parent::__construct( $arguments );
 
-		$this->log_title = 'Update Dintero Session.';
+		$this->log_title      = 'Update Dintero Session.';
+		$this->request_filter = 'dintero_checkout_update_checkout_session_args';
 	}
 
 	/**

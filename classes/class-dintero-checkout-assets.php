@@ -125,13 +125,19 @@ class Dintero_Checkout_Assets {
 		$session_id = WC()->session->get( 'dintero_checkout_session_id' );
 		if ( empty( $session_id ) ) {
 			WC()->cart->calculate_shipping();
-			$new_session = Dintero()->api->create_session();
+			// The checkout is only available for free orders if the cart contains subscriptions.
+			// We therefore don't have to check if the cart contains subscriptions. Refer to Dintero_Checkout_Subscription::is_available().
+			if ( 0.0 === floatval( WC()->cart->total ) ) {
+				$session = Dintero()->api->create_payment_token();
+			} else {
+				$session = Dintero()->api->create_session();
+			}
 
-			if ( is_wp_error( $new_session ) ) {
+			if ( is_wp_error( $session ) ) {
 				return;
 			}
 
-			$session_id = $new_session['id'];
+			$session_id = $session['id'];
 			WC()->session->set( 'dintero_checkout_session_id', $session_id );
 		}
 

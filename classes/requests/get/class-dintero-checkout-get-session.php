@@ -22,7 +22,8 @@ class Dintero_Checkout_Get_Session extends Dintero_Checkout_Request_Get {
 	public function __construct( $arguments ) {
 		parent::__construct( $arguments );
 
-		$this->log_title = 'Get Dintero session.';
+		$this->log_title      = 'Get Dintero session.';
+		$this->request_filter = 'dintero_checkout_get_session_args';
 	}
 
 	/**
