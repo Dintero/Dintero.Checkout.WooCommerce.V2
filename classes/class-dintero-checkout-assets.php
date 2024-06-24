@@ -19,7 +19,7 @@ class Dintero_Checkout_Assets {
 	 */
 	public function __construct() {
 		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
-		if ( 'embedded' === $settings['form_factor'] ) {
+		if ( dwc_is_embedded( $settings ) ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 			add_action( 'wp_enqueue_scripts', array( $this, 'dintero_load_css' ) );
 		}
@@ -31,7 +31,7 @@ class Dintero_Checkout_Assets {
 	 */
 	public function dintero_load_css() {
 		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
-		if ( 'express' !== $settings['checkout_type'] ) {
+		if ( dwc_is_express( $settings ) ) {
 			return;
 		}
 		if ( ! is_checkout() ) {
@@ -101,7 +101,7 @@ class Dintero_Checkout_Assets {
 			return;
 		}
 
-		if ( 'embedded' !== $settings['form_factor'] ) {
+		if ( ! dwc_is_embedded( $settings ) ) {
 			return;
 		}
 
@@ -172,24 +172,25 @@ class Dintero_Checkout_Assets {
 			'dintero-checkout',
 			'dinteroCheckoutParams',
 			array(
-				'SID'                         => $session_id,
-				'language'                    => substr( get_locale(), 0, 2 ),
-				'change_payment_method_url'   => WC_AJAX::get_endpoint( 'dintero_checkout_wc_change_payment_method' ),
-				'change_payment_method_nonce' => wp_create_nonce( 'dintero_checkout_wc_change_payment_method' ),
-				'standardWooCheckoutFields'   => $standard_woo_checkout_fields,
-				'submitOrder'                 => WC_AJAX::get_endpoint( 'checkout' ),
-				'log_to_file_url'             => WC_AJAX::get_endpoint( 'dintero_checkout_wc_log_js' ),
-				'log_to_file_nonce'           => wp_create_nonce( 'dintero_checkout_wc_log_js' ),
-				'unset_session_url'           => WC_AJAX::get_endpoint( 'dintero_checkout_unset_session' ),
-				'unset_session_nonce'         => wp_create_nonce( 'dintero_checkout_unset_session' ),
-				'print_notice_url'            => WC_AJAX::get_endpoint( 'dintero_checkout_print_notice' ),
-				'print_notice_nonce'          => wp_create_nonce( 'dintero_checkout_print_notice' ),
-				'shipping_in_iframe'          => ( isset( $settings['express_shipping_in_iframe'] ) && 'yes' === $settings['express_shipping_in_iframe'] && 'express' === $settings['checkout_type'] ),
-				'pip_text'                    => __( 'Payment in progress', 'dintero-checkout-for-woocommerce' ),
-				'popOut'                      => 'yes' === ( $settings['checkout_popout'] ?? 'no' ) ? true : false,
-				'verifyOrderTotalURL'         => WC_AJAX::get_endpoint( 'dintero_verify_order_total' ),
-				'verifyOrderTotalNonce'       => wp_create_nonce( 'dintero_verify_order_total' ),
-				'verifyOrderTotalError'       => __( 'The cart was modified. Please try again.', 'dintero-checkout-for-woocommerce' ),
+				'SID'                                  => $session_id,
+				'language'                             => substr( get_locale(), 0, 2 ),
+				'change_payment_method_url'            => WC_AJAX::get_endpoint( 'dintero_checkout_wc_change_payment_method' ),
+				'change_payment_method_nonce'          => wp_create_nonce( 'dintero_checkout_wc_change_payment_method' ),
+				'standardWooCheckoutFields'            => $standard_woo_checkout_fields,
+				'submitOrder'                          => WC_AJAX::get_endpoint( 'checkout' ),
+				'log_to_file_url'                      => WC_AJAX::get_endpoint( 'dintero_checkout_wc_log_js' ),
+				'log_to_file_nonce'                    => wp_create_nonce( 'dintero_checkout_wc_log_js' ),
+				'unset_session_url'                    => WC_AJAX::get_endpoint( 'dintero_checkout_unset_session' ),
+				'unset_session_nonce'                  => wp_create_nonce( 'dintero_checkout_unset_session' ),
+				'print_notice_url'                     => WC_AJAX::get_endpoint( 'dintero_checkout_print_notice' ),
+				'print_notice_nonce'                   => wp_create_nonce( 'dintero_checkout_print_notice' ),
+				'shipping_in_iframe'                   => ( isset( $settings['express_shipping_in_iframe'] ) && 'yes' === $settings['express_shipping_in_iframe'] && dwc_is_express( $settings ) ),
+				'pip_text'                             => __( 'Payment in progress', 'dintero-checkout-for-woocommerce' ),
+				'popOut'                               => dwc_is_popout( $settings ),
+				'verifyOrderTotalURL'                  => WC_AJAX::get_endpoint( 'dintero_verify_order_total' ),
+				'verifyOrderTotalNonce'                => wp_create_nonce( 'dintero_verify_order_total' ),
+				'verifyOrderTotalError'                => __( 'The cart was modified. Please try again.', 'dintero-checkout-for-woocommerce' ),
+				'allowDifferentBillingShippingAddress' => 'yes' === ( $settings['express_allow_different_billing_shipping_address'] ?? 'no' ) ? true : false,
 			)
 		);
 

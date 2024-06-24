@@ -5,7 +5,7 @@
  * Description: Dintero offers a complete payment solution. Simplifying the payment process for you and the customer.
  * Author: Dintero, Krokedil
  * Author URI: https://krokedil.com/
- * Version: 1.9.3
+ * Version: 1.10.1
  * Text Domain: dintero-checkout-for-woocommerce
  * Domain Path: /languages
  *
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'DINTERO_CHECKOUT_VERSION', '1.9.3' );
+define( 'DINTERO_CHECKOUT_VERSION', '1.10.1' );
 define( 'DINTERO_CHECKOUT_URL', untrailingslashit( plugins_url( '/', __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_MAIN_FILE', __FILE__ );
@@ -106,6 +106,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 				return;
 			}
 
+			include_once DINTERO_CHECKOUT_PATH . '/includes/dintero-checkout-functions.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-settings-fields.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-gateway.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-logger.php';
@@ -142,7 +143,6 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-payment-token.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/put/class-dintero-checkout-update-checkout-session.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/put/class-dintero-checkout-update-transaction.php';
-			include_once DINTERO_CHECKOUT_PATH . '/includes/dintero-checkout-functions.php';
 
 			$this->api              = new Dintero_Checkout_API();
 			$this->order_management = Dintero_Checkout_Order_Management::get_instance();

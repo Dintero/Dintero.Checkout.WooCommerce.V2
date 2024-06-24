@@ -59,8 +59,22 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			),
 			'profile_id' => $this->settings['profile_id'],
 		);
+    
+		// 'billing' => Default to customer billing address
+		// 'shipping' => Default to customer shipping address
+		// 'billing_only' => Force shipping to the customer billing address only.
+		$shipping_destination = get_option( 'woocommerce_ship_to_destination' );
 
-		$billing_address = $helper->get_billing_address();
+		$separate_shipping = wc_string_to_bool( $this->settings['express_allow_different_billing_shipping_address'] ?? 'no' );
+		if ( 'billing_only' !== $shipping_destination && $separate_shipping ) {
+			$customer_type = $this->settings['express_customer_type'];
+			$customer_type = 'b2bc' === $customer_type ? array( 'b2c', 'b2b' ) : $customer_type;
+			$body['configuration']['allow_different_billing_shipping_address'] = $customer_type;
+
+			// By default this configuration is an empty array, therefore, we don't have to set it if $separate_shipping is set to false.
+		}
+
+    $billing_address = $helper->get_billing_address();
 		if ( ! empty( $billing_address ) ) {
 			$body['order']['billing_address'] = $billing_address;
 		}

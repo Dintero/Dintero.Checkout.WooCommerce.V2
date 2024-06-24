@@ -52,7 +52,7 @@ class Dintero_Checkout_Templates {
 	public function __construct() {
 		$this->settings        = get_option( 'woocommerce_dintero_checkout_settings' );
 		$this->checkout_layout = $this->settings['checkout_layout'] ?? 'two_column_right';
-		if ( 'embedded' === $this->settings['form_factor'] && 'yes' === $this->settings['enabled'] ) {
+		if ( dwc_is_embedded( $this->settings ) && 'yes' === $this->settings['enabled'] ) {
 			// Common.
 			add_filter( 'wc_get_template', array( $this, 'override_template' ), 999, 2 );
 			add_action( 'dintero_iframe', array( $this, 'iframe' ) );
@@ -84,15 +84,11 @@ class Dintero_Checkout_Templates {
 			return $template;
 		}
 
-		if ( 'express' === $this->settings['checkout_type'] ) {
+		if ( dwc_is_express( $this->settings ) ) {
 			return $this->maybe_replace_checkout( $template, $template_name );
-		}
-
-		if ( 'checkout' === $this->settings['checkout_type'] ) {
+		} else {
 			return $this->replace_payment_method( $template, $template_name );
 		}
-
-		return $template;
 	}
 
 	/**

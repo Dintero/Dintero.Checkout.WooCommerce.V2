@@ -1,7 +1,7 @@
 jQuery( function ( $ ) {
     const dwc = {
         saveButton: $( ".woocommerce-save-button" ),
-        form_factor: $( "#woocommerce_dintero_checkout_form_factor" ),
+        checkout_flow: $( "#woocommerce_dintero_checkout_checkout_flow" ),
         branding: {
             logo_color_checkbox: $( "#woocommerce_dintero_checkout_branding_logo_color" ),
             logo_custom_color: $( "#woocommerce_dintero_checkout_branding_logo_color_custom" ),
@@ -27,28 +27,36 @@ jQuery( function ( $ ) {
                 dwc.branding.logo_color_checkbox.prop( "checked", true )
             }
         },
-        toggle_form_factor() {
-            const siblings = dwc.form_factor.parents( "tr" ).siblings()
-            const checkoutLayout = $( "#woocommerce_dintero_checkout_checkoutLayout" ).parents( "tr" )
-            const popOut = $( "#woocommerce_dintero_checkout_checkout_popout" ).parents( "tr" )
+        toggle_express_shipping(isExpress) {
+            const option = $( "#woocommerce_dintero_checkout_express_shipping_in_iframe" ).parents( "tr" )
 
-            if ( dwc.form_factor.val() === "embedded" ) {
-                siblings.fadeOut()
-                popOut.fadeIn()
-                checkoutLayout.fadeIn()
+            if ( isExpress) {
+                option.fadeIn()
             } else {
-                siblings.fadeIn()
-                popOut.fadeOut()
-                checkoutLayout.fadeOut()
+                option.fadeOut()
             }
         },
+        onFlowChange() {
+            // Posible values: express_popout, express_embedded, checkout_redirect, checkout_popout, checkout_embedded.
+            const flow = dwc.checkout_flow.val()
+
+            if (flow.includes("redirect")) {
+                $('.redirect-only').parents('tr').fadeIn()
+            } else {
+                $('.redirect-only').parents('tr').fadeOut()
+            }
+
+            dwc.toggle_express_shipping(flow.includes("express"))
+        }
     }
 
     $( document ).ready( function () {
-        dwc.toggle_form_factor()
-        dwc.form_factor.change( dwc.toggle_form_factor )
         dwc.register_events()
         dwc.startup_check()
+
+        // Only display "Display Shipping in Checkout Express" option if express checkout is selected.
+        dwc.checkout_flow.change( dwc.onFlowChange )
+        dwc.onFlowChange()
 
         dwc.saveButton.on( "click", dwc.onSave )
     } )

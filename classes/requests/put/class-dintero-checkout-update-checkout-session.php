@@ -55,7 +55,7 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 		);
 
 		// Only non-express checkout must be updated through API since the fields are entered in WC.
-		if ( 'checkout' === $this->settings['checkout_type'] ) {
+		if ( ! dwc_is_express( $this->settings ) ) {
 			$billing_address = $helper->get_billing_address();
 			if ( ! empty( $billing_address ) ) {
 				$body['order']['billing_address'] = $billing_address;

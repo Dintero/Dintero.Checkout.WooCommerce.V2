@@ -326,11 +326,12 @@ function dintero_get_order_id_by_merchant_reference( $merchant_reference ) {
 	$key    = '_dintero_merchant_reference';
 	$orders = wc_get_orders(
 		array(
-			'meta_key'   => $key,
-			'meta_value' => $merchant_reference,
-			'limit'      => 1,
-			'orderby'    => 'date',
-			'order'      => 'DESC',
+			'meta_key'     => $key,
+			'meta_value'   => $merchant_reference,
+			'limit'        => 1,
+			'orderby'      => 'date',
+			'order'        => 'DESC',
+			'meta_compare' => '=',
 		)
 	);
 
@@ -382,4 +383,60 @@ function dintero_get_payment_method_name( $payment_product_type ) {
 	$payment_method = implode( $payment_method );
 
 	return $payment_method;
+}
+
+/**
+ * Whether Dintero Checkout Express is enabled.
+ *
+ * @param array $settings The Dintero Checkout plugin settings.
+ * @return bool
+ */
+function dwc_is_express( $settings ) {
+	if ( isset( $settings['checkout_flow'] ) ) {
+		return strpos( $settings['checkout_flow'], 'express' ) !== false;
+	}
+
+	return 'express' === $settings['checkout_type'];
+}
+
+/**
+ * Whether the selected form factor is embedded.
+ *
+ * @param array $settings The Dintero Checkout plugin settings.
+ * @return bool
+ */
+function dwc_is_embedded( $settings ) {
+	if ( isset( $settings['checkout_flow'] ) ) {
+		return strpos( $settings['checkout_flow'], 'embedded' ) !== false || dwc_is_popout( $settings );
+	}
+
+	return 'embedded' === $settings['form_factor'];
+}
+
+/**
+ * Whether the selected form factor is redirect.
+ *
+ * @param array $settings The Dintero Checkout plugin settings.
+ * @return bool
+ */
+function dwc_is_redirect( $settings ) {
+	if ( isset( $settings['checkout_flow'] ) ) {
+		return strpos( $settings['checkout_flow'], 'redirect' ) !== false;
+	}
+
+	return 'redirect' === $settings['form_factor'];
+}
+
+/**
+ * Whether pop-out is selected.
+ *
+ * @param array $settings The Dintero Checkout plugin settings.
+ * @return bool
+ */
+function dwc_is_popout( $settings ) {
+	if ( isset( $settings['checkout_flow'] ) ) {
+		return strpos( $settings['checkout_flow'], 'popout' ) !== false;
+	}
+
+	return 'yes' === $settings['checkout_popout'] && 'embedded' === $settings['form_factor'];
 }

@@ -367,7 +367,11 @@ jQuery( function ( $ ) {
                 update = true
             }
 
-            if ( shippingAddress ) {
+            if (
+                dinteroCheckoutParams.allowDifferentBillingShippingAddress &&
+                shippingAddress &&
+                Object.keys( shippingAddress ).length > 1
+            ) {
                 if ( shippingAddress.co_address ) {
                     shippingAddress.first_name =
                         shippingAddress.first_name ||
@@ -379,9 +383,9 @@ jQuery( function ( $ ) {
                         shippingAddress.business_name
                 }
 
-                if ( shippingAddress.length > 1 ) {
-                    $( "#ship-to-different-address-checkbox" ).prop( "checked", true )
-                }
+                $( "#ship-to-different-address-checkbox" ).prop( "checked", true )
+                $( "#ship-to-different-address-checkbox" ).change()
+                $( "#ship-to-different-address-checkbox" ).blur()
 
                 if ( "first_name" in shippingAddress ) {
                     $( "#shipping_first_name" ).val( shippingAddress.first_name )
@@ -392,7 +396,11 @@ jQuery( function ( $ ) {
                 }
 
                 if ( "business_name" in shippingAddress ) {
-                    $( "#billing_company" ).val( shippingAddress.business_name )
+                    if ( 0 === $( "#billing_company" ).length ) {
+                        $( "#billing_company" ).val( shippingAddress.business_name )
+                    }
+
+                    $( "#shipping_company" ).val( shippingAddress.business_name )
                 }
 
                 if ( "address_line" in shippingAddress ) {
@@ -409,6 +417,7 @@ jQuery( function ( $ ) {
 
                 if ( "country" in shippingAddress ) {
                     $( "#shipping_country" ).val( shippingAddress.country )
+                    $( "#shipping_country" ).change()
                 }
 
                 /**

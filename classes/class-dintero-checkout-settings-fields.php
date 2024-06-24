@@ -29,8 +29,8 @@ class Dintero_Settings_Fields {
 				'description' => '',
 				'default'     => 'yes',
 			),
-			'dintero_configuration'                   => array(
-				'title' => __( 'Dintero configuration', 'dintero-checkout-for-woocommerce' ),
+			'account_settings'                        => array(
+				'title' => __( 'Account settings', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'title',
 			),
 			'account_id'                              => array(
@@ -76,6 +76,10 @@ class Dintero_Settings_Fields {
 				'default'     => '',
 				'desc_tip'    => true,
 				'description' => __( 'The profile to apply if the cart or order contain subscriptions. Found under (SETTINGS → Payment windows) in Dintero Backoffice.', 'dintero-checkout-for-woocommerce' ),
+      ),
+			'checkout_settings'                       => array(
+				'title' => __( 'Checkout settings', 'dintero-checkout-for-woocommerce' ),
+				'type'  => 'title',
 			),
 			'test_mode'                               => array(
 				'title'       => __( 'Enable test mode:', 'dintero-checkout-for-woocommerce' ),
@@ -93,17 +97,18 @@ class Dintero_Settings_Fields {
 				'default'     => 'yes',
 				'desc_tip'    => true,
 			),
-			'checkout_type_title'                     => array(
-				'title' => __( 'Checkout type', 'dintero-checkout-for-woocommerce' ),
-				'type'  => 'title',
-			),
-			'checkout_type'                           => array(
-				'default' => 'express',
-				'type'    => 'select',
-				'options' => array(
-					'checkout' => __( 'Dintero Checkout', 'dintero-checkout-for-woocommerce' ),
-					'express'  => __( 'Dintero Checkout Express', 'dintero-checkout-for-woocommerce' ),
+			'checkout_flow'                           => array(
+				'title'       => __( 'Checkout flow', 'dintero-checkout-for-woocommerce' ),
+				'default'     => 'express_popout',
+				'type'        => 'select',
+				'options'     => array(
+					'express_popout'    => __( 'Checkout Express Pop-out (recommended)', 'dintero-checkout-for-woocommerce' ),
+					'express_embedded'  => __( 'Checkout Express Embedded', 'dintero-checkout-for-woocommerce' ),
+					'checkout_redirect' => __( 'Checkout Redirect', 'dintero-checkout-for-woocommerce' ),
+					'checkout_popout'   => __( 'Checkout Pop-out', 'dintero-checkout-for-woocommerce' ),
+					'checkout_embedded' => __( 'Checkout Embedded', 'dintero-checkout-for-woocommerce' ),
 				),
+				'description' => __( 'Determines how the payment form will appear on the checkout page.', 'dintero-checkout-for-woocommerce' ),
 			),
 			'checkout_layout'                         => array(
 				'title'       => __( 'Checkout layout', 'dintero-checkout-for-woocommerce' ),
@@ -113,27 +118,9 @@ class Dintero_Settings_Fields {
 					'two_column_right'    => __( 'Two column checkout (Dintero checkout in right column)', 'dintero-checkout-for-woocommerce' ),
 					'two_column_left'     => __( 'Two column checkout (Dintero checkout in left column)', 'dintero-checkout-for-woocommerce' ),
 				),
-				'description' => __( 'Select the Checkout layout.', 'dintero-checkout-for-woocommerce' ),
+				'description' => __( 'Click <a href="https://www.dintero.com/checkout-layouts">here</a> to read more about checkout layouts.', 'dintero-checkout-for-woocommerce' ),
 				'default'     => 'two_column_right',
 				'desc_tip'    => false,
-			),
-			'form_factor_title'                       => array(
-				'title' => __( 'Form factor', 'dintero-checkout-for-woocommerce' ),
-				'type'  => 'title',
-			),
-			'form_factor'                             => array(
-				'default' => 'redirect',
-				'type'    => 'select',
-				'options' => array(
-					'embedded' => __( 'Embedded', 'dintero-checkout-for-woocommerce' ),
-					'redirect' => __( 'Redirect', 'dintero-checkout-for-woocommerce' ),
-				),
-			),
-			'checkout_popout'                         => array(
-				'title'       => __( 'Enable pop-out modal', 'dintero-checkout-for-woocommerce' ),
-				'description' => __( 'Only available in embedded checkout.', 'dintero-checkout-for-woocommerce' ),
-				'type'        => 'checkbox',
-				'default'     => 'no',
 			),
 			/* The "Redirect box" is hidden until the form factor Redirect is selected. */
 			'redirect_title'                          => array(
@@ -142,6 +129,7 @@ class Dintero_Settings_Fields {
 				'description' => __( 'Payment method title (appears on checkout page if more than one payment method is available).', 'Dintero-checkout-for-woocommerce' ),
 				'default'     => 'Dintero Checkout',
 				'desc_tip'    => true,
+				'class'       => 'redirect-only',
 			),
 			'redirect_description'                    => array(
 				'title'       => __( 'Description', 'dintero-checkout-for-woocommerce' ),
@@ -150,16 +138,19 @@ class Dintero_Settings_Fields {
 				'default'     => '',
 				'desc_tip'    => true,
 				'placeholder' => __( 'Choose your payment method in our checkout.', 'dintero-checkout-for-woocommerce' ),
+				'class'       => 'redirect-only',
 			),
 			'redirect_logo_color'                     => array(
 				'title'   => __( 'Logo color', 'dintero-checkout-for-woocommerce' ),
 				'type'    => 'checkbox',
 				'label'   => __( 'Default color', 'dintero-checkout-for-woocommerce' ),
 				'default' => 'yes',
+				'class'   => 'redirect-only',
 			),
 			'redirect_logo_color_custom'              => array(
 				'title' => __( 'Custom color (HEX)', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'color',
+				'class' => 'redirect-only',
 			),
 			'redirect_select_another_method_text'     => array(
 				'title'       => __( '"Go to payment" button', 'dintero-checkout-for-woocommerce' ),
@@ -168,6 +159,7 @@ class Dintero_Settings_Fields {
 				'default'     => '',
 				'desc_tip'    => true,
 				'placeholder' => __( 'Enter your text here (optional)', 'dintero-checkout-for-woocommerce' ),
+				'class'       => 'redirect-only',
 			),
 			/* End of "Redirect box". */
 			'order_statuses_title'                    => array(
@@ -201,7 +193,7 @@ class Dintero_Settings_Fields {
 				'title'   => __( 'Refund by changing order status', 'dintero-checkout-for-woocommerce' ),
 				'label'   => __( 'Trigger refund in Dintero when WooCommerce order status is manually changed to <u>Refunded</u>.', 'dintero-checkout-for-woocommerce' ),
 				'type'    => 'checkbox',
-				'default' => 'no',
+				'default' => 'yes',
 			),
 			/* The Dintero Checkout Express Settings */
 			'dintero_checkout_express_settings_title' => array(
@@ -219,11 +211,19 @@ class Dintero_Settings_Fields {
 				),
 			),
 			'express_shipping_in_iframe'              => array(
-				'title'    => __( 'Display Shipping in the iframe', 'dintero-checkout-for-woocommerce' ),
+				'title'    => __( 'Display Shipping in Checkout Express', 'dintero-checkout-for-woocommerce' ),
 				'type'     => 'checkbox',
 				'default'  => 'no',
 				'label'    => __( 'Enable', 'dintero-checkout-for-woocommerce' ),
 				'desc_tip' => __( 'Will make the shipping selection happen in the Dintero checkout iframe instead of the shipping section in WooCommerce.', 'dintero-checkout-for-woocommerce' ),
+			),
+			'express_allow_different_billing_shipping_address' => array(
+				'title'       => __( 'Allow separate shipping address', 'dintero-checkout-for-woocommerce' ),
+				'label'       => __( 'Allow separate shipping address', 'dintero-checkout-for-woocommerce' ),
+				'type'        => 'checkbox',
+				'description' => __( 'By default, the billing address is used as the shipping address even if the customer provides the latter. If you want to allow separate billing and shipping address, enable this setting.', 'dintero-checkout-for-woocommerce' ),
+				'default'     => 'no',
+				'desc_tip'    => true,
 			),
 
 			/*
