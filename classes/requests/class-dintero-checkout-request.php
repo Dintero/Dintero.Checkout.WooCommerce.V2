@@ -223,7 +223,7 @@ abstract class Dintero_Checkout_Request {
 	 * @return boolean
 	 */
 	public function is_embedded() {
-		if ( 'embedded' !== $this->settings['form_factor'] || is_wc_endpoint_url( 'order-pay' ) ) {
+		if ( ! dwc_is_embedded( $this->settings ) || is_wc_endpoint_url( 'order-pay' ) ) {
 			return false;
 		}
 
@@ -236,11 +236,7 @@ abstract class Dintero_Checkout_Request {
 	 * @return boolean
 	 */
 	public function is_express() {
-		if ( 'express' !== $this->settings['checkout_type'] ) {
-			return false;
-		}
-
-		return true;
+		return dwc_is_express( $this->settings );
 	}
 
 	/**
