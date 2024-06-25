@@ -17,6 +17,20 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 	class Dintero_Checkout_Gateway extends WC_Payment_Gateway {
 
 		/**
+		 * Whether or not test mode is enabled.
+		 *
+		 * @var bool
+		 */
+		private $test_mode;
+		/**
+		 * Whether or not logging is enabled.
+		 *
+		 * @var bool
+		 */
+		private $logging;
+
+
+		/**
 		 * Class constructor.
 		 */
 		public function __construct() {
@@ -37,8 +51,25 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			$this->enabled     = $this->get_option( 'enabled' );
 			$this->test_mode   = 'yes' === $this->get_option( 'test_mode' );
 			$this->logging     = 'yes' === $this->get_option( 'logging' );
-			$this->form_factor = $this->get_option( 'form_factor' );
 			$this->has_fields  = false;
+
+			// Migrate existing settings to use the new "checkout_flow" setting.
+			if ( ! isset( $this->settings['checkout_flow'] ) ) {
+				$checkout_type = $this->settings['checkout_type'] ?? 'express';
+				$form_factor   = $this->settings['form_factor'] ?? 'redirect';
+				$popout        = $this->settings['checkout_popout'] ?? 'no';
+
+				if ( 'express' === $checkout_type ) {
+					$flow = 'express_' . ( 'yes' === $popout ? 'popout' : 'embedded' );
+				} else {
+					// We don't need to check for pop-out since it's only available for express checkout.
+					$flow = 'checkout_' . ( 'yes' === $form_factor['redirect'] ? 'redirect' : 'embedded' );
+				}
+
+				$this->update_option( $this->plugin_id . $this->id . '_checkout_flow', $flow );
+				$this->settings['checkout_flow'] = $flow;
+			}
+
 			add_action(
 				'woocommerce_update_options_payment_gateways_' . $this->id,
 				array(
@@ -142,7 +173,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		public function process_payment( $order_id ) {
 
 			/* For all form factors, redirect is used for order-pay since the cart object (used for embedded) is not available. */
-			if ( 'embedded' === $this->form_factor && ! is_wc_endpoint_url( 'order-pay' ) ) {
+			if ( dwc_is_embedded( $this->settings ) && ! is_wc_endpoint_url( 'order-pay' ) ) {
 				$result = $this->process_embedded_payment( $order_id );
 			} else {
 				$result = $this->process_redirect_payment( $order_id );

@@ -46,7 +46,7 @@ class Dintero_Checkout_Redirect {
 		// Get the order from the merchant reference.
 		$order = $this->get_order_from_reference( $merchant_reference );
 		if ( empty( $order ) ) {
-			wc_add_notice( __( 'Something went wrong with completing the order. Please try again or contact the store', 'dintero-checkout-for-woocommerce' ) );
+			wc_add_notice( __( 'Something went wrong with completing the order. Please try again or contact the store.', 'dintero-checkout-for-woocommerce' ), 'error' );
 			wp_safe_redirect( wc_get_checkout_url() );
 			exit;
 		}
