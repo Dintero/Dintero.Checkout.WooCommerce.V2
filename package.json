@@ -1,42 +1,42 @@
 {
-    "name": "dintero-checkout-for-woocommerce",
-    "version": "1.10.0",
-    "repository": "git@github.com:Dintero/Dintero.Checkout.WooCommerce.V2.git",
-    "author": "Krokedil <info@krokedil.se>",
-    "license": "GPL-3.0+",
-    "devDependencies": {
-        "@babel/core": "^7.14.3",
-        "@babel/plugin-transform-runtime": "^7.14.3",
-        "@babel/preset-env": "^7.14.4",
-        "@wordpress/eslint-plugin": "^16.0.0",
-        "babel-loader": "^8.2.2",
-        "eslint": "^8.19.0",
-        "file-loader": "^6.2.0",
-        "grunt": "^1.4.1",
-        "grunt-contrib-cssmin": "^4.0.0",
-        "grunt-contrib-uglify": "^5.0.1",
-        "grunt-move": "^1.0.3",
-        "grunt-wp-i18n": "^1.0.3",
-        "prettier": "npm:wp-prettier@latest",
-        "webpack": "^5.70.0",
-        "webpack-cli": "^4.9.1"
-    },
-    "scripts": {
-        "clear:transients": "docker-compose run --rm wp-cli wp wc tool run clear_transients --user=1",
-        "clear:session": "docker-compose run --rm wp-cli wp wc tool run clear_sessions --user=1",
-        "makepot": "yarn grunt makepot",
-        "cssmin": "yarn grunt cssmin",
-        "jsmin": "yarn webpack",
-        "moveJS": "yarn grunt move",
-        "lint": "yarn prettier assets/js --paren-spacing --tab-width 4 --print-width 120 --no-semi --write",
-        "lint:check": "yarn prettier assets/js --paren-spacing --tab-width 4 --print-width 120 --no-semi --debug-check",
-        "webpack:dev": "yarn webpack --mode=development --watch",
-        "build": "yarn makepot && yarn cssmin && yarn lint:check && yarn lint && yarn jsmin && yarn moveJS"
-    },
-    "dependencies": {
-        "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
-        "@dintero/checkout-web-sdk": "^0.8.0",
-        "grunt-cli": "^1.4.3",
-        "grunt-zip": "^0.18.2"
-    }
+  "name": "dintero-checkout-for-woocommerce",
+  "version": "1.10.0",
+  "repository": "git@github.com:Dintero/Dintero.Checkout.WooCommerce.V2.git",
+  "author": "Krokedil <info@krokedil.se>",
+  "license": "GPL-3.0+",
+  "devDependencies": {
+    "@babel/core": "^7.24.7",
+    "@babel/plugin-transform-runtime": "^7.24.7",
+    "@babel/preset-env": "^7.24.7",
+    "@wordpress/eslint-plugin": "^16.0.13",
+    "babel-loader": "^8.3.0",
+    "eslint": "^8.57.0",
+    "file-loader": "^6.2.0",
+    "grunt": "^1.6.1",
+    "grunt-contrib-cssmin": "^4.0.0",
+    "grunt-contrib-uglify": "^5.2.2",
+    "grunt-move": "^1.0.3",
+    "grunt-wp-i18n": "^1.0.3",
+    "prettier": "npm:wp-prettier@latest",
+    "webpack": "^5.92.1",
+    "webpack-cli": "^4.10.0"
+  },
+  "scripts": {
+    "clear:transients": "docker-compose run --rm wp-cli wp wc tool run clear_transients --user=1",
+    "clear:session": "docker-compose run --rm wp-cli wp wc tool run clear_sessions --user=1",
+    "makepot": "yarn grunt makepot",
+    "cssmin": "yarn grunt cssmin",
+    "jsmin": "yarn webpack",
+    "moveJS": "yarn grunt move",
+    "lint": "yarn prettier assets/js --paren-spacing --tab-width 4 --print-width 120 --no-semi --write",
+    "lint:check": "yarn prettier assets/js --paren-spacing --tab-width 4 --print-width 120 --no-semi --debug-check",
+    "webpack:dev": "yarn webpack --mode=development --watch",
+    "build": "yarn makepot && yarn cssmin && yarn lint:check && yarn lint && yarn jsmin && yarn moveJS"
+  },
+  "dependencies": {
+    "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
+    "@dintero/checkout-web-sdk": "^0.8.8",
+    "grunt-cli": "^1.4.3",
+    "grunt-zip": "^0.18.2"
+  }
 }

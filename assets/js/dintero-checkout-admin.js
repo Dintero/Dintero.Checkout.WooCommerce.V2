@@ -27,10 +27,10 @@ jQuery( function ( $ ) {
                 dwc.branding.logo_color_checkbox.prop( "checked", true )
             }
         },
-        toggle_express_shipping(isExpress) {
+        toggle_express_shipping( isExpress ) {
             const option = $( "#woocommerce_dintero_checkout_express_shipping_in_iframe" ).parents( "tr" )
 
-            if ( isExpress) {
+            if ( isExpress ) {
                 option.fadeIn()
             } else {
                 option.fadeOut()
@@ -40,14 +40,14 @@ jQuery( function ( $ ) {
             // Posible values: express_popout, express_embedded, checkout_redirect, checkout_popout, checkout_embedded.
             const flow = dwc.checkout_flow.val()
 
-            if (flow.includes("redirect")) {
-                $('.redirect-only').parents('tr').fadeIn()
+            if ( flow.includes( "redirect" ) ) {
+                $( ".redirect-only" ).parents( "tr" ).fadeIn()
             } else {
-                $('.redirect-only').parents('tr').fadeOut()
+                $( ".redirect-only" ).parents( "tr" ).fadeOut()
             }
 
-            dwc.toggle_express_shipping(flow.includes("express"))
-        }
+            dwc.toggle_express_shipping( flow.includes( "express" ) )
+        },
     }
 
     $( document ).ready( function () {
