@@ -169,6 +169,14 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	$payment_method = dintero_get_payment_method_name( wc_get_var( $dintero_order['payment_product_type'], $order->get_meta( '_dintero_payment_method' ) ) );
 	$order->update_meta_data( '_dintero_payment_method', $payment_method );
 
+	// Save shipping id to the order.
+	$shipping = $order->get_shipping_methods();
+	if ( ! empty( $shipping ) ) {
+		$shipping_option_id = $dintero_order['shipping_option']['id'] ?? reset( $shipping );
+		$order->update_meta_data( '_wc_dintero_shipping_id', $shipping_option_id );
+		$order->save();
+	}
+
 	$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
 	if ( $require_authorization ) {
 		$order->set_transaction_id( $transaction_id );
@@ -194,6 +202,7 @@ function dintero_confirm_order( $order, $transaction_id ) {
 			$order->add_order_note( sprintf( __( 'The order was placed successfully via Dintero Checkout. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
 		}
 
+		Dintero_Checkout_Logger::log( "CONFIRM ORDER: The WC order $order_id (transaction ID: $transaction_id). Before payment complete." );
 		$default_status_authorized = $settings['order_status_authorized'] ?? 'processing';
 		if ( 'processing' !== $default_status_authorized ) {
 			$order->set_transaction_id( $transaction_id );
@@ -204,22 +213,19 @@ function dintero_confirm_order( $order, $transaction_id ) {
 		} else {
 			$order->payment_complete( $transaction_id );
 		}
+		Dintero_Checkout_Logger::log( "CONFIRM ORDER: The WC order $order_id (transaction ID: $transaction_id). After payment complete." );
 
 		$order->delete_meta_data( Dintero()->order_management->status( 'on_hold' ) );
 	}
 
+	Dintero_Checkout_Logger::log( "CONFIRM ORDER: The WC order $order_id (transaction ID: $transaction_id). Before save." );
 	$order->save();
+	Dintero_Checkout_Logger::log( "CONFIRM ORDER: The WC order $order_id (transaction ID: $transaction_id). After save." );
 
 	// Set the merchant_reference_2 for the Dintero order.
-	Dintero()->api->update_transaction( $transaction_id, $order->get_order_number() );
-
-	// Save shipping id to the order.
-	$shipping = $order->get_shipping_methods();
-	if ( ! empty( $shipping ) ) {
-		$shipping_option_id = $dintero_order['shipping_option']['id'] ?? reset( $shipping );
-		$order->update_meta_data( '_wc_dintero_shipping_id', $shipping_option_id );
-		$order->save();
-	}
+	Dintero_Checkout_Logger::log( "CONFIRM ORDER: The WC order $order_id (transaction ID: $transaction_id). Before update merchant reference." );
+	$result = Dintero()->api->update_transaction( $transaction_id, $order->get_order_number() );
+	Dintero_Checkout_Logger::log( "CONFIRM ORDER: The WC order $order_id (transaction ID: $transaction_id). After update merchant reference." . print_r( $result, true ) );
 }
 
 /**
