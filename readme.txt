@@ -82,6 +82,9 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2024.06.25    - version 1.10.3 =
+* Fix           - Fixed critical error when reading settings.
+
 = 2024.06.25    - version 1.10.2 =
 * Fix           - Fixed an issue where if only one customer type was set, and separate shipping was enabled, a JSON error would occur.
 * Tweak         - The plugin settings has been overhauled. While your existing settings should be automatically converted, please verify that this is the case, and make sure to save the settings again.
