@@ -30,14 +30,16 @@ class Dintero_Checkout_Assets {
 	 * Loads style for the plugin.
 	 */
 	public function dintero_load_css() {
-		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
-		if ( dwc_is_express( $settings ) ) {
-			return;
-		}
 		if ( ! is_checkout() ) {
 			return;
 		}
+
 		if ( is_order_received_page() ) {
+			return;
+		}
+
+		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
+		if ( ! dwc_is_express( $settings ) ) {
 			return;
 		}
 
