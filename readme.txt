@@ -82,7 +82,7 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
-= 2024.06.26    - version 1.10.3 =
+= 2024.06.26    - version 1.10.4 =
 * Fix           - Fixed an issue where the CSS file was not enqueued causing the checkout layout for Express checkout to always be a single-column.
 
 = 2024.06.25    - version 1.10.3 =
