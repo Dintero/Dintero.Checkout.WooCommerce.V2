@@ -349,6 +349,16 @@ jQuery( function ( $ ) {
                     $( "#billing_phone" ).val( billingAddress.phone_number )
                 }
 
+                // 'billing' => Default to customer billing address
+                // 'shipping' => Default to customer shipping address
+                // 'billing_only' => Force shipping to the customer billing address only.
+                if (
+                    "shipping" === dinteroCheckoutParams.woocommerceShipToDestination &&
+                    ! dinteroCheckoutParams.allowDifferentBillingShippingAddress
+                ) {
+                    dinteroCheckoutForWooCommerce.saveAddressToShippingFields( billingAddress )
+                }
+
                 /**
                  * Dintero does not require first and last name for business purchases, whereas this is required by WooCommerce.
                  * For this purpose, we have to add 'N/A' to these fields. These default values will be overwritten the
@@ -372,53 +382,7 @@ jQuery( function ( $ ) {
                 shippingAddress &&
                 Object.keys( shippingAddress ).length > 1
             ) {
-                if ( shippingAddress.co_address ) {
-                    shippingAddress.first_name =
-                        shippingAddress.first_name ||
-                        shippingAddress.co_address.split( " " )[ 0 ] ||
-                        shippingAddress.business_name
-                    shippingAddress.last_name =
-                        shippingAddress.last_name ||
-                        shippingAddress.co_address.split( " " )[ 1 ] ||
-                        shippingAddress.business_name
-                }
-
-                $( "#ship-to-different-address-checkbox" ).prop( "checked", true )
-                $( "#ship-to-different-address-checkbox" ).change()
-                $( "#ship-to-different-address-checkbox" ).blur()
-
-                if ( "first_name" in shippingAddress ) {
-                    $( "#shipping_first_name" ).val( shippingAddress.first_name )
-                }
-
-                if ( "last_name" in shippingAddress ) {
-                    $( "#shipping_last_name" ).val( shippingAddress.last_name )
-                }
-
-                if ( "business_name" in shippingAddress ) {
-                    if ( 0 === $( "#billing_company" ).length ) {
-                        $( "#billing_company" ).val( shippingAddress.business_name )
-                    }
-
-                    $( "#shipping_company" ).val( shippingAddress.business_name )
-                }
-
-                if ( "address_line" in shippingAddress ) {
-                    $( "#shipping_address_1" ).val( shippingAddress.address_line )
-                }
-
-                if ( "postal_code" in shippingAddress ) {
-                    $( "#shipping_postcode" ).val( shippingAddress.postal_code )
-                }
-
-                if ( "postal_place" in shippingAddress ) {
-                    $( "#shipping_city" ).val( shippingAddress.postal_place )
-                }
-
-                if ( "country" in shippingAddress ) {
-                    $( "#shipping_country" ).val( shippingAddress.country )
-                    $( "#shipping_country" ).change()
-                }
+                dinteroCheckoutForWooCommerce.saveAddressToShippingFields( shippingAddress )
 
                 /**
                  * Dintero does not require first and last name for business purchases, whereas this is required by WooCommerce.
@@ -447,6 +411,51 @@ jQuery( function ( $ ) {
                 $( "#billing_email" ).change()
                 $( "#billing_email" ).blur()
                 $( "form.checkout" ).trigger( "update_checkout" )
+            }
+        },
+
+        /**
+         * Saves the address to the shipping fields.
+         *
+         * @param {Object} address - The address object containing address details.
+         */
+        saveAddressToShippingFields( address ) {
+            if ( address.co_address ) {
+                address.first_name = address.first_name || address.co_address.split( " " )[ 0 ] || address.business_name
+                address.last_name = address.last_name || address.co_address.split( " " )[ 1 ] || address.business_name
+            }
+
+            if ( "first_name" in address ) {
+                $( "#shipping_first_name" ).val( address.first_name )
+            }
+
+            if ( "last_name" in address ) {
+                $( "#shipping_last_name" ).val( address.last_name )
+            }
+
+            if ( "business_name" in address ) {
+                if ( 0 === $( "#billing_company" ).length ) {
+                    $( "#billing_company" ).val( address.business_name )
+                }
+
+                $( "#shipping_company" ).val( address.business_name )
+            }
+
+            if ( "address_line" in address ) {
+                $( "#shipping_address_1" ).val( address.address_line )
+            }
+
+            if ( "postal_code" in address ) {
+                $( "#shipping_postcode" ).val( address.postal_code )
+            }
+
+            if ( "postal_place" in address ) {
+                $( "#shipping_city" ).val( address.postal_place )
+            }
+
+            if ( "country" in address ) {
+                $( "#shipping_country" ).val( address.country )
+                $( "#shipping_country" ).change()
             }
         },
 
