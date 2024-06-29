@@ -205,7 +205,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 
 			/* For all form factors, redirect is used for order-pay since the cart object (used for embedded) is not available. */
 			if ( dwc_is_embedded( $this->settings ) && ! is_wc_endpoint_url( 'order-pay' ) ) {
-				$result = $this->process_embedded_payment( $order_id );
+				$result = $this->process_embedded_payment( $order );
 			} else {
 				$result = $this->process_redirect_payment( $order );
 			}
