@@ -353,7 +353,7 @@ jQuery( function ( $ ) {
                 // 'shipping' => Default to customer shipping address
                 // 'billing_only' => Force shipping to the customer billing address only.
                 if (
-                    "shipping" === dinteroCheckoutParams.woocommerceShipToDestination &&
+                    "billing_only" !== dinteroCheckoutParams.woocommerceShipToDestination &&
                     ! dinteroCheckoutParams.allowDifferentBillingShippingAddress
                 ) {
                     dinteroCheckoutForWooCommerce.saveAddressToShippingFields( billingAddress )
