@@ -420,6 +420,8 @@ jQuery( function ( $ ) {
          * @param {Object} address - The address object containing address details.
          */
         saveAddressToShippingFields( address ) {
+            $( "#ship-to-different-address-checkbox" ).prop( "checked", true )
+
             if ( address.co_address ) {
                 address.first_name = address.first_name || address.co_address.split( " " )[ 0 ] || address.business_name
                 address.last_name = address.last_name || address.co_address.split( " " )[ 1 ] || address.business_name
