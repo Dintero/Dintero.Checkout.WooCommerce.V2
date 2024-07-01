@@ -83,8 +83,8 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 
 == Changelog ==
 = 2024.07.01    - version 1.10.5 =
-* Fix           - Fixed an issue where the if the "Shipping destination" in Woo was set to default to shipping, the checkout validation would always be rejected due to missing shipping address.
-* Fix           - Fixed an issue where the shipping address fields were not always enabled although the plugin setting "Allow separate shipping address" was enabled.
+* Fix           - Fixed an issue where if the "Shipping destination" in Woo was set to default to shipping, the checkout validation would always be rejected due to missing shipping address.
+* Fix           - Fixed an issue where the shipping address fields were not always enabled, although the plugin setting "Allow separate shipping address" was enabled.
 
 = 2024.06.26    - version 1.10.4 =
 * Fix           - Fixed an issue where the CSS file was not enqueued causing the checkout layout for Express checkout to always be a single-column.
