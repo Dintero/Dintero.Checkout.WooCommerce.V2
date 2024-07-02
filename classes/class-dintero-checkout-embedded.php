@@ -142,6 +142,11 @@ class Dintero_Checkout_Embedded {
 			return;
 		}
 
+		// Dintero is not available for free orders except for free trial subscriptions. Refer to the Subscription class.
+		if ( ! WC()->cart->needs_payment() ) {
+			WC()->session->reload_checkout = true;
+		}
+
 		// Check if we have locked the iframe first, if not then this should not happen since it will return an error.
 		$raw_post_data = filter_input( INPUT_POST, 'post_data', FILTER_SANITIZE_URL );
 		parse_str( $raw_post_data, $post_data );

@@ -43,11 +43,14 @@ if ( class_exists( 'WC_Subscription' ) ) {
 			// On successful payment method change, the customer is redirected back to the subscription view page. We need to handle the redirect and create a recurring token.
 			add_action( 'woocommerce_account_view-subscription_endpoint', array( $this, 'handle_redirect_from_change_payment_method' ) );
 
-			// Ensure wp_safe_redirect do not redirect back to default dashboard or home page on change_payment_method.
-			add_filter( 'allowed_redirect_hosts', array( $this, 'extend_allowed_domains_list' ) );
-
 			// Show the recurring token on the subscription page in the billing fields.
 			add_action( 'woocommerce_admin_order_data_after_billing_address', array( $this, 'show_payment_token' ) );
+
+			// Dintero supports free subscriptions.
+			add_filter( 'woocommerce_cart_needs_payment', array( $this, 'cart_needs_payment' ) );
+
+			// Ensure wp_safe_redirect do not redirect back to default dashboard or home page on change_payment_method.
+			add_filter( 'allowed_redirect_hosts', array( $this, 'extend_allowed_domains_list' ) );
 		}
 
 		/**
@@ -161,7 +164,7 @@ if ( class_exists( 'WC_Subscription' ) ) {
 		 *
 		 * @see WC_Subscriptions_Change_Payment_Gateway::update_payment_method
 		 *
-		 * @param mixed $subscription WC_Subscription.
+		 * @param WC_Subscription $subscription The WooCommerce subscription.
 		 * @return void
 		 */
 		public function cancel_scheduled_payment( $subscription ) {
@@ -203,6 +206,20 @@ if ( class_exists( 'WC_Subscription' ) ) {
 			}
 
 			return $is_available;
+		}
+
+		/**
+		 * Whether the cart needs payment. Since Dintero supports free subscriptions, we must check if the cart contains a subscription.
+		 *
+		 * @param bool $needs_payment Whether the cart needs payment.
+		 * @return bool
+		 */
+		public function cart_needs_payment( $needs_payment ) {
+			if ( 'dintero_checkout' !== WC()->session->chosen_payment_method ) {
+				return $needs_payment;
+			}
+
+			return self::cart_has_subscription();
 		}
 
 		/**

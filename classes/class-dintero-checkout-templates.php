@@ -79,6 +79,11 @@ class Dintero_Checkout_Templates {
 			return $template;
 		}
 
+		// Dintero is not available for free orders except for free trial subscriptions. Refer to the Subscription class.
+		if ( ! WC()->cart->needs_payment() ) {
+			return $template;
+		}
+
 		/* For all form factors, redirect is used for order-pay since the cart object (used for embedded) is not available. */
 		if ( is_wc_endpoint_url( 'order-pay' ) ) {
 			return $template;
@@ -198,6 +203,11 @@ class Dintero_Checkout_Templates {
 	public function add_body_class( $class ) {
 		if ( is_checkout() && ! is_wc_endpoint_url( 'order-received' ) ) {
 
+			// Dintero is not available for free orders except for free trial subscriptions. Refer to the Subscription class.
+			if ( method_exists( WC()->cart, 'needs_payment' ) && ! WC()->cart->needs_payment() ) {
+				return $class;
+			}
+
 			if ( WC()->session->get( 'chosen_payment_method' ) ) {
 				$first_gateway = WC()->session->get( 'chosen_payment_method' );
 			} else {
@@ -206,17 +216,21 @@ class Dintero_Checkout_Templates {
 				$first_gateway = key( $available_payment_gateways );
 			}
 
-			if ( 'dintero_checkout' === $first_gateway && 'two_column_left' === $this->checkout_layout ) {
+			if ( 'dintero_checkout' !== $first_gateway ) {
+				return $class;
+			}
+
+			if ( 'two_column_left' === $this->checkout_layout ) {
 				$class[] = 'dintero-checkout-one-selected';
 				$class[] = 'dintero-checkout-two-column-left';
 			}
 
-			if ( 'dintero_checkout' === $first_gateway && 'two_column_right' === $this->checkout_layout ) {
+			if ( 'two_column_right' === $this->checkout_layout ) {
 				$class[] = 'dintero-checkout-one-selected';
 				$class[] = 'dintero-checkout-two-column-right';
 			}
 
-			if ( 'dintero_checkout' === $first_gateway && 'one_column_checkout' === $this->checkout_layout ) {
+			if ( 'one_column_checkout' === $this->checkout_layout ) {
 				$class[] = 'dintero-checkout-one-selected';
 			}
 		}
