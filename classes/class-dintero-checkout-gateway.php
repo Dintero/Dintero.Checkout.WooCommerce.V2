@@ -59,10 +59,10 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				$form_factor   = $this->settings['form_factor'] ?? 'redirect';
 				$popout        = $this->settings['checkout_popout'] ?? 'no';
 
-				if ( 'express' === $checkout_type ) {
-					$flow = 'express_' . ( 'yes' === $popout ? 'popout' : 'embedded' );
+				if ( 'embedded' === $form_factor ) {
+					$flow = ( 'express' === $checkout_type ? 'express' : 'checkout' ) . '_' . ( 'yes' === $popout ? 'popout' : 'embedded' );
 				} else {
-					$flow = 'checkout_' . ( 'yes' === $popout ? 'popout' : $form_factor );
+					$flow = 'checkout_' . $form_factor;
 				}
 
 				$this->update_option( $this->plugin_id . $this->id . '_checkout_flow', $flow );
