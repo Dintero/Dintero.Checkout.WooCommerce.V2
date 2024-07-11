@@ -62,7 +62,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				if ( 'embedded' === $form_factor ) {
 					$flow = ( 'express' === $checkout_type ? 'express' : 'checkout' ) . '_' . ( 'yes' === $popout ? 'popout' : 'embedded' );
 				} else {
-					$flow = 'checkout_' . $form_factor;
+					$flow = 'checkout_redirect';
 				}
 
 				$this->update_option( 'checkout_flow', $flow );
