@@ -65,7 +65,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 					$flow = 'checkout_' . $form_factor;
 				}
 
-				$this->update_option( $this->plugin_id . $this->id . '_checkout_flow', $flow );
+				$this->update_option( 'checkout_flow', $flow );
 				$this->settings['checkout_flow'] = $flow;
 			}
 
