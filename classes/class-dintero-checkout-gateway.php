@@ -62,8 +62,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				if ( 'express' === $checkout_type ) {
 					$flow = 'express_' . ( 'yes' === $popout ? 'popout' : 'embedded' );
 				} else {
-					// We don't need to check for pop-out since it's only available for express checkout.
-					$flow = 'checkout_' . $form_factor;
+					$flow = 'checkout_' . ( 'yes' === $popout ? 'popout' : $form_factor );
 				}
 
 				$this->update_option( $this->plugin_id . $this->id . '_checkout_flow', $flow );
