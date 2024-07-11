@@ -55,12 +55,13 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 
 			// Migrate existing settings to use the new "checkout_flow" setting.
 			if ( ! isset( $this->settings['checkout_flow'] ) ) {
-				$checkout_type = $this->settings['checkout_type'] ?? 'express';
-				$form_factor   = $this->settings['form_factor'] ?? 'redirect';
-				$popout        = $this->settings['checkout_popout'] ?? 'no';
+				$checkout_type = $this->settings['checkout_type'] ?? 'express'; // embedded|express.
+				$form_factor   = $this->settings['form_factor'] ?? 'redirect'; // express|redirect.
+				$popout        = $this->settings['checkout_popout'] ?? 'no'; // yes|no.
 
 				if ( 'embedded' === $form_factor ) {
-					$flow = ( 'express' === $checkout_type ? 'express' : 'checkout' ) . '_' . ( 'yes' === $popout ? 'popout' : 'embedded' );
+					$display = 'yes' === $popout ? 'popout' : 'embedded';
+					$flow    = "{$checkout_type}_{$display}";
 				} else {
 					$flow = 'checkout_redirect';
 				}
