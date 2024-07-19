@@ -222,4 +222,5 @@ class Dintero_Checkout_Assets {
 	</style>
 		<?php
 	}
-} new Dintero_Checkout_Assets();
+}
+new Dintero_Checkout_Assets();
