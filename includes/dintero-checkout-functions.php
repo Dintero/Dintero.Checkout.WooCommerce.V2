@@ -164,7 +164,8 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	$order->update_meta_data( '_dintero_transaction_id', $transaction_id );
 
 	// Request the payment token in the response.
-	$dintero_order = Dintero()->api->get_order( $transaction_id, array( 'includes' => 'card.payment_token' ) );
+	$params        = array( 'includes' => 'card.payment_token' );
+	$dintero_order = Dintero()->api->get_order( $transaction_id, $params );
 
 	// Save the payment token if available.
 	$payment_token = Dintero_Checkout_Subscription::get_payment_token_from_response( $dintero_order );

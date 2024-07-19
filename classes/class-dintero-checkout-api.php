@@ -37,9 +37,14 @@ class Dintero_Checkout_API {
 	 * @return array|WP_Error An associative array on success and failure. Check for is_error index.
 	 */
 	public function get_order( $dintero_id, $params = array() ) {
-		$params['dintero_id'] = $dintero_id;
-		$request              = new Dintero_Checkout_Get_Order( $params );
-		$response             = $request->request();
+		$request = new Dintero_Checkout_Get_Order(
+			array(
+				'params'     => $params,
+				'dintero_id' => $dintero_id,
+			)
+		);
+
+		$response = $request->request();
 		return $this->check_for_api_error( $response );
 	}
 
