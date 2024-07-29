@@ -555,12 +555,13 @@ if ( class_exists( 'WC_Subscription' ) ) {
 		 * @return void
 		 */
 		public function show_payment_token( $order ) {
-			if ( 'shop_subscription' === $order->get_type() && $order->get_meta( self::PAYMENT_TOKEN ) ) {
+			$payment_token = $order->get_meta( self::PAYMENT_TOKEN );
+			if ( 'shop_subscription' === $order->get_type() ) {
 				?>
 			<div class="order_data_column" style="clear:both; float:none; width:100%;">
 				<div class="address">
 					<p>
-						<strong><?php echo esc_html( 'Dintero payment token' ); ?>:</strong><?php echo esc_html( $order->get_meta( self::PAYMENT_TOKEN ) ); ?>
+						<strong><?php echo esc_html( 'Dintero payment token' ); ?>:</strong><?php echo esc_html( $payment_token ); ?>
 					</p>
 				</div>
 				<div class="edit_address">
@@ -570,6 +571,7 @@ if ( class_exists( 'WC_Subscription' ) ) {
 							'id'            => self::PAYMENT_TOKEN,
 							'label'         => __( 'Dintero payment token', 'dintero-checkout-for-woocommerce' ),
 							'wrapper_class' => '_billing_company_field',
+							'value'         => $payment_token,
 						)
 					);
 				?>
