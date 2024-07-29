@@ -51,6 +51,9 @@ if ( class_exists( 'WC_Subscription' ) ) {
 
 			// Ensure wp_safe_redirect do not redirect back to default dashboard or home page on change_payment_method.
 			add_filter( 'allowed_redirect_hosts', array( $this, 'extend_allowed_domains_list' ) );
+
+			// Save payment token to the subscription when the merchant updates the order from the subscription page.
+			add_action( 'woocommerce_saved_order_items', array( $this, 'subscription_updated_from_order_page' ), 10, 2 );
 		}
 
 		/**
@@ -546,6 +549,49 @@ if ( class_exists( 'WC_Subscription' ) ) {
 		public function extend_allowed_domains_list( $hosts ) {
 			$hosts[] = 'checkout.dintero.com';
 			return $hosts;
+		}
+
+		/**
+		 * Save the payment token to the subscription when the merchant updates the order from the subscription page.
+		 *
+		 * @param int   $order_id The Woo order ID.
+		 * @param array $items The posted data (includes even the data that was not updated).
+		 * @return bool True if the payment token was updated, false otherwise.
+		 */
+		public function subscription_updated_from_order_page( $order_id, $items ) {
+			$order = wc_get_order( $order_id );
+
+			// The action hook woocommerce_saved_order_items is triggered for all order updates, so we must check if the payment method is Dintero.
+			if ( 'dintero_checkout' !== $order->get_payment_method() ) {
+				return false;
+			}
+
+			// Are we on the subscription page?
+			if ( 'shop_subscription' === $order->get_type() ) {
+				$token_key = self::PAYMENT_TOKEN;
+
+				// Did the customer update the subscription's payment token?
+				$payment_token  = wc_get_var( $items[ $token_key ] );
+				$existing_token = $order->get_meta( $token_key );
+				if ( ! empty( $payment_token ) && $existing_token !== $payment_token ) {
+					$order->update_meta_data( $token_key, $payment_token );
+					$order->add_order_note(
+						sprintf(
+						// translators: 1: User name, 2: Existing token, 3: New token.
+							__( '%1$s updated the subscription payment token from "%2$s" to "%3$s".', 'dintero-checkout-for-woocommerce' ),
+							ucfirst( wp_get_current_user()->display_name ),
+							$existing_token,
+							$payment_token
+						)
+					);
+					$order->save();
+
+					// If the recurring token was changed, we can assume the merchant didn't update the subscription as that would require a recurring token which as has now been modified, but not yet saved.
+					return true;
+				}
+			}
+
+			return true;
 		}
 
 		/**
