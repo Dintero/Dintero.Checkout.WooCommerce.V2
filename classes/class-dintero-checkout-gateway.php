@@ -99,8 +99,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return void
 		 */
 		public function create_order_line_item( $item, $cart_item_key ) {
-			$item->update_meta_data( '_dintero_checkout_line_id', $cart_item_key );
-			$item->save();
+			$item->add_meta_data( '_dintero_checkout_line_id', $cart_item_key, true );
 		}
 
 		/**
