@@ -6,7 +6,7 @@ Tested up to: 6.4.1
 Requires PHP: 7.0
 WC requires at least: 6.1.0
 WC tested up to: 8.2.1
-Stable tag: 1.10.6
+Stable tag: 1.10.7
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,9 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2024.08.19    - version 1.10.7 =
+* Fix           - Fixed an issue related to 'woocommerce_new_order_item' where calling save() would result in the order ID being set to 0. This should improve compatibility with other third-party plugins that hook onto this action.
+
 = 2024.07.11    - version 1.10.6 =
 * Fix           - Fixed an issue related to the plugin settings overhaul. The setting migration should now work as intended. Please verify that the new "Checkout flow" plugin setting option is what you expect.
 
