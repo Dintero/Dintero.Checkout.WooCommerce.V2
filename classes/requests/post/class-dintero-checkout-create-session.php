@@ -59,7 +59,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			),
 			'profile_id' => $this->settings['profile_id'],
 		);
-    
+
 		// 'billing' => Default to customer billing address
 		// 'shipping' => Default to customer shipping address
 		// 'billing_only' => Force shipping to the customer billing address only.
@@ -74,7 +74,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			// By default this configuration is an empty array, therefore, we don't have to set it if $separate_shipping is set to false.
 		}
 
-    $billing_address = $helper->get_billing_address();
+		$billing_address = $helper->get_billing_address();
 		if ( ! empty( $billing_address ) ) {
 			$body['order']['billing_address'] = $billing_address;
 		}
