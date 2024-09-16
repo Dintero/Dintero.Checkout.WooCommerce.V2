@@ -95,7 +95,7 @@ class Dintero_Checkout_Assets {
 	 */
 	public function enqueue_scripts() {
 		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
-		if ( 'yes' !== $settings['enabled'] ) {
+		if ( wc_string_to_bool( $settings['enabled'] ?? 'no' ) ) {
 			return;
 		}
 

@@ -52,7 +52,7 @@ class Dintero_Checkout_Templates {
 	public function __construct() {
 		$this->settings        = get_option( 'woocommerce_dintero_checkout_settings' );
 		$this->checkout_layout = $this->settings['checkout_layout'] ?? 'two_column_right';
-		if ( dwc_is_embedded( $this->settings ) && 'yes' === $this->settings['enabled'] ) {
+		if ( dwc_is_embedded( $this->settings ) && wc_string_to_bool( $this->settings['enabled'] ?? 'no' ) ) {
 			// Common.
 			add_filter( 'wc_get_template', array( $this, 'override_template' ), 999, 2 );
 			add_action( 'dintero_iframe', array( $this, 'iframe' ) );
