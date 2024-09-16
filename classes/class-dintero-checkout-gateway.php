@@ -70,18 +70,18 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 
 			// Migrate existing settings to use the new "checkout_flow" setting.
 			if ( ! isset( $this->settings['checkout_flow'] ) ) {
-				$checkout_type = $this->settings['checkout_type'] ?? 'express';
-				$form_factor   = $this->settings['form_factor'] ?? 'redirect';
-				$popout        = $this->settings['checkout_popout'] ?? 'no';
+				$checkout_type = $this->settings['checkout_type'] ?? 'express'; // embedded|express.
+				$form_factor   = $this->settings['form_factor'] ?? 'redirect'; // express|redirect.
+				$popout        = $this->settings['checkout_popout'] ?? 'no'; // yes|no.
 
-				if ( 'express' === $checkout_type ) {
-					$flow = 'express_' . ( 'yes' === $popout ? 'popout' : 'embedded' );
+				if ( 'embedded' === $form_factor ) {
+					$display = 'yes' === $popout ? 'popout' : 'embedded';
+					$flow    = "{$checkout_type}_{$display}";
 				} else {
-					// We don't need to check for pop-out since it's only available for express checkout.
-					$flow = 'checkout_' . ( 'yes' === $form_factor['redirect'] ? 'redirect' : 'embedded' );
+					$flow = 'checkout_redirect';
 				}
 
-				$this->update_option( $this->plugin_id . $this->id . '_checkout_flow', $flow );
+				$this->update_option( 'checkout_flow', $flow );
 				$this->settings['checkout_flow'] = $flow;
 			}
 
@@ -114,8 +114,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return void
 		 */
 		public function create_order_line_item( $item, $cart_item_key ) {
-			$item->update_meta_data( '_dintero_checkout_line_id', $cart_item_key );
-			$item->save();
+			$item->add_meta_data( '_dintero_checkout_line_id', $cart_item_key, true );
 		}
 
 		/**

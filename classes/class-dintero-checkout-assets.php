@@ -30,14 +30,16 @@ class Dintero_Checkout_Assets {
 	 * Loads style for the plugin.
 	 */
 	public function dintero_load_css() {
-		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
-		if ( dwc_is_express( $settings ) ) {
-			return;
-		}
 		if ( ! is_checkout() ) {
 			return;
 		}
+
 		if ( is_order_received_page() ) {
+			return;
+		}
+
+		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
+		if ( ! dwc_is_express( $settings ) ) {
 			return;
 		}
 
@@ -191,6 +193,7 @@ class Dintero_Checkout_Assets {
 				'verifyOrderTotalNonce'                => wp_create_nonce( 'dintero_verify_order_total' ),
 				'verifyOrderTotalError'                => __( 'The cart was modified. Please try again.', 'dintero-checkout-for-woocommerce' ),
 				'allowDifferentBillingShippingAddress' => 'yes' === ( $settings['express_allow_different_billing_shipping_address'] ?? 'no' ) ? true : false,
+				'woocommerceShipToDestination'         => get_option( 'woocommerce_ship_to_destination' ),
 			)
 		);
 

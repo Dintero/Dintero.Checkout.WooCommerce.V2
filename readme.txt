@@ -6,7 +6,7 @@ Tested up to: 6.5.4
 Requires PHP: 7.0
 WC requires at least: 6.1.0
 WC tested up to: 8.2.1
-Stable tag: 1.10.1
+Stable tag: 1.10.7
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,26 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2024.08.19    - version 1.10.7 =
+* Fix           - Fixed an issue related to 'woocommerce_new_order_item' where calling save() would result in the order ID being set to 0. This should improve compatibility with other third-party plugins that hook onto this action.
+
+= 2024.07.11    - version 1.10.6 =
+* Fix           - Fixed an issue related to the plugin settings overhaul. The setting migration should now work as intended. Please verify that the new "Checkout flow" plugin setting option is what you expect.
+
+= 2024.07.01    - version 1.10.5 =
+* Fix           - Fixed an issue where if the "Shipping destination" in Woo was set to default to shipping, the checkout validation would always be rejected due to missing shipping address.
+* Fix           - Fixed an issue where the shipping address fields were not always enabled, although the plugin setting "Allow separate shipping address" was enabled.
+
+= 2024.06.26    - version 1.10.4 =
+* Fix           - Fixed an issue where the CSS file was not enqueued causing the checkout layout for Express checkout to always be a single-column.
+
+= 2024.06.25    - version 1.10.3 =
+* Fix           - Fixed critical error when reading settings.
+
+= 2024.06.25    - version 1.10.2 =
+* Fix           - Fixed an issue where if only one customer type was set, and separate shipping was enabled, a JSON error would occur.
+* Tweak         - The plugin settings has been overhauled. While your existing settings should be automatically converted, please verify that this is the case, and make sure to save the settings again.
+
 = 2024.06.19    - version 1.10.1 =
 * Tweak         - Bump plugin version in main PHP file.
 
