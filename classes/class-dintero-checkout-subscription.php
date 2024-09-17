@@ -190,7 +190,7 @@ class Dintero_Checkout_Subscription {
 			return true;
 		}
 
-		$zero_order = floatval( WC()->cart->total ) === 0.0;
+		$zero_order = isset( WC()->cart ) && floatval( WC()->cart->total ) === 0.0;
 		if ( $zero_order ) {
 			if ( ! self::cart_has_subscription() ) {
 				return false;
