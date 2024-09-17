@@ -10,9 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 
-	/**
-	 * Class for handling subscriptions.
-	 */
+/**
+ * Class for handling subscriptions.
+ */
 class Dintero_Checkout_Subscription {
 	private const GATEWAY_ID     = 'dintero_checkout';
 	public const RECURRING_TOKEN = '_' . self::GATEWAY_ID . '_recurring_token';
@@ -190,7 +190,11 @@ class Dintero_Checkout_Subscription {
 			return true;
 		}
 
-		if ( self::cart_has_subscription() ) {
+		$zero_order = floatval( WC()->cart->total ) === 0.0;
+		if ( $zero_order ) {
+			if ( ! self::cart_has_subscription() ) {
+				return false;
+			}
 
 			// Mixed checkout not allowed.
 			if ( class_exists( 'WC_Subscriptions_Product' ) ) {
@@ -202,7 +206,7 @@ class Dintero_Checkout_Subscription {
 			}
 
 			// Only allow free orders if the cart contains a subscription (not limited to trial subscription as a subscription can become free if a 100% discount coupon is applied).
-			if ( floatval( WC()->cart->total ) === 0.0 ) {
+			if ( $zero_order ) {
 				return true;
 			}
 		}
@@ -221,7 +225,7 @@ class Dintero_Checkout_Subscription {
 			return $needs_payment;
 		}
 
-		return self::cart_has_subscription();
+		return $this->is_available( $needs_payment );
 	}
 
 	/**
