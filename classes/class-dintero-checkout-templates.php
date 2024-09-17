@@ -89,11 +89,9 @@ class Dintero_Checkout_Templates {
 			return $template;
 		}
 
-		if ( dwc_is_express( $this->settings ) ) {
-			return $this->maybe_replace_checkout( $template, $template_name );
-		} else {
-			return $this->replace_payment_method( $template, $template_name );
-		}
+		return dwc_is_express( $this->settings )
+			? $this->maybe_replace_checkout( $template, $template_name )
+			: $this->replace_payment_method( $template, $template_name );
 	}
 
 	/**
@@ -112,7 +110,7 @@ class Dintero_Checkout_Templates {
 
 			// Retrieve the template for Dintero Checkout Express.
 			$maybe_template            = locate_template( 'woocommerce/dintero-checkout-express.php' );
-			$checkout_express_template = ( $maybe_template ) ? $maybe_template : DINTERO_CHECKOUT_PATH . '/templates/dintero-checkout-express.php';
+			$checkout_express_template = ! empty( $maybe_template ) ? $maybe_template : DINTERO_CHECKOUT_PATH . '/templates/dintero-checkout-express.php';
 
 			// If Dintero Checkout is already selected as a gateway...
 			$chosen_payment_method = WC()->session->chosen_payment_method;
