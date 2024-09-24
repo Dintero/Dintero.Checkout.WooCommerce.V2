@@ -365,6 +365,11 @@ function dintero_get_payment_method_name( $payment_product_type ) {
  * @return bool
  */
 function dwc_is_express( $settings ) {
+	if ( ! is_array( $settings ) ) {
+		_doing_it_wrong( __FUNCTION__, sprintf( 'The settings parameter must be an array. Received %s.', wp_json_encode( $settings ) ), '1.10.7' );
+		return false;
+	}
+
 	if ( isset( $settings['checkout_flow'] ) ) {
 		return strpos( $settings['checkout_flow'], 'express' ) !== false;
 	}
@@ -379,6 +384,11 @@ function dwc_is_express( $settings ) {
  * @return bool
  */
 function dwc_is_embedded( $settings ) {
+	if ( ! is_array( $settings ) ) {
+		_doing_it_wrong( __FUNCTION__, sprintf( 'The settings parameter must be an array. Received %s.', wp_json_encode( $settings ) ), '1.10.7' );
+		return false;
+	}
+
 	if ( isset( $settings['checkout_flow'] ) ) {
 		return strpos( $settings['checkout_flow'], 'embedded' ) !== false || dwc_is_popout( $settings );
 	}
@@ -393,6 +403,11 @@ function dwc_is_embedded( $settings ) {
  * @return bool
  */
 function dwc_is_redirect( $settings ) {
+	if ( ! is_array( $settings ) ) {
+		_doing_it_wrong( __FUNCTION__, sprintf( 'The settings parameter must be an array. Received %s.', wp_json_encode( $settings ) ), '1.10.7' );
+		return false;
+	}
+
 	if ( isset( $settings['checkout_flow'] ) ) {
 		return strpos( $settings['checkout_flow'], 'redirect' ) !== false;
 	}
@@ -407,6 +422,11 @@ function dwc_is_redirect( $settings ) {
  * @return bool
  */
 function dwc_is_popout( $settings ) {
+	if ( ! is_array( $settings ) ) {
+		_doing_it_wrong( __FUNCTION__, sprintf( 'The settings parameter must be an array. Received %s.', wp_json_encode( $settings ) ), '1.10.7' );
+		return false;
+	}
+
 	if ( isset( $settings['checkout_flow'] ) ) {
 		return strpos( $settings['checkout_flow'], 'popout' ) !== false;
 	}
