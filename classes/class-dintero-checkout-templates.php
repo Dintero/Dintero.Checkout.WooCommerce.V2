@@ -85,7 +85,7 @@ class Dintero_Checkout_Templates {
 		}
 
 		/* For all form factors, redirect is used for order-pay since the cart object (used for embedded) is not available. */
-		if ( is_wc_endpoint_url( 'order-pay' ) ) {
+		if ( is_checkout_pay_page() ) {
 			return $template;
 		}
 

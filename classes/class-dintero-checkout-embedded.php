@@ -92,16 +92,11 @@ class Dintero_Checkout_Embedded {
 	 * @return void
 	 */
 	public function update_shipping_method() {
-		if ( ! is_checkout() ) {
-			return;
-		}
-
-		if ( 'dintero_checkout' !== WC()->session->get( 'chosen_payment_method' ) ) {
+		if ( ! is_checkout() || 'dintero_checkout' !== WC()->session->get( 'chosen_payment_method' ) ) {
 			return;
 		}
 
 		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
-
 		if ( ! isset( $settings['express_shipping_in_iframe'] ) || 'yes' !== $settings['express_shipping_in_iframe'] ) {
 			return;
 		}
@@ -123,12 +118,8 @@ class Dintero_Checkout_Embedded {
 	 * @return void
 	 */
 	public function update_dintero_checkout_session() {
-		if ( ! is_checkout() ) {
-			return;
-		}
-
 		// We can only do this during AJAX, so if it is not an ajax call, we should just bail.
-		if ( ! wp_doing_ajax() ) {
+		if ( ! is_checkout() || ! wp_doing_ajax() ) {
 			return;
 		}
 
@@ -142,7 +133,7 @@ class Dintero_Checkout_Embedded {
 			return;
 		}
 
-		// Dintero is not available for free orders except for free trial subscriptions. Refer to the Subscription class.
+		// Reload the page so the standard WooCommerce checkout page will appear.
 		if ( ! WC()->cart->needs_payment() ) {
 			WC()->session->reload_checkout = true;
 		}

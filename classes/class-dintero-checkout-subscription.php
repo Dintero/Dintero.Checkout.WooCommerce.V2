@@ -205,8 +205,8 @@ class Dintero_Checkout_Subscription {
 				}
 			}
 
-			// Only allow free orders if the cart contains a subscription (not limited to trial subscription as a subscription can become free if a 100% discount coupon is applied).
-			if ( $zero_order ) {
+			// Since Dintero doesn't (yet) support changing from free trial to zero cost subscriptions (e.g., a coupon applied result in 0 cost), we must prevent the customer from proceeding.
+			if ( self::cart_has_only_free_trial() ) {
 				return true;
 			}
 		}
