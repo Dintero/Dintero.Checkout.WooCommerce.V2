@@ -30,11 +30,7 @@ class Dintero_Checkout_Assets {
 	 * Loads style for the plugin.
 	 */
 	public function dintero_load_css() {
-		if ( ! is_checkout() ) {
-			return;
-		}
-
-		if ( is_order_received_page() ) {
+		if ( ! is_checkout() || is_order_received_page() ) {
 			return;
 		}
 
