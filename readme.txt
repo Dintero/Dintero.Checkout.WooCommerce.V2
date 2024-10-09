@@ -2,7 +2,7 @@
 Contributors: dintero, krokedil, NiklasHogefjord
 Tags: woocommerce, dintero, ecommerce, e-commerce, checkout
 Requires at least: 5.8.3
-Tested up to: 6.4.1
+Tested up to: 6.5.4
 Requires PHP: 7.0
 WC requires at least: 6.1.0
 WC tested up to: 8.2.1

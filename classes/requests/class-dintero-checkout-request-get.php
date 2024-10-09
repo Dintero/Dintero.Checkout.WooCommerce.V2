@@ -28,10 +28,14 @@ abstract class Dintero_Checkout_Request_Get extends Dintero_Checkout_Request {
 	 * @return array
 	 */
 	public function get_request_args() {
-		return array(
-			'headers'    => $this->get_request_headers(),
-			'user-agent' => $this->get_user_agent(),
-			'method'     => $this->method,
+		return apply_filters(
+			$this->request_filter,
+			array(
+				'headers'    => $this->get_request_headers(),
+				'user-agent' => $this->get_user_agent(),
+				'method'     => $this->method,
+			),
+			$this
 		);
 	}
 }
