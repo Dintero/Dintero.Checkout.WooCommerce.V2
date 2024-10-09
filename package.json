@@ -24,14 +24,14 @@
   "scripts": {
     "clear:transients": "docker-compose run --rm wp-cli wp wc tool run clear_transients --user=1",
     "clear:session": "docker-compose run --rm wp-cli wp wc tool run clear_sessions --user=1",
-    "makepot": "yarn grunt makepot",
-    "cssmin": "yarn grunt cssmin",
-    "jsmin": "yarn webpack",
-    "moveJS": "yarn grunt move",
-    "lint": "yarn prettier assets/js --paren-spacing --tab-width 4 --print-width 120 --no-semi --write",
-    "lint:check": "yarn prettier assets/js --paren-spacing --tab-width 4 --print-width 120 --no-semi --debug-check",
-    "webpack:dev": "yarn webpack --mode=development --watch",
-    "build": "yarn makepot && yarn cssmin && yarn lint:check && yarn lint && yarn jsmin && yarn moveJS"
+    "makepot": "pnpm grunt makepot",
+    "cssmin": "pnpm grunt cssmin",
+    "jsmin": "pnpm webpack",
+    "moveJS": "pnpm grunt move",
+    "lint": "pnpm prettier assets/js --paren-spacing --tab-width 4 --print-width 120 --no-semi --write",
+    "lint:check": "pnpm prettier assets/js --paren-spacing --tab-width 4 --print-width 120 --no-semi --debug-check",
+    "webpack:dev": "pnpm webpack --mode=development --watch",
+    "build": "pnpm makepot && pnpm cssmin && pnpm lint:check && pnpm lint && pnpm jsmin && pnpm moveJS"
   },
   "dependencies": {
     "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
