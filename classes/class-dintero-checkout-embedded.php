@@ -129,7 +129,15 @@ class Dintero_Checkout_Embedded {
 			return;
 		}
 
-		if ( 'dintero_checkout' !== WC()->session->chosen_payment_method ) {
+		// If Dintero is the chosen gateway while it is unavailable, reload the checkout. This can happen if the total a non-zero total amount becomes zero.
+		$chosen_gateway     = WC()->session->chosen_payment_method;
+		$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
+		if ( 'dintero_checkout' === $chosen_gateway && ! array_key_exists( 'dintero_checkout', $available_gateways ) ) {
+			WC()->session->reload_checkout = true;
+			return;
+		}
+
+		if ( 'dintero_checkout' !== $chosen_gateway ) {
 			return;
 		}
 

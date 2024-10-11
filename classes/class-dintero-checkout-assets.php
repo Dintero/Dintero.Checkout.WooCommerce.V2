@@ -185,7 +185,6 @@ class Dintero_Checkout_Assets {
 				'shipping_in_iframe'                   => ( isset( $settings['express_shipping_in_iframe'] ) && 'yes' === $settings['express_shipping_in_iframe'] && dwc_is_express( $settings ) ),
 				'pip_text'                             => __( 'Payment in progress', 'dintero-checkout-for-woocommerce' ),
 				'popOut'                               => dwc_is_popout( $settings ),
-				'isExpress'                            => dwc_is_express( $settings ),
 				'verifyOrderTotalURL'                  => WC_AJAX::get_endpoint( 'dintero_verify_order_total' ),
 				'verifyOrderTotalNonce'                => wp_create_nonce( 'dintero_verify_order_total' ),
 				'verifyOrderTotalError'                => __( 'The cart was modified. Please try again.', 'dintero-checkout-for-woocommerce' ),

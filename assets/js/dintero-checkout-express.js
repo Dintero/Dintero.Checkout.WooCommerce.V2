@@ -199,14 +199,12 @@ jQuery( function ( $ ) {
 
             $( "form.checkout" ).trigger( "update_checkout" )
 
-            // WC won't reload the checkout page if Dintero becomes available after being unavailable while remaining on the same page. This seems to only happen when WooCommerce Subscriptions is used.
-            if ( $( "#dintero-checkout-iframe" ).length === 0 && gatewayParams.isExpress ) {
+            // WC won't reload the checkout page if Dintero becomes available after being unavailable while remaining on the same page. E.g., when changing shipping method that makes the cart amount non-zero. This seems to only happen when WooCommerce Subscriptions is used.
+            if ( $( "#dintero-checkout-iframe" ).length === 0 ) {
                 const observer = new MutationObserver( () => {
                     if ( dinteroCheckoutForWooCommerce.isSelectedGateway() ) {
                         window.location.reload()
                     }
-
-                    console.count( "observed" )
                 } )
 
                 const config = { childList: true, subtree: true }

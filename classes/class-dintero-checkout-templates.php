@@ -104,6 +104,8 @@ class Dintero_Checkout_Templates {
 	public function maybe_replace_checkout( $template, $template_name ) {
 		if ( 'checkout/form-checkout.php' === $template_name ) {
 			$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
+
+			// Check if Dintero is available. This is important when a non-zero subscription converts to a zero subscription. When that happens, we no longer want to override the checkout page. Let WC display its template instead.
 			if ( ! array_key_exists( 'dintero_checkout', $available_gateways ) ) {
 				return $template;
 			}
@@ -141,6 +143,11 @@ class Dintero_Checkout_Templates {
 	 */
 	public function replace_payment_method( $template, $template_name ) {
 		if ( 'checkout/payment.php' === $template_name ) {
+			$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
+			if ( ! array_key_exists( 'dintero_checkout', $available_gateways ) ) {
+				return $template;
+			}
+
 			WC()->session->set( 'chosen_payment_method', 'dintero_checkout' );
 			// Retrieve the template for Dintero Checkout template.
 			$maybe_template             = locate_template( 'woocommerce/dintero-checkout-embedded.php' );
