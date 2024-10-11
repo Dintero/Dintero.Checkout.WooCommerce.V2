@@ -56,17 +56,11 @@ abstract class Dintero_Checkout_Helper_Base {
 		// If its express we need to add the express options.
 		if ( $is_embedded && $is_express ) {
 			// If the cart does not need shipping, unset shipping, set empty array and shipping_not_required.
-			if ( ! WC()->cart->needs_shipping() ) {
+			if ( ! WC()->cart->needs_shipping() || Dintero_Checkout_Subscription::cart_has_only_free_trial() ) {
 				unset( $body['order']['shipping_option'] );
 				$body['express']['shipping_options'] = array();
 				$body['express']['shipping_mode']    = 'shipping_not_required';
 				return;
-			}
-			if ( $is_shipping_in_iframe ) {
-				$body['express']['shipping_options'] = $helper->get_express_shipping_options();
-			} else {
-				$shipping_option                     = $helper->get_shipping_option();
-				$body['express']['shipping_options'] = empty( $shipping_option ) ? array() : array( $shipping_option );
 			}
 
 			if ( $is_shipping_in_iframe ) {
