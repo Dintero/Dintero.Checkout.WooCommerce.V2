@@ -10,7 +10,7 @@
     ],
     "require": {
         "php": ">=7.4",
-        "krokedil/shipping": "^1.0"
+        "krokedil/shipping": "^2.0"
     },
     "require-dev": {
         "wp-coding-standards/wpcs": "^2.3"

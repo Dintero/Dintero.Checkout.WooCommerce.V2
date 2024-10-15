@@ -119,13 +119,13 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * @return bool Whether it was successfully initialized.
 		 */
 		public function init_composer() {
-			$autoloader  = DINTERO_CHECKOUT_PATH . '/vendor/autoload.php';
-			$did_include = require $autoloader;
-			if ( ! $did_include ) {
+			$autoloader = DINTERO_CHECKOUT_PATH . '/vendor/autoload.php';
+			$result     = require $autoloader;
+			if ( ! $result ) {
 				return false;
 			}
 
-			return true;
+			return ! $result ? false : $result;
 		}
 
 		/**
