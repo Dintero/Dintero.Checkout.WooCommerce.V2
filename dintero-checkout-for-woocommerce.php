@@ -18,6 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use Krokedil\Shipping\Interfaces\PickupPointServiceInterface;
+use Krokedil\Shipping\PickupPoints;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -47,6 +50,19 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * @var Dintero_Checkout_Order_Management
 		 */
 		public $order_management;
+
+		/**
+		 * The reference the *Singleton* instance of this class.
+		 *
+		 * @var Dintero $instance
+		 */
+
+		/**
+		 * Pickup points service.
+		 *
+		 * @var PickupPointServiceInterface $pickup_points
+		 */
+		private $pickup_points;
 
 		/**
 		 * The reference the *Singleton* instance of this class.
@@ -165,6 +181,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/put/class-dintero-checkout-update-transaction.php';
 
 			$this->api              = new Dintero_Checkout_API();
+			$this->pickup_points    = new PickupPoints();
 			$this->order_management = Dintero_Checkout_Order_Management::get_instance();
 
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateways' ) );
@@ -237,6 +254,15 @@ if ( ! class_exists( 'Dintero' ) ) {
 			$methods[] = 'Dintero_Checkout_Gateway';
 
 			return $methods;
+		}
+
+		/**
+		 * Get the pickup points service.
+		 *
+		 * @return PickupPointServiceInterface
+		 */
+		public function pickup_points() {
+			return $this->pickup_points;
 		}
 	}
 
