@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'DINTERO_CHECKOUT_VERSION', '1.10.7' );
-define( 'DINTERO_CHECKOUT_URL', untrailingslashit( plugins_url( '/', __FILE__ ) ) );
+define( 'DINTERO_CHECKOUT_URL', untrailingslashit( plugin_dir_url( __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_MAIN_FILE', __FILE__ );
 
@@ -88,6 +88,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			wc_doing_it_wrong( __FUNCTION__, __( 'Nope' ), '1.0' );
 		}
 
+
 		/**
 		 * Class constructor.
 		 */
@@ -97,11 +98,30 @@ if ( ! class_exists( 'Dintero' ) ) {
 		}
 
 		/**
+		 * Initialize composers autoloader.
+		 *
+		 * @return bool Whether it was successfully initialized.
+		 */
+		public function init_composer() {
+			$autoloader  = DINTERO_CHECKOUT_PATH . '/vendor/autoload.php';
+			$did_include = require $autoloader;
+			if ( ! $did_include ) {
+				return false;
+			}
+
+			return true;
+		}
+
+		/**
 		 * Initialize the payment gateway.
 		 *
 		 * @return void
 		 */
 		public function init() {
+			if ( ! $this->init_composer() ) {
+				return;
+			}
+
 			if ( ! class_exists( 'WC_Payment_Gateway' ) ) {
 				return;
 			}
@@ -169,7 +189,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
 				// Declare HPOS compatibility.
 				\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
-				// Declare Checkout Blocks incompatibility
+				// Declare Checkout Blocks incompatibility.
 				\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, false );
 			}
 		}
