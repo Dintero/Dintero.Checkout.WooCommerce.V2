@@ -268,5 +268,18 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		public function process_refund( $order_id, $amount = null, $reason = '' ) {
 			return Dintero()->order_management->refund_order( $order_id, $reason );
 		}
+
+		/**
+		 * Check if the order can be refunded with Dintero or not.
+		 *
+		 * @param WC_Order $order The WooCommerce order.
+		 *
+		 * @return bool
+		 */
+		public function can_refund_order( $order ) {
+			$capture_date = $order->get_meta( '_wc_dintero_captured' );
+
+			return ! empty( $capture_date );
+		}
 	}
 }
