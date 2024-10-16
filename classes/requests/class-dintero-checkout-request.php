@@ -225,11 +225,13 @@ abstract class Dintero_Checkout_Request {
 	protected function log_response( $response, $request_args, $request_url ) {
 		$body = json_decode( $response['body'], true );
 
-		$method   = $this->method;
-		$title    = $this->log_title;
-		$code     = wp_remote_retrieve_response_code( $response );
-		$order_id = $body['id'] ?? json_decode( $request_args['body'], true )['id'] ?? null;
-		$log      = Dintero_Checkout_Logger::format_log( $order_id, $method, $title, $request_args, $response, $code, $request_url );
+		$method        = $this->method;
+		$title         = $this->log_title;
+		$code          = wp_remote_retrieve_response_code( $response );
+		$order_id      = $body['id'] ?? json_decode( $request_args['body'], true )['id'] ?? null;
+		$checkout_flow = $this->settings['checkout_flow'] ?? 'express_popout';
+
+		$log = Dintero_Checkout_Logger::format_log( $order_id, $method, $title, $request_args, $response, $code, $request_url, $checkout_flow );
 		Dintero_Checkout_Logger::log( $log );
 	}
 
