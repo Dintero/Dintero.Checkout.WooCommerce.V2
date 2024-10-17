@@ -266,6 +266,20 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return boolean|null
 		 */
 		public function process_refund( $order_id, $amount = null, $reason = '' ) {
+			$order        = wc_get_order( $order_id );
+			$capture_date = $order->get_meta( '_wc_dintero_captured' );
+
+			if ( empty( $capture_date ) ) {
+				return new WP_Error(
+					'dintero_refund_not_supported',
+					__(
+						'Refunds are only possible for orders that have been completed. If you have an order that has not been completed and needs to be canceled, set the order status to "Canceled".',
+						'dintero-checkout-for-woocommerce'
+					)
+				);
+
+			}
+
 			return Dintero()->order_management->refund_order( $order_id, $reason );
 		}
 	}
