@@ -80,14 +80,16 @@ class Dintero_Checkout_Logger {
 	 * @param string $checkout_flow The checkout flow.
 	 * @return array A formatted associative array.
 	 */
-	public static function format_log( $dintero_id, $method, $title, $request_args, $response, $code, $request_url = null, $checkout_flow = null ) {
+	public static function format_log( $dintero_id, $method, $title, $request_args, $response, $code, $request_url = null ) {
+		$settings = get_option( 'woocommerce_dintero_checkout_settings', array() );
+
 		return array(
 			'id'             => $dintero_id,
 			'type'           => $method,
 			'title'          => $title,
 			'request_url'    => $request_url,
 			'request'        => $request_args,
-			'checkout_flow'  => $checkout_flow,
+			'checkout_flow'  => $settings['checkout_flow'] ?? 'N/A',
 			'response'       => array(
 				'body' => $response,
 				'code' => $code,
