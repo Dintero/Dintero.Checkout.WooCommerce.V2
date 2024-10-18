@@ -141,10 +141,10 @@ function dintero_update_wc_shipping( $data ) {
 	}
 
 	do_action( 'dintero_update_shipping_data', $data );
+	set_transient( "dintero_shipping_data_{$merchant_reference}", $data, HOUR_IN_SECONDS );
 
-	set_transient( 'dintero_shipping_data_' . $merchant_reference, $data, HOUR_IN_SECONDS );
 	$chosen_shipping_methods   = array();
-	$chosen_shipping_methods[] = wc_clean( $data['id'] );
+	$chosen_shipping_methods[] = wc_clean( $data['operator_product_id'] ?? $data['id'] );
 	WC()->session->set( 'chosen_shipping_methods', apply_filters( 'dintero_chosen_shipping_method', $chosen_shipping_methods ) );
 }
 
