@@ -124,7 +124,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		if ( count( $shipping_items ) > 1 ) {
 			/* If there is more than one shipping option, it will be part of the order.items to support multiple shipping packages. */
 			foreach ( $shipping_items as $order_item ) {
-				$order_line = $this->get_chosen_shipping_option( $order_item );
+				$order_line = $this->get_shipping_option( $order_item );
 				if ( ! empty( $order_line ) ) {
 					$order_lines[] = $order_line;
 				}
@@ -384,7 +384,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * @param WC_Order_Item_Shipping $shipping_method WooCommerce order item shipping.
 	 * @return array
 	 */
-	public function get_chosen_shipping_option( $shipping_method = null ) {
+	public function get_shipping_option( $shipping_method = null ) {
 		if ( empty( $shipping_method ) ) {
 			if ( count( $this->get_items( 'shipping' ) ) === 1 ) {
 				/**
@@ -485,7 +485,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 
 		foreach ( $shipping_ids as  $shipping_id ) {
 			$shipping_method  = $shipping_rates[ $shipping_id ];
-			$shipping_lines[] = ( $is_multiple_shipping ) ? $this->get_shipping_item( $shipping_method ) : $this->get_chosen_shipping_option( $shipping_method );
+			$shipping_lines[] = ( $is_multiple_shipping ) ? $this->get_shipping_item( $shipping_method ) : $this->get_shipping_option( $shipping_method );
 		}
 
 		return $shipping_lines;

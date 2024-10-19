@@ -48,7 +48,7 @@ abstract class Dintero_Checkout_Helper_Base {
 	 */
 	public static function add_shipping( &$body, $helper, $is_embedded, $is_express, $is_shipping_in_iframe ) {
 		// We will always need this if shipping is available, so it will always be added.
-		$shipping_option = $helper->get_chosen_shipping_option();
+		$shipping_option = $helper->get_shipping_option();
 		if ( ! empty( $shipping_option ) ) {
 			$body['order']['shipping_option'] = $shipping_option;
 		}
@@ -66,7 +66,7 @@ abstract class Dintero_Checkout_Helper_Base {
 			if ( $is_shipping_in_iframe ) {
 				$body['express']['shipping_options'] = $helper->get_express_shipping_options();
 			} else {
-				$shipping_option                     = $helper->get_chosen_shipping_option();
+				$shipping_option                     = $helper->get_shipping_option();
 				$body['express']['shipping_options'] = empty( $shipping_option ) ? array() : array( $shipping_option );
 			}
 

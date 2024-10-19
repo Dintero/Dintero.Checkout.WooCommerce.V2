@@ -177,6 +177,11 @@ class Dintero_Checkout_Embedded {
 			return $packages;
 		}
 
+		$is_pickup = 'pick_up' === $chosen_shipping['delivery_method'];
+		if ( ! $is_pickup ) {
+			return $packages;
+		}
+
 		// Loop each package.
 		foreach ( $packages as $package ) {
 			/**
@@ -185,8 +190,7 @@ class Dintero_Checkout_Embedded {
 			 * @var WC_Shipping_Rate $rate
 			 */
 			foreach ( $package['rates'] as $rate ) {
-				// Skip if not a pickup point.
-				if ( ! isset( $chosen_shipping['operator_product_id'] ) ) {
+				if ( $chosen_shipping['id'] !== $rate->get_id() ) {
 					continue;
 				}
 
