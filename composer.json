@@ -1,6 +1,7 @@
 {
     "name": "krokedil/dintero-checkout-for-woocommerce",
     "description": "Dintero Checkout For WooCommerce",
+    "version": "1.0.0",
     "authors": [
         {
             "name": "krokedil",
@@ -8,9 +9,22 @@
         }
     ],
     "require": {
-        "php": ">=8.0"
+        "php": ">=7.4",
+        "krokedil/shipping": "^2.0"
     },
     "require-dev": {
         "wp-coding-standards/wpcs": "^2.3"
-    }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:krokedil/shipping.git"
+        }
+    ],
+    "config": {
+        "platform": {
+            "php": "7.4"
+        }
+    },
+    "minimum-stability": "dev"
 }

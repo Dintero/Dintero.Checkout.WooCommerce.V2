@@ -18,12 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use Krokedil\Shipping\Interfaces\PickupPointServiceInterface;
+use Krokedil\Shipping\PickupPoints;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 define( 'DINTERO_CHECKOUT_VERSION', '1.10.7' );
-define( 'DINTERO_CHECKOUT_URL', untrailingslashit( plugins_url( '/', __FILE__ ) ) );
+define( 'DINTERO_CHECKOUT_URL', untrailingslashit( plugin_dir_url( __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_MAIN_FILE', __FILE__ );
 
@@ -47,6 +50,19 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * @var Dintero_Checkout_Order_Management
 		 */
 		public $order_management;
+
+		/**
+		 * The reference the *Singleton* instance of this class.
+		 *
+		 * @var Dintero $instance
+		 */
+
+		/**
+		 * Pickup points service.
+		 *
+		 * @var PickupPointServiceInterface $pickup_points
+		 */
+		private $pickup_points;
 
 		/**
 		 * The reference the *Singleton* instance of this class.
@@ -88,6 +104,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			wc_doing_it_wrong( __FUNCTION__, __( 'Nope' ), '1.0' );
 		}
 
+
 		/**
 		 * Class constructor.
 		 */
@@ -97,11 +114,30 @@ if ( ! class_exists( 'Dintero' ) ) {
 		}
 
 		/**
+		 * Initialize composers autoloader.
+		 *
+		 * @return bool Whether it was successfully initialized.
+		 */
+		public function init_composer() {
+			$autoloader = DINTERO_CHECKOUT_PATH . '/vendor/autoload.php';
+			$result     = require $autoloader;
+			if ( ! $result ) {
+				return false;
+			}
+
+			return ! $result ? false : $result;
+		}
+
+		/**
 		 * Initialize the payment gateway.
 		 *
 		 * @return void
 		 */
 		public function init() {
+			if ( ! $this->init_composer() ) {
+				return;
+			}
+
 			if ( ! class_exists( 'WC_Payment_Gateway' ) ) {
 				return;
 			}
@@ -145,6 +181,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/put/class-dintero-checkout-update-transaction.php';
 
 			$this->api              = new Dintero_Checkout_API();
+			$this->pickup_points    = new PickupPoints();
 			$this->order_management = Dintero_Checkout_Order_Management::get_instance();
 
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateways' ) );
@@ -169,7 +206,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
 				// Declare HPOS compatibility.
 				\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
-				// Declare Checkout Blocks incompatibility
+				// Declare Checkout Blocks incompatibility.
 				\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, false );
 			}
 		}
@@ -217,6 +254,15 @@ if ( ! class_exists( 'Dintero' ) ) {
 			$methods[] = 'Dintero_Checkout_Gateway';
 
 			return $methods;
+		}
+
+		/**
+		 * Get the pickup points service.
+		 *
+		 * @return PickupPointServiceInterface
+		 */
+		public function pickup_points() {
+			return $this->pickup_points;
 		}
 	}
 

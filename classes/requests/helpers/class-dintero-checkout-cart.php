@@ -198,8 +198,6 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 				return $shipping_options;
 			}
 
-			$shipping_ids = array_unique( $chosen_shipping_methods );
-
 			// Calculate shipping since WC Subscriptions will reset the shipping. See WC_Subscriptions_Cart::maybe_restore_shipping_methods().
 			WC()->shipping()->calculate_shipping( WC()->cart->get_shipping_packages() );
 
@@ -215,6 +213,14 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 				if ( empty( $packages[ $index ]['contents'] ) ) {
 					unset( $packages[ $index ] );
 				}
+
+				// Skip shipping lines for free trials.
+				if ( class_exists( 'WC_Subscriptions_Cart' ) && \WC_Subscriptions_Cart::cart_contains_subscription() ) {
+					$pattern = '/_after_a_\d+_\w+_trial/';
+					if ( preg_match( $pattern, $index ) ) {
+						unset( $packages[ $index ] );
+					}
+				}
 			}
 
 			$shipping_rates = reset( $packages )['rates'] ?? array();
@@ -222,23 +228,56 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 				return $shipping_options;
 			}
 
-			foreach ( $shipping_ids as $key => $shipping_id ) {
-				// Skip shipping lines for free trials.
-				if ( class_exists( 'WC_Subscriptions_Cart' ) && \WC_Subscriptions_Cart::cart_contains_subscription() ) {
-					$pattern = '/_after_a_\d+_\w+_trial/';
-					if ( preg_match( $pattern, $key ) ) {
-						continue;
-					}
-				}
-
-				if ( $shipping_rates[ $shipping_id ] ?? false ) {
-					$shipping_rate      = $shipping_rates[ $shipping_id ];
-					$shipping_options[] = $this->get_shipping_option( $shipping_rate );
+			foreach ( $shipping_rates as $rate ) {
+				// If the shipping rate doesn't have any pickup points, we'll add the rate itself. Otherwise, we'll add the pickup points instead of the rate.
+				$pickup_points = $this->get_pickup_points( $rate );
+				if ( empty( $pickup_points ) ) {
+					$shipping_options[] = $this->get_shipping_item( $rate );
+				} else {
+					$shipping_options = array_merge( $shipping_options, $pickup_points );
 				}
 			}
 		}
 
 		return $shipping_options;
+	}
+
+	/**
+	 * Gets a the single shipping method. Can be used to get a single shipping
+	 * method for when shipping is not able to be selected in the iframe.
+	 *
+	 * @param WC_Shipping_Rate|null $shipping_rate The WC shipping rate. If omitted, the shipping method will be fetched from the session.
+	 * @return array An empty array is returned if no shipping method is available.
+	 */
+	public function get_shipping_option( $shipping_rate = null ) {
+		if ( empty( $shipping_rate ) ) {
+			$merchant_reference = WC()->session->get( 'dintero_merchant_reference' );
+			$chosen_shipping    = get_transient( "dintero_shipping_data_{$merchant_reference}" );
+
+			if ( empty( $chosen_shipping ) ) {
+				return array();
+			}
+
+			$rates = WC()->shipping->get_packages()[0]['rates'];
+			foreach ( $rates as $rate ) {
+				if ( $rate->get_id() === $chosen_shipping['id'] ) {
+					if ( $chosen_shipping['delivery_method'] === 'pick_up' ) {
+						$id           = $chosen_shipping['operator_product_id'];
+						$pickup_point = Dintero()->pickup_points()->get_pickup_point_from_rate_by_id( $rate, $id );
+
+						return $this->get_pickup_point( $rate, $pickup_point );
+					}
+
+					return $this->get_shipping_item( $rate );
+				}
+			}
+		}
+
+		if ( empty( $shipping_rate ) ) {
+			return array();
+		}
+
+		return $this->get_shipping_item( $shipping_rate );
 	}
 
 	/**
@@ -262,53 +301,102 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
-	 * Gets a the single shipping method. Can be used to get a single shipping
-	 * method for when shipping is not able to be selected in the iframe.
+	 * Set pickup points for the shipping method.
 	 *
-	 * @param object $shipping_method The id of the shipping method.
-	 * @return array An empty array is returned if no shipping method is available.
+	 * @param WC_Shipping_Rate $rate The shipping method rate from WooCommerce.
 	 */
-	public function get_shipping_option( $shipping_method = null ) {
-		if ( empty( $shipping_method ) ) {
-			$shipping_method = $this->get_express_shipping_options();
-			if ( ! empty( $shipping_method ) ) {
-				return reset( $shipping_method );
+	public function get_pickup_points( $rate ) {
+		$shipping_options = array();
+		$pickup_points    = Dintero()->pickup_points()->get_pickup_points_from_rate( $rate ) ?? array();
+
+		// Pickup points are grouped by the following properties that must match: id, delivery_method, amount, operator and title.
+		foreach ( $pickup_points as $pickup_point ) {
+			if ( empty( $pickup_point->get_id() ) ) {
+				continue;
+			}
+
+			$line_id            = "{$rate->get_id()}:{$pickup_point->get_id()}";
+			$shipping_options[] = array(
+				'id'                  => $rate->get_id(),
+				'line_id'             => $line_id,
+				'amount'              => self::format_number( $rate->get_cost() + $rate->get_shipping_tax() ),
+				'operator'            => $rate->get_label(),
+				'operator_product_id' => $pickup_point->get_id(),
+				'title'               => $rate->get_label(),
+				'countries'           => array( $pickup_point->get_address()->get_country() ),
+				'description'         => $pickup_point->get_description(),
+				'delivery_method'     => 'pick_up',
+				'pick_up_address'     => array(
+					'address_line'  => $pickup_point->get_address()->get_street(),
+					'postal_code'   => $pickup_point->get_address()->get_postcode(),
+					'postal_place'  => $pickup_point->get_address()->get_city(),
+					'country'       => $pickup_point->get_address()->get_country(),
+					'business_name' => $pickup_point->get_name(),
+					'latitude'      => $pickup_point->get_coordinates()->get_latitude(),
+					'longitude'     => $pickup_point->get_coordinates()->get_longitude(),
+				),
+			);
+
+			$eta = $pickup_point->get_eta()->get_utc();
+			if ( ! empty( $eta ) ) {
+				$shipping_options['eta'] = array(
+					'starts_at' => $eta,
+				);
 			}
 		}
 
-		if ( empty( $shipping_method ) ) {
-			return array();
-		}
-
-		return array(
-			'id'              => $shipping_method->get_id(),
-			'line_id'         => $shipping_method->get_id(),
-			'amount'          => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping_tax() ),
-			'operator'        => '',
-			'description'     => '',
-			'title'           => $shipping_method->get_label(),
-			'delivery_method' => 'unspecified',
-			'vat_amount'      => self::format_number( $shipping_method->get_shipping_tax() ),
-			'vat'             => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ),
-		);
+		return $shipping_options;
 	}
+
 
 	/**
 	 * Formats the shipping method to be used in order.items.
 	 *
-	 * @param WC_Shipping_rate $shipping_method The WooCommerce shipping method.
+	 * @param WC_Shipping_rate $shipping_rate The WooCommerce shipping method.
 	 * @return array
 	 */
-	public function get_shipping_item( $shipping_method ) {
+	public function get_shipping_item( $shipping_rate ) {
 		return array(
-			'id'         => $shipping_method->get_id(),
-			'line_id'    => $shipping_method->get_id(),
-			'amount'     => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping_tax() ),
-			'title'      => $shipping_method->get_label(),
-			'vat_amount' => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() ),
-			'vat'        => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ),
-			'quantity'   => 1,
-			'type'       => 'shipping',
+			'id'              => $shipping_rate->get_id(),
+			'line_id'         => $shipping_rate->get_id(),
+			'amount'          => self::format_number( $shipping_rate->get_cost() + $shipping_rate->get_shipping_tax() ),
+			'operator'        => '',
+			'description'     => '',
+			'title'           => $shipping_rate->get_label(),
+			'delivery_method' => 'unspecified',
+			'vat_amount'      => self::format_number( $shipping_rate->get_shipping_tax() ),
+			'vat'             => ( empty( floatval( $shipping_rate->get_cost() ) ) ) ? 0 : self::format_number( $shipping_rate->get_shipping_tax() / $shipping_rate->get_cost() ),
+		);
+	}
+
+	/**
+	 * Get the formatted order line from a pickup point.
+	 *
+	 * @param WC_Shipping_Rate                           $rate The shipping method rate from WooCommerce.
+	 * @param \Krokedil\Shipping\PickupPoint\PickupPoint $pickup_point The pickup point.
+	 * @return array
+	 */
+	private function get_pickup_point( $rate, $pickup_point ) {
+		$line_id = "{$rate->get_id()}:{$pickup_point->get_id()}";
+		return array(
+			'id'                  => $rate->get_id(),
+			'line_id'             => $line_id,
+			'amount'              => self::format_number( $rate->get_cost() + $rate->get_shipping_tax() ),
+			'operator'            => $rate->get_label(),
+			'operator_product_id' => $pickup_point->get_id(),
+			'title'               => $rate->get_label(),
+			'countries'           => array( $pickup_point->get_address()->get_country() ),
+			'description'         => $pickup_point->get_description(),
+			'delivery_method'     => 'pick_up',
+			'pick_up_address'     => array(
+				'address_line'  => $pickup_point->get_address()->get_street(),
+				'postal_code'   => $pickup_point->get_address()->get_postcode(),
+				'postal_place'  => $pickup_point->get_address()->get_city(),
+				'country'       => $pickup_point->get_address()->get_country(),
+				'business_name' => $pickup_point->get_name(),
+				'latitude'      => $pickup_point->get_coordinates()->get_latitude(),
+				'longitude'     => $pickup_point->get_coordinates()->get_longitude(),
+			),
 		);
 	}
 
