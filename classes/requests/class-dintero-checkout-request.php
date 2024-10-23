@@ -229,7 +229,8 @@ abstract class Dintero_Checkout_Request {
 		$title    = $this->log_title;
 		$code     = wp_remote_retrieve_response_code( $response );
 		$order_id = $body['id'] ?? json_decode( $request_args['body'], true )['id'] ?? null;
-		$log      = Dintero_Checkout_Logger::format_log( $order_id, $method, $title, $request_args, $response, $code, $request_url );
+
+		$log = Dintero_Checkout_Logger::format_log( $order_id, $method, $title, $request_args, $response, $code, $request_url );
 		Dintero_Checkout_Logger::log( $log );
 	}
 
