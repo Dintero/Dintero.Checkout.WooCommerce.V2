@@ -89,7 +89,7 @@ class Dintero_Checkout_Logger {
 			'title'          => $title,
 			'request_url'    => $request_url,
 			'request'        => $request_args,
-			'checkout_flow'  => $settings['checkout_flow'] ?? 'N/A',
+			'checkout_flow'  => $settings['checkout_flow'] ?? 'express_popout',
 			'response'       => array(
 				'body' => $response,
 				'code' => $code,
