@@ -77,6 +77,7 @@ class Dintero_Checkout_Logger {
 	 * @param string $response The data received from the API request.
 	 * @param string $code The HTTP response code.
 	 * @param string $request_url The request URL.
+	 * @param string $checkout_flow The checkout flow.
 	 * @return array A formatted associative array.
 	 */
 	public static function format_log( $dintero_id, $method, $title, $request_args, $response, $code, $request_url = null ) {
