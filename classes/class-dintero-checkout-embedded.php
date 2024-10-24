@@ -92,16 +92,11 @@ class Dintero_Checkout_Embedded {
 	 * @return void
 	 */
 	public function update_shipping_method() {
-		if ( ! is_checkout() ) {
-			return;
-		}
-
-		if ( 'dintero_checkout' !== WC()->session->get( 'chosen_payment_method' ) ) {
+		if ( ! is_checkout() || 'dintero_checkout' !== WC()->session->get( 'chosen_payment_method' ) ) {
 			return;
 		}
 
 		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
-
 		if ( ! isset( $settings['express_shipping_in_iframe'] ) || 'yes' !== $settings['express_shipping_in_iframe'] ) {
 			return;
 		}
@@ -123,12 +118,8 @@ class Dintero_Checkout_Embedded {
 	 * @return void
 	 */
 	public function update_dintero_checkout_session() {
-		if ( ! is_checkout() ) {
-			return;
-		}
-
 		// We can only do this during AJAX, so if it is not an ajax call, we should just bail.
-		if ( ! wp_doing_ajax() ) {
+		if ( ! is_checkout() || ! wp_doing_ajax() ) {
 			return;
 		}
 
@@ -138,11 +129,19 @@ class Dintero_Checkout_Embedded {
 			return;
 		}
 
-		if ( 'dintero_checkout' !== WC()->session->chosen_payment_method ) {
+		// If Dintero is the chosen gateway while it is unavailable, reload the checkout. This can happen if the total a non-zero total amount becomes zero.
+		$chosen_gateway     = WC()->session->chosen_payment_method;
+		$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
+		if ( 'dintero_checkout' === $chosen_gateway && ! array_key_exists( 'dintero_checkout', $available_gateways ) ) {
+			WC()->session->reload_checkout = true;
 			return;
 		}
 
-		// Dintero is not available for free orders.
+		if ( 'dintero_checkout' !== $chosen_gateway ) {
+			return;
+		}
+
+		// Reload the page so the standard WooCommerce checkout page will appear.
 		if ( ! WC()->cart->needs_payment() ) {
 			WC()->session->reload_checkout = true;
 		}
