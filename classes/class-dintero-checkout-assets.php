@@ -25,6 +25,7 @@ class Dintero_Checkout_Assets {
 		}
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		add_action( 'wp_head', array( $this, 'backlinks_styling' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'dintero_load_general_checkout_css' ) );
 	}
 	/**
 	 * Loads style for the plugin.
@@ -50,6 +51,23 @@ class Dintero_Checkout_Assets {
 			DINTERO_CHECKOUT_VERSION
 		);
 		wp_enqueue_style( 'dintero-checkout-style' );
+	}
+
+	/**
+	 * Loads general style for the checkout page of the plugin.
+	 */
+	public function dintero_load_general_checkout_css() {
+		if ( ! is_checkout() ) {
+			return;
+		}
+
+		wp_register_style(
+			'dintero-checkout-general-style',
+			DINTERO_CHECKOUT_URL . '/assets/css/dintero-checkout-general.css',
+			array(),
+			DINTERO_CHECKOUT_VERSION
+		);
+		wp_enqueue_style( 'dintero-checkout-general-style' );
 	}
 
 	/**
