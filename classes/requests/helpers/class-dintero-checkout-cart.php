@@ -295,6 +295,10 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		$shipping_ids   = array_unique( WC()->session->get( 'chosen_shipping_methods' ) );
 		$shipping_rates = WC()->shipping->get_packages()[0]['rates'];
 
+		if ( empty( $shipping_rates ) ) {
+			return $shipping_options;
+		}
+
 		foreach ( $shipping_ids as  $shipping_id ) {
 			$shipping_method    = $shipping_rates[ $shipping_id ];
 			$shipping_options[] = $this->get_shipping_item( $shipping_method );
