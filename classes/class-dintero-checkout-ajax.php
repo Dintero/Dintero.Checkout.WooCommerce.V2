@@ -135,6 +135,10 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 		$id      = filter_input( INPUT_POST, 'id', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$session = Dintero()->api->get_session( $id );
 
+		if ( is_wp_error( $session ) ) {
+			wp_send_json_error( $session->get_error_message() );
+		}
+
 		WC()->cart->calculate_totals();
 		$total    = $session['order']['amount'];
 		$wc_total = intval( WC()->cart->total * 100 );
