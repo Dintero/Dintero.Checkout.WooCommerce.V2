@@ -52,12 +52,6 @@ if ( ! class_exists( 'Dintero' ) ) {
 		public $order_management;
 
 		/**
-		 * The reference the *Singleton* instance of this class.
-		 *
-		 * @var Dintero $instance
-		 */
-
-		/**
 		 * Pickup points service.
 		 *
 		 * @var PickupPointServiceInterface $pickup_points
