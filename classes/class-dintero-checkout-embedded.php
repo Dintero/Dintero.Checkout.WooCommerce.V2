@@ -203,6 +203,7 @@ class Dintero_Checkout_Embedded {
 				}
 
 				Dintero()->pickup_points()->save_selected_pickup_point_to_rate( $rate, $pickup_point );
+				break;
 			}
 		}
 
