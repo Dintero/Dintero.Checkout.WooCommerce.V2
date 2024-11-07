@@ -35,6 +35,16 @@ jQuery( function ( $ ) {
                 console.error( "Dintero Checkout: Could not find the container for the iframe." )
             }
 
+            // WC won't reload the checkout page if Dintero becomes available after being unavailable while remaining on the same page. E.g., when changing shipping method that makes the cart amount non-zero. This seems to only happen when WooCommerce Subscriptions is used.
+            $( "body" ).on( "updated_checkout", function () {
+                if (
+                    0 === $( "#dintero-checkout-iframe" ).length &&
+                    dinteroCheckoutForWooCommerce.isSelectedGateway()
+                ) {
+                    window.location.reload()
+                }
+            } )
+
             /* These are _WC_ events we attach onto. */
             dinteroCheckoutForWooCommerce.bodyEl.on( "update_checkout", dinteroCheckoutForWooCommerce.updateCheckout )
             dinteroCheckoutForWooCommerce.bodyEl.on( "updated_checkout", dinteroCheckoutForWooCommerce.updatedCheckout )
@@ -198,18 +208,6 @@ jQuery( function ( $ ) {
             }
 
             $( "form.checkout" ).trigger( "update_checkout" )
-
-            // WC won't reload the checkout page if Dintero becomes available after being unavailable while remaining on the same page. E.g., when changing shipping method that makes the cart amount non-zero. This seems to only happen when WooCommerce Subscriptions is used.
-            if ( $( "#dintero-checkout-iframe" ).length === 0 ) {
-                const observer = new MutationObserver( () => {
-                    if ( dinteroCheckoutForWooCommerce.isSelectedGateway() ) {
-                        window.location.reload()
-                    }
-                } )
-
-                const config = { childList: true, subtree: true }
-                observer.observe( document.querySelector( "form[name=checkout]" ), config )
-            }
         },
 
         /**
