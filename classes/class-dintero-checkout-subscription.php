@@ -344,6 +344,13 @@ class Dintero_Checkout_Subscription {
 		$subscription->save();
 	}
 
+	/**
+	 * Add an order note to the subscription(s).
+	 *
+	 * @param WC_Subscription|WC_Subscription[] $subscriptions The WooCommerce subscription(s).
+	 * @param string                            $note The note to add.
+	 * @return void
+	 */
 	public static function add_order_note( $subscriptions, $note ) {
 		if ( ! is_array( $subscriptions ) ) {
 			$subscriptions->add_order_note( $note );
