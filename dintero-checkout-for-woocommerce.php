@@ -155,7 +155,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 				return false;
 			}
 
-			return $result;
+			return true;
 		}
 
 		/**
