@@ -380,7 +380,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 * Get the formatted order line from a pickup point.
 	 *
 	 * @param WC_Shipping_Rate                           $rate The shipping method rate from WooCommerce.
-	 * @param \Krokedil\Shipping\PickupPoint\PickupPoint $pickup_point The pickup point.
+	 * @param KrokedilDinteroCheckoutDeps\Krokedil\Shipping\PickupPoint\PickupPoint $pickup_point The pickup point.
 	 * @return array
 	 */
 	private function get_pickup_point( $rate, $pickup_point ) {

@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use Krokedil\Shipping\Interfaces\PickupPointServiceInterface;
-use Krokedil\Shipping\PickupPoints;
+use KrokedilDinteroCheckoutDeps\Krokedil\Shipping\Interfaces\PickupPointServiceInterface;
+use KrokedilDinteroCheckoutDeps\Krokedil\Shipping\PickupPoints;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -113,13 +113,49 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * @return bool Whether it was successfully initialized.
 		 */
 		public function init_composer() {
-			$autoloader = DINTERO_CHECKOUT_PATH . '/vendor/autoload.php';
-			$result     = require $autoloader;
-			if ( ! $result ) {
+			$autoloader              = . '/vendor/autoload.php';
+			$autoloader_dependencies = __DIR__ . '/dependencies/scoper-autoload.php';
+
+			// Check if the autoloaders was read.
+			$autoloader_result              = is_readable( $autoloader ) && require $autoloader;
+			$autoloader_dependencies_result = is_readable( $autoloader_dependencies ) && require $autoloader_dependencies;
+			if ( ! $autoloader_result || ! $autoloader_dependencies_result ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( //phpcs:ignore
+						sprintf(
+							/* translators: 1: composer command. 2: plugin directory */
+							esc_html__( 'Your installation of the Dintero Checkout plugin is incomplete. Please run %1$s within the %2$s directory.', 'ledyer-payments-for-woocommerce' ),
+							'`composer install`',
+							'`' . esc_html( str_replace( ABSPATH, '', __DIR__ ) ) . '`'
+						)
+					);
+				}
+
+				// Add an admin notice, use anonymous function to simplify, this does not need to be removable.
+				add_action(
+					'admin_notices',
+					function () {
+						?>
+						<div class="notice notice-error">
+							<p>
+								<?php
+								printf(
+									/* translators: 1: composer command. 2: plugin directory */
+									esc_html__( 'Your installation of the Dintero Checkout plugin is incomplete. Please run %1$s within the %2$s directory.', 'ledyer-payments-for-woocommerce' ),
+									'<code>composer install</code>',
+									'<code>' . esc_html( str_replace( ABSPATH, '', __DIR__ ) ) . '</code>'
+								);
+								?>
+							</p>
+						</div>
+						<?php
+					}
+				);
+
 				return false;
 			}
 
-			return ! $result ? false : $result;
+			return $result;
 		}
 
 		/**
