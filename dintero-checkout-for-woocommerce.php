@@ -113,7 +113,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * @return bool Whether it was successfully initialized.
 		 */
 		public function init_composer() {
-			$autoloader              = . '/vendor/autoload.php';
+			$autoloader              = __DIR__ . '/vendor/autoload.php';
 			$autoloader_dependencies = __DIR__ . '/dependencies/scoper-autoload.php';
 
 			// Check if the autoloaders was read.
