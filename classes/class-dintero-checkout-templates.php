@@ -79,7 +79,7 @@ class Dintero_Checkout_Templates {
 			return $template;
 		}
 
-		// Dintero is not available for free orders except for free trial subscriptions. Refer to the Subscription class.
+		// Dintero is not available for free orders except for free trial subscriptions. Refer to Dintero_Checkout_Subscription::cart_needs_payment().
 		if ( ! WC()->cart->needs_payment() ) {
 			return $template;
 		}
@@ -208,7 +208,7 @@ class Dintero_Checkout_Templates {
 	public function add_body_class( $class ) {
 		if ( is_checkout() && ! is_wc_endpoint_url( 'order-received' ) ) {
 
-			// Dintero is not available for free orders except for free trial subscriptions. Refer to the Subscription class.
+			// Dintero is not available for free orders except for free trial subscriptions. Refer to Dintero_Checkout_Subscription::cart_needs_payment().
 			if ( method_exists( WC()->cart, 'needs_payment' ) && ! WC()->cart->needs_payment() ) {
 				return $class;
 			}

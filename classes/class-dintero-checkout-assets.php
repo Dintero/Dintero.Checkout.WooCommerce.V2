@@ -125,7 +125,7 @@ class Dintero_Checkout_Assets {
 			WC()->cart->calculate_shipping();
 			// The checkout is only available for free orders if the cart contains subscriptions.
 			// We therefore don't have to check if the cart contains subscriptions. Refer to Dintero_Checkout_Subscription::is_available().
-			if ( 0.0 === floatval( WC()->cart->total ) ) {
+			if ( 0.0 === floatval( WC()->cart->total ) && Dintero_Checkout_Subscription::cart_has_subscription() ) {
 				$session = Dintero()->api->create_payment_token();
 			} else {
 				$session = Dintero()->api->create_session();
