@@ -113,13 +113,11 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * @return bool Whether it was successfully initialized.
 		 */
 		public function init_composer() {
-			$autoloader              = __DIR__ . '/vendor/autoload.php';
 			$autoloader_dependencies = __DIR__ . '/dependencies/scoper-autoload.php';
 
 			// Check if the autoloaders was read.
-			$autoloader_result              = is_readable( $autoloader ) && require $autoloader;
 			$autoloader_dependencies_result = is_readable( $autoloader_dependencies ) && require $autoloader_dependencies;
-			if ( ! $autoloader_result || ! $autoloader_dependencies_result ) {
+			if ( ! $autoloader_dependencies_result ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					error_log( //phpcs:ignore
 						sprintf(
