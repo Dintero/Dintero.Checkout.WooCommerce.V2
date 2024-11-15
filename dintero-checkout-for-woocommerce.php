@@ -10,7 +10,7 @@
  * Domain Path: /languages
  *
  * WC requires at least: 6.1.0
- * WC tested up to: 8.2.1
+ * WC tested up to: 8.9.2
  *
  * Copyright (c) 2024 Krokedil
  *
@@ -121,6 +121,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-embedded.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-order-status.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-meta-box.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-subscription.php';
 
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/class-dintero-checkout-request.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/class-dintero-checkout-request-get.php';
@@ -138,6 +139,8 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-cancel-order.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-capture-order.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-refund-order.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-sessions-pay.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-payment-token.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/put/class-dintero-checkout-update-checkout-session.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/put/class-dintero-checkout-update-transaction.php';
 
@@ -163,10 +166,10 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * @return void
 		 */
 		public function declare_wc_compatibility() {
-			// Declare HPOS compatibility.
-			// Declare Checkout Blocks incompatibility
 			if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+				// Declare HPOS compatibility.
 				\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+				// Declare Checkout Blocks incompatibility
 				\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, false );
 			}
 		}
@@ -227,6 +230,6 @@ if ( ! class_exists( 'Dintero' ) ) {
  *
  * @return Dintero
  */
-function Dintero() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName
+function Dintero() { // phpcs:ignore
 	return Dintero::get_instance();
 }

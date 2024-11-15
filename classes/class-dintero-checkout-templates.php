@@ -52,7 +52,7 @@ class Dintero_Checkout_Templates {
 	public function __construct() {
 		$this->settings        = get_option( 'woocommerce_dintero_checkout_settings' );
 		$this->checkout_layout = $this->settings['checkout_layout'] ?? 'two_column_right';
-		if ( dwc_is_embedded( $this->settings ) && 'yes' === $this->settings['enabled'] ) {
+		if ( dwc_is_embedded( $this->settings ) && wc_string_to_bool( $this->settings['enabled'] ?? 'no' ) ) {
 			// Common.
 			add_filter( 'wc_get_template', array( $this, 'override_template' ), 999, 2 );
 			add_action( 'dintero_iframe', array( $this, 'iframe' ) );
@@ -79,20 +79,19 @@ class Dintero_Checkout_Templates {
 			return $template;
 		}
 
+		// Dintero is not available for free orders except for free trial subscriptions. Refer to Dintero_Checkout_Subscription::cart_needs_payment().
 		if ( ! WC()->cart->needs_payment() ) {
 			return $template;
 		}
 
 		/* For all form factors, redirect is used for order-pay since the cart object (used for embedded) is not available. */
-		if ( is_wc_endpoint_url( 'order-pay' ) ) {
+		if ( is_checkout_pay_page() ) {
 			return $template;
 		}
 
-		if ( dwc_is_express( $this->settings ) ) {
-			return $this->maybe_replace_checkout( $template, $template_name );
-		} else {
-			return $this->replace_payment_method( $template, $template_name );
-		}
+		return dwc_is_express( $this->settings )
+			? $this->maybe_replace_checkout( $template, $template_name )
+			: $this->replace_payment_method( $template, $template_name );
 	}
 
 	/**
@@ -105,13 +104,15 @@ class Dintero_Checkout_Templates {
 	public function maybe_replace_checkout( $template, $template_name ) {
 		if ( 'checkout/form-checkout.php' === $template_name ) {
 			$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
+
+			// Check if Dintero is available. This is important when a non-zero subscription converts to a zero subscription. When that happens, we no longer want to override the checkout page. Let WC display its template instead.
 			if ( ! array_key_exists( 'dintero_checkout', $available_gateways ) ) {
 				return $template;
 			}
 
 			// Retrieve the template for Dintero Checkout Express.
 			$maybe_template            = locate_template( 'woocommerce/dintero-checkout-express.php' );
-			$checkout_express_template = ( $maybe_template ) ? $maybe_template : DINTERO_CHECKOUT_PATH . '/templates/dintero-checkout-express.php';
+			$checkout_express_template = ! empty( $maybe_template ) ? $maybe_template : DINTERO_CHECKOUT_PATH . '/templates/dintero-checkout-express.php';
 
 			// If Dintero Checkout is already selected as a gateway...
 			$chosen_payment_method = WC()->session->chosen_payment_method;
@@ -142,10 +143,15 @@ class Dintero_Checkout_Templates {
 	 */
 	public function replace_payment_method( $template, $template_name ) {
 		if ( 'checkout/payment.php' === $template_name ) {
+			$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
+			if ( ! array_key_exists( 'dintero_checkout', $available_gateways ) ) {
+				return $template;
+			}
+
 			WC()->session->set( 'chosen_payment_method', 'dintero_checkout' );
 			// Retrieve the template for Dintero Checkout template.
 			$maybe_template             = locate_template( 'woocommerce/dintero-checkout-embedded.php' );
-			$checkout_embedded_template = ( $maybe_template ) ?: DINTERO_CHECKOUT_PATH . '/templates/dintero-checkout-embedded.php';
+			$checkout_embedded_template = empty( $maybe_template ) ? DINTERO_CHECKOUT_PATH . '/templates/dintero-checkout-embedded.php' : $template;
 
 			return $checkout_embedded_template;
 		}
@@ -202,7 +208,7 @@ class Dintero_Checkout_Templates {
 	public function add_body_class( $class ) {
 		if ( is_checkout() && ! is_wc_endpoint_url( 'order-received' ) ) {
 
-			// Don't display Dintero body classes if we have a cart that doesn't need payment.
+			// Dintero is not available for free orders except for free trial subscriptions. Refer to Dintero_Checkout_Subscription::cart_needs_payment().
 			if ( method_exists( WC()->cart, 'needs_payment' ) && ! WC()->cart->needs_payment() ) {
 				return $class;
 			}

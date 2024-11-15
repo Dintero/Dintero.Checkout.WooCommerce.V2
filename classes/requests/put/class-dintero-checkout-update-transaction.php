@@ -21,7 +21,8 @@ class Dintero_Checkout_Update_Transaction extends Dintero_Checkout_Request_Put {
 	public function __construct( $arguments ) {
 		parent::__construct( $arguments );
 
-		$this->log_title = 'Update Dintero Transaction.';
+		$this->log_title      = 'Update Dintero Transaction.';
+		$this->request_filter = 'dintero_checkout_update_transaction_args';
 	}
 
 	/**

@@ -47,6 +47,13 @@ abstract class Dintero_Checkout_Request {
 	 */
 	protected $settings;
 
+	/**
+	 * Filter to use for the request args.
+	 *
+	 * @var string
+	 */
+	protected $request_filter = 'dintero_checkout_request_args';
+
 
 	/**
 	 * Class constructor.
@@ -65,6 +72,15 @@ abstract class Dintero_Checkout_Request {
 	 */
 	protected function load_settings() {
 		$this->settings = get_option( 'woocommerce_dintero_checkout_settings' );
+	}
+
+	/**
+	 * Get the arguments.
+	 *
+	 * @return array
+	 */
+	public function arguments() {
+		return $this->arguments;
 	}
 
 	/**
@@ -153,7 +169,7 @@ abstract class Dintero_Checkout_Request {
 	/**
 	 * Make the request.
 	 *
-	 * @return object|WP_Error
+	 * @return array|WP_Error
 	 */
 	public function request() {
 		$url      = $this->get_request_url();
@@ -213,7 +229,8 @@ abstract class Dintero_Checkout_Request {
 		$title    = $this->log_title;
 		$code     = wp_remote_retrieve_response_code( $response );
 		$order_id = $body['id'] ?? json_decode( $request_args['body'], true )['id'] ?? null;
-		$log      = Dintero_Checkout_Logger::format_log( $order_id, $method, $title, $request_args, $response, $code, $request_url );
+
+		$log = Dintero_Checkout_Logger::format_log( $order_id, $method, $title, $request_args, $response, $code, $request_url );
 		Dintero_Checkout_Logger::log( $log );
 	}
 
