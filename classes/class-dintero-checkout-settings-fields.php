@@ -121,6 +121,7 @@ class Dintero_Settings_Fields {
 				'description' => __( 'Click <a href="https://www.dintero.com/checkout-layouts">here</a> to read more about checkout layouts.', 'dintero-checkout-for-woocommerce' ),
 				'default'     => 'two_column_right',
 				'desc_tip'    => false,
+				'class'       => 'embedded-only',
 			),
 			/* The "Redirect box" is hidden until the form factor Redirect is selected. */
 			'redirect_title'                          => array(

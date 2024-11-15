@@ -39,12 +39,11 @@ jQuery( function ( $ ) {
         onFlowChange() {
             // Posible values: express_popout, express_embedded, checkout_redirect, checkout_popout, checkout_embedded.
             const flow = dwc.checkout_flow.val()
+            const redirectOnly = $( ".redirect-only" ).parents( "tr" )
+            const embeddedOnly = $( ".embedded-only" ).parents( "tr" )
 
-            if ( flow.includes( "redirect" ) ) {
-                $( ".redirect-only" ).parents( "tr" ).fadeIn()
-            } else {
-                $( ".redirect-only" ).parents( "tr" ).fadeOut()
-            }
+            redirectOnly.toggle( flow.includes( "redirect" ) )
+            embeddedOnly.toggle( flow.includes( "embedded" ) )
 
             dwc.toggle_express_shipping( flow.includes( "express" ) )
         },

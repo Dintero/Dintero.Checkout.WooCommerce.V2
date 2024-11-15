@@ -148,7 +148,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return string
 		 */
 		public function get_icon() {
-			return '<img src="' . esc_attr( dintero_get_brand_image_url() ) . '" style="max-width: 90%" alt="Dintero logo" />';
+			return '<img class="dintero-logos" src="' . esc_attr( dintero_get_brand_image_url() ) . '" style="max-width: 90%" alt="Dintero logo" />';
 		}
 
 		/**
