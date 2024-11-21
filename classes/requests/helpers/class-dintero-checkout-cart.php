@@ -9,6 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use KrokedilDinteroCheckoutDeps\Krokedil\Shipping\PickupPoint\PickupPoint;
+
 /**
  * Class for handling cart items.
  */
@@ -322,34 +324,16 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 				continue;
 			}
 
-			$line_id            = "{$rate->get_id()}:{$pickup_point->get_id()}";
-			$shipping_options[] = array(
-				'id'                  => $rate->get_id(),
-				'line_id'             => $line_id,
-				'amount'              => self::format_number( $rate->get_cost() + $rate->get_shipping_tax() ),
-				'operator'            => $rate->get_label(),
-				'operator_product_id' => $pickup_point->get_id(),
-				'title'               => $rate->get_label(),
-				'countries'           => array( $pickup_point->get_address()->get_country() ),
-				'description'         => $pickup_point->get_description(),
-				'delivery_method'     => 'pick_up',
-				'pick_up_address'     => array(
-					'address_line'  => $pickup_point->get_address()->get_street(),
-					'postal_code'   => $pickup_point->get_address()->get_postcode(),
-					'postal_place'  => $pickup_point->get_address()->get_city(),
-					'country'       => $pickup_point->get_address()->get_country(),
-					'business_name' => $pickup_point->get_name(),
-					'latitude'      => $pickup_point->get_coordinates()->get_latitude(),
-					'longitude'     => $pickup_point->get_coordinates()->get_longitude(),
-				),
-			);
+			$shipping_option = $this->get_pickup_point( $rate, $pickup_point );
 
 			$eta = $pickup_point->get_eta()->get_utc();
 			if ( ! empty( $eta ) ) {
-				$shipping_options['eta'] = array(
+				$shipping_option['eta'] = array(
 					'starts_at' => $eta,
 				);
 			}
+
+			$shipping_options[] = $shipping_option;
 		}
 
 		return $shipping_options;
@@ -363,7 +347,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 * @return array
 	 */
 	public function get_shipping_item( $shipping_rate ) {
-		return array(
+		$shipping_option = array(
 			'id'              => $shipping_rate->get_id(),
 			'line_id'         => $shipping_rate->get_id(),
 			'amount'          => self::format_number( $shipping_rate->get_cost() + $shipping_rate->get_shipping_tax() ),
@@ -374,22 +358,37 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			'vat_amount'      => self::format_number( $shipping_rate->get_shipping_tax() ),
 			'vat'             => ( empty( floatval( $shipping_rate->get_cost() ) ) ) ? 0 : self::format_number( $shipping_rate->get_shipping_tax() / $shipping_rate->get_cost() ),
 		);
+
+		$meta    = $shipping_rate->get_meta_data();
+		$carrier = $meta['carrier'] ?? null;
+		if ( ! empty( $carrier ) ) {
+			$carrier                          = strtolower( $carrier );
+			$shipping_option['operator']      = $carrier;
+			$shipping_option['thumbnail_url'] = $this->get_pickup_point_icon( $carrier, $shipping_rate );
+		} else {
+			$shipping_option['thumbnail_url'] = $this->get_pickup_point_icon( $shipping_rate->get_method_id(), $shipping_rate );
+		}
+
+		return $shipping_option;
 	}
 
 	/**
 	 * Get the formatted order line from a pickup point.
 	 *
-	 * @param WC_Shipping_Rate                           $rate The shipping method rate from WooCommerce.
-	 * @param KrokedilDinteroCheckoutDeps\Krokedil\Shipping\PickupPoint\PickupPoint $pickup_point The pickup point.
+	 * @param WC_Shipping_Rate $rate The shipping method rate from WooCommerce.
+	 * @param PickupPoint      $pickup_point The pickup point.
 	 * @return array
 	 */
 	private function get_pickup_point( $rate, $pickup_point ) {
+		$meta    = $rate->get_meta_data();
+		$carrier = isset( $meta['carrier'] ) ? strtolower( $meta['carrier'] ) : $meta['udc_carrier_id'];
+
 		$line_id = "{$rate->get_id()}:{$pickup_point->get_id()}";
 		return array(
 			'id'                  => $rate->get_id(),
 			'line_id'             => $line_id,
 			'amount'              => self::format_number( $rate->get_cost() + $rate->get_shipping_tax() ),
-			'operator'            => $rate->get_label(),
+			'operator'            => $carrier,
 			'operator_product_id' => $pickup_point->get_id(),
 			'title'               => $rate->get_label(),
 			'countries'           => array( $pickup_point->get_address()->get_country() ),
@@ -404,7 +403,53 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 				'latitude'      => $pickup_point->get_coordinates()->get_latitude(),
 				'longitude'     => $pickup_point->get_coordinates()->get_longitude(),
 			),
+			'thumbnail_url'       => $this->get_pickup_point_icon( $carrier, $rate ),
 		);
+	}
+
+	private function get_pickup_point_icon( $carrier, $shipping_rate ) {
+		$base_url = DINTERO_CHECKOUT_URL . '/assets/img/shipping';
+
+		$carrier = strtolower( $carrier );
+		switch ( strtolower( $carrier ) ) {
+			case 'postnord':
+			case 'plab':
+				$img_url = "$base_url/icon-postnord.svg";
+				break;
+			case 'dhl':
+			case 'dhl Freight': // Maybe use a separate icon for DHL Freight in the future.
+				$img_url = "$base_url/icon-dhl.svg";
+				break;
+			case 'budbee':
+				$img_url = "$base_url/icon-budbee.svg";
+				break;
+			case 'instabox':
+				$img_url = "$base_url/icon-instabox.svg";
+				break;
+			case 'schenker':
+				$img_url = "$base_url/icon-db-schenker.svg";
+				break;
+			case 'bring':
+				$img_url = "$base_url/icon-bring.svg";
+				break;
+			case 'ups':
+				$img_url = "$base_url/icon-ups.svg";
+				break;
+			case 'fedex':
+				$img_url = "$base_url/icon-fedex.svg";
+				break;
+			case 'local_pickup':
+				$img_url = "$base_url/icon-store.svg";
+				break;
+			case 'deliverycheckout':
+				$img_url = "$base_url/icon-neutral.svg";
+				break;
+			default:
+				$img_url = "$base_url/icon-neutral.svg";
+				break;
+		}
+
+		return apply_filters( 'dwc_shipping_icon', $img_url, $carrier, $shipping_rate );
 	}
 
 	/**
