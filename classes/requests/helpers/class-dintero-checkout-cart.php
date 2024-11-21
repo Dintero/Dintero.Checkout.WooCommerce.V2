@@ -360,9 +360,9 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		);
 
 		$meta    = $shipping_rate->get_meta_data();
-		$carrier = $meta['carrier'] ?? null;
+		$carrier = $meta['carrier'] ?? $meta['udc_carrier_id'] ?? null;
 		if ( ! empty( $carrier ) ) {
-			$carrier                          = strtolower( $carrier );
+			$carrier                          = $this->get_operator( $carrier );
 			$shipping_option['operator']      = $carrier;
 			$shipping_option['thumbnail_url'] = $this->get_pickup_point_icon( $carrier, $shipping_rate );
 		} else {
@@ -388,7 +388,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			'id'                  => $rate->get_id(),
 			'line_id'             => $line_id,
 			'amount'              => self::format_number( $rate->get_cost() + $rate->get_shipping_tax() ),
-			'operator'            => $carrier,
+			'operator'            => $this->get_operator( $carrier ),
 			'operator_product_id' => $pickup_point->get_id(),
 			'title'               => $rate->get_label(),
 			'countries'           => array( $pickup_point->get_address()->get_country() ),
@@ -410,14 +410,14 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	private function get_pickup_point_icon( $carrier, $shipping_rate ) {
 		$base_url = DINTERO_CHECKOUT_URL . '/assets/img/shipping';
 
-		$carrier = strtolower( $carrier );
+		$carrier = $this->get_operator( $carrier );
 		switch ( strtolower( $carrier ) ) {
 			case 'postnord':
 			case 'plab':
 				$img_url = "$base_url/icon-postnord.svg";
 				break;
 			case 'dhl':
-			case 'dhl Freight': // Maybe use a separate icon for DHL Freight in the future.
+			case 'dhl freight':
 				$img_url = "$base_url/icon-dhl.svg";
 				break;
 			case 'budbee':
@@ -450,6 +450,27 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		}
 
 		return apply_filters( 'dwc_shipping_icon', $img_url, $carrier, $shipping_rate );
+	}
+
+	private function get_operator( $carrier ) {
+		$carrier = strtolower( $carrier );
+
+		$supported_carriers = array( 'dhl', 'postnord', 'budbee', 'instabox', 'dbschenker', 'bring', 'ups', 'fedex' );
+		foreach ( $supported_carriers as $supported_carrier ) {
+			if ( strpos( $carrier, $supported_carrier ) !== false ) {
+				return $supported_carrier;
+			}
+		}
+
+		switch ( strtolower( $carrier ) ) {
+			case 'postnord':
+			case 'plab':
+				return 'postnord';
+
+			// What remains is not a supported carrier. We'll just return the value received.
+			default:
+				return $carrier;
+		}
 	}
 
 	/**
