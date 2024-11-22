@@ -302,8 +302,16 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		}
 
 		foreach ( $shipping_ids as  $shipping_id ) {
-			$shipping_method    = $shipping_rates[ $shipping_id ];
-			$shipping_options[] = $this->get_shipping_item( $shipping_method );
+			$shipping_rate = $shipping_rates[ $shipping_id ];
+
+			$pickup_points = Dintero()->pickup_points()->get_pickup_points_from_rate( $shipping_rate );
+			if ( ! empty( $pickup_points ) ) {
+				foreach ( $pickup_points as $pickup_point ) {
+					$shipping_options[] = $this->get_pickup_point( $shipping_rate, $pickup_point );
+				}
+			} else {
+				$shipping_options[] = $this->get_shipping_item( $shipping_rate );
+			}
 		}
 
 		return $shipping_options;

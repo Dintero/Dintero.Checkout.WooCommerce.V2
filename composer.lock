@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "15db7232015d4fc1e023ef1eff0e65777a906f2c"
+                "reference": "866f7cf551e49a410581cd50e4e1c44e2e4db2f0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/15db7232015d4fc1e023ef1eff0e65777a906f2c",
-                "reference": "15db7232015d4fc1e023ef1eff0e65777a906f2c",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/866f7cf551e49a410581cd50e4e1c44e2e4db2f0",
+                "reference": "866f7cf551e49a410581cd50e4e1c44e2e4db2f0",
                 "shasum": ""
             },
             "require": {
@@ -86,7 +86,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-11-18T18:44:46+00:00"
+            "time": "2024-11-21T05:15:17+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
