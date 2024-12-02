@@ -463,7 +463,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	private function get_operator( $carrier ) {
 		$carrier = strtolower( $carrier );
 
-		$supported_carriers = array( 'dhl', 'postnord', 'budbee', 'instabox', 'dbschenker', 'bring', 'ups', 'fedex' );
+		$supported_carriers = array( 'dhl', 'postnord', 'posten', 'budbee', 'instabox', 'dbschenker', 'bring', 'ups', 'fedex' );
 		foreach ( $supported_carriers as $supported_carrier ) {
 			if ( strpos( $carrier, $supported_carrier ) !== false ) {
 				return $supported_carrier;
@@ -474,6 +474,10 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			case 'postnord':
 			case 'plab':
 				return 'postnord';
+
+			case 'posten':
+			case 'posten-norge':
+				return 'posten';
 
 			// What remains is not a supported carrier. We'll just return the value received.
 			default:
