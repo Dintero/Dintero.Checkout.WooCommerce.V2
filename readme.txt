@@ -2,10 +2,10 @@
 Contributors: dintero, krokedil, NiklasHogefjord
 Tags: woocommerce, dintero, ecommerce, e-commerce, checkout
 Requires at least: 5.8.3
-Tested up to: 6.4.1
-Requires PHP: 7.0
+Tested up to: 6.7.1
+Requires PHP: 7.4
 WC requires at least: 6.1.0
-WC tested up to: 8.2.1
+WC tested up to: 9.4.3
 Stable tag: 1.10.7
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
