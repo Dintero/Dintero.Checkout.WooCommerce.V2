@@ -24,6 +24,7 @@ class Dintero_Checkout_Embedded {
 			add_action( 'woocommerce_before_calculate_totals', array( $this, 'update_shipping_method' ), 1 );
 			add_action( 'woocommerce_after_calculate_totals', array( $this, 'update_dintero_checkout_session' ), 9999 );
 			add_action( 'woocommerce_checkout_update_order_review', array( $this, 'update_wc_customer' ) );
+			add_filter( 'woocommerce_shipping_packages', array( $this, 'maybe_set_selected_pickup_point' ) );
 		}
 	}
 
@@ -160,6 +161,53 @@ class Dintero_Checkout_Embedded {
 		}
 
 		Dintero()->api->update_checkout_session( $session_id );
+	}
+
+	/**
+	 * Maybe set the selected pickup point in the shipping method.
+	 *
+	 * @param array $packages The shipping packages.
+	 * @return array
+	 */
+	public function maybe_set_selected_pickup_point( $packages ) {
+		$merchant_reference = WC()->session->get( 'dintero_merchant_reference' );
+		$chosen_shipping    = get_transient( "dintero_shipping_data_{$merchant_reference}" );
+
+		if ( empty( $chosen_shipping ) ) {
+			return $packages;
+		}
+
+		$is_pickup = 'pick_up' === $chosen_shipping['delivery_method'];
+		if ( ! $is_pickup ) {
+			return $packages;
+		}
+
+		// Loop each package.
+		foreach ( $packages as $package ) {
+			/**
+			 * Shipping rate object.
+			 *
+			 * @var WC_Shipping_Rate $rate
+			 */
+			foreach ( $package['rates'] as $rate ) {
+				if ( $chosen_shipping['id'] !== $rate->get_id() ) {
+					continue;
+				}
+
+				// Find the shipping rate that has the following operator product ID.
+				$id           = $chosen_shipping['operator_product_id'];
+				$pickup_point = Dintero()->pickup_points()->get_pickup_point_from_rate_by_id( $rate, $id );
+
+				if ( empty( $pickup_point ) ) {
+					continue;
+				}
+
+				Dintero()->pickup_points()->save_selected_pickup_point_to_rate( $rate, $pickup_point );
+				break;
+			}
+		}
+
+		return $packages;
 	}
 }
 new Dintero_Checkout_Embedded();

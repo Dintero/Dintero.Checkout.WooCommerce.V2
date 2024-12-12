@@ -29,6 +29,9 @@ yarn-debug.log*
 yarn-error.log*
 
 /vendor/
+dependencies/*
+!dependencies/.gitkeep
+tmp-*
 
 # Release
 /release/
