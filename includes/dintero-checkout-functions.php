@@ -157,6 +157,7 @@ function dintero_update_wc_shipping( $data ) {
  */
 function dintero_confirm_order( $order, $transaction_id ) {
 	$order_id = $order->get_id();
+
 	$settings = get_option( 'woocommerce_dintero_checkout_settings' );
 
 	// Save the environment mode for use in the meta box.
@@ -168,6 +169,9 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	/* Remove duplicate words from the payment method type (e.g., swish.swish → Swish). Otherwise, prints as is (e.g., collector.invoice → Collector Invoice). */
 	$payment_method = dintero_get_payment_method_name( wc_get_var( $dintero_order['payment_product_type'], $order->get_meta( '_dintero_payment_method' ) ) );
 	$order->update_meta_data( '_dintero_payment_method', $payment_method );
+
+	// Get the order from the database again to prevent any concurrency issues if the page loads twice at the same time.
+	$order = wc_get_order( $order_id );
 
 	$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
 	if ( $require_authorization ) {
