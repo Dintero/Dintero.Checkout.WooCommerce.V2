@@ -5,8 +5,8 @@ Requires at least: 5.8.3
 Tested up to: 6.7.1
 Requires PHP: 7.4
 WC requires at least: 6.1.0
-WC tested up to: 9.4.3
-Stable tag: 1.10.7
+WC tested up to: 9.5.1
+Stable tag: 1.10.8
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,9 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2025.01.07    - version 1.10.8 =
+* Enhancement   - We will now read the order again from the database before checking if it's already been confirmed before processing the confirmation step, this is to ensure that the order is not confirmed twice, which could happen in rare cases and caused stock values to be reduced twice in WooCommerce.
+
 = 2024.08.19    - version 1.10.7 =
 * Fix           - Fixed an issue related to 'woocommerce_new_order_item' where calling save() would result in the order ID being set to 0. This should improve compatibility with other third-party plugins that hook onto this action.
 
@@ -155,7 +158,7 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 
 = 2023.03.09    - version 1.5.1 =
 * Fix           - Email notification should now be sent as expected when changing order status from "Manual review" provided that email notifications is enabled in the WooCommerce settings.
-* Fix           - Fixed an issue where placing an order failed when the shipping address fields were unset, and Embedded Dintero Checkout was used. 
+* Fix           - Fixed an issue where placing an order failed when the shipping address fields were unset, and Embedded Dintero Checkout was used.
 * Tweak         - A blank character is used as a placeholder when shipping first and last name is not available. Previously, this was "N/A".
 
 = 2023.02.01    - version 1.5.0 =
@@ -208,7 +211,7 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 = 2022.08.18    - version 1.1.2 =
 * Tweak         - Better error handling especially in situations where there is no front end to display the error message (e.g., in a cronjob environment).
 * Fix           - Fixed various PHP notices.
-* Fix           - Fixed backward compatibility problem for orders that were placed prior to version 1.1.0. 
+* Fix           - Fixed backward compatibility problem for orders that were placed prior to version 1.1.0.
 
 = 2022.08.16    - version 1.1.1 =
 * Fix           - The metadata 'dintero_checkout_line_id' should now be hidden.
