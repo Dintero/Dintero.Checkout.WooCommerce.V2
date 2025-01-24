@@ -461,36 +461,6 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		return null;
 	}
 
-
-	/**
-	 * Get the selected shipping objects (if available).
-	 *
-	 * @return array If no shipping is available or selected, an empty array is returned.
-	 */
-	public function get_shipping_objects() {
-
-		$shipping_lines = array();
-
-		if ( ! WC()->cart->needs_shipping() || empty( count( WC()->shipping->get_packages() ) ) ) {
-			return $shipping_lines;
-		}
-
-		$shipping_ids   = array_unique( WC()->session->get( 'chosen_shipping_methods' ) );
-		$shipping_rates = WC()->shipping->get_packages()[0]['rates'];
-
-		$is_multiple_shipping = ( count( $shipping_ids ) > 1 );
-		if ( ! $is_multiple_shipping ) {
-			$shipping_ids = array( $shipping_ids[0] );
-		}
-
-		foreach ( $shipping_ids as  $shipping_id ) {
-			$shipping_method  = $shipping_rates[ $shipping_id ];
-			$shipping_lines[] = ( $is_multiple_shipping ) ? $this->get_shipping_item( $shipping_method ) : $this->get_shipping_option( $shipping_method );
-		}
-
-		return $shipping_lines;
-	}
-
 	/**
 	 * Retrieve the customer's billing address.
 	 *
