@@ -178,6 +178,17 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	// Request the payment token in the response.
 	$params        = array( 'includes' => 'card.payment_token' );
 	$dintero_order = Dintero()->api->get_order( $transaction_id, $params );
+	if ( is_wp_error( $dintero_order ) ) {
+		$order->add_order_note(
+			sprintf(
+				/* translators: %s the error message. */
+				__( 'The order was completed, but the confirmation step failed due to a WP error. Error: %s', 'dintero-checkout-for-woocommerce' ),
+				dintero_retrieve_error_message( $dintero_order )
+			)
+		);
+		$order->save();
+		return;
+	}
 
 	// Save the payment token if available.
 	$payment_token = Dintero_Checkout_Subscription::get_payment_token_from_response( $dintero_order );
