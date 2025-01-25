@@ -340,7 +340,6 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 
 		return $shipping_options;
 	}
-
 	/**
 	 * Set pickup points for the shipping method.
 	 *
@@ -444,76 +443,6 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			'quantity'            => 1,
 			'type'                => 'shipping',
 		);
-	}
-
-	private function get_pickup_point_icon( $carrier, $shipping_rate ) {
-		$base_url = DINTERO_CHECKOUT_URL . '/assets/img/shipping';
-
-		$carrier = $this->get_operator( $carrier );
-		switch ( strtolower( $carrier ) ) {
-			case 'postnord':
-			case 'plab':
-				$img_url = "$base_url/icon-postnord.svg";
-				break;
-			case 'dhl':
-			case 'dhl freight':
-				$img_url = "$base_url/icon-dhl.svg";
-				break;
-			case 'budbee':
-				$img_url = "$base_url/icon-budbee.svg";
-				break;
-			case 'instabox':
-				$img_url = "$base_url/icon-instabox.svg";
-				break;
-			case 'schenker':
-				$img_url = "$base_url/icon-db-schenker.svg";
-				break;
-			case 'bring':
-				$img_url = "$base_url/icon-bring.svg";
-				break;
-			case 'ups':
-				$img_url = "$base_url/icon-ups.svg";
-				break;
-			case 'fedex':
-				$img_url = "$base_url/icon-fedex.svg";
-				break;
-			case 'local_pickup':
-				$img_url = "$base_url/icon-store.svg";
-				break;
-			case 'deliverycheckout':
-				$img_url = "$base_url/icon-neutral.svg";
-				break;
-			default:
-				$img_url = "$base_url/icon-neutral.svg";
-				break;
-		}
-
-		return apply_filters( 'dwc_shipping_icon', $img_url, $carrier, $shipping_rate );
-	}
-
-	private function get_operator( $carrier ) {
-		$carrier = strtolower( $carrier );
-
-		$supported_carriers = array( 'dhl', 'postnord', 'posten', 'budbee', 'instabox', 'dbschenker', 'bring', 'ups', 'fedex' );
-		foreach ( $supported_carriers as $supported_carrier ) {
-			if ( strpos( $carrier, $supported_carrier ) !== false ) {
-				return $supported_carrier;
-			}
-		}
-
-		switch ( strtolower( $carrier ) ) {
-			case 'postnord':
-			case 'plab':
-				return 'postnord';
-
-			case 'posten':
-			case 'posten-norge':
-				return 'posten';
-
-			// What remains is not a supported carrier. We'll just return the value received.
-			default:
-				return $carrier;
-		}
 	}
 
 	/**
