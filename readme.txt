@@ -79,7 +79,13 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 
 == Screenshots ==
 
-1. The plugin settings screen where you set up the details to connect to Dintero.
+1. High converting feature-rich Checkout that creates a seamless, effortless buying experience for customers while offering full customisation for businesses.
+2. Exceed customer expectations by offering the most relevant local and global payment methods.
+3. Our Checkout remembers customer details (if they opt-in) so we can give them an even faster and frictionless checkout experience with their next purchases, which increases conversion rates for returning customers.
+4. Over 10 languages, including all the Nordics, customers can choose, plus automatic language selection based off browser settings.
+5. Auto detect and suggest potential incorrect shipping details to reduce shipping errors.
+6. Gift cards and Discount cards available.
+7. Remove headaches and manage your reconciliation, reports, transactions, refunds (transaction level), Gift Cards, payment methods, and more in the Dintero backoffice.
 
 == Changelog ==
 = 2025.01.07    - version 1.10.8 =
