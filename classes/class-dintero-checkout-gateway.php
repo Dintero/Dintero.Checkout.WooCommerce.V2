@@ -220,8 +220,6 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		public function process_embedded_payment( $order ) {
 			$reference = WC()->session->get( 'dintero_merchant_reference' );
 			$order->update_meta_data( '_dintero_merchant_reference', $reference );
-			// translators: %s: merchant reference number.
-			$order->add_order_note( sprintf( __( 'Dintero order created with reference %s', 'dintero-checkout-for-woocommerce' ), $reference ) );
 			$order->save();
 
 			return array(
