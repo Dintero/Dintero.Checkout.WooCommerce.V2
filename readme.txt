@@ -26,8 +26,6 @@ type. You can also customize branding with logo colors and placement
 - Sweden
 - Denmark
 
-=== Why choose Dintero payment? ===
-Dintero Checkout delivers the ultimate formula for high conversions with customer-first designed features, such as: 
 ### Why choose Dintero payment?
 
 Dintero Checkout delivers the ultimate formula for high conversions with customer-first designed features, such as:  
