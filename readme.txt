@@ -20,7 +20,7 @@ our checkout in your WooCommerce installation. The plugin lets you capture, canc
 partially refund orders, and adapt the checkout for B2B / B2C customers or just one customer 
 type. You can also customize branding with logo colors and placement
 
-##Dintero is available for store owners and merchants in:
+##Dintero is available for online/offline store owners and merchants in:
 
 - Norway
 - Sweden
@@ -28,7 +28,8 @@ type. You can also customize branding with logo colors and placement
 
 ### Why choose Dintero payment?
 
-Dintero Checkout delivers the ultimate formula for high conversions with customer-first designed features, such as:  
+Dintero Checkout delivers the ultimate formula for high conversions with customer-first designed 
+features, such as:  
 
 -  Remembering customer details  
 -  Localised payment methods and language  
@@ -38,7 +39,7 @@ Our feature-rich components create a seamless, effortless buying experience for 
 
 ### Manage all your payments in one place with Dintero Backoffice
 
-No more multiple logins. With our powerful Backoffice, there is one place to view and manage all payments, payouts, and reports. You can even do reconciliation and integrate account software
+No more multiple logins. With our powerful Backoffice, there is one place to view and manage all payments, payouts, and reports. You can even do reconciliation and integrate account software.
 
 ### Payment Methods  
 
@@ -78,9 +79,10 @@ simplify the user experience for your customers.
 Get started with Dintero Checkout for WooCommerce Payment Methods in 4 easy steps.
 
 1. [Create a Dintero account](https://dintero.com/get-started?utm_source=wordpressplugin&utm_medium=plugin)
-2. In [Dintero Backoffice](https://backoffice.dintero.com?utm_source=wordpressplugin&utm_medium=plugin), apply for payment methods and we’ll notify you once approved.
+2. In [Dintero Backoffice](https://backoffice.dintero.com?utm_source=wordpressplugin&utm_medium=plugin), go to Settings > Payment methods and click Activate 
+payments. We’ll notify you once approved.
 3. [Install the Dintero plugin](https://www.dintero.com/our-services/dintero-checkout/install-woocommerce-plugin?utm_source=wordpressplugin&utm_medium=plugin) on your website.
-4. Create API keys in Dintero Backoffice, and enter them into the Dintero plugin’s settings.
+4. [Create API keys](https://docs.dintero.com/docs/checkout/checkout-client/?utm_source=wordpressplugin&utm_medium=plugin) in Dintero Backoffice, and enter them into the WooCommerce Dintero plugin’s settings.
 
 ### Dependencies  
 
@@ -109,7 +111,7 @@ and [privacy policy](https://www.dintero.com/legal/privacy-policy?utm_source=wor
 1. Upload plugin folder to the "/wp-content/plugins/" directory.
 2. Activate the plugin through the "Plugins" menu in WordPress.
 3. Go WooCommerce Settings –> Payment Gateways and configure your Dintero Checkout settings.
-4. Read more about the configuration process in the [plugin documentation](https://www.dintero.com/our-services/dintero-checkout/install-woocommerce-plugin).
+4. Read more about the configuration process in the [plugin documentation](https://www.dintero.com/our-services/dintero-checkout/install-woocommerce-plugin?utm_source=wordpressplugin&utm_medium=plugin).
 
 == Frequently Asked Questions ==
 
@@ -119,15 +121,15 @@ Yes, you need a certificate with at least TLS 1.2 to use Dintero Checkout
 
 = Does this support both production mode and sandbox mode for testing? =
 
-Yes, a Sandbox environment is instantly available for all new accounts created via [onboarding.dintero.com](https://onboarding.dintero.com).
+Yes, a Sandbox environment is instantly available for all new accounts created via [onboarding.dintero.com](https://onboarding.dintero.com?utm_source=wordpressplugin&utm_medium=plugin).
 
 = Where can I find documentation? =
 
-Go [here](https://www.dintero.com/our-services/dintero-checkout/install-woocommerce-plugin) to find a more thorough documentation.
+Go [here](https://www.dintero.com/our-services/dintero-checkout/install-woocommerce-plugin?utm_source=wordpressplugin&utm_medium=plugin) to find a more thorough documentation.
 
 = Where can I get support? =
 
-Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) to talk to our amazing support team.
+Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us?utm_source=wordpressplugin&utm_medium=plugin) to talk to our amazing support team.
 
 == Screenshots ==
 
