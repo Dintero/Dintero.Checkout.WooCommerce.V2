@@ -1,6 +1,6 @@
 === Dintero Checkout for WooCommerce Payment Methods ===
 Contributors: dintero, krokedil, NiklasHogefjord
-Tags: woocommerce, dintero, ecommerce, e-commerce, checkout
+Tags: Checkout, E-commerce, Ecommerce, woocommerce, wordpress
 Requires at least: 5.8.3
 Tested up to: 6.7.1
 Requires PHP: 7.4
@@ -11,31 +11,100 @@ License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 == Description ==
-Accept Visa, MasterCard, Vipps, Swish, MobilePay, Walley, invoices, and installments.
+**Accept Visa, MasterCard, Vipps, Apple Pay, Google Pay, Click to Pay, Swish, MobilePay, 
+Klarna, Walley, Billie, invoices, installments, and buy now pay later (BNPL) payment 
+solutions.**
 
-With Dintero Checkout for WooCommerce Payment Methods, you can either embed or redirect our checkout in your WooCommerce installation.
-
-The plugin lets you capture, cancel, refund or partially refund orders, and adapt the checkout to B2B customers, B2C customers or both. You can also customize payment logo colors and placement.
+With Dintero Checkout for WooCommerce Payment Methods, you can either embed or redirect 
+our checkout in your WooCommerce installation. The plugin lets you capture, cancel, refund or 
+partially refund orders, and adapt the checkout for B2B / B2C customers or just one customer 
+type. You can also customize branding with logo colors and placement
 
 Dintero is available for store owners and merchants in:
 
 - Norway
 - Sweden
+- Denmark
 
-=== Why choose Dintero Checkout ===
+=== Why choose Dintero payment? ===
+Dintero Checkout delivers the ultimate formula for high conversions with customer-first designed features, such as: 
+### Why choose Dintero payment?
 
-= Payment Methods =
+Dintero Checkout delivers the ultimate formula for high conversions with customer-first designed features, such as:  
 
-Dintero Checkout provides a frictionless checkout experience with no hidden fees. It is a one-stop shop for digital payment, offering card payments, invoice, installments and mobile payment solutions.
+-  Remembering customer details  
+-  Localised payment methods and language  
+-  Proactive technical solutions to prevent shipping errors before they occur.  
 
-= API =
+Our feature-rich components create a seamless, effortless buying experience for customers while offering full customisation for businesses. And is a one stop shop for digital payment, offering card payments, invoice, installments, BNPL, and mobile payment solutions
 
-Dintero checkout supports any business model, and with our APIs you can automate and simplify the user experience for your customers.
+= Manage all your payments in one place with Dintero Backoffice =
 
-= Backoffice =
+No more multiple logins. With our powerful Backoffice, there is one place to view and manage all payments, payouts, and reports. You can even do reconciliation and integrate account software
 
-No more multiple logins. With our powerful Backoffice, there is one place to view all payments, all payouts, and all reports. You can even do reconciliation.
+### Payment Methods  
 
+#### Cards  
+- Visa  
+- MasterCard  
+
+#### Mobile  
+- Vipps  
+- Swish  
+- MobilePay  
+
+#### Wallets  
+- Apple Pay  
+- Google Pay  
+- Click to Pay  
+
+#### BNPL (Buy Now Pay Later), Installments, & Invoices  
+- Klarna  
+- Walley  
+- Billie  
+
+For the full list of Payment Methods, supported countries, and pricing, visit our [Pricing](https://www.dintero.com/pricing?utm_source=wordpressplugin&utm_medium=plugin) page.
+
+## Dintero Express Checkout Features  
+
+The Dintero Express Checkout remembers customer details (if they opt-in) so we can give them  
+an even faster and frictionless checkout experience with their next purchases, which increases  
+conversion rates for returning customers. Available for embedded solutions.  
+
+### API  
+Dintero Checkout supports any business model, and with our APIs you can automate and  
+simplify the user experience for your customers.  
+
+## Getting Started  
+Get started with Dintero Checkout for WooCommerce Payment Methods in 4 easy steps.  
+
+1. [Create a Dintero account](https://www.dintero.com/get-started?utm_source=wordpressplugin&utm_medium=plugin).  
+2. In Dintero Backoffice, go to **Settings > Payment methods** and click **Activate payments**. We’ll notify you once approved.  
+3. [Install the Dintero plugin](https://www.dintero.com/our-services/dintero-checkout/install-woocommerce-plugin?utm_source=wordpressplugin&utm_medium=plugin) on your website.  
+4. Create API keys in Dintero Backoffice, and enter them into the **WooCommerce Dintero** plugin’s settings.  
+
+### Dependencies  
+
+### Dintero Web SDK  
+The plugin uses Dintero’s Web SDK for embedding the Dintero Checkout. The SDK can be  
+found at [GitHub](https://github.com/Dintero/Dintero.Checkout.Web.SDK?utm_source=wordpressplugin&utm_medium=plugin), and is licensed with an MIT license.  
+
+The SDK follows the same terms as when creating a Dintero account, with its [terms of service](https://www.dintero.com/terms/terms-of-service?utm_source=wordpressplugin&utm_medium=plugin)  
+and [privacy policy](https://www.dintero.com/legal/privacy-policy?utm_source=wordpressplugin&utm_medium=plugin).  
+
+## FAQ  
+
+### Does this require an SSL certificate?  
+> Yes, you need a certificate with at least TLS 1.2 to use Dintero Checkout.  
+
+### Does this support both production mode and sandbox mode for testing?  
+> Yes, sandbox is instantly available for all new accounts.  
+
+### Where can I find documentation?  
+> Go to [Dintero Documentation](https://docs.dintero.com/docs/checkout/plugins/woo-plugin?utm_source=wordpressplugin&utm_medium=plugin) to find more thorough documentation.  
+
+### Where can I get support?  
+> Go to [Dintero Support](https://www.dintero.com/support
 
 === Getting started ===
 
