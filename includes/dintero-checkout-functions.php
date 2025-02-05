@@ -159,9 +159,36 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	$order->update_meta_data( '_wc_dintero_checkout_environment', 'yes' === $settings['test_mode'] ? 'Test' : 'Production' );
 	$order->update_meta_data( '_dintero_transaction_id', $transaction_id );
 
+	// Set the merchant_reference_2 for the Dintero order.
+	Dintero()->api->update_transaction( $transaction_id, $order->get_order_number() );
+
+	// Save shipping id to the order.
+	$shipping = $order->get_shipping_methods();
+	if ( ! empty( $shipping ) && empty( $order->get_meta( '_wc_dintero_shipping_id' ) ) ) {
+		$shipping_option = $dintero_order['shipping_option']['id'] ?? reset( $shipping );
+
+		// When processing a Woo subscription, the shipping option is an instance of WC_Order_Item_Shipping.
+		if ( is_object( $shipping_option ) ) {
+			$shipping_option = $shipping_option->get_method_id() . ':' . $shipping_option->get_instance_id();
+		}
+
+		$order->update_meta_data( '_wc_dintero_shipping_id', $shipping_option );
+	}
+
 	// Request the payment token in the response.
 	$params        = array( 'includes' => 'card.payment_token' );
 	$dintero_order = Dintero()->api->get_order( $transaction_id, $params );
+	if ( is_wp_error( $dintero_order ) ) {
+		$order->add_order_note(
+			sprintf(
+				/* translators: %s the error message. */
+				__( 'The order was completed, but the confirmation step failed due to a WP error. Error: %s', 'dintero-checkout-for-woocommerce' ),
+				dintero_retrieve_error_message( $dintero_order )
+			)
+		);
+		$order->save();
+		return;
+	}
 
 	// Save the payment token if available.
 	$payment_token = Dintero_Checkout_Subscription::get_payment_token_from_response( $dintero_order );
@@ -213,23 +240,6 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	}
 
 	$order->save();
-
-	// Set the merchant_reference_2 for the Dintero order.
-	Dintero()->api->update_transaction( $transaction_id, $order->get_order_number() );
-
-	// Save shipping id to the order.
-	$shipping = $order->get_shipping_methods();
-	if ( ! empty( $shipping ) && empty( $order->get_meta( '_wc_dintero_shipping_id' ) ) ) {
-		$shipping_option = $dintero_order['shipping_option']['id'] ?? reset( $shipping );
-
-		// When processing a Woo subscription, the shipping option is an instance of WC_Order_Item_Shipping.
-		if ( is_object( $shipping_option ) ) {
-			$shipping_option = $shipping_option->get_method_id() . ':' . $shipping_option->get_instance_id();
-		}
-
-		$order->update_meta_data( '_wc_dintero_shipping_id', $shipping_option );
-		$order->save();
-	}
 }
 
 /**
