@@ -195,7 +195,7 @@ class Dintero_Checkout_API {
 	 */
 	private function check_for_api_error( $response ) {
 		if ( is_wp_error( $response ) ) {
-			if ( ! is_admin() ) {
+			if ( ! is_admin() && ! wp_is_serving_rest_request() ) {
 				dintero_print_error_message( $response );
 			}
 		}
