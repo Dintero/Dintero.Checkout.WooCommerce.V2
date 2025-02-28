@@ -198,6 +198,12 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		public function process_payment( $order_id ) {
 			$order = wc_get_order( $order_id );
 
+			$shipping_line_id = WC()->session->get( 'dintero_shipping_line_id' );
+			if ( ! empty( $shipping_line_id ) ) {
+				$order->update_meta_data( '_dintero_shipping_line_id', $shipping_line_id );
+				$order->save();
+			}
+
 			if ( Dintero_Checkout_Subscription::is_change_payment_method() ) {
 				return $this->process_redirect_payment( $order );
 			}
