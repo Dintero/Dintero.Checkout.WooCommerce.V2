@@ -51,6 +51,7 @@ abstract class Dintero_Checkout_Helper_Base {
 		$shipping_option = $helper->get_shipping_option();
 		if ( ! empty( $shipping_option ) ) {
 			$body['order']['shipping_option'] = $shipping_option;
+			WC()->session->set( 'dintero_shipping_line_id', $shipping_option['line_id'] );
 		}
 
 		// If its express we need to add the express options.
