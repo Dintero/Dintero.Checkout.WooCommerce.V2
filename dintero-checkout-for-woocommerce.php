@@ -223,6 +223,28 @@ if ( ! class_exists( 'Dintero' ) ) {
 			);
 
 			add_action( 'before_woocommerce_init', array( $this, 'declare_wc_compatibility' ) );
+
+			add_action( 'admin_notices', array( $this, 'wc_zero_decimal_notice' ) );
+		}
+
+
+		/**
+		 * Display a notice if WooCommerce is set to 0 decimal places.
+		 *
+		 * @return void
+		 */
+		public function wc_zero_decimal_notice() {
+			$decimals_setting = get_option( 'woocommerce_price_num_decimals', 2 );
+
+			if ( 0 == $decimals_setting ) {
+				$article_url = 'https://krokedil.com/dont-display-prices-with-0-decimals-in-woocommerce/';
+				?>
+				<div class="notice notice-warning is-dismissible">
+					<p><strong><?php esc_html_e( 'Warning:', 'dintero-checkout-for-woocommerce' ); ?></strong> <?php esc_html_e( 'The decimal setting for prices in WooCommerce is currently set to 0. This may cause rounding issues with pricing and taxes.', 'dintero-checkout-for-woocommerce' ); ?></p>
+					<p><?php esc_html_e( 'Learn more about why this can be problematic — and what to do instead: ', 'dintero-checkout-for-woocommerce' ); ?> <a href="<?php echo esc_url( $article_url ); ?>" target="_blank"><?php esc_html_e( 'Don’t display prices with 0 decimals in WooCommerce', 'dintero-checkout-for-woocommerce' ); ?></a>.</p>
+				</div>
+				<?php
+			}
 		}
 
 		/**
