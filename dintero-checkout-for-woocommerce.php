@@ -229,7 +229,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 
 
 		/**
-		 * Display a notice if WooCommerce is set to 0 decimal places.
+		 * Display a notice if the WooCommerce decimal setting is set to 0.
 		 *
 		 * @return void
 		 */
