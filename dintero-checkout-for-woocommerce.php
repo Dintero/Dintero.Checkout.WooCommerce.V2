@@ -224,7 +224,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 
 			add_action( 'before_woocommerce_init', array( $this, 'declare_wc_compatibility' ) );
 
-			add_action( 'admin_notices', array( $this, 'wc_zero_decimal_notice' ) );
+			add_action( 'admin_notices', array( $this, 'dintero_wc_zero_decimal_notice' ) );
 		}
 
 
@@ -233,9 +233,9 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 *
 		 * @return void
 		 */
-		public function wc_zero_decimal_notice() {
+		public function dintero_wc_zero_decimal_notice() {
 
-			if ( get_user_meta( get_current_user_id(), 'dismissed_wc_zero_decimal_notice', true ) ) {
+			if ( get_user_meta( get_current_user_id(), 'dismissed_dintero_wc_zero_decimal_notice', true ) ) {
 				return;
 			}
 
@@ -244,13 +244,13 @@ if ( ! class_exists( 'Dintero' ) ) {
 			if ( 0 == $decimals_setting ) {
 				$article_url = 'https://krokedil.com/dont-display-prices-with-0-decimals-in-woocommerce/';
 				?>
-				<div class="updated woocommerce-message">
+				<div class="notice notice-warning woocommerce-message">
 						<a class="woocommerce-message-close notice-dismiss"
-							href="<?php echo esc_url( wp_nonce_url( add_query_arg( 'wc-hide-notice', 'wc_zero_decimal' ), 'woocommerce_hide_notices_nonce', '_wc_notice_nonce' ) ); ?>">
+							href="<?php echo esc_url( wp_nonce_url( add_query_arg( 'wc-hide-notice', 'dintero_wc_zero_decimal' ), 'woocommerce_hide_notices_nonce', '_wc_notice_nonce' ) ); ?>">
 							<?php esc_html_e( 'Dismiss', 'woocommerce' ); ?>
 						</a>
-					<p><strong><?php esc_html_e( 'Warning:', 'dintero-checkout-for-woocommerce' ); ?></strong> <?php esc_html_e( 'The decimal setting for prices in WooCommerce is currently set to 0. This may cause rounding issues with pricing and taxes.', 'dintero-checkout-for-woocommerce' ); ?></p>
-					<p><?php esc_html_e( 'Learn more about why this can be problematic — and what to do instead: ', 'dintero-checkout-for-woocommerce' ); ?> <a href="<?php echo esc_url( $article_url ); ?>" target="_blank"><?php esc_html_e( 'Don’t display prices with 0 decimals in WooCommerce', 'dintero-checkout-for-woocommerce' ); ?></a>.</p>
+					<p><strong><?php esc_html_e( 'The decimal setting for prices in WooCommerce is currently set to 0.', 'dintero-checkout-for-woocommerce' ); ?></strong></p>
+					<p><?php esc_html_e( 'This may cause rounding issues with pricing and taxes. Learn more about why this can be problematic — and what to do instead: ', 'dintero-checkout-for-woocommerce' ); ?><a href="<?php echo esc_url( $article_url ); ?>" target="_blank"><?php esc_html_e( 'Don’t display prices with 0 decimals in WooCommerce', 'dintero-checkout-for-woocommerce' ); ?></a>.</p>
 				</div>
 				<?php
 			}
