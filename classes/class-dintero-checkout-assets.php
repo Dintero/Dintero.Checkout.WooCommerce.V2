@@ -208,6 +208,7 @@ class Dintero_Checkout_Assets {
 				'verifyOrderTotalError'                => __( 'The cart was modified. Please try again.', 'dintero-checkout-for-woocommerce' ),
 				'allowDifferentBillingShippingAddress' => 'yes' === ( $settings['express_allow_different_billing_shipping_address'] ?? 'no' ) ? true : false,
 				'woocommerceShipToDestination'         => get_option( 'woocommerce_ship_to_destination' ),
+				'checkout_flow'                        => $settings['checkout_flow'] ?? 'express_popout',
 			)
 		);
 

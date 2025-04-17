@@ -304,6 +304,10 @@ jQuery( function ( $ ) {
 
         /* Maybe update the shipping and billing address. */
         updateAddress( billingAddress, shippingAddress, finalize = false ) {
+            if( 'checkout_embedded' === dinteroCheckoutParams.checkout_flow ) {
+                return;
+            }
+
             let update = false
 
             if ( billingAddress ) {
