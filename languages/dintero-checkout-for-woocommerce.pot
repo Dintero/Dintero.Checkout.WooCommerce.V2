@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/Dintero.Checkout.WooCommerce.V2\n"
-"POT-Creation-Date: 2025-04-28 11:33:26+00:00\n"
+"POT-Creation-Date: 2025-04-28 12:13:16+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -589,25 +589,25 @@ msgstr ""
 msgid "Select another payment method"
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:185
+#: includes/dintero-checkout-functions.php:186
 #. translators: %s the error message.
 msgid ""
 "The order was completed, but the confirmation step failed due to a WP "
 "error. Error: %s"
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:211
+#: includes/dintero-checkout-functions.php:216
 #. translators: %s the Dintero transaction ID.
 msgid ""
 "The order was placed successfully, but requires further authorization by "
 "Dintero. Transaction ID: %s"
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:222
+#: includes/dintero-checkout-functions.php:227
 msgid "The order has been authorized."
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:225
+#: includes/dintero-checkout-functions.php:230
 #. translators: %s the Dintero transaction ID.
 msgid "The order was placed successfully via Dintero Checkout. Transaction ID: %s"
 msgstr ""
