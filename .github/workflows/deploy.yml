@@ -9,8 +9,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
+    
+    # Build the plugin with dev dependencies to scope the dependency packages.
+    - name: Composer Install (Dev)
+      run: composer install
+
+    # Build the plugin for release.
+    - name: Composer Install (Prod)
+      run: composer install --no-dev
+
+    # Install SVN ( Subversion )
+    - name: Install SVN ( Subversion )
+      run: |
+        sudo apt-get update
+        sudo apt-get install subversion
+
+    # Deploy the plugin to WordPress.org
     - name: WordPress Plugin Deploy
-      uses: 10up/action-wordpress-plugin-deploy@master
+      id: deploy
+      uses: 10up/action-wordpress-plugin-deploy@stable
+      with:
+        generate-zip: true
       env:
         SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
         SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
