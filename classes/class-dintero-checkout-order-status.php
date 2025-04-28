@@ -163,5 +163,5 @@ class Dintero_Checkout_Order_Status {
 			}
 		}
 	}
-
-} new Dintero_Checkout_Order_Status();
+}
+new Dintero_Checkout_Order_Status();

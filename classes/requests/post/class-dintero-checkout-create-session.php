@@ -22,7 +22,8 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 	public function __construct( $arguments ) {
 		parent::__construct( $arguments );
 
-		$this->log_title = 'Create Dintero session.';
+		$this->log_title      = 'Create Dintero session.';
+		$this->request_filter = 'dintero_checkout_create_session_args';
 	}
 
 	/**
@@ -40,32 +41,16 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 	 * @return array
 	 */
 	public function get_body() {
-		if ( ! empty( $this->arguments['order_id'] ) || is_wc_endpoint_url( 'order-pay' ) ) {
-			$key      = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-			$order_id = is_wc_endpoint_url( 'order-pay' ) ? wc_get_order_id_by_order_key( sanitize_key( $key ) ) : $this->arguments['order_id'];
-			$order    = wc_get_order( $order_id );
-
-			$helper = new Dintero_Checkout_Order( $order );
-		} else {
-			$helper = new Dintero_Checkout_Cart();
-		}
-
-		$reference = isset( $order ) ? $helper->get_merchant_reference( $order ) : $helper->get_merchant_reference();
-		WC()->session->set( 'dintero_merchant_reference', $reference );
+		$helper = ! empty( $this->arguments['order_id'] ) ? new Dintero_Checkout_Order( wc_get_order( $this->arguments['order_id'] ) ) : new Dintero_Checkout_Cart();
 
 		$body = array(
 			'url'        => array(
-				'return_url' => add_query_arg(
-					array(
-						'gateway' => 'dintero',
-					),
-					home_url()
-				),
+				'return_url' => add_query_arg( 'gateway', 'dintero', home_url() ),
 			),
 			'order'      => array(
 				'amount'             => $helper->get_order_total(),
 				'currency'           => $helper->get_currency(),
-				'merchant_reference' => $reference,
+				'merchant_reference' => $helper->get_merchant_reference(),
 				'vat_amount'         => $helper->get_tax_total(),
 				'items'              => $helper->get_order_lines(),
 				'store'              => array(
@@ -89,12 +74,12 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			// By default this configuration is an empty array, therefore, we don't have to set it if $separate_shipping is set to false.
 		}
 
-		$billing_address = isset( $order ) ? $helper->get_billing_address( $order ) : $helper->get_billing_address();
+		$billing_address = $helper->get_billing_address();
 		if ( ! empty( $billing_address ) ) {
 			$body['order']['billing_address'] = $billing_address;
 		}
 
-		$shipping_address = isset( $order ) ? $helper->get_shipping_address( $order ) : $helper->get_shipping_address();
+		$shipping_address = $helper->get_shipping_address();
 		if ( ! empty( $shipping_address ) ) {
 			$body['order']['shipping_address'] = $shipping_address;
 		}

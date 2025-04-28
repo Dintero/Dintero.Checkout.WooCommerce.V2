@@ -1,72 +1,74 @@
-# Copyright (C) 2024 
+# Copyright (C) 2025 
 # This file is distributed under the same license as the  package.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/Dintero.Checkout.WooCommerce.V2\n"
-"POT-Creation-Date: 2024-04-25 11:08:42+00:00\n"
+"POT-Creation-Date: 2025-04-28 11:33:26+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2024-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2025-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "X-Generator: grunt-wp-i18n 1.0.3\n"
 
-#: classes/class-dintero-checkout-assets.php:182
+#: classes/class-dintero-checkout-assets.php:204
 msgid "Payment in progress"
 msgstr ""
 
-#: classes/class-dintero-checkout-assets.php:186
+#: classes/class-dintero-checkout-assets.php:208
 msgid "The cart was modified. Please try again."
 msgstr ""
 
-#: classes/class-dintero-checkout-callback.php:164
+#: classes/class-dintero-checkout-callback.php:171
 msgid "The order was CANCELED in the Dintero."
 msgstr ""
 
-#: classes/class-dintero-checkout-callback.php:178
+#: classes/class-dintero-checkout-callback.php:185
 msgid "The order was not approved by Dintero."
 msgstr ""
 
-#: classes/class-dintero-checkout-confirmation.php:49
+#: classes/class-dintero-checkout-confirmation.php:48
 msgid ""
 "Something went wrong with completing the order. Please try again or contact "
-"the store"
+"the store."
 msgstr ""
 
-#: classes/class-dintero-checkout-confirmation.php:91
+#: classes/class-dintero-checkout-confirmation.php:90
 msgid "The customer failed to authorize the payment."
 msgstr ""
 
-#: classes/class-dintero-checkout-confirmation.php:94
+#: classes/class-dintero-checkout-confirmation.php:93
 msgid ""
 "The transaction was rejected by Dintero, or an error occurred during "
 "transaction processing."
 msgstr ""
 
-#: classes/class-dintero-checkout-confirmation.php:98
+#: classes/class-dintero-checkout-confirmation.php:97
 msgid "The customer canceled the checkout payment."
 msgstr ""
 
-#: classes/class-dintero-checkout-confirmation.php:101
+#: classes/class-dintero-checkout-confirmation.php:100
 msgid "The transaction capture operation failed during auto-capture."
 msgstr ""
 
-#: classes/class-dintero-checkout-gateway.php:24
-#: classes/class-dintero-checkout-gateway.php:25
+#: classes/class-dintero-checkout-gateway.php:43
+#: classes/class-dintero-checkout-gateway.php:44
 #: classes/class-dintero-checkout-meta-box.php:38
-#: classes/class-dintero-checkout-settings-fields.php:97
 msgid "Dintero Checkout"
 msgstr ""
 
-#: classes/class-dintero-checkout-gateway.php:163
-msgid "Dintero order created with reference "
+#: classes/class-dintero-checkout-gateway.php:255
+msgid "Customer redirected to Dintero payment page."
 msgstr ""
 
-#: classes/class-dintero-checkout-gateway.php:190
-msgid "Customer redirected to Dintero payment page."
+#: classes/class-dintero-checkout-gateway.php:279
+msgid ""
+"Refunds are only possible for orders that have been completed. If you have "
+"an order that has not been completed and needs to be canceled, set the "
+"order status to \"Canceled\"."
 msgstr ""
 
 #: classes/class-dintero-checkout-meta-box.php:58
@@ -90,8 +92,8 @@ msgid "Environment: "
 msgstr ""
 
 #: classes/class-dintero-checkout-order-management.php:85
-#: classes/class-dintero-checkout-order-management.php:192
-#: classes/class-dintero-checkout-order-management.php:267
+#: classes/class-dintero-checkout-order-management.php:204
+#: classes/class-dintero-checkout-order-management.php:279
 msgid "The order is missing a transaction ID."
 msgstr ""
 
@@ -115,61 +117,66 @@ msgstr ""
 msgid "The Dintero order has been refunded and can no longer be captured."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:141
+#: classes/class-dintero-checkout-order-management.php:153
 #. translators: the amount, the currency.
 msgid "The Dintero order has been captured. Captured amount: %1$.2f %2$s."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:147
-#: classes/class-dintero-checkout-order-management.php:153
+#: classes/class-dintero-checkout-order-management.php:159
+#: classes/class-dintero-checkout-order-management.php:165
 msgid "The Dintero order has been captured."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:175
+#: classes/class-dintero-checkout-order-management.php:187
 msgid "The Dintero order was rejected, and can therefore not be canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:181
+#: classes/class-dintero-checkout-order-management.php:193
 msgid "The order must be authorized by Dintero before it can be canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:198
+#: classes/class-dintero-checkout-order-management.php:210
 msgid ""
 "The Dintero order has been captured, and can therefore no longer be "
 "canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:203
+#: classes/class-dintero-checkout-order-management.php:215
 msgid "The Dintero order has already been canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:208
+#: classes/class-dintero-checkout-order-management.php:220
 msgid "The Dintero order has been refunded and can no longer be canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:234
+#: classes/class-dintero-checkout-order-management.php:246
 msgid "The Dintero order has been canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:273
+#: classes/class-dintero-checkout-order-management.php:285
 msgid ""
 "There is nothing to refund. The order has not yet been captured in "
 "WooCommerce."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:278
+#: classes/class-dintero-checkout-order-management.php:290
 msgid "The Dintero order cannot be refunded since it is canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:283
+#: classes/class-dintero-checkout-order-management.php:295
 msgid "The Dintero order has already been refunded."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:309
+#: classes/class-dintero-checkout-order-management.php:335
+#. translators: the amount, the currency.
+msgid "The Dintero order has been partially refunded. Refunded amount: %1$.2f %2$s."
+msgstr ""
+
+#: classes/class-dintero-checkout-order-management.php:340
 msgid "The Dintero order has been partially refunded."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:313
+#: classes/class-dintero-checkout-order-management.php:347
 msgid "The Dintero order has been refunded."
 msgstr ""
 
@@ -189,7 +196,7 @@ msgid "Enable Dintero Checkout"
 msgstr ""
 
 #: classes/class-dintero-checkout-settings-fields.php:33
-msgid "Dintero configuration"
+msgid "Account settings"
 msgstr ""
 
 #: classes/class-dintero-checkout-settings-fields.php:37
@@ -224,124 +231,140 @@ msgid ""
 msgstr ""
 
 #: classes/class-dintero-checkout-settings-fields.php:74
+msgid "Profile ID for subscriptions"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:78
+msgid ""
+"The profile to apply if the cart or order contain subscriptions. Found "
+"under (SETTINGS → Payment windows) in Dintero Backoffice."
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:81
+msgid "Checkout settings"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:85
 msgid "Enable test mode:"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:77
+#: classes/class-dintero-checkout-settings-fields.php:88
 msgid ""
 "While in test mode, the customers will NOT be charged. Useful for testing "
 "and debugging purposes."
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:82
+#: classes/class-dintero-checkout-settings-fields.php:93
 msgid "Enable logging"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:85
+#: classes/class-dintero-checkout-settings-fields.php:96
 msgid ""
 "Required for troubleshooting. Log messages older than 30 days are "
 "automatically deleted."
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:90
-msgid "Checkout type"
-msgstr ""
-
-#: classes/class-dintero-checkout-settings-fields.php:98
-msgid "Dintero Checkout Express"
-msgstr ""
-
-#: classes/class-dintero-checkout-settings-fields.php:102
-msgid "Checkout layout"
+#: classes/class-dintero-checkout-settings-fields.php:101
+msgid "Checkout flow"
 msgstr ""
 
 #: classes/class-dintero-checkout-settings-fields.php:105
-msgid "One column checkout"
+msgid "Checkout Express Pop-out (recommended)"
 msgstr ""
 
 #: classes/class-dintero-checkout-settings-fields.php:106
-msgid "Two column checkout (Dintero checkout in right column)"
+msgid "Checkout Express Embedded"
 msgstr ""
 
 #: classes/class-dintero-checkout-settings-fields.php:107
-msgid "Two column checkout (Dintero checkout in left column)"
+msgid "Checkout Redirect"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:108
+msgid "Checkout Pop-out"
 msgstr ""
 
 #: classes/class-dintero-checkout-settings-fields.php:109
-msgid "Select the Checkout layout."
+msgid "Checkout Embedded"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:111
+msgid "Determines how the payment form will appear on the checkout page."
 msgstr ""
 
 #: classes/class-dintero-checkout-settings-fields.php:114
-msgid "Form factor"
+msgid "Checkout layout"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:117
+msgid "One column checkout"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:118
+msgid "Two column checkout (Dintero checkout in right column)"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:119
+msgid "Two column checkout (Dintero checkout in left column)"
 msgstr ""
 
 #: classes/class-dintero-checkout-settings-fields.php:121
-msgid "Embedded"
+msgid ""
+"Click <a href=\"https://www.dintero.com/checkout-layouts\">here</a> to read "
+"more about checkout layouts."
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:122
-msgid "Redirect"
-msgstr ""
-
-#: classes/class-dintero-checkout-settings-fields.php:126
-msgid "Enable pop-out modal"
-msgstr ""
-
-#: classes/class-dintero-checkout-settings-fields.php:127
-msgid "Only available in embedded checkout."
-msgstr ""
-
-#: classes/class-dintero-checkout-settings-fields.php:133
+#: classes/class-dintero-checkout-settings-fields.php:128
 msgid "Title"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:135
+#: classes/class-dintero-checkout-settings-fields.php:130
 msgid ""
 "Payment method title (appears on checkout page if more than one payment "
 "method is available)."
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:140
+#: classes/class-dintero-checkout-settings-fields.php:136
 msgid "Description"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:142
+#: classes/class-dintero-checkout-settings-fields.php:138
 msgid ""
 "Payment method description (appears on checkout page if more than one "
 "payment method is available)."
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:145
+#: classes/class-dintero-checkout-settings-fields.php:141
 msgid "Choose your payment method in our checkout."
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:148
-#: classes/class-dintero-checkout-settings-fields.php:257
+#: classes/class-dintero-checkout-settings-fields.php:145
+#: classes/class-dintero-checkout-settings-fields.php:265
 msgid "Logo color"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:150
-#: classes/class-dintero-checkout-settings-fields.php:260
+#: classes/class-dintero-checkout-settings-fields.php:147
+#: classes/class-dintero-checkout-settings-fields.php:268
 msgid "Default color"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:154
-#: classes/class-dintero-checkout-settings-fields.php:263
+#: classes/class-dintero-checkout-settings-fields.php:152
+#: classes/class-dintero-checkout-settings-fields.php:271
 msgid "Custom color (HEX)"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:158
+#: classes/class-dintero-checkout-settings-fields.php:157
 msgid "\"Go to payment\" button"
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:160
+#: classes/class-dintero-checkout-settings-fields.php:159
 msgid ""
 "Customize the <em>\"Go to payment\"</em> button text that is displayed in "
 "checkout if other payment methods than Dintero Checkout are available. "
 "Leave blank to use the default (and translatable) text."
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:163
+#: classes/class-dintero-checkout-settings-fields.php:162
 msgid "Enter your text here (optional)"
 msgstr ""
 
@@ -397,7 +420,7 @@ msgid "Consumer only"
 msgstr ""
 
 #: classes/class-dintero-checkout-settings-fields.php:215
-msgid "Display Shipping in the iframe"
+msgid "Display Shipping in Checkout Express"
 msgstr ""
 
 #: classes/class-dintero-checkout-settings-fields.php:218
@@ -410,8 +433,80 @@ msgid ""
 "instead of the shipping section in WooCommerce."
 msgstr ""
 
-#: classes/class-dintero-checkout-settings-fields.php:253
+#: classes/class-dintero-checkout-settings-fields.php:222
+#: classes/class-dintero-checkout-settings-fields.php:223
+msgid "Allow separate shipping address"
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:225
+msgid ""
+"By default, the billing address is used as the shipping address even if the "
+"customer provides the latter. If you want to allow separate billing and "
+"shipping address, enable this setting."
+msgstr ""
+
+#: classes/class-dintero-checkout-settings-fields.php:261
 msgid "Branding"
+msgstr ""
+
+#: classes/class-dintero-checkout-subscription.php:78
+msgid ""
+"This subscription has previously failed renewal, and no further renewal "
+"attempts are allowed."
+msgstr ""
+
+#: classes/class-dintero-checkout-subscription.php:98
+msgid ""
+"The renewal was rejected by Dintero. No further renewal attempts are "
+"allowed."
+msgstr ""
+
+#: classes/class-dintero-checkout-subscription.php:117
+msgid "The payment token could not be retrieved."
+msgstr ""
+
+#: classes/class-dintero-checkout-subscription.php:123
+#. translators: %s: subscription id
+msgid ""
+"Subscription renewal was made successfully via Dintero Checkout. Payment "
+"token: %s"
+msgstr ""
+
+#: classes/class-dintero-checkout-subscription.php:305
+msgid ""
+"Change payment method to Dintero for subscription failed. Customer "
+"cancelled the checkout payment."
+msgstr ""
+
+#: classes/class-dintero-checkout-subscription.php:307
+msgid ""
+"Change payment method to Dintero for subscription failed. Customer did not "
+"authorize the payment."
+msgstr ""
+
+#: classes/class-dintero-checkout-subscription.php:309
+msgid ""
+"Change payment method to Dintero for subscription failed. An error may have "
+"occurred during transaction processing or was rejected by Dintero."
+msgstr ""
+
+#: classes/class-dintero-checkout-subscription.php:328
+#. translators: Error message.
+msgid "Failed to create payment token. Reason: %s"
+msgstr ""
+
+#: classes/class-dintero-checkout-subscription.php:335
+#. translators: Payment token.
+msgid "Payment token created: %s"
+msgstr ""
+
+#: classes/class-dintero-checkout-subscription.php:590
+#. translators: 1: User name, 2: Existing token, 3: New token.
+msgid "%1$s updated the subscription payment token from \"%2$s\" to \"%3$s\"."
+msgstr ""
+
+#: classes/class-dintero-checkout-subscription.php:627
+msgid "Dintero payment token"
 msgstr ""
 
 #: classes/class-dintero-checkout-widget.php:23
@@ -434,33 +529,59 @@ msgstr ""
 msgid "Background color:"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-cart.php:293
-#: classes/requests/helpers/class-dintero-checkout-cart.php:316
-#: classes/requests/helpers/class-dintero-checkout-order.php:263
+#: classes/requests/helpers/class-dintero-checkout-cart.php:519
+#: classes/requests/helpers/class-dintero-checkout-cart.php:542
+#: classes/requests/helpers/class-dintero-checkout-order.php:350
 msgid "Gift card"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-cart.php:337
+#: classes/requests/helpers/class-dintero-checkout-cart.php:563
 msgid "Gift card:"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-helper-base.php:96
-#: classes/requests/helpers/class-dintero-checkout-helper-base.php:129
+#: classes/requests/helpers/class-dintero-checkout-helper-base.php:90
+#: classes/requests/helpers/class-dintero-checkout-helper-base.php:123
 msgid "Rounding fee"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-order.php:156
+#: classes/requests/helpers/class-dintero-checkout-order.php:243
 msgid ""
 "This order contain a product that was permanently deleted. Cannot proceed "
 "with action."
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:78
 #: dintero-checkout-for-woocommerce.php:88
+#: dintero-checkout-for-woocommerce.php:98
 msgid "Nope"
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:182
+#: dintero-checkout-for-woocommerce.php:125
+#: dintero-checkout-for-woocommerce.php:142
+#. translators: 1: composer command. 2: plugin directory
+msgid ""
+"Your installation of the Dintero Checkout plugin is incomplete. Please run "
+"%1$s within the %2$s directory."
+msgstr ""
+
+#: dintero-checkout-for-woocommerce.php:250
+msgid "Dismiss"
+msgstr ""
+
+#: dintero-checkout-for-woocommerce.php:252
+msgid "The decimal setting for prices in WooCommerce is currently set to 0."
+msgstr ""
+
+#: dintero-checkout-for-woocommerce.php:253
+msgid ""
+"This may cause rounding issues with pricing and taxes. Learn more about why "
+"this can be problematic — and what to do instead: "
+msgstr ""
+
+#: dintero-checkout-for-woocommerce.php:253
+msgid "Don’t display prices with 0 decimals in WooCommerce"
+msgstr ""
+
+#: dintero-checkout-for-woocommerce.php:283
 msgid "Settings"
 msgstr ""
 
@@ -468,18 +589,25 @@ msgstr ""
 msgid "Select another payment method"
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:180
+#: includes/dintero-checkout-functions.php:185
+#. translators: %s the error message.
+msgid ""
+"The order was completed, but the confirmation step failed due to a WP "
+"error. Error: %s"
+msgstr ""
+
+#: includes/dintero-checkout-functions.php:211
 #. translators: %s the Dintero transaction ID.
 msgid ""
 "The order was placed successfully, but requires further authorization by "
 "Dintero. Transaction ID: %s"
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:191
+#: includes/dintero-checkout-functions.php:222
 msgid "The order has been authorized."
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:194
+#: includes/dintero-checkout-functions.php:225
 #. translators: %s the Dintero transaction ID.
 msgid "The order was placed successfully via Dintero Checkout. Transaction ID: %s"
 msgstr ""

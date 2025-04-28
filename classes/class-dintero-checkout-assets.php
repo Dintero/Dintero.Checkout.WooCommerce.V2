@@ -25,16 +25,13 @@ class Dintero_Checkout_Assets {
 		}
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		add_action( 'wp_head', array( $this, 'backlinks_styling' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'dintero_load_general_checkout_css' ) );
 	}
 	/**
 	 * Loads style for the plugin.
 	 */
 	public function dintero_load_css() {
-		if ( ! is_checkout() ) {
-			return;
-		}
-
-		if ( is_order_received_page() ) {
+		if ( ! is_checkout() || is_order_received_page() ) {
 			return;
 		}
 
@@ -50,6 +47,23 @@ class Dintero_Checkout_Assets {
 			DINTERO_CHECKOUT_VERSION
 		);
 		wp_enqueue_style( 'dintero-checkout-style' );
+	}
+
+	/**
+	 * Loads general style for the checkout page of the plugin.
+	 */
+	public function dintero_load_general_checkout_css() {
+		if ( ! is_checkout() ) {
+			return;
+		}
+
+		wp_register_style(
+			'dintero-checkout-general-style',
+			DINTERO_CHECKOUT_URL . '/assets/css/dintero-checkout-general.css',
+			array(),
+			DINTERO_CHECKOUT_VERSION
+		);
+		wp_enqueue_style( 'dintero-checkout-general-style' );
 	}
 
 	/**
@@ -95,7 +109,7 @@ class Dintero_Checkout_Assets {
 	 */
 	public function enqueue_scripts() {
 		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
-		if ( 'yes' !== $settings['enabled'] ) {
+		if ( ! wc_string_to_bool( $settings['enabled'] ?? 'no' ) ) {
 			return;
 		}
 
@@ -127,13 +141,19 @@ class Dintero_Checkout_Assets {
 		$session_id = WC()->session->get( 'dintero_checkout_session_id' );
 		if ( empty( $session_id ) ) {
 			WC()->cart->calculate_shipping();
-			$new_session = Dintero()->api->create_session();
+			// The checkout is only available for free orders if the cart contains subscriptions.
+			// We therefore don't have to check if the cart contains subscriptions. Refer to Dintero_Checkout_Subscription::is_available().
+			if ( 0.0 === floatval( WC()->cart->total ) && Dintero_Checkout_Subscription::cart_has_subscription() ) {
+				$session = Dintero()->api->create_payment_token();
+			} else {
+				$session = Dintero()->api->create_session();
+			}
 
-			if ( is_wp_error( $new_session ) ) {
+			if ( is_wp_error( $session ) ) {
 				return;
 			}
 
-			$session_id = $new_session['id'];
+			$session_id = $session['id'];
 			WC()->session->set( 'dintero_checkout_session_id', $session_id );
 		}
 
@@ -188,6 +208,7 @@ class Dintero_Checkout_Assets {
 				'verifyOrderTotalError'                => __( 'The cart was modified. Please try again.', 'dintero-checkout-for-woocommerce' ),
 				'allowDifferentBillingShippingAddress' => 'yes' === ( $settings['express_allow_different_billing_shipping_address'] ?? 'no' ) ? true : false,
 				'woocommerceShipToDestination'         => get_option( 'woocommerce_ship_to_destination' ),
+				'checkout_flow'                        => $settings['checkout_flow'] ?? 'express_popout',
 			)
 		);
 
@@ -219,4 +240,5 @@ class Dintero_Checkout_Assets {
 	</style>
 		<?php
 	}
-} new Dintero_Checkout_Assets();
+}
+new Dintero_Checkout_Assets();

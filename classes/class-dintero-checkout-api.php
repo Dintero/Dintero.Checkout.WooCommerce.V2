@@ -27,18 +27,23 @@ class Dintero_Checkout_API {
 		$request  = new Dintero_Checkout_Create_Session( $args );
 		$response = $request->request();
 		return $this->check_for_api_error( $response );
-
 	}
 
 	/**
 	 * Retrieve information about a WooCommerce order from Dintero.
 	 *
 	 * @param string $dintero_id The Dintero transaction id.
-	 * @return array An associative array on success and failure. Check for is_error index.
+	 * @param array  $params Additional URL query parameters.
+	 * @return array|WP_Error An associative array on success and failure. Check for is_error index.
 	 */
-	public function get_order( $dintero_id ) {
-		$args     = array( 'dintero_id' => $dintero_id );
-		$request  = new Dintero_Checkout_Get_Order( $args );
+	public function get_order( $dintero_id, $params = array() ) {
+		$request = new Dintero_Checkout_Get_Order(
+			array(
+				'params'     => $params,
+				'dintero_id' => $dintero_id,
+			)
+		);
+
 		$response = $request->request();
 		return $this->check_for_api_error( $response );
 	}
@@ -155,6 +160,34 @@ class Dintero_Checkout_API {
 	}
 
 	/**
+	 * Initiate payment without customer involvement.
+	 *
+	 * Used for renewal payments.
+	 *
+	 * @param int $order_id WC order ID.
+	 * @return array|WP_Error
+	 */
+	public function sessions_pay( $order_id ) {
+		$request  = new Dintero_Checkout_Sessions_Pay( array( 'order_id' => $order_id ) );
+		$response = $request->request();
+		return $this->check_for_api_error( $response );
+	}
+
+	/**
+	 * Create payment and recurrence tokens without reserving or charging any amount.
+	 *
+	 * Used on checkout and order-pay pages. For renewal payments, @see Dintero_Checkout_API::sessions_pay.
+	 *
+	 * @param int|false $order_id Woo order ID. Defaults to null (used for cart).
+	 * @return array|WP_Error
+	 */
+	public function create_payment_token( $order_id = null ) {
+		$request  = new Dintero_Checkout_Payment_Token( array( 'order_id' => $order_id ) );
+		$response = $request->request();
+		return $this->check_for_api_error( $response );
+	}
+
+	/**
 	 * Checks for WP Errors and returns either the response as array.
 	 *
 	 * @param array $response The response from the request.
@@ -162,7 +195,7 @@ class Dintero_Checkout_API {
 	 */
 	private function check_for_api_error( $response ) {
 		if ( is_wp_error( $response ) ) {
-			if ( ! is_admin() ) {
+			if ( ! is_admin() && ! wp_is_serving_rest_request() ) {
 				dintero_print_error_message( $response );
 			}
 		}

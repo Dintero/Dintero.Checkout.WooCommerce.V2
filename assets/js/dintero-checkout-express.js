@@ -4,6 +4,8 @@ jQuery( function ( $ ) {
         return
     }
 
+    const gatewayParams = dinteroCheckoutParams
+
     const dinteroCheckoutForWooCommerce = {
         bodyEl: $( "body" ),
         checkoutFormSelector: "form.checkout",
@@ -27,7 +29,21 @@ jQuery( function ( $ ) {
                 dinteroCheckoutForWooCommerce.changeFromDinteroCheckout,
             )
 
-            dinteroCheckoutForWooCommerce.renderIframe()
+            if ( $( "#dintero-checkout-iframe" ).length !== 0 ) {
+                dinteroCheckoutForWooCommerce.renderIframe()
+            } else {
+                console.error( "Dintero Checkout: Could not find the container for the iframe." )
+            }
+
+            // WC won't reload the checkout page if Dintero becomes available after being unavailable while remaining on the same page. E.g., when changing shipping method that makes the cart amount non-zero. This seems to only happen when WooCommerce Subscriptions is used.
+            $( "body" ).on( "updated_checkout", function () {
+                if (
+                    0 === $( "#dintero-checkout-iframe" ).length &&
+                    dinteroCheckoutForWooCommerce.isSelectedGateway()
+                ) {
+                    window.location.reload()
+                }
+            } )
 
             /* These are _WC_ events we attach onto. */
             dinteroCheckoutForWooCommerce.bodyEl.on( "update_checkout", dinteroCheckoutForWooCommerce.updateCheckout )
@@ -254,16 +270,8 @@ jQuery( function ( $ ) {
         /*
          * Check if Dintero Checkout is the selected gateway.
          */
-        checkIfDinteroCheckoutSelected() {
-            if ( dinteroCheckoutForWooCommerce.paymentMethodEl.length > 0 ) {
-                dinteroCheckoutForWooCommerce.paymentMethod = dinteroCheckoutForWooCommerce.paymentMethodEl
-                    .filter( ":checked" )
-                    .val()
-                if ( "dintero_checkout" === dinteroCheckoutForWooCommerce.paymentMethod ) {
-                    return true
-                }
-            }
-            return false
+        isSelectedGateway() {
+            return $( 'input[name="payment_method"]' ).filter( ":checked" ).val() === "dintero_checkout"
         },
         /**
          * Moves all non standard fields to the extra checkout fields.
@@ -296,6 +304,13 @@ jQuery( function ( $ ) {
 
         /* Maybe update the shipping and billing address. */
         updateAddress( billingAddress, shippingAddress, finalize = false ) {
+            if (
+                "express_popout" !== dinteroCheckoutParams.checkout_flow &&
+                "express_embedded" !== dinteroCheckoutParams.checkout_flow
+            ) {
+                return
+            }
+
             let update = false
 
             if ( billingAddress ) {

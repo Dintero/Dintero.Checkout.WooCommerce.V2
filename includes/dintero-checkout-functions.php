@@ -127,22 +127,18 @@ function dintero_sanitize_phone_number( $phone ) {
  * @return void
  */
 function dintero_update_wc_shipping( $data ) {
-	// Set cart definition.
 	$merchant_reference = WC()->session->get( 'dintero_merchant_reference' );
-
-	// If we don't have a Dintero merchant reference, return void.
 	if ( empty( $merchant_reference ) ) {
 		return;
 	}
 
-	// If the data is empty, return void.
 	if ( empty( $data ) ) {
 		return;
 	}
 
 	do_action( 'dintero_update_shipping_data', $data );
+	set_transient( "dintero_shipping_data_{$merchant_reference}", $data, HOUR_IN_SECONDS );
 
-	set_transient( 'dintero_shipping_data_' . $merchant_reference, $data, HOUR_IN_SECONDS );
 	$chosen_shipping_methods   = array();
 	$chosen_shipping_methods[] = wc_clean( $data['id'] );
 	WC()->session->set( 'chosen_shipping_methods', apply_filters( 'dintero_chosen_shipping_method', $chosen_shipping_methods ) );
@@ -151,7 +147,7 @@ function dintero_update_wc_shipping( $data ) {
 /**
  * Confirms the Dintero Order.
  *
- * @param WC_Order $order The WooCommerce order
+ * @param WC_Order $order The Woo order.
  * @param string   $transaction_id The Dintero transaction id.
  * @return void
  */
@@ -162,9 +158,44 @@ function dintero_confirm_order( $order, $transaction_id ) {
 
 	// Save the environment mode for use in the meta box.
 	$order->update_meta_data( '_wc_dintero_checkout_environment', 'yes' === $settings['test_mode'] ? 'Test' : 'Production' );
-
 	$order->update_meta_data( '_dintero_transaction_id', $transaction_id );
-	$dintero_order = Dintero()->api->get_order( $transaction_id );
+
+	// Set the merchant_reference_2 for the Dintero order.
+	Dintero()->api->update_transaction( $transaction_id, $order->get_order_number() );
+
+	// Save shipping id to the order.
+	$shipping = $order->get_shipping_methods();
+	if ( ! empty( $shipping ) && empty( $order->get_meta( '_wc_dintero_shipping_id' ) ) ) {
+		$shipping_option = $dintero_order['shipping_option']['id'] ?? reset( $shipping );
+
+		// When processing a Woo subscription, the shipping option is an instance of WC_Order_Item_Shipping.
+		if ( is_object( $shipping_option ) ) {
+			$shipping_option = $shipping_option->get_method_id() . ':' . $shipping_option->get_instance_id();
+		}
+
+		$order->update_meta_data( '_wc_dintero_shipping_id', $shipping_option );
+	}
+
+	// Request the payment token in the response.
+	$params        = array( 'includes' => 'card.payment_token' );
+	$dintero_order = Dintero()->api->get_order( $transaction_id, $params );
+	if ( is_wp_error( $dintero_order ) ) {
+		$order->add_order_note(
+			sprintf(
+				/* translators: %s the error message. */
+				__( 'The order was completed, but the confirmation step failed due to a WP error. Error: %s', 'dintero-checkout-for-woocommerce' ),
+				dintero_retrieve_error_message( $dintero_order )
+			)
+		);
+		$order->save();
+		return;
+	}
+
+	// Save the payment token if available.
+	$payment_token = Dintero_Checkout_Subscription::get_payment_token_from_response( $dintero_order );
+	if ( $payment_token ) {
+		Dintero_Checkout_Subscription::save_payment_token( $order_id, $payment_token );
+	}
 
 	/* Remove duplicate words from the payment method type (e.g., swish.swish → Swish). Otherwise, prints as is (e.g., collector.invoice → Collector Invoice). */
 	$payment_method = dintero_get_payment_method_name( wc_get_var( $dintero_order['payment_product_type'], $order->get_meta( '_dintero_payment_method' ) ) );
@@ -214,17 +245,6 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	}
 
 	$order->save();
-
-	// Set the merchant_reference_2 for the Dintero order.
-	Dintero()->api->update_transaction( $transaction_id, $order->get_order_number() );
-
-	// Save shipping id to the order.
-	$shipping = $order->get_shipping_methods();
-	if ( ! empty( $shipping ) ) {
-		$shipping_option_id = $dintero_order['shipping_option']['id'] ?? reset( $shipping );
-		$order->update_meta_data( '_wc_dintero_shipping_id', $shipping_option_id );
-		$order->save();
-	}
 }
 
 /**
@@ -333,6 +353,20 @@ function dintero_get_order_id_by_merchant_reference( $merchant_reference ) {
 	}
 
 	return $order->get_id() ?? 0;
+}
+
+/**
+ * Retrieve the error message(s).
+ *
+ * @param WP_Error $error An instance of WP_Error.
+ * @return string
+ */
+function dintero_retrieve_error_message( $error ) {
+	$message = $error->get_error_message();
+	if ( is_array( $message ) ) {
+		$message = implode( ' ', $message );
+	}
+	return $message;
 }
 
 /**

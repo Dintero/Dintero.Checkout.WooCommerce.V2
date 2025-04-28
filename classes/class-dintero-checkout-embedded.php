@@ -24,6 +24,7 @@ class Dintero_Checkout_Embedded {
 			add_action( 'woocommerce_before_calculate_totals', array( $this, 'update_shipping_method' ), 1 );
 			add_action( 'woocommerce_after_calculate_totals', array( $this, 'update_dintero_checkout_session' ), 9999 );
 			add_action( 'woocommerce_checkout_update_order_review', array( $this, 'update_wc_customer' ) );
+			add_filter( 'woocommerce_shipping_packages', array( $this, 'maybe_set_selected_pickup_point' ) );
 		}
 	}
 
@@ -92,16 +93,11 @@ class Dintero_Checkout_Embedded {
 	 * @return void
 	 */
 	public function update_shipping_method() {
-		if ( ! is_checkout() ) {
-			return;
-		}
-
-		if ( 'dintero_checkout' !== WC()->session->get( 'chosen_payment_method' ) ) {
+		if ( ! is_checkout() || 'dintero_checkout' !== WC()->session->get( 'chosen_payment_method' ) ) {
 			return;
 		}
 
 		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
-
 		if ( ! isset( $settings['express_shipping_in_iframe'] ) || 'yes' !== $settings['express_shipping_in_iframe'] ) {
 			return;
 		}
@@ -123,12 +119,8 @@ class Dintero_Checkout_Embedded {
 	 * @return void
 	 */
 	public function update_dintero_checkout_session() {
-		if ( ! is_checkout() ) {
-			return;
-		}
-
 		// We can only do this during AJAX, so if it is not an ajax call, we should just bail.
-		if ( ! wp_doing_ajax() ) {
+		if ( ! is_checkout() || ! wp_doing_ajax() ) {
 			return;
 		}
 
@@ -138,11 +130,19 @@ class Dintero_Checkout_Embedded {
 			return;
 		}
 
-		if ( 'dintero_checkout' !== WC()->session->chosen_payment_method ) {
+		// If Dintero is the chosen gateway while it is unavailable, reload the checkout. This can happen if the total a non-zero total amount becomes zero.
+		$chosen_gateway     = WC()->session->chosen_payment_method;
+		$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
+		if ( 'dintero_checkout' === $chosen_gateway && ! array_key_exists( 'dintero_checkout', $available_gateways ) ) {
+			WC()->session->reload_checkout = true;
 			return;
 		}
 
-		// Dintero is not available for free orders.
+		if ( 'dintero_checkout' !== $chosen_gateway ) {
+			return;
+		}
+
+		// Reload the page so the standard WooCommerce checkout page will appear.
 		if ( ! WC()->cart->needs_payment() ) {
 			WC()->session->reload_checkout = true;
 		}
@@ -161,6 +161,53 @@ class Dintero_Checkout_Embedded {
 		}
 
 		Dintero()->api->update_checkout_session( $session_id );
+	}
+
+	/**
+	 * Maybe set the selected pickup point in the shipping method.
+	 *
+	 * @param array $packages The shipping packages.
+	 * @return array
+	 */
+	public function maybe_set_selected_pickup_point( $packages ) {
+		$merchant_reference = WC()->session->get( 'dintero_merchant_reference' );
+		$chosen_shipping    = get_transient( "dintero_shipping_data_{$merchant_reference}" );
+
+		if ( empty( $chosen_shipping ) ) {
+			return $packages;
+		}
+
+		$is_pickup = 'pick_up' === $chosen_shipping['delivery_method'];
+		if ( ! $is_pickup ) {
+			return $packages;
+		}
+
+		// Loop each package.
+		foreach ( $packages as $package ) {
+			/**
+			 * Shipping rate object.
+			 *
+			 * @var WC_Shipping_Rate $rate
+			 */
+			foreach ( $package['rates'] as $rate ) {
+				if ( $chosen_shipping['id'] !== $rate->get_id() ) {
+					continue;
+				}
+
+				// Find the shipping rate that has the following operator product ID.
+				$id           = $chosen_shipping['operator_product_id'];
+				$pickup_point = Dintero()->pickup_points()->get_pickup_point_from_rate_by_id( $rate, $id );
+
+				if ( empty( $pickup_point ) ) {
+					continue;
+				}
+
+				Dintero()->pickup_points()->save_selected_pickup_point_to_rate( $rate, $pickup_point );
+				break;
+			}
+		}
+
+		return $packages;
 	}
 }
 new Dintero_Checkout_Embedded();

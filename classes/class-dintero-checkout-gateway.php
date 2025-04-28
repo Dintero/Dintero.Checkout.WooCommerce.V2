@@ -17,18 +17,23 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 	class Dintero_Checkout_Gateway extends WC_Payment_Gateway {
 
 		/**
-		 * Whether or not test mode is enabled.
+		 * Whether test mode is enabled.
 		 *
-		 * @var bool
+		 * @var boolean
 		 */
-		private $test_mode;
+		public $test_mode;
 		/**
-		 * Whether or not logging is enabled.
+		 * Whether logging to WC log is enabled.
 		 *
-		 * @var bool
+		 * @var boolean
 		 */
-		private $logging;
-
+		public $logging;
+		/**
+		 * Checkout form factor.
+		 *
+		 * @var string
+		 */
+		public $form_factor;
 
 		/**
 		 * Class constructor.
@@ -42,6 +47,16 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				array(
 					'products',
 					'refunds',
+					'subscriptions',
+					'subscription_cancellation',
+					'subscription_suspension',
+					'subscription_reactivation',
+					'subscription_amount_changes',
+					'subscription_date_changes',
+					'subscription_payment_method_change',
+					'subscription_payment_method_change_customer',
+					'subscription_payment_method_change_admin',
+					'multiple_subscriptions',
 				)
 			);
 			$this->init_form_fields();
@@ -93,8 +108,8 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		/**
 		 * Add line ID to uniquely identify order item.
 		 *
-		 * @param WC_Order_Item_Product $item
-		 * @param string                $cart_item_key
+		 * @param WC_Order_Item_Product $item The WC order item.
+		 * @param string                $cart_item_key The order item's unique key.
 		 *
 		 * @return void
 		 */
@@ -133,7 +148,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return string
 		 */
 		public function get_icon() {
-			return '<img src="' . esc_attr( dintero_get_brand_image_url() ) . '" style="max-width: 90%" alt="Dintero logo" />';
+			return '<img class="dintero-logos" src="' . esc_attr( dintero_get_brand_image_url() ) . '" style="max-width: 90%" alt="Dintero logo" />';
 		}
 
 		/**
@@ -142,7 +157,18 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return boolean
 		 */
 		public function is_available() {
-			if ( 'yes' !== $this->enabled ) {
+			return apply_filters( 'dintero_checkout_is_available', $this->check_availability(), $this );
+		}
+
+		/**
+		 * Check if the gateway should be available.
+		 *
+		 * This function is extracted to create the 'dintero_checkout_is_available' filter.
+		 *
+		 * @return bool
+		 */
+		private function check_availability() {
+			if ( ! wc_string_to_bool( $this->enabled ) ) {
 				return false;
 			}
 
@@ -170,12 +196,23 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return array An associative array containing the success status and redirect URl.
 		 */
 		public function process_payment( $order_id ) {
+			$order = wc_get_order( $order_id );
+
+			$shipping_line_id = WC()->session->get( 'dintero_shipping_line_id' );
+			if ( ! empty( $shipping_line_id ) ) {
+				$order->update_meta_data( '_dintero_shipping_line_id', $shipping_line_id );
+				$order->save();
+			}
+
+			if ( Dintero_Checkout_Subscription::is_change_payment_method() ) {
+				return $this->process_redirect_payment( $order );
+			}
 
 			/* For all form factors, redirect is used for order-pay since the cart object (used for embedded) is not available. */
 			if ( dwc_is_embedded( $this->settings ) && ! is_wc_endpoint_url( 'order-pay' ) ) {
-				$result = $this->process_embedded_payment( $order_id );
+				$result = $this->process_embedded_payment( $order );
 			} else {
-				$result = $this->process_redirect_payment( $order_id );
+				$result = $this->process_redirect_payment( $order );
 			}
 			return $result;
 		}
@@ -183,14 +220,12 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		/**
 		 * Process an embedded payment method.
 		 *
-		 * @param int $order_id The WooCommerce Order ID.
+		 * @param WC_Order $order The Woo order.
 		 * @return array
 		 */
-		public function process_embedded_payment( $order_id ) {
-			$order     = wc_get_order( $order_id );
+		public function process_embedded_payment( $order ) {
 			$reference = WC()->session->get( 'dintero_merchant_reference' );
 			$order->update_meta_data( '_dintero_merchant_reference', $reference );
-			$order->add_order_note( __( 'Dintero order created with reference ', 'dintero-checkout-for-woocommerce' ) . $reference );
 			$order->save();
 
 			return array(
@@ -201,12 +236,12 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		/**
 		 * Process a redirect payment.
 		 *
-		 * @param int $order_id The WooCommerce Order ID.
+		 * @param WC_Order $order The Woo Order.
 		 * @return array
 		 */
-		public function process_redirect_payment( $order_id ) {
-			$order     = wc_get_order( $order_id );
-			$session   = Dintero()->api->create_session( $order_id );
+		public function process_redirect_payment( $order ) {
+			$session = 0.0 === floatval( $order->get_total() ) ? Dintero()->api->create_payment_token( $order->get_id() ) : Dintero()->api->create_session( $order->get_id() );
+
 			$reference = WC()->session->get( 'dintero_merchant_reference' );
 			$order->update_meta_data( '_dintero_merchant_reference', $reference );
 			$order->save();
@@ -218,6 +253,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			}
 
 			$order->add_order_note( __( 'Customer redirected to Dintero payment page.', 'dintero-checkout-for-woocommerce' ) );
+			$order->save();
 
 			return array(
 				'result'   => 'success',
@@ -231,9 +267,23 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @param int    $order_id The WooCommerce order id.
 		 * @param float  $amount The amount to refund.
 		 * @param string $reason The reason for the refund.
-		 * @return array|WP_Error
+		 * @return boolean|null
 		 */
 		public function process_refund( $order_id, $amount = null, $reason = '' ) {
+			$order        = wc_get_order( $order_id );
+			$capture_date = $order->get_meta( '_wc_dintero_captured' );
+
+			if ( empty( $capture_date ) ) {
+				return new WP_Error(
+					'dintero_refund_not_supported',
+					__(
+						'Refunds are only possible for orders that have been completed. If you have an order that has not been completed and needs to be canceled, set the order status to "Canceled".',
+						'dintero-checkout-for-woocommerce'
+					)
+				);
+
+			}
+
 			return Dintero()->order_management->refund_order( $order_id, $reason );
 		}
 	}

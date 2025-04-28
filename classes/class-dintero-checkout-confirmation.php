@@ -28,15 +28,14 @@ class Dintero_Checkout_Redirect {
 	 */
 	public function maybe_redirect() {
 		$gateway            = filter_input( INPUT_GET, 'gateway', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		$transaction_id     = filter_input( INPUT_GET, 'transaction_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$merchant_reference = filter_input( INPUT_GET, 'merchant_reference', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		$error              = filter_input( INPUT_GET, 'error', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 		if ( 'dintero' !== $gateway || empty( $merchant_reference ) ) {
 			return;
 		}
 
 		/* The transaction_id is only guaranteed when the payment is complete and authorized. That is, not on cancel. */
+		$transaction_id = filter_input( INPUT_GET, 'transaction_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( empty( $transaction_id ) ) {
 			Dintero_Checkout_Logger::log( 'REDIRECT ERROR [transaction_id]: The transaction ID is missing. Redirecting customer back to checkout page.' );
 			wp_safe_redirect( wc_get_checkout_url() );

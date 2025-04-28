@@ -5,12 +5,12 @@
  * Description: Dintero offers a complete payment solution. Simplifying the payment process for you and the customer.
  * Author: Dintero, Krokedil
  * Author URI: https://krokedil.com/
- * Version: 1.10.8
+ * Version: 1.11.0
  * Text Domain: dintero-checkout-for-woocommerce
  * Domain Path: /languages
  *
  * WC requires at least: 6.1.0
- * WC tested up to: 9.5.1
+ * WC tested up to: 9.8.0
  *
  * Copyright (c) 2025 Krokedil
  *
@@ -18,12 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use KrokedilDinteroCheckoutDeps\Krokedil\Shipping\Interfaces\PickupPointServiceInterface;
+use KrokedilDinteroCheckoutDeps\Krokedil\Shipping\PickupPoints;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'DINTERO_CHECKOUT_VERSION', '1.10.8' );
-define( 'DINTERO_CHECKOUT_URL', untrailingslashit( plugins_url( '/', __FILE__ ) ) );
+define( 'DINTERO_CHECKOUT_VERSION', '1.11.0' );
+define( 'DINTERO_CHECKOUT_URL', untrailingslashit( plugin_dir_url( __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_MAIN_FILE', __FILE__ );
 
@@ -47,6 +50,13 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * @var Dintero_Checkout_Order_Management
 		 */
 		public $order_management;
+
+		/**
+		 * Pickup points service.
+		 *
+		 * @var PickupPointServiceInterface $pickup_points
+		 */
+		private $pickup_points;
 
 		/**
 		 * The reference the *Singleton* instance of this class.
@@ -88,6 +98,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			wc_doing_it_wrong( __FUNCTION__, __( 'Nope' ), '1.0' );
 		}
 
+
 		/**
 		 * Class constructor.
 		 */
@@ -97,11 +108,64 @@ if ( ! class_exists( 'Dintero' ) ) {
 		}
 
 		/**
+		 * Initialize composers autoloader.
+		 *
+		 * @return bool Whether it was successfully initialized.
+		 */
+		public function init_composer() {
+			$autoloader_dependencies = __DIR__ . '/dependencies/scoper-autoload.php';
+
+			// Check if the autoloaders was read.
+			$autoloader_dependencies_result = is_readable( $autoloader_dependencies ) && require $autoloader_dependencies;
+			if ( ! $autoloader_dependencies_result ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( //phpcs:ignore
+						sprintf(
+							/* translators: 1: composer command. 2: plugin directory */
+							esc_html__( 'Your installation of the Dintero Checkout plugin is incomplete. Please run %1$s within the %2$s directory.', 'ledyer-payments-for-woocommerce' ),
+							'`composer install`',
+							'`' . esc_html( str_replace( ABSPATH, '', __DIR__ ) ) . '`'
+						)
+					);
+				}
+
+				// Add an admin notice, use anonymous function to simplify, this does not need to be removable.
+				add_action(
+					'admin_notices',
+					function () {
+						?>
+						<div class="notice notice-error">
+							<p>
+								<?php
+								printf(
+									/* translators: 1: composer command. 2: plugin directory */
+									esc_html__( 'Your installation of the Dintero Checkout plugin is incomplete. Please run %1$s within the %2$s directory.', 'ledyer-payments-for-woocommerce' ),
+									'<code>composer install</code>',
+									'<code>' . esc_html( str_replace( ABSPATH, '', __DIR__ ) ) . '</code>'
+								);
+								?>
+							</p>
+						</div>
+						<?php
+					}
+				);
+
+				return false;
+			}
+
+			return true;
+		}
+
+		/**
 		 * Initialize the payment gateway.
 		 *
 		 * @return void
 		 */
 		public function init() {
+			if ( ! $this->init_composer() ) {
+				return;
+			}
+
 			if ( ! class_exists( 'WC_Payment_Gateway' ) ) {
 				return;
 			}
@@ -121,6 +185,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-embedded.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-order-status.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-meta-box.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-subscription.php';
 
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/class-dintero-checkout-request.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/class-dintero-checkout-request-get.php';
@@ -138,10 +203,13 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-cancel-order.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-capture-order.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-refund-order.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-sessions-pay.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-payment-token.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/put/class-dintero-checkout-update-checkout-session.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/put/class-dintero-checkout-update-transaction.php';
 
 			$this->api              = new Dintero_Checkout_API();
+			$this->pickup_points    = new PickupPoints();
 			$this->order_management = Dintero_Checkout_Order_Management::get_instance();
 
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateways' ) );
@@ -155,6 +223,37 @@ if ( ! class_exists( 'Dintero' ) ) {
 			);
 
 			add_action( 'before_woocommerce_init', array( $this, 'declare_wc_compatibility' ) );
+
+			add_action( 'admin_notices', array( $this, 'dintero_wc_zero_decimal_notice' ) );
+		}
+
+
+		/**
+		 * Display a notice if the WooCommerce decimal setting is set to 0.
+		 *
+		 * @return void
+		 */
+		public function dintero_wc_zero_decimal_notice() {
+
+			if ( get_user_meta( get_current_user_id(), 'dismissed_dintero_wc_zero_decimal_notice', true ) ) {
+				return;
+			}
+
+			$decimals_setting = get_option( 'woocommerce_price_num_decimals', 2 );
+
+			if ( 0 == $decimals_setting ) {
+				$article_url = 'https://krokedil.com/dont-display-prices-with-0-decimals-in-woocommerce/';
+				?>
+				<div class="notice notice-warning woocommerce-message">
+						<a class="woocommerce-message-close notice-dismiss"
+							href="<?php echo esc_url( wp_nonce_url( add_query_arg( 'wc-hide-notice', 'dintero_wc_zero_decimal' ), 'woocommerce_hide_notices_nonce', '_wc_notice_nonce' ) ); ?>">
+							<?php esc_html_e( 'Dismiss', 'woocommerce' ); ?>
+						</a>
+					<p><strong><?php esc_html_e( 'The decimal setting for prices in WooCommerce is currently set to 0.', 'dintero-checkout-for-woocommerce' ); ?></strong></p>
+					<p><?php esc_html_e( 'This may cause rounding issues with pricing and taxes. Learn more about why this can be problematic — and what to do instead: ', 'dintero-checkout-for-woocommerce' ); ?><a href="<?php echo esc_url( $article_url ); ?>" target="_blank"><?php esc_html_e( 'Don’t display prices with 0 decimals in WooCommerce', 'dintero-checkout-for-woocommerce' ); ?></a>.</p>
+				</div>
+				<?php
+			}
 		}
 
 		/**
@@ -163,10 +262,10 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * @return void
 		 */
 		public function declare_wc_compatibility() {
-			// Declare HPOS compatibility.
-			// Declare Checkout Blocks incompatibility
 			if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+				// Declare HPOS compatibility.
 				\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+				// Declare Checkout Blocks incompatibility.
 				\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, false );
 			}
 		}
@@ -215,6 +314,15 @@ if ( ! class_exists( 'Dintero' ) ) {
 
 			return $methods;
 		}
+
+		/**
+		 * Get the pickup points service.
+		 *
+		 * @return PickupPointServiceInterface
+		 */
+		public function pickup_points() {
+			return $this->pickup_points;
+		}
 	}
 
 	Dintero::get_instance();
@@ -227,6 +335,6 @@ if ( ! class_exists( 'Dintero' ) ) {
  *
  * @return Dintero
  */
-function Dintero() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName
+function Dintero() { // phpcs:ignore
 	return Dintero::get_instance();
 }

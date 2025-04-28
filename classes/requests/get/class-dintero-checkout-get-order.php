@@ -22,7 +22,8 @@ class Dintero_Checkout_Get_Order extends Dintero_Checkout_Request_Get {
 	public function __construct( $arguments ) {
 		parent::__construct( $arguments );
 
-		$this->log_title = 'Get Dintero order.';
+		$this->log_title      = 'Get Dintero order.';
+		$this->request_filter = 'dintero_checkout_get_order_args';
 	}
 
 	/**
@@ -31,6 +32,10 @@ class Dintero_Checkout_Get_Order extends Dintero_Checkout_Request_Get {
 	 * @return string
 	 */
 	public function get_request_url() {
-		return "{$this->get_api_url_base()}transactions/{$this->arguments['dintero_id']}";
+		if ( ! empty( $this->arguments['params'] ) ) {
+			return add_query_arg( $this->arguments['params'], "{$this->get_api_url_base()}transactions/{$this->arguments['dintero_id']}" );
+		} else {
+			return "{$this->get_api_url_base()}transactions/{$this->arguments['dintero_id']}";
+		}
 	}
 }

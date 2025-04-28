@@ -70,6 +70,13 @@ class Dintero_Settings_Fields {
 				'desc_tip'    => true,
 				'description' => __( 'Test payment window profile ID. Found under (SETTINGS → Payment windows) in Dintero Backoffice.', 'dintero-checkout-for-woocommerce' ),
 			),
+			'subscription_profile_id'                 => array(
+				'title'       => __( 'Profile ID for subscriptions', 'dintero-checkout-for-woocommerce' ),
+				'type'        => 'text',
+				'default'     => '',
+				'desc_tip'    => true,
+				'description' => __( 'The profile to apply if the cart or order contain subscriptions. Found under (SETTINGS → Payment windows) in Dintero Backoffice.', 'dintero-checkout-for-woocommerce' ),
+      ),
 			'checkout_settings'                       => array(
 				'title' => __( 'Checkout settings', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'title',
@@ -114,6 +121,7 @@ class Dintero_Settings_Fields {
 				'description' => __( 'Click <a href="https://www.dintero.com/checkout-layouts">here</a> to read more about checkout layouts.', 'dintero-checkout-for-woocommerce' ),
 				'default'     => 'two_column_right',
 				'desc_tip'    => false,
+				'class'       => 'embedded-only',
 			),
 			/* The "Redirect box" is hidden until the form factor Redirect is selected. */
 			'redirect_title'                          => array(

@@ -80,13 +80,20 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 	 * @return void
 	 */
 	public static function dintero_checkout_wc_log_js() {
-		$nonce = isset( $_POST['nonce'] ) ? sanitize_key( $_POST['nonce'] ) : '';
-		if ( ! wp_verify_nonce( $nonce, 'dintero_checkout_wc_log_js' ) ) {
-			wp_send_json_error( 'bad_nonce' );
-		}
-		$posted_message            = isset( $_POST['message'] ) ? sanitize_text_field( wp_unslash( $_POST['message'] ) ) : '';
+		check_ajax_referer( 'dintero_checkout_wc_log_js', 'nonce' );
 		$dintero_checkout_order_id = WC()->session->get( 'dintero_checkout_order_id' );
-		$message                   = "Frontend JS $dintero_checkout_order_id: $posted_message";
+
+		// Get the content size of the request.
+		$post_size = (int) $_SERVER['CONTENT_LENGTH'] ?? 0;
+
+		// If the post data is too long, log an error message and return.
+		if ( $post_size > 1024 ) {
+			Dintero_Checkout_Logger::log( "Frontend JS $dintero_checkout_order_id: message too long and can't be logged." );
+			wp_send_json_success(); // Return success to not stop anything in the frontend if this happens.
+		}
+
+		$posted_message = filter_input( INPUT_POST, 'message', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$message        = "Frontend JS $dintero_checkout_order_id: $posted_message";
 		Dintero_Checkout_Logger::log( $message );
 		wp_send_json_success();
 	}
@@ -134,6 +141,10 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 
 		$id      = filter_input( INPUT_POST, 'id', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$session = Dintero()->api->get_session( $id );
+
+		if ( is_wp_error( $session ) ) {
+			wp_send_json_error( $session->get_error_message() );
+		}
 
 		WC()->cart->calculate_totals();
 		$total    = $session['order']['amount'];
