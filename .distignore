@@ -23,16 +23,36 @@ scoper.custom.php
 node_modules
 
 tmp*
-{readme,README}.{dev.md,DEV.md,md,txt}
+
+readme.dev.md
+readme.DEV.md
+readme.md
+readme.txt
+README.dev.md
+README.DEV.md
+README.md
+README.txt
+
 tests
 
-composer.{lock,json}
-composer{,-dependencies}.{lock,json}
-package{,-lock}.json
+composer.lock
+composer.json
+composer-dependencies.lock
+composer-dependencies.json
+
+package.json
+package-lock.json
+
 webpack.config.js
-{npm,pnpm,yarn}.lock
-phpcs.xml{,.dist}
+
+npm.lock
+pnpm.lock
+yarn.lock
+
+phpcs.xml
+phpcs.xml.dist
 phpcs.ruleset.xml
+
 tsconfig.json
 
 gruntfile.js
