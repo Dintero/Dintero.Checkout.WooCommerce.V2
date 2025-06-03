@@ -2,11 +2,11 @@
 Contributors: dintero, krokedil, NiklasHogefjord
 Tags: woocommerce, dintero, ecommerce, e-commerce, checkout
 Requires at least: 5.8.3
-Tested up to: 6.5.4
+Tested up to: 6.7.2
 Requires PHP: 7.4
 WC requires at least: 6.1.0
-WC tested up to: 8.2.1
-Stable tag: 1.10.7
+WC tested up to: 9.8.0
+Stable tag: 1.11.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,26 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us) t
 1. The plugin settings screen where you set up the details to connect to Dintero.
 
 == Changelog ==
+= 2025.04.28    - version 1.11.1 =
+* Fix           - Updated deployment script to include assets.
+
+= 2025.04.28    - version 1.11.0 =
+* Feature       - Added support for WooCommerce Subscriptions.
+* Feature       - Added support for pickup points.
+* Tweak         - Updated Web SDK to v0.8.23.
+* Tweak         - Updated POT translation file.
+* Tweak         - Removed the 'Dintero order created' order note.
+* Tweak         - Error notices won't be displayed if an API error occurs during the serving of a REST request.
+* Tweak         - Decodes encoded HTML entities in the shipping title.
+* Tweak         - Limit the max size of a log message from the frontend to 1000 to prevent large logs from being created.
+* Fix           - Added checks for if WP error in case the session could not be retrieved during the order totals verification AJAX request.
+* Fix           - Fixed a critical error that could occur when the cart only contained virtual products.
+* Fix           - Fixed pay for order not available when subscriptions is enabled.
+* Fix           - Update the shipping line ID to account for pickup points.
+* Fix           - Prevents the customer-entered address from being overwritten in non-express embedded checkout.
+* Enhancement   - Added the 'dintero-logos' class to the payment method icon.
+* Enhancement   - Added an admin notice if zero decimals is enabled in WooCommerce.
+
 = 2024.08.19    - version 1.10.7 =
 * Fix           - Fixed an issue related to 'woocommerce_new_order_item' where calling save() would result in the order ID being set to 0. This should improve compatibility with other third-party plugins that hook onto this action.
 

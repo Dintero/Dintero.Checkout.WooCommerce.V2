@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "866f7cf551e49a410581cd50e4e1c44e2e4db2f0"
+                "reference": "23feb19c0342c95d01e648b8062e1f24e4390a16"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/866f7cf551e49a410581cd50e4e1c44e2e4db2f0",
-                "reference": "866f7cf551e49a410581cd50e4e1c44e2e4db2f0",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/23feb19c0342c95d01e648b8062e1f24e4390a16",
+                "reference": "23feb19c0342c95d01e648b8062e1f24e4390a16",
                 "shasum": ""
             },
             "require": {
@@ -84,9 +84,13 @@
                 {
                     "url": "https://opencollective.com/php_codesniffer",
                     "type": "open_collective"
+                },
+                {
+                    "url": "https://thanks.dev/u/gh/phpcsstandards",
+                    "type": "thanks_dev"
                 }
             ],
-            "time": "2024-11-21T05:15:17+00:00"
+            "time": "2025-04-28T01:15:05+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
@@ -204,18 +208,18 @@
             "type": "composer-plugin",
             "extra": {
                 "class": "Wpify\\Scoper\\Plugin",
-                "wordpress-install-dir": "sources/wordpress",
-                "installer-paths": {
-                    "sources/plugin-{$name}/": [
-                        "type:wordpress-plugin"
-                    ],
-                    "sources/theme-{$name}/": [
-                        "type:wordpress-theme"
-                    ]
-                },
                 "textdomain": {
                     "wpify-custom-fields": "some-new-textdomain"
-                }
+                },
+                "installer-paths": {
+                    "sources/theme-{$name}/": [
+                        "type:wordpress-theme"
+                    ],
+                    "sources/plugin-{$name}/": [
+                        "type:wordpress-plugin"
+                    ]
+                },
+                "wordpress-install-dir": "sources/wordpress"
             },
             "autoload": {
                 "psr-4": {
