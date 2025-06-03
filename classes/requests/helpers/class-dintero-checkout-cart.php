@@ -75,7 +75,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		/**
 		 * Get cart fees.
 		 *
-		 * @var $cart_fees WC_Cart_Fees
+		 * @var WC_Cart_Fees $cart_fees
 		 */
 		$cart_fees = WC()->cart->get_fees();
 		foreach ( $cart_fees as $fee ) {
