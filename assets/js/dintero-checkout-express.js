@@ -4,8 +4,6 @@ jQuery( function ( $ ) {
         return
     }
 
-    const gatewayParams = dinteroCheckoutParams
-
     const dinteroCheckoutForWooCommerce = {
         bodyEl: $( "body" ),
         checkoutFormSelector: "form.checkout",
