@@ -99,7 +99,7 @@ class Dintero_Checkout_Meta_Box {
 		if ( ! empty( $account_id ) && ! empty( $transaction_id ) ) {
 			$env = 'test' === strtolower( $environment ) ? 'T' : 'P';
 			$url = esc_url( "https://backoffice.dintero.com/{$env}{$account_id}/payments/transactions/{$transaction_id}" );
-			echo "<p><a href='" . esc_url( $url ) . "'>View transaction details</a></p>";
+			echo "<p><a href='" . esc_url( $url ) . "' target='_blank'>View transaction details</a></p>";
 		}
 		?>
 		</div>
