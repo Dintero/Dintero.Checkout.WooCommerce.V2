@@ -388,7 +388,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		$shipping_option = array(
 			'id'              => $id,
 			'line_id'         => $line_id,
-			'amount'          => self::format_number( $shipping_item->get_total() + $shipping_item->get_total_tax() ),
+			'amount'          => absint( self::format_number( $shipping_item->get_total() + $shipping_item->get_total_tax() ) ),
 			'operator'        => '',
 			'description'     => $shipping_item->get_name(),
 			'title'           => $shipping_item->get_name(),
