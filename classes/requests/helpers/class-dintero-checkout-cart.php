@@ -319,15 +319,16 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		$shipping_packages = WC()->shipping->get_packages();
 		foreach ( $shipping_packages as $package_index => $package ) {
 			$shipping_rates = $package['rates'];
+			$index          = isset( $package['seller_id'] ) ? $package['seller_id'] : $package_index;
 
 			foreach ( $shipping_rates as $shipping_rate ) {
 				$pickup_points = Dintero()->pickup_points()->get_pickup_points_from_rate( $shipping_rate );
 				if ( ! empty( $pickup_points ) ) {
 					foreach ( $pickup_points as $pickup_point ) {
-						$shipping_options[] = $this->get_pickup_point( $shipping_rate, $pickup_point, $package_index );
+						$shipping_options[] = $this->get_pickup_point( $shipping_rate, $pickup_point, $index );
 					}
 				} else {
-					$shipping_options[] = $this->get_shipping_item( $shipping_rate, $package_index );
+					$shipping_options[] = $this->get_shipping_item( $shipping_rate, $index );
 				}
 			}
 		}

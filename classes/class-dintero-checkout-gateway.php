@@ -125,11 +125,16 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 *
 		 * @param WC_Order_Item_Shipping $item The WC order shipping item.
 		 * @param string                 $package_key The shipping package key.
+		 * @param array                  $package The shipping package.
 		 *
 		 * @return void
 		 */
-		public function create_order_shipping_item( $item, $package_key, $packages ) {
+		public function create_order_shipping_item( $item, $package_key, $package ) {
 			$shipping_id = WC()->session->get( 'chosen_shipping_methods' )[ $package_key ];
+			if ( isset( $package['seller_id'] ) ) {
+				$shipping_id .= ":{$package['seller_id']}";
+			}
+
 			$item->add_meta_data( '_dintero_checkout_line_id', WC()->cart->generate_cart_id( $shipping_id ) );
 		}
 
