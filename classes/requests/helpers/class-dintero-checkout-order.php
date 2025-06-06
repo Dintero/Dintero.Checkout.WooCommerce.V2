@@ -433,15 +433,6 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		return array();
 	}
 
-	public function get_shipping_options( $shipping_methods ) {
-		$shipping_options = array();
-		foreach ( $shipping_methods as $package_index => $shipping_method ) {
-			$shipping_options[] = $this->get_shipping_item( $shipping_method, $package_index );
-		}
-
-		return $shipping_options;
-	}
-
 	/**
 	 * Get the formatted shipping object.
 	 *
