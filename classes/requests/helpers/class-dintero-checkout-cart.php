@@ -258,8 +258,18 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 
 			// Check if the WC session has any chosen shipping methods instead.
 			if ( empty( $chosen_shipping ) ) {
-				$chosen_shipping = $this->get_shipping_items();
-				return reset( $chosen_shipping );
+				$chosen_shipping_methods = WC()->session->get( 'chosen_shipping_methods' );
+				$chosen_shipping_id      = reset( $chosen_shipping_methods );
+
+				$available_shipping_options = $this->get_shipping_items();
+				foreach ( $available_shipping_options as $shipping_option ) {
+					if ( $shipping_option['id'] === $chosen_shipping_id ) {
+						$chosen_shipping = $shipping_option;
+						break;
+					}
+				}
+
+				return $chosen_shipping;
 			}
 
 			$rates = WC()->shipping->get_packages()[0]['rates'];
@@ -363,7 +373,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 * @return array
 	 */
 	public function get_shipping_item( $shipping_rate, $package_index = '' ) {
-		$line_id         = "{$shipping_rate->get_id()}" . ( $package_index !== '' ? ":{$package_index}" : '' );
+		$line_id         = WC()->cart->generate_cart_id( $shipping_rate->get_id() );
 		$shipping_option = array(
 			'id'              => $shipping_rate->get_id(),
 			'line_id'         => $line_id,
@@ -394,23 +404,23 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	/**
 	 * Get the formatted order line from a pickup point.
 	 *
-	 * @param WC_Shipping_Rate $rate The shipping method rate from WooCommerce.
+	 * @param WC_Shipping_Rate $shipping_rate The shipping method rate from WooCommerce.
 	 * @param PickupPoint      $pickup_point The pickup point.
 	 * @param string           $package_index An index for uniquely identifying shipping rates that appear multiple times (e.g., in different packages).
 	 * @return array
 	 */
-	private function get_pickup_point( $rate, $pickup_point, $package_index = '' ) {
-		$meta    = $rate->get_meta_data();
+	private function get_pickup_point( $shipping_rate, $pickup_point, $package_index = '' ) {
+		$meta    = $shipping_rate->get_meta_data();
 		$carrier = isset( $meta['carrier'] ) ? strtolower( $meta['carrier'] ) : $meta['udc_carrier_id'];
 
-		$line_id = "{$rate->get_id()}:{$pickup_point->get_id()}" . ( $package_index !== '' ? ":{$package_index}" : '' );
+		$line_id = WC()->cart->generate_cart_id( $shipping_rate->get_id() );
 		return array(
-			'id'                  => $rate->get_id(),
+			'id'                  => $shipping_rate->get_id(),
 			'line_id'             => $line_id,
-			'amount'              => self::format_number( $rate->get_cost() + $rate->get_shipping_tax() ),
+			'amount'              => self::format_number( $shipping_rate->get_cost() + $shipping_rate->get_shipping_tax() ),
 			'operator'            => $this->get_operator( $carrier ),
 			'operator_product_id' => $pickup_point->get_id(),
-			'title'               => $rate->get_label(),
+			'title'               => $shipping_rate->get_label(),
 			'countries'           => array( $pickup_point->get_address()->get_country() ),
 			'description'         => $pickup_point->get_description(),
 			'delivery_method'     => 'pick_up',
@@ -423,7 +433,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 				'latitude'      => $pickup_point->get_coordinates()->get_latitude(),
 				'longitude'     => $pickup_point->get_coordinates()->get_longitude(),
 			),
-			'thumbnail_url'       => $this->get_pickup_point_icon( $carrier, $rate ),
+			'thumbnail_url'       => $this->get_pickup_point_icon( $carrier, $shipping_rate ),
 			'quantity'            => 1,
 			'type'                => 'shipping',
 		);

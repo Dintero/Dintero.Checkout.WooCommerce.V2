@@ -367,8 +367,13 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * @return array
 	 */
 	public function get_shipping_item( $shipping_item, $package_index = '' ) {
-		$id              = $shipping_item->get_method_id() . ':' . $shipping_item->get_instance_id();
-		$line_id         = $id . ( $package_index !== '' ? ":{$package_index}" : '' );
+		$id      = $shipping_item->get_method_id() . ':' . $shipping_item->get_instance_id();
+		$line_id = $shipping_item->get_meta( '_dintero_checkout_line_id' );
+		if ( empty( $line_id ) ) {
+			// If the line_id is not set, we use the id as the line_id.
+			$line_id = $id . ( $package_index !== '' ? ":{$package_index}" : '' );
+		}
+
 		$shipping_option = array(
 			'id'              => $id,
 			'line_id'         => $line_id,
@@ -383,13 +388,17 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			'type'            => 'shipping',
 		);
 
-		// Is this a pick up point? If the metadata exist, then it is.
+		// Is this a pick-up point? If it has metadata, then it is a pick-up point.
 		$encoded_meta = $shipping_item->get_meta( 'udc_delivery_data' );
 		if ( ! empty( $encoded_meta ) ) {
 			$meta = json_decode( $encoded_meta, true );
 
-			$id                               = $shipping_item->get_method_id() . ':' . $meta['id'];
-			$line_id                          = $id . ( $package_index !== '' ? ":{$package_index}" : '' );
+			if ( empty( $line_id ) ) {
+				// If the line_id is not set, we use the id as the line_id.
+				$id      = $shipping_item->get_method_id() . ':' . $meta['id'];
+				$line_id = $id . ( $package_index !== '' ? ":{$package_index}" : '' );
+			}
+
 			$carrier                          = $meta['carrierId'];
 			$shipping_option['operator']      = $carrier;
 			$shipping_option['thumbnail_url'] = $this->get_pickup_point_icon( $carrier, $shipping_item );
@@ -447,8 +456,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			 *
 			 * @var WC_Order_Item_Shipping $shipping_line The shipping line.
 			 */
-			$shipping_line    = array_values( $shipping_lines )[0];
-			$shipping_line_id = ! empty( $this->order->get_meta( '_dintero_shipping_line_id' ) ) ? $this->order->get_meta( '_dintero_shipping_line_id' ) : $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
+			$shipping_line = array_values( $shipping_lines )[0];
 
 			// Retrieve the shipping id from the order object itself.
 			$shipping_id = $this->order->get_meta( '_wc_dintero_shipping_id' );
@@ -465,9 +473,14 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 				$shipping_id = $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
 			}
 
+			$line_id = $shipping_line->get_meta( '_dintero_checkout_line_id' );
+			if ( empty( $line_id ) ) {
+				$line_id = ! empty( $this->order->get_meta( '_dintero_shipping_line_id' ) ) ? $this->order->get_meta( '_dintero_shipping_line_id' ) : $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
+
+			}
 			return array(
 				'id'          => $shipping_id,
-				'line_id'     => $shipping_line_id,
+				'line_id'     => $line_id,
 				'amount'      => absint( self::format_number( $shipping_line->get_total() + $shipping_line->get_total_tax() ) ),
 				'operator'    => '',
 				'description' => '',

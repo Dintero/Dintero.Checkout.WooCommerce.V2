@@ -97,6 +97,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			 * Adds cart_item_key to the order item's meta data to be used as a unique line id. This applies to both embedded and redirect flow.
 			 */
 			add_action( 'woocommerce_checkout_create_order_line_item', array( $this, 'create_order_line_item' ), 10, 2 );
+			add_action( 'woocommerce_checkout_create_order_shipping_item', array( $this, 'create_order_shipping_item' ), 10, 3 );
 
 			/**
 			 * By default, a custom meta data will be displayed on the order page. Since the meta data _dintero_checkout_line_id is an implementation detail,
@@ -115,6 +116,21 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 */
 		public function create_order_line_item( $item, $cart_item_key ) {
 			$item->add_meta_data( '_dintero_checkout_line_id', $cart_item_key, true );
+		}
+
+		/**
+		 * Add line ID to uniquely identify order shipping item.
+		 *
+		 * @hook woocommerce_checkout_create_order_shipping_item
+		 *
+		 * @param WC_Order_Item_Shipping $item The WC order shipping item.
+		 * @param string                 $package_key The shipping package key.
+		 *
+		 * @return void
+		 */
+		public function create_order_shipping_item( $item, $package_key, $packages ) {
+			$shipping_id = WC()->session->get( 'chosen_shipping_methods' )[ $package_key ];
+			$item->add_meta_data( '_dintero_checkout_line_id', WC()->cart->generate_cart_id( $shipping_id ) );
 		}
 
 		/**
