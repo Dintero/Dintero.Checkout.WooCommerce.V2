@@ -20,12 +20,20 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	public $order;
 
 	/**
+	 * Whether the order being processed is a refund.
+	 *
+	 * @var bool
+	 */
+	public $is_refund = false;
+
+	/**
 	 * Class constructor.
 	 *
 	 * @param WC_Order|WC_Order_Refund $order The Woo order.
 	 */
 	public function __construct( $order ) {
-		$this->order = $order;
+		$this->order     = $order;
+		$this->is_refund = $this->order instanceof WC_Order_Refund;
 	}
 
 	/**
@@ -35,7 +43,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 */
 	public function get_order_total() {
 		$order_total = self::format_number( $this->order->get_total() );
-		if ( $this->order instanceof WC_Order ) {
+		if ( ! $this->is_refund ) {
 			// Only available and relevant for WC_Order.
 			$refunded_total = self::format_number( $this->order->get_total_refunded() );
 			return absint( $order_total - $refunded_total );
@@ -52,7 +60,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	public function get_tax_total() {
 		$order_total_tax = self::format_number( $this->order->get_total_tax() );
 
-		if ( $this->order instanceof WC_Order ) {
+		if ( ! $this->is_refund ) {
 			// Only available and relevant for WC_Order.
 			$refunded_total_tax = self::format_number( $this->order->get_total_tax_refunded() );
 			return absint( $order_total_tax - $refunded_total_tax );
@@ -179,7 +187,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	private function get_items( $types = 'line_item' ) {
 		$order_items = $this->order->get_items( $types );
 
-		if ( $this->order instanceof WC_Order_Refund ) {
+		if ( $this->is_refund ) {
 			return $order_items;
 		}
 
@@ -367,8 +375,15 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * @return array
 	 */
 	public function get_shipping_item( $shipping_item, $package_index = '' ) {
-		$id      = $shipping_item->get_method_id() . ':' . $shipping_item->get_instance_id();
-		$line_id = $shipping_item->get_meta( '_dintero_checkout_line_id' );
+		$id = $shipping_item->get_method_id() . ':' . $shipping_item->get_instance_id();
+
+		// If this is a refund, we need to retrieve the line_id from the non-refund order as the OrderRefund does not contain the original metadata in Order.
+		if ( $this->is_refund ) {
+			$line_id = wc_get_order_item_meta( $shipping_item->get_meta( '_refunded_item_id' ), '_dintero_checkout_line_id', true );
+		} else {
+			$line_id = $shipping_item->get_meta( '_dintero_checkout_line_id' );
+		}
+
 		if ( empty( $line_id ) ) {
 			// If the line_id is not set, we use the id as the line_id.
 			$line_id = $id . ( $package_index !== '' ? ":{$package_index}" : '' );
