@@ -131,14 +131,11 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		$shipping_items = $this->get_items( 'shipping' );
 		if ( count( $shipping_items ) > 1 ) {
 			/* If there is more than one shipping option, it will be part of the order.items to support multiple shipping packages. */
-			$i = 0; // Index for uniquely identifying shipping rates that appear multiple times (e.g., in different packages).
 			foreach ( $shipping_items as $order_item ) {
-				$order_line = $this->get_shipping_item( $order_item, $i );
+				$order_line = $this->get_shipping_item( $order_item );
 				if ( ! empty( $order_line ) ) {
 					$order_lines[] = $order_line;
 				}
-
-				++$i;
 			}
 		}
 
@@ -371,10 +368,9 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * Formats the shipping method to be used in order.items.
 	 *
 	 * @param WC_Order_Item_Shipping $shipping_item The WooCommerce shipping method.
-	 * @param string                 $package_index An index for uniquely identifying shipping rates that appear multiple times (e.g., in different packages).
 	 * @return array
 	 */
-	public function get_shipping_item( $shipping_item, $package_index = '' ) {
+	public function get_shipping_item( $shipping_item ) {
 		$id = $shipping_item->get_method_id() . ':' . $shipping_item->get_instance_id();
 
 		// If this is a refund, we need to retrieve the line_id from the non-refund order as the OrderRefund does not contain the original metadata in Order.
@@ -386,7 +382,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 
 		if ( empty( $line_id ) ) {
 			// If the line_id is not set, we use the id as the line_id.
-			$line_id = $id . ( $package_index !== '' ? ":{$package_index}" : '' );
+			$line_id = $id;
 		}
 
 		$shipping_option = array(
