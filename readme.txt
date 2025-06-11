@@ -20,7 +20,7 @@ our checkout in your WooCommerce installation. The plugin lets you capture, canc
 partially refund orders, and adapt the checkout for B2B / B2C customers or just one customer 
 type. You can also customize branding with logo colors and placement
 
-##Dintero is available for online/offline store owners and merchants in:
+## Dintero is available for online/offline store owners and merchants in:
 
 - Norway
 - Sweden
@@ -35,7 +35,10 @@ features, such as:
 -  Localised payment methods and language  
 -  Proactive technical solutions to prevent shipping errors before they occur.  
 
-Our feature-rich components create a seamless, effortless buying experience for customers while offering full customisation for businesses. And is a one stop shop for digital payment, offering card payments, invoice, installments, BNPL, and mobile payment solutions
+Our feature-rich components create a seamless, effortless buying experience for customers while offering full customisation for businesses. And is a one stop shop for digital payment, offering card payments, invoice, installments, BNPL, and mobile payment solutions.
+
+### High conversions
+Supercharge your sales with a high converting checkout solution. Offer all the payment methods your customers want, globally and locally. One payment solution, endless possibilities.
 
 ### Manage all your payments in one place with Dintero Backoffice
 
