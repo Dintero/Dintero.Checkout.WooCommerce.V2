@@ -103,6 +103,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * Class constructor.
 		 */
 		public function __construct() {
+			add_action( 'init', array( $this, 'load_textdomain' ) );
 			add_action( 'plugin_loaded', array( $this, 'init' ) );
 			add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'plugin_action_links' ) );
 		}
@@ -213,7 +214,6 @@ if ( ! class_exists( 'Dintero' ) ) {
 			$this->order_management = Dintero_Checkout_Order_Management::get_instance();
 
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateways' ) );
-			load_plugin_textdomain( 'dintero-checkout-for-woocommerce', false, plugin_basename( __DIR__ ) . '/languages' );
 
 			add_action(
 				'widgets_init',
@@ -254,6 +254,15 @@ if ( ! class_exists( 'Dintero' ) ) {
 				</div>
 				<?php
 			}
+		}
+
+		/**
+		 * Load the plugin text domain for translation.
+		 *
+		 * @return void
+		 */
+		public function load_textdomain() {
+			load_plugin_textdomain( 'dintero-checkout-for-woocommerce', false, plugin_basename( __DIR__ ) . '/languages' );
 		}
 
 		/**
