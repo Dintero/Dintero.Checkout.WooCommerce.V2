@@ -302,9 +302,12 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * @return array
 	 */
 	public function get_fee( $order_item ) {
+		$fee_total     = floatval( $order_item->get_total() );
+		$fee_total_tax = floatval( $order_item->get_total_tax() );
+
 		$name       = $order_item->get_name();
-		$amount     = absint( self::format_number( floatval( $order_item->get_total() ) + floatval( $order_item->get_total_tax() ) ) );
-		$vat_amount = absint( self::format_number( floatval( $order_item->get_total_tax() ) ) );
+		$amount     = absint( self::format_number( $fee_total + $fee_total_tax ) );
+		$vat_amount = absint( self::format_number( $fee_total_tax ) );
 
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
@@ -314,7 +317,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			'quantity'    => 1,
 			'amount'      => $amount,
 			'vat_amount'  => $vat_amount,
-			'vat'         => empty( $amount ) ? 0 : $vat_amount / $amount,
+			'vat'         => $amount <= 0 ? 0 : $vat_amount / $amount,
 		);
 	}
 
@@ -464,7 +467,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 				'description' => '',
 				'title'       => $shipping_line->get_method_title(),
 				'vat_amount'  => self::format_number( $shipping_total_tax ),
-				'vat'         => $shipping_total <= 0 ? 0 : self::format_number( $shipping_line->get_total_tax() / $shipping_line->get_total() ),
+				'vat'         => $shipping_total <= 0 ? 0 : self::format_number( $shipping_total_tax / $shipping_total ),
 			);
 		}
 		return null;

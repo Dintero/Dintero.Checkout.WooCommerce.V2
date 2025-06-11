@@ -398,11 +398,14 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		$meta    = $rate->get_meta_data();
 		$carrier = isset( $meta['carrier'] ) ? strtolower( $meta['carrier'] ) : $meta['udc_carrier_id'];
 
+		// As of WC 9.9.x, the cost has to be converted to a float otherwise you may risk receive a simple double-quote (") if the shipping cost is not set.
+		$shipping_cost = floatval( $rate->get_cost() );
+
 		$line_id = "{$rate->get_id()}:{$pickup_point->get_id()}";
 		return array(
 			'id'                  => $rate->get_id(),
 			'line_id'             => $line_id,
-			'amount'              => self::format_number( floatval( $rate->get_cost() ) + $rate->get_shipping_tax() ),
+			'amount'              => self::format_number( $shipping_cost + $rate->get_shipping_tax() ),
 			'operator'            => $this->get_operator( $carrier ),
 			'operator_product_id' => $pickup_point->get_id(),
 			'title'               => $rate->get_label(),
