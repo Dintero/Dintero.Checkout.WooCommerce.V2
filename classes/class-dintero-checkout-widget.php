@@ -123,5 +123,3 @@ class Dintero_Checkout_Widget extends WP_Widget {
 		<?php
 	}
 }
-
-new Dintero_Checkout_Widget();

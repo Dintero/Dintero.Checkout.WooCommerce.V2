@@ -103,9 +103,17 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * Class constructor.
 		 */
 		public function __construct() {
-			add_action( 'init', array( $this, 'load_textdomain' ) );
 			add_action( 'plugin_loaded', array( $this, 'init' ) );
 			add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'plugin_action_links' ) );
+
+			// Postpone loading of textdomain until the plugin is loaded.
+			add_action( 'init', array( $this, 'load_textdomain' ), 0 );
+			// Since the Widget class references the textdomain, we need to load it after the textdomain is registered.
+			add_action( 'widgets_init', array( $this, 'register_widget' ) );
+		}
+
+		public function register_widget() {
+			register_widget( 'Dintero_Checkout_Widget' );
 		}
 
 		/**
@@ -215,18 +223,18 @@ if ( ! class_exists( 'Dintero' ) ) {
 
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateways' ) );
 
-			add_action(
-				'widgets_init',
-				function () {
-					register_widget( 'Dintero_Checkout_Widget' );
-				}
-			);
-
 			add_action( 'before_woocommerce_init', array( $this, 'declare_wc_compatibility' ) );
-
 			add_action( 'admin_notices', array( $this, 'dintero_wc_zero_decimal_notice' ) );
 		}
 
+		/**
+		 * Load the plugin text domain for translation.
+		 *
+		 * @return void
+		 */
+		public function load_textdomain() {
+			load_plugin_textdomain( 'dintero-checkout-for-woocommerce', false, plugin_basename( __DIR__ ) . '/languages' );
+		}
 
 		/**
 		 * Display a notice if the WooCommerce decimal setting is set to 0.
@@ -254,15 +262,6 @@ if ( ! class_exists( 'Dintero' ) ) {
 				</div>
 				<?php
 			}
-		}
-
-		/**
-		 * Load the plugin text domain for translation.
-		 *
-		 * @return void
-		 */
-		public function load_textdomain() {
-			load_plugin_textdomain( 'dintero-checkout-for-woocommerce', false, plugin_basename( __DIR__ ) . '/languages' );
 		}
 
 		/**
