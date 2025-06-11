@@ -259,13 +259,15 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 
 		$vat_rate = WC_Tax::get_base_tax_rates( $product->get_tax_class() );
 
-		$order_line = array(
+		$item_total     = floatval( $order_item->get_total() );
+		$item_total_tax = floatval( $order_item->get_total_tax() );
+		$order_line     = array(
 			'id'          => $this->get_product_sku( $product ),
 			'line_id'     => $line_id,
 			'description' => $order_item->get_name(),
 			'quantity'    => absint( $order_item->get_quantity() ),
-			'amount'      => absint( self::format_number( $order_item->get_total() + $order_item->get_total_tax() ) ),
-			'vat_amount'  => absint( self::format_number( $order_item->get_total_tax() ) ),
+			'amount'      => absint( self::format_number( $item_total + $item_total_tax ) ),
+			'vat_amount'  => absint( self::format_number( $item_total_tax ) ),
 			'vat'         => reset( $vat_rate )['rate'] ?? 0,
 		);
 
@@ -301,8 +303,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 */
 	public function get_fee( $order_item ) {
 		$name       = $order_item->get_name();
-		$amount     = absint( self::format_number( $order_item->get_total() + $order_item->get_total_tax() ) );
-		$vat_amount = absint( self::format_number( $order_item->get_total_tax() ) );
+		$amount     = absint( self::format_number( floatval( $order_item->get_total() ) + floatval( $order_item->get_total_tax() ) ) );
+		$vat_amount = absint( self::format_number( floatval( $order_item->get_total_tax() ) ) );
 
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
@@ -404,17 +406,19 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			return array();
 		}
 
+		$shipping_total     = floatval( $shipping_method->get_total() );
+		$shipping_total_tax = floatval( $shipping_method->get_total_tax() );
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
-			'id'              => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
-			'line_id'         => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
-			'amount'          => self::format_number( $shipping_method->get_total() + $shipping_method->get_total_tax() ),
+			'id'              => "{$shipping_method->get_method_id()}:{$shipping_method->get_instance_id()}",
+			'line_id'         => "{$shipping_method->get_method_id()}:{$shipping_method->get_instance_id()}",
+			'amount'          => self::format_number( $shipping_total + $shipping_total_tax ),
 			'operator'        => '',
 			'description'     => '',
 			'title'           => $shipping_method->get_method_title(),
 			'delivery_method' => 'unspecified',
-			'vat_amount'      => self::format_number( $shipping_method->get_total_tax() ),
-			'vat'             => ( empty( floatval( $shipping_method->get_total() ) ) ) ? 0 : self::format_number( $shipping_method->get_total_tax() / $shipping_method->get_total() ),
+			'vat_amount'      => self::format_number( $shipping_total_tax ),
+			'vat'             => $shipping_total <= 0 ? 0 : self::format_number( $shipping_total_tax / $shipping_total ),
 		);
 	}
 
@@ -450,15 +454,17 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 				$shipping_id = $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
 			}
 
+			$shipping_total     = floatval( $shipping_line->get_total() );
+			$shipping_total_tax = floatval( $shipping_line->get_total_tax() );
 			return array(
 				'id'          => $shipping_id,
 				'line_id'     => $shipping_line_id,
-				'amount'      => absint( self::format_number( $shipping_line->get_total() + $shipping_line->get_total_tax() ) ),
+				'amount'      => absint( self::format_number( $shipping_total + $shipping_total_tax ) ),
 				'operator'    => '',
 				'description' => '',
 				'title'       => $shipping_line->get_method_title(),
-				'vat_amount'  => self::format_number( $shipping_line->get_total_tax() ),
-				'vat'         => ! empty( floatval( $shipping_line->get_total() ) ) ? self::format_number( $shipping_line->get_total_tax() / $shipping_line->get_total() ) : 0,
+				'vat_amount'  => self::format_number( $shipping_total_tax ),
+				'vat'         => $shipping_total <= 0 ? 0 : self::format_number( $shipping_line->get_total_tax() / $shipping_line->get_total() ),
 			);
 		}
 		return null;
