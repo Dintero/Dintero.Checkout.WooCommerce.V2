@@ -44,7 +44,7 @@ class Dintero_Checkout_Widget extends WP_Widget {
 			),
 		);
 		echo wp_kses( $args['before_widget'], $allowed_html );
-		if ( 'on' === $instance['use_default'] ) {
+		if ( 'on' === ( $instance['use_default'] ?? 'on' ) ) {
 			$this->print_icon();
 		} else {
 			$this->print_icon( $instance['icon_color'], $instance['background_color'] );
