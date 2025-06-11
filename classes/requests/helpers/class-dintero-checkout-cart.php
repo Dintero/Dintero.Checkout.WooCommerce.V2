@@ -360,16 +360,18 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 * @return array
 	 */
 	public function get_shipping_item( $shipping_rate ) {
+		$shipping_cost = floatval( $shipping_rate->get_cost() );
+
 		$shipping_option = array(
 			'id'              => $shipping_rate->get_id(),
 			'line_id'         => $shipping_rate->get_id(),
-			'amount'          => self::format_number( $shipping_rate->get_cost() + $shipping_rate->get_shipping_tax() ),
+			'amount'          => self::format_number( $shipping_cost + $shipping_rate->get_shipping_tax() ),
 			'operator'        => '',
 			'description'     => '',
 			'title'           => html_entity_decode( $shipping_rate->get_label() ),
 			'delivery_method' => 'unspecified',
 			'vat_amount'      => self::format_number( $shipping_rate->get_shipping_tax() ),
-			'vat'             => ( empty( floatval( $shipping_rate->get_cost() ) ) ) ? 0 : self::format_number( $shipping_rate->get_shipping_tax() / $shipping_rate->get_cost() ),
+			'vat'             => $shipping_rate->get_cost() <= 0 ? 0 : self::format_number( $shipping_rate->get_shipping_tax() / $shipping_cost ),
 		);
 
 		$meta    = $shipping_rate->get_meta_data();
@@ -400,7 +402,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		return array(
 			'id'                  => $rate->get_id(),
 			'line_id'             => $line_id,
-			'amount'              => self::format_number( $rate->get_cost() + $rate->get_shipping_tax() ),
+			'amount'              => self::format_number( floatval( $rate->get_cost() ) + $rate->get_shipping_tax() ),
 			'operator'            => $this->get_operator( $carrier ),
 			'operator_product_id' => $pickup_point->get_id(),
 			'title'               => $rate->get_label(),
