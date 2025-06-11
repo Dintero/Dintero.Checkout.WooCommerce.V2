@@ -6,7 +6,7 @@ Tested up to: 6.7.2
 Requires PHP: 7.4
 WC requires at least: 6.1.0
 WC tested up to: 9.8.0
-Stable tag: 1.11.1
+Stable tag: 1.11.2
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -144,6 +144,9 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us?ut
 6. Gift cards and Discount cards available.
 7. Remove headaches and manage your reconciliation, reports, transactions, refunds (transaction level), Gift Cards, payment methods, and more in the Dintero backoffice.
 == Changelog ==
+= 2025.06.11    - version 1.11.2 =
+* Fix           - Addresses uncaught error caused when calculating the shipping cost.
+
 = 2025.04.28    - version 1.11.1 =
 * Fix           - Updated deployment script to include assets.
 
