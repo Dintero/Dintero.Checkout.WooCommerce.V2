@@ -371,7 +371,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			'title'           => html_entity_decode( $shipping_rate->get_label() ),
 			'delivery_method' => 'unspecified',
 			'vat_amount'      => self::format_number( $shipping_rate->get_shipping_tax() ),
-			'vat'             => $shipping_rate->get_cost() <= 0 ? 0 : self::format_number( $shipping_rate->get_shipping_tax() / $shipping_cost ),
+			'vat'             => $shipping_cost <= 0 ? 0 : self::format_number( $shipping_rate->get_shipping_tax() / $shipping_cost ),
 		);
 
 		$meta    = $shipping_rate->get_meta_data();
