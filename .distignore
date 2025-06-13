@@ -46,11 +46,13 @@ webpack.config.js
 npm.lock
 pnpm.lock
 yarn.lock
+pnpm-lock.yaml
 
 phpcs.xml
 phpcs.xml.dist
 phpcs.ruleset.xml
 
 tsconfig.json
+eslint.json
 
 gruntfile.js
