@@ -363,14 +363,16 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * @return array
 	 */
 	public function get_shipping_item( $shipping_method ) {
+		$shipping_cost = floatval( $shipping_method->get_cost() );
+
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
 			'id'         => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
 			'line_id'    => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
-			'amount'     => self::format_number( $shipping_method->get_cost() + $shipping_method->get_shipping_tax() ),
+			'amount'     => self::format_number( $shipping_cost + $shipping_method->get_shipping_tax() ),
 			'title'      => $shipping_method->get_label(),
-			'vat_amount' => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() ),
-			'vat'        => ( empty( floatval( $shipping_method->get_cost() ) ) ) ? 0 : self::format_number( $shipping_method->get_shipping_tax() / $shipping_method->get_cost() ),
+			'vat_amount' => $shipping_cost <= 0 ? 0 : self::format_number( $shipping_method->get_shipping_tax() ),
+			'vat'        => $shipping_cost <= 0 ? 0 : self::format_number( $shipping_method->get_shipping_tax() / $shipping_cost ),
 			/* Since the shipping will be added to the list of products, it needs a quantity. */
 			'quantity'   => 1,
 			/* Dintero needs to know this is an order with multiple shipping options by setting the 'type'. */
@@ -430,7 +432,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			 *
 			 * @var WC_Order_Item_Shipping $shipping_line The shipping line.
 			 */
-			$shipping_line = array_values( $shipping_lines )[0];
+			$shipping_line    = array_values( $shipping_lines )[0];
+			$shipping_line_id = ! empty( $this->order->get_meta( '_dintero_shipping_line_id' ) ) ? $this->order->get_meta( '_dintero_shipping_line_id' ) : $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
 
 			// Retrieve the shipping id from the order object itself.
 			$shipping_id = $this->order->get_meta( '_wc_dintero_shipping_id' );
@@ -449,7 +452,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 
 			return array(
 				'id'          => $shipping_id,
-				'line_id'     => $shipping_id,
+				'line_id'     => $shipping_line_id,
 				'amount'      => absint( self::format_number( $shipping_line->get_total() + $shipping_line->get_total_tax() ) ),
 				'operator'    => '',
 				'description' => '',

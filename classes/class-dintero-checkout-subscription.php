@@ -179,39 +179,38 @@ class Dintero_Checkout_Subscription {
 	}
 
 	/**
-	 * Whether the gateway should be available.
+	 * Whether the gateway should be available if it contains a subscriptions.
 	 *
 	 * @param bool $is_available Whether the gateway is available.
 	 * @return bool
 	 */
 	public function is_available( $is_available ) {
+		// If no subscription is found, we don't need to do anything.
+		if ( ! self::cart_has_subscription() ) {
+			return $is_available;
+		}
+
 		// Allow free orders when changing subscription payment method.
 		if ( self::is_change_payment_method() ) {
 			return true;
 		}
 
-		$zero_order = isset( WC()->cart ) && floatval( WC()->cart->total ) === 0.0;
-		if ( $zero_order ) {
-			if ( ! self::cart_has_subscription() ) {
-				return false;
-			}
-
-			// Mixed checkout not allowed.
-			if ( class_exists( 'WC_Subscriptions_Product' ) ) {
-				foreach ( WC()->cart->cart_contents as $key => $item ) {
-					if ( ! WC_Subscriptions_Product::is_subscription( $item['data'] ) ) {
-						return false;
-					}
+		// Mixed checkout not allowed.
+		if ( class_exists( 'WC_Subscriptions_Product' ) ) {
+			foreach ( WC()->cart->cart_contents as $key => $item ) {
+				if ( ! WC_Subscriptions_Product::is_subscription( $item['data'] ) ) {
+					return false;
 				}
-			}
-
-			// Since Dintero doesn't (yet) support changing from free trial to zero cost subscriptions (e.g., a coupon applied result in 0 cost), we must prevent the customer from proceeding.
-			if ( self::cart_has_only_free_trial() ) {
-				return true;
 			}
 		}
 
-		return $is_available;
+		// Since Dintero doesn't (yet) support changing from free trial to zero cost subscriptions (e.g., a coupon applied result in 0 cost), we must prevent the customer from proceeding.
+		$zero_order = isset( WC()->cart ) && floatval( WC()->cart->total ) === 0.0;
+		if ( $zero_order && ! self::cart_has_only_free_trial() ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
