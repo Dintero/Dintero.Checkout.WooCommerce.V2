@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/Dintero.Checkout.WooCommerce.V2\n"
-"POT-Creation-Date: 2025-06-11 08:26:36+00:00\n"
+"POT-Creation-Date: 2025-06-17 12:58:04+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -529,13 +529,13 @@ msgstr ""
 msgid "Background color:"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-cart.php:521
-#: classes/requests/helpers/class-dintero-checkout-cart.php:544
-#: classes/requests/helpers/class-dintero-checkout-order.php:350
+#: classes/requests/helpers/class-dintero-checkout-cart.php:524
+#: classes/requests/helpers/class-dintero-checkout-cart.php:547
+#: classes/requests/helpers/class-dintero-checkout-order.php:355
 msgid "Gift card"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-cart.php:565
+#: classes/requests/helpers/class-dintero-checkout-cart.php:568
 msgid "Gift card:"
 msgstr ""
 
@@ -550,38 +550,94 @@ msgid ""
 "with action."
 msgstr ""
 
+#: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:45
+msgid "Shipping Information"
+msgstr ""
+
+#: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:171
+msgid "Selected pickup point"
+msgstr ""
+
+#: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:179
+msgid "Edit"
+msgstr ""
+
+#: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:242
+msgid "Change"
+msgstr ""
+
+#: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:264
+msgid "Invalid order id"
+msgstr ""
+
+#: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:269
+msgid "Invalid shipping line id"
+msgstr ""
+
+#: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:274
+msgid "No pickup points found"
+msgstr ""
+
+#: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:285
+msgid "Invalid pickup point id"
+msgstr ""
+
+#: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:291
+msgid "Could not save shipping line"
+msgstr ""
+
+#: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:298
+msgid "Pickup point updated"
+msgstr ""
+
+#: dependencies/krokedil/shipping/src/Calculations.php:26
+msgid "Shipping tax"
+msgstr ""
+
+#: dependencies/krokedil/shipping/src/PickupPoint/PickupPoint.php:302
+msgid "Address"
+msgstr ""
+
+#: dependencies/krokedil/shipping/src/PickupPoint/PickupPoint.php:328
+msgid "Open hours"
+msgstr ""
+
+#: dependencies/krokedil/shipping/src/PickupPoint/PickupPoint.php:369
+msgid "Show on map"
+msgstr ""
+
 #: dintero-checkout-for-woocommerce.php:88
 #: dintero-checkout-for-woocommerce.php:98
 msgid "Nope"
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:125
-#: dintero-checkout-for-woocommerce.php:142
+#: dintero-checkout-for-woocommerce.php:134
+#: dintero-checkout-for-woocommerce.php:151
 #. translators: 1: composer command. 2: plugin directory
 msgid ""
 "Your installation of the Dintero Checkout plugin is incomplete. Please run "
 "%1$s within the %2$s directory."
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:250
+#: dintero-checkout-for-woocommerce.php:258
 msgid "Dismiss"
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:252
+#: dintero-checkout-for-woocommerce.php:260
 msgid "The decimal setting for prices in WooCommerce is currently set to 0."
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:253
+#: dintero-checkout-for-woocommerce.php:261
 msgid ""
 "This may cause rounding issues with pricing and taxes. Learn more about why "
 "this can be problematic — and what to do instead: "
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:253
+#: dintero-checkout-for-woocommerce.php:261
 msgid "Don’t display prices with 0 decimals in WooCommerce"
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:283
+#: dintero-checkout-for-woocommerce.php:291
 msgid "Settings"
 msgstr ""
 
