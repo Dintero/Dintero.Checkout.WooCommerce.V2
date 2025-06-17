@@ -2,11 +2,11 @@
 Contributors: dintero, krokedil, NiklasHogefjord
 Tags: woocommerce, dintero, ecommerce, e-commerce, checkout
 Requires at least: 5.8.3
-Tested up to: 6.7.2
+Tested up to: 6.8.1
 Requires PHP: 7.4
 WC requires at least: 6.1.0
-WC tested up to: 9.8.0
-Stable tag: 1.11.2
+WC tested up to: 9.9.3
+Stable tag: 1.11.3
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -15,12 +15,9 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.html
 Klarna, Walley, Billie, invoices, installments, and buy now pay later (BNPL) payment 
 solutions.**
 
-With Dintero Checkout for WooCommerce Payment Methods, you can either embed or redirect 
-our checkout in your WooCommerce installation. The plugin lets you capture, cancel, refund or 
-partially refund orders, and adapt the checkout for B2B / B2C customers or just one customer 
-type. You can also customize branding with logo colors and placement
+With Dintero Checkout for WooCommerce Payment Methods, you can either embed or redirect our checkout in your WooCommerce installation. The plugin lets you capture, cancel, refund or partially refund orders, and adapt the checkout for B2B / B2C customers or just one customer type. You can also customize branding with logo colors and placement.
 
-## Dintero is available for online/offline store owners and merchants in:
+**Dintero is available for online/offline store owners and merchants in:**
 
 - Norway
 - Sweden
@@ -28,8 +25,7 @@ type. You can also customize branding with logo colors and placement
 
 ### Why choose Dintero payment?
 
-Dintero Checkout delivers the ultimate formula for high conversions with customer-first designed 
-features, such as:  
+Dintero Checkout delivers the ultimate formula for high conversions with customer-first designed features, such as: 
 
 -  Remembering customer details  
 -  Localised payment methods and language  
@@ -38,48 +34,45 @@ features, such as:
 Our feature-rich components create a seamless, effortless buying experience for customers while offering full customisation for businesses. And is a one stop shop for digital payment, offering card payments, invoice, installments, BNPL, and mobile payment solutions.
 
 ### High conversions
-Supercharge your sales with a high converting checkout solution. Offer all the payment methods your customers want, globally and locally. One payment solution, endless possibilities.
+Supercharge your sales with a high converting checkout solution. Offer all the payment methods your customers want, globally and locally. One payment solution, endless possibilities. 
 
 ### Manage all your payments in one place with Dintero Backoffice
 
 No more multiple logins. With our powerful Backoffice, there is one place to view and manage all payments, payouts, and reports. You can even do reconciliation and integrate account software.
 
-### Payment Methods  
+### Payment Methods:
 
-#### Cards  
-- Visa  
-- MasterCard  
+**Cards**
+- Visa
+- MasterCard
 
-#### Mobile  
-- Vipps  
-- Swish  
-- MobilePay  
+**Mobile**
+- Vipps
+- Swish
+- MobilePay
 
-#### Wallets  
-- Apple Pay  
-- Google Pay  
-- Click to Pay  
+**Wallets**
+- Apple Pay
+- Google Pay
+- Click to Pay
 
-#### BNPL (Buy Now Pay Later), Installments, & Invoices  
-- Klarna  
-- Walley  
-- Billie  
+**BNPL (Buy Now Pay Later), Installments, & Invoices**
+- Klarna
+- Walley
+- Billie
 
 For the full list of Payment Methods, supported countries, and pricing, visit our [Pricing](https://www.dintero.com/pricing?utm_source=wordpressplugin&utm_medium=plugin) page.
 
-## Dintero Express Checkout Features  
+### Dintero Express Checkout Features  
 
-The Dintero Express Checkout remembers customer details (if they opt-in) so we can give them  
-an even faster and frictionless checkout experience with their next purchases, which increases  
-conversion rates for returning customers. Available for embedded solutions.  
+The Dintero Express Checkout remembers customer details (if they opt-in) so we can give them an even faster and frictionless checkout experience with their next purchases, which increases conversion rates for returning customers. Available for embedded solutions.
 
 ### API  
-Dintero Checkout supports any business model, and with our APIs you can automate and  
-simplify the user experience for your customers.  
+Dintero Checkout supports any business model, and with our APIs you can automate and simplify the user experience for your customers.
 
 === Getting started ===
 
-Get started with Dintero Checkout for WooCommerce Payment Methods in 4 easy steps.
+Get started with Dintero Checkout for WooCommerce Payment Methods in 4 easy steps. 
 
 1. [Create a Dintero account](https://dintero.com/get-started?utm_source=wordpressplugin&utm_medium=plugin)
 2. In [Dintero Backoffice](https://backoffice.dintero.com?utm_source=wordpressplugin&utm_medium=plugin), go to Settings > Payment methods and click Activate 
@@ -89,25 +82,23 @@ payments. We’ll notify you once approved.
 
 ### Dependencies  
 
-### Dintero Web SDK  
-The plugin uses Dintero’s Web SDK for embedding the Dintero Checkout. The SDK can be  
-found at [GitHub](https://github.com/Dintero/Dintero.Checkout.Web.SDK?utm_source=wordpressplugin&utm_medium=plugin), and is licensed with an MIT license.  
+**Dintero Web SDK**
+The plugin uses Dintero’s Web SDK for embedding the Dintero Checkout. The SDK can be found at [GitHub](https://github.com/Dintero/Dintero.Checkout.Web.SDK?utm_source=wordpressplugin&utm_medium=plugin), and is licensed with an MIT license.  
 
-The SDK follows the same terms as when creating a Dintero account, with its [terms of service](https://www.dintero.com/terms/terms-of-service?utm_source=wordpressplugin&utm_medium=plugin)  
-and [privacy policy](https://www.dintero.com/legal/privacy-policy?utm_source=wordpressplugin&utm_medium=plugin).  
+The SDK follows the same terms as when creating a Dintero account, with its [terms of service](https://www.dintero.com/terms/terms-of-service?utm_source=wordpressplugin&utm_medium=plugin) and [privacy policy](https://www.dintero.com/legal/privacy-policy?utm_source=wordpressplugin&utm_medium=plugin).  
 
-## FAQ  
+### FAQ  
 
-### Does this require an SSL certificate?  
+Does this require an SSL certificate?  
 > Yes, you need a certificate with at least TLS 1.2 to use Dintero Checkout.  
 
-### Does this support both production mode and sandbox mode for testing?  
+Does this support both production mode and sandbox mode for testing?  
 > Yes, sandbox is instantly available for all new accounts.  
 
-### Where can I find documentation?  
+Where can I find documentation?  
 > Go to [Dintero Documentation](https://docs.dintero.com/docs/checkout/plugins/woo-plugin?utm_source=wordpressplugin&utm_medium=plugin) to find more thorough documentation.  
 
-### Where can I get support?  
+Where can I get support?  
 > Go to [Dintero Support](https://www.dintero.com/support)
 
 == Installation ==
@@ -120,7 +111,7 @@ and [privacy policy](https://www.dintero.com/legal/privacy-policy?utm_source=wor
 
 = Does this require an SSL certificate? =
 
-Yes, you need a certificate with at least TLS 1.2 to use Dintero Checkout
+Yes, you need a certificate with at least TLS 1.2 to use Dintero Checkout.
 
 = Does this support both production mode and sandbox mode for testing? =
 
@@ -144,6 +135,13 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us?ut
 6. Gift cards and Discount cards available.
 7. Remove headaches and manage your reconciliation, reports, transactions, refunds (transaction level), Gift Cards, payment methods, and more in the Dintero backoffice.
 == Changelog ==
+= 2025.06.17    - version 1.11.3 =
+* Fix           - Fixed a potential fatal error during checkout that could occur when the shipping option price was returned as a string that is not a valid number, caused by WooCommerce version 9.9.x. This issue has been addressed in WooCommerce version 9.9.4.
+* Fix           - Addresses uncaught error caused when calculating the shipping cost.
+* Fix           - Fixed undefined 'use_default' index warning in widget.
+* Fix           - Fixed a critical error when processing the backtrace in the log handler.
+* Tweak         - Delayed loading textdomain until init. This should address the issue where the error log would be flooded with warnings related to the textdomain being loaded too early.
+
 = 2025.06.11    - version 1.11.2 =
 * Fix           - Addresses uncaught error caused when calculating the shipping cost.
 
