@@ -118,7 +118,8 @@ class Dintero_Checkout_Logger {
 				if ( in_array( $data['function'], array( 'do_action', 'apply_filters' ), true ) ) {
 					if ( isset( $data['object'] ) ) {
 						$priority   = $data['object']->current_priority();
-						$name       = key( $data['object']->current() );
+						$current    = $data['object']->current();
+						$name       = is_array( $current ) ? key( $current ) : '';
 						$extra_data = $name . ' : ' . $priority;
 					}
 				}
