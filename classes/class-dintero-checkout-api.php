@@ -20,7 +20,7 @@ class Dintero_Checkout_API {
 	 * Create a new Dintero session.
 	 *
 	 * @param string $order_id WooCommerce transaction id.
-	 * @return array An associative array on success and failure. Check for is_error index.
+	 * @return array|WP_Error An associative array on success and failure. Check for is_error index.
 	 */
 	public function create_session( $order_id = false ) {
 		$args     = array( 'order_id' => $order_id );
@@ -52,7 +52,7 @@ class Dintero_Checkout_API {
 	 * Retrieve information about a WooCommerce order from Dintero.
 	 *
 	 * @param string $session_id The Dintero session id.
-	 * @return array An associative array on success and failure. Check for is_error index.
+	 * @return array|WP_Error An associative array on success and failure. Check for is_error index.
 	 */
 	public function get_session( $session_id ) {
 		$args     = array( 'session_id' => $session_id );
@@ -65,7 +65,7 @@ class Dintero_Checkout_API {
 	 * Update a Dintero checkout session.
 	 *
 	 * @param string $session_id The Dintero session id.
-	 * @return array An associative array on success and failure. Check for is_error index.
+	 * @return array|WP_Error An associative array on success and failure. Check for is_error index.
 	 */
 	public function update_checkout_session( $session_id ) {
 		$args     = array( 'session_id' => $session_id );
@@ -79,7 +79,7 @@ class Dintero_Checkout_API {
 	 *
 	 * @param string $dintero_id The Dintero transaction id.
 	 * @param int    $order_id The WooCommerce order id.
-	 * @return array An associative array on success and failure. Check for is_error index.
+	 * @return array|WP_Error An associative array on success and failure. Check for is_error index.
 	 */
 	public function capture_order( $dintero_id, $order_id ) {
 		$request  = new Dintero_Checkout_Capture_Order(
@@ -96,7 +96,7 @@ class Dintero_Checkout_API {
 	 * Set the Dintero order to canceled (void).
 	 *
 	 * @param string $dintero_id The Dintero transaction id.
-	 * @return array An associative array on success and failure. Check for is_error index.
+	 * @return array|WP_Error An associative array on success and failure. Check for is_error index.
 	 */
 	public function cancel_order( $dintero_id ) {
 		$request  = new Dintero_Checkout_Cancel_Order(
@@ -114,7 +114,7 @@ class Dintero_Checkout_API {
 	 * @param string $dintero_id The Dintero transaction id.
 	 * @param int    $order_id The WooCommerce order id.
 	 * @param string $reason The given reason for the refund.
-	 * @return array An associative array on success and failure. Check for is_error index.
+	 * @return array|WP_Error An associative array on success and failure. Check for is_error index.
 	 */
 	public function refund_order( $dintero_id, $order_id, $reason ) {
 		$request  = new Dintero_Checkout_Refund_Order(
