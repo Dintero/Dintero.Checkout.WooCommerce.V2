@@ -573,7 +573,7 @@ jQuery( function ( $ ) {
                 dataType: "json",
                 success: ( data ) => {
                     console.log( "order total diff: %s", data.data )
-                    if ( ! data.success ) {
+                    if ( ! data.success || Math.abs(data.data) > 100 ) {
                         dinteroCheckoutForWooCommerce.failOrder(
                             "submit order failed",
                             dinteroCheckoutParams.verifyOrderTotalError,
