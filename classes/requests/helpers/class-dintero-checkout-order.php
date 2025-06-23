@@ -43,7 +43,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 */
 	public function get_order_total() {
 		$order_total = self::format_number( $this->order->get_total() );
-		if ( ! $this->is_refund ) {
+		if ( $this->order instanceof WC_Order ) {
 			// Only available and relevant for WC_Order.
 			$refunded_total = self::format_number( $this->order->get_total_refunded() );
 			return absint( $order_total - $refunded_total );
