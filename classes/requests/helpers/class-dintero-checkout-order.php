@@ -407,7 +407,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			if ( empty( $line_id ) ) {
 				// If the line_id is not set, we use the id as the line_id.
 				$id      = $shipping_item->get_method_id() . ':' . $meta['id'];
-				$line_id = $id . ( $package_index !== '' ? ":{$package_index}" : '' );
+				$line_id = $id;
 			}
 
 			$carrier                          = $meta['carrierId'];
