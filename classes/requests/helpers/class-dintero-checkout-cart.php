@@ -394,7 +394,6 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			$carrier                          = $this->get_operator( $carrier );
 			$shipping_option['operator']      = $carrier;
 			$shipping_option['thumbnail_url'] = $this->get_pickup_point_icon( $carrier, $shipping_rate );
-			// $shipping_option['line_id']       = WC()->cart->generate_cart_id( "{$shipping_rate->get_id()}:{$carrier}" );
 		} else {
 			$shipping_option['thumbnail_url'] = $this->get_pickup_point_icon( $shipping_rate->get_method_id(), $shipping_rate );
 		}
