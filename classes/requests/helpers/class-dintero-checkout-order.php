@@ -402,14 +402,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		// Is this a pick-up point? If it has metadata, then it is a pick-up point.
 		$encoded_meta = $shipping_item->get_meta( 'udc_delivery_data' );
 		if ( ! empty( $encoded_meta ) ) {
-			$meta = json_decode( $encoded_meta, true );
-
-			if ( empty( $line_id ) ) {
-				// If the line_id is not set, we use the id as the line_id.
-				$id      = $shipping_item->get_method_id() . ':' . $meta['id'];
-				$line_id = $id;
-			}
-
+			$meta                             = json_decode( $encoded_meta, true );
 			$carrier                          = $meta['carrierId'];
 			$shipping_option['operator']      = $carrier;
 			$shipping_option['thumbnail_url'] = $this->get_pickup_point_icon( $carrier, $shipping_item );

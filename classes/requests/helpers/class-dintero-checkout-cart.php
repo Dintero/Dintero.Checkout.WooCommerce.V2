@@ -370,10 +370,9 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 * Formats the shipping method to be used in order.items.
 	 *
 	 * @param WC_Shipping_rate $shipping_rate The WooCommerce shipping method.
-	 * @param string           $package_index An index for uniquely identifying shipping rates that appear multiple times (e.g., in different packages).
 	 * @return array
 	 */
-	public function get_shipping_item( $shipping_rate, $package_index = '' ) {
+	public function get_shipping_item( $shipping_rate ) {
 		$line_id         = WC()->cart->generate_cart_id( $shipping_rate->get_id() );
 		$shipping_option = array(
 			'id'              => $shipping_rate->get_id(),
@@ -395,6 +394,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			$carrier                          = $this->get_operator( $carrier );
 			$shipping_option['operator']      = $carrier;
 			$shipping_option['thumbnail_url'] = $this->get_pickup_point_icon( $carrier, $shipping_rate );
+			// $shipping_option['line_id']       = WC()->cart->generate_cart_id( "{$shipping_rate->get_id()}:{$carrier}" );
 		} else {
 			$shipping_option['thumbnail_url'] = $this->get_pickup_point_icon( $shipping_rate->get_method_id(), $shipping_rate );
 		}
@@ -407,20 +407,23 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 *
 	 * @param WC_Shipping_Rate $shipping_rate The shipping method rate from WooCommerce.
 	 * @param PickupPoint      $pickup_point The pickup point.
-	 * @param string           $package_index An index for uniquely identifying shipping rates that appear multiple times (e.g., in different packages).
 	 * @return array
 	 */
-	private function get_pickup_point( $shipping_rate, $pickup_point, $package_index = '' ) {
+	private function get_pickup_point( $shipping_rate, $pickup_point ) {
 		$meta    = $shipping_rate->get_meta_data();
 		$carrier = isset( $meta['carrier'] ) ? strtolower( $meta['carrier'] ) : $meta['udc_carrier_id'];
 
-		$line_id = WC()->cart->generate_cart_id( $shipping_rate->get_id() );
+		$shipping_id         = $shipping_rate->get_id();
+		$operator            = $this->get_operator( $carrier );
+		$operator_product_id = $pickup_point->get_id();
+		$line_id             = WC()->cart->generate_cart_id( "{$shipping_id}:{$operator}:{$operator_product_id}" );
+
 		return array(
-			'id'                  => $shipping_rate->get_id(),
+			'id'                  => $shipping_id,
 			'line_id'             => $line_id,
 			'amount'              => self::format_number( $shipping_rate->get_cost() + $shipping_rate->get_shipping_tax() ),
-			'operator'            => $this->get_operator( $carrier ),
-			'operator_product_id' => $pickup_point->get_id(),
+			'operator'            => $operator,
+			'operator_product_id' => $operator_product_id,
 			'title'               => $shipping_rate->get_label(),
 			'countries'           => array( $pickup_point->get_address()->get_country() ),
 			'description'         => $pickup_point->get_description(),
