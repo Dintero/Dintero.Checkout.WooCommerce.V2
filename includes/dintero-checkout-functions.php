@@ -245,6 +245,7 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	}
 
 	$order->save();
+	do_action( 'dintero_order_confirmed', $order, $transaction_id );
 }
 
 /**
