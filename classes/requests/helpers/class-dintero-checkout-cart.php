@@ -373,17 +373,21 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 * @return array
 	 */
 	public function get_shipping_item( $shipping_rate ) {
-		$line_id         = WC()->cart->generate_cart_id( $shipping_rate->get_id() );
+		$line_id = WC()->cart->generate_cart_id( $shipping_rate->get_id() );
+
+		$shipping_cost = floatval( $shipping_rate->get_cost() );
+		$shipping_tax  = floatval( $shipping_rate->get_shipping_tax() );
+
 		$shipping_option = array(
 			'id'              => $shipping_rate->get_id(),
 			'line_id'         => $line_id,
-			'amount'          => self::format_number( $shipping_rate->get_cost() + $shipping_rate->get_shipping_tax() ),
+			'amount'          => self::format_number( $shipping_cost + $shipping_tax ),
+			'vat_amount'      => self::format_number( $shipping_tax ),
+			'vat'             => $shipping_cost <= 0 ? 0 : self::format_number( $shipping_tax / $shipping_cost ),
 			'operator'        => '',
 			'description'     => '',
 			'title'           => html_entity_decode( $shipping_rate->get_label() ),
 			'delivery_method' => 'unspecified',
-			'vat_amount'      => self::format_number( $shipping_rate->get_shipping_tax() ),
-			'vat'             => ( empty( floatval( $shipping_rate->get_cost() ) ) ) ? 0 : self::format_number( $shipping_rate->get_shipping_tax() / $shipping_rate->get_cost() ),
 			'quantity'        => 1,
 			'type'            => 'shipping',
 		);
@@ -412,15 +416,21 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		$meta    = $shipping_rate->get_meta_data();
 		$carrier = isset( $meta['carrier'] ) ? strtolower( $meta['carrier'] ) : $meta['udc_carrier_id'];
 
-		$shipping_id         = $shipping_rate->get_id();
+		$id                  = $shipping_rate->get_id();
 		$operator            = $this->get_operator( $carrier );
 		$operator_product_id = $pickup_point->get_id();
-		$line_id             = WC()->cart->generate_cart_id( "{$shipping_id}:{$operator}:{$operator_product_id}" );
+		$line_id             = WC()->cart->generate_cart_id( "{$id}:{$operator}:{$operator_product_id}" );
+
+		// As of WC 9.9.x, the cost has to be converted to a float otherwise you may risk receive a simple double-quote (") if the shipping cost is not set.
+		$shipping_cost = floatval( $shipping_rate->get_cost() );
+		$shipping_tax  = floatval( $shipping_rate->get_shipping_tax() );
 
 		return array(
-			'id'                  => $shipping_id,
+			'id'                  => $id,
 			'line_id'             => $line_id,
-			'amount'              => self::format_number( $shipping_rate->get_cost() + $shipping_rate->get_shipping_tax() ),
+			'amount'              => self::format_number( $shipping_cost + $shipping_tax ),
+			'vat_amount'          => self::format_number( $shipping_tax ),
+			'vat'                 => $shipping_cost <= 0 ? 0 : self::format_number( $shipping_tax / $shipping_cost ),
 			'operator'            => $operator,
 			'operator_product_id' => $operator_product_id,
 			'title'               => $shipping_rate->get_label(),

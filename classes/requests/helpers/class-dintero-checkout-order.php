@@ -267,13 +267,15 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 
 		$vat_rate = WC_Tax::get_base_tax_rates( $product->get_tax_class() );
 
-		$order_line = array(
+		$item_total     = floatval( $order_item->get_total() );
+		$item_total_tax = floatval( $order_item->get_total_tax() );
+		$order_line     = array(
 			'id'          => $this->get_product_sku( $product ),
 			'line_id'     => $line_id,
 			'description' => $order_item->get_name(),
 			'quantity'    => absint( $order_item->get_quantity() ),
-			'amount'      => absint( self::format_number( $order_item->get_total() + $order_item->get_total_tax() ) ),
-			'vat_amount'  => absint( self::format_number( $order_item->get_total_tax() ) ),
+			'amount'      => absint( self::format_number( $item_total + $item_total_tax ) ),
+			'vat_amount'  => absint( self::format_number( $item_total_tax ) ),
 			'vat'         => reset( $vat_rate )['rate'] ?? 0,
 		);
 
@@ -308,9 +310,12 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * @return array
 	 */
 	public function get_fee( $order_item ) {
+		$fee_total     = floatval( $order_item->get_total() );
+		$fee_total_tax = floatval( $order_item->get_total_tax() );
+
 		$name       = $order_item->get_name();
-		$amount     = absint( self::format_number( $order_item->get_total() + $order_item->get_total_tax() ) );
-		$vat_amount = absint( self::format_number( $order_item->get_total_tax() ) );
+		$amount     = absint( self::format_number( $fee_total + $fee_total_tax ) );
+		$vat_amount = absint( self::format_number( $fee_total_tax ) );
 
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
@@ -320,7 +325,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			'quantity'    => 1,
 			'amount'      => $amount,
 			'vat_amount'  => $vat_amount,
-			'vat'         => empty( $amount ) ? 0 : $vat_amount / $amount,
+			'vat'         => $amount <= 0 ? 0 : $vat_amount / $amount,
 		);
 	}
 
@@ -385,17 +390,22 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			$line_id = $id;
 		}
 
+		$shipping_cost = floatval( $shipping_item->get_total() );
+		$shipping_tax  = floatval( $shipping_item->get_total_tax() );
+
 		$shipping_option = array(
+			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
 			'id'              => $id,
 			'line_id'         => $line_id,
-			'amount'          => absint( self::format_number( $shipping_item->get_total() + $shipping_item->get_total_tax() ) ),
-			'operator'        => '',
+			'amount'          => self::format_number( $shipping_cost + $shipping_tax ),
 			'description'     => $shipping_item->get_name(),
 			'title'           => $shipping_item->get_name(),
 			'delivery_method' => 'unspecified',
-			'vat_amount'      => self::format_number( $shipping_item->get_total_tax() ),
-			'vat'             => ( empty( floatval( $shipping_item->get_total() ) ) ) ? 0 : self::format_number( $shipping_item->get_total_tax() / $shipping_item->get_total() ),
+			'vat_amount'      => $shipping_cost <= 0 ? 0 : self::format_number( $shipping_tax ),
+			'vat'             => $shipping_cost <= 0 ? 0 : self::format_number( $shipping_tax / $shipping_cost ),
+			/* Since the shipping will be added to the list of products, it needs a quantity. */
 			'quantity'        => 1,
+			/* Dintero needs to know this is an order with multiple shipping options by setting the 'type'. */
 			'type'            => 'shipping',
 		);
 
@@ -434,7 +444,24 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			}
 		}
 
-		return array();
+		if ( empty( $shipping_method ) ) {
+			return array();
+		}
+
+		$shipping_total     = floatval( $shipping_item->get_total() );
+		$shipping_total_tax = floatval( $shipping_item->get_total_tax() );
+		return array(
+			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
+			'id'              => "{$shipping_item->get_method_id()}:{$shipping_item->get_instance_id()}",
+			'line_id'         => "{$shipping_item->get_method_id()}:{$shipping_item->get_instance_id()}",
+			'amount'          => self::format_number( $shipping_total + $shipping_total_tax ),
+			'operator'        => '',
+			'description'     => '',
+			'title'           => $shipping_item->get_method_title(),
+			'delivery_method' => 'unspecified',
+			'vat_amount'      => self::format_number( $shipping_total_tax ),
+			'vat'             => $shipping_total <= 0 ? 0 : self::format_number( $shipping_total_tax / $shipping_total ),
+		);
 	}
 
 	/**
@@ -454,18 +481,18 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			$shipping_line = array_values( $shipping_lines )[0];
 
 			// Retrieve the shipping id from the order object itself.
-			$shipping_id = $this->order->get_meta( '_wc_dintero_shipping_id' );
+			$id = $this->order->get_meta( '_wc_dintero_shipping_id' );
 
 			// WC_Order_Refund do not share the same meta data as WC_Order, and is thus missing the shipping id meta data.
-			if ( empty( $shipping_id ) ) {
+			if ( empty( $id ) ) {
 				$parent_order = wc_get_order( $this->order->get_parent_id() );
 				// The initial subscription does not have a parent order, we must therefore account for this.
-				$shipping_id = ! empty( $parent_order ) ? $parent_order->get_meta( '_wc_dintero_shipping_id' ) : '';
+				$id = ! empty( $parent_order ) ? $parent_order->get_meta( '_wc_dintero_shipping_id' ) : '';
 			}
 
 			// If the shipping id is still missing, default to the shipping line data.
-			if ( empty( $shipping_id ) ) {
-				$shipping_id = $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
+			if ( empty( $id ) ) {
+				$id = $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
 			}
 
 			$line_id = $shipping_line->get_meta( '_dintero_checkout_line_id' );
@@ -473,17 +500,22 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 				$line_id = ! empty( $this->order->get_meta( '_dintero_shipping_line_id' ) ) ? $this->order->get_meta( '_dintero_shipping_line_id' ) : $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
 
 			}
+
+			$shipping_total     = floatval( $shipping_line->get_total() );
+			$shipping_total_tax = floatval( $shipping_line->get_total_tax() );
+
 			return array(
-				'id'          => $shipping_id,
+				'id'          => $id,
 				'line_id'     => $line_id,
-				'amount'      => absint( self::format_number( $shipping_line->get_total() + $shipping_line->get_total_tax() ) ),
+				'amount'      => absint( self::format_number( $shipping_total + $shipping_total_tax ) ),
 				'operator'    => '',
 				'description' => '',
 				'title'       => $shipping_line->get_method_title(),
-				'vat_amount'  => self::format_number( $shipping_line->get_total_tax() ),
-				'vat'         => ! empty( floatval( $shipping_line->get_total() ) ) ? self::format_number( $shipping_line->get_total_tax() / $shipping_line->get_total() ) : 0,
+				'vat_amount'  => self::format_number( $shipping_total_tax ),
+				'vat'         => $shipping_total <= 0 ? 0 : self::format_number( $shipping_total_tax / $shipping_total ),
 			);
 		}
+
 		return null;
 	}
 
