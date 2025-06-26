@@ -288,7 +288,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @param int    $order_id The WooCommerce order id.
 		 * @param float  $amount The amount to refund.
 		 * @param string $reason The reason for the refund.
-		 * @return boolean|null|WP_Error
+		 * @return boolean|null
 		 */
 		public function process_refund( $order_id, $amount = null, $reason = '' ) {
 			$order        = wc_get_order( $order_id );

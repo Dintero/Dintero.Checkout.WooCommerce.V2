@@ -225,26 +225,6 @@ if ( ! class_exists( 'Dintero' ) ) {
 
 			add_action( 'before_woocommerce_init', array( $this, 'declare_wc_compatibility' ) );
 			add_action( 'admin_notices', array( $this, 'dintero_wc_zero_decimal_notice' ) );
-
-			// Save the transaction ID to the suborder.
-			add_action(
-				'dintero_order_confirmed',
-				function ( $order, $transaction_id ) {
-					if ( ! function_exists( 'dokan' ) ) {
-						return;
-					}
-
-					$containers = dokan()->get_container();
-					$sub_orders = $containers->get( 'order' )->get_child_orders( $order->get_id() );
-					foreach ( $sub_orders as $sub_order ) {
-						$sub_order->set_transaction_id( $transaction_id );
-						$sub_order->update_meta_data( '_dintero_transaction_id', $transaction_id );
-						$sub_order->save();
-					}
-				},
-				10,
-				2
-			);
 		}
 
 		/**
