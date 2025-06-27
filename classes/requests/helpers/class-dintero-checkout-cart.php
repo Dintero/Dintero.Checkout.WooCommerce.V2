@@ -75,7 +75,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		/**
 		 * Get cart fees.
 		 *
-		 * @var $cart_fees WC_Cart_Fees
+		 * @var WC_Cart_Fees $cart_fees
 		 */
 		$cart_fees = WC()->cart->get_fees();
 		foreach ( $cart_fees as $fee ) {
@@ -258,8 +258,18 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 
 			// Check if the WC session has any chosen shipping methods instead.
 			if ( empty( $chosen_shipping ) ) {
-				$chosen_shipping = $this->get_shipping_items();
-				return reset( $chosen_shipping );
+				$chosen_shipping_methods = WC()->session->get( 'chosen_shipping_methods' );
+				$chosen_shipping_id      = reset( $chosen_shipping_methods );
+
+				$available_shipping_options = $this->get_shipping_items();
+				foreach ( $available_shipping_options as $shipping_option ) {
+					if ( $shipping_option['id'] === $chosen_shipping_id ) {
+						$chosen_shipping = $shipping_option;
+						break;
+					}
+				}
+
+				return $chosen_shipping;
 			}
 
 			$rates = WC()->shipping->get_packages()[0]['rates'];
@@ -306,22 +316,25 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			return $shipping_options;
 		}
 
-		foreach ( $shipping_ids as  $shipping_id ) {
-			$shipping_rate = $shipping_rates[ $shipping_id ];
+		$shipping_packages = WC()->shipping->get_packages();
+		foreach ( $shipping_packages as $package_index => $package ) {
+			$shipping_rates = $package['rates'];
+			$index          = isset( $package['seller_id'] ) ? $package['seller_id'] : $package_index;
 
-			$pickup_points = Dintero()->pickup_points()->get_pickup_points_from_rate( $shipping_rate );
-			if ( ! empty( $pickup_points ) ) {
-				foreach ( $pickup_points as $pickup_point ) {
-					$shipping_options[] = $this->get_pickup_point( $shipping_rate, $pickup_point );
+			foreach ( $shipping_rates as $shipping_rate ) {
+				$pickup_points = Dintero()->pickup_points()->get_pickup_points_from_rate( $shipping_rate );
+				if ( ! empty( $pickup_points ) ) {
+					foreach ( $pickup_points as $pickup_point ) {
+						$shipping_options[] = $this->get_pickup_point( $shipping_rate, $pickup_point );
+					}
+				} else {
+					$shipping_options[] = $this->get_shipping_item( $shipping_rate );
 				}
-			} else {
-				$shipping_options[] = $this->get_shipping_item( $shipping_rate );
 			}
 		}
 
 		return $shipping_options;
 	}
-
 	/**
 	 * Set pickup points for the shipping method.
 	 *
@@ -360,18 +373,23 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 * @return array
 	 */
 	public function get_shipping_item( $shipping_rate ) {
+		$line_id = WC()->cart->generate_cart_id( $shipping_rate->get_id() );
+
 		$shipping_cost = floatval( $shipping_rate->get_cost() );
+		$shipping_tax  = floatval( $shipping_rate->get_shipping_tax() );
 
 		$shipping_option = array(
 			'id'              => $shipping_rate->get_id(),
-			'line_id'         => $shipping_rate->get_id(),
-			'amount'          => self::format_number( $shipping_cost + $shipping_rate->get_shipping_tax() ),
+			'line_id'         => $line_id,
+			'amount'          => self::format_number( $shipping_cost + $shipping_tax ),
+			'vat_amount'      => self::format_number( $shipping_tax ),
+			'vat'             => $shipping_cost <= 0 ? 0 : self::format_number( $shipping_tax / $shipping_cost ),
 			'operator'        => '',
 			'description'     => '',
 			'title'           => html_entity_decode( $shipping_rate->get_label() ),
 			'delivery_method' => 'unspecified',
-			'vat_amount'      => self::format_number( $shipping_rate->get_shipping_tax() ),
-			'vat'             => $shipping_cost <= 0 ? 0 : self::format_number( $shipping_rate->get_shipping_tax() / $shipping_cost ),
+			'quantity'        => 1,
+			'type'            => 'shipping',
 		);
 
 		$meta    = $shipping_rate->get_meta_data();
@@ -390,25 +408,32 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	/**
 	 * Get the formatted order line from a pickup point.
 	 *
-	 * @param WC_Shipping_Rate $rate The shipping method rate from WooCommerce.
+	 * @param WC_Shipping_Rate $shipping_rate The shipping method rate from WooCommerce.
 	 * @param PickupPoint      $pickup_point The pickup point.
 	 * @return array
 	 */
-	private function get_pickup_point( $rate, $pickup_point ) {
-		$meta    = $rate->get_meta_data();
+	private function get_pickup_point( $shipping_rate, $pickup_point ) {
+		$meta    = $shipping_rate->get_meta_data();
 		$carrier = isset( $meta['carrier'] ) ? strtolower( $meta['carrier'] ) : $meta['udc_carrier_id'];
 
-		// As of WC 9.9.x, the cost has to be converted to a float otherwise you may risk receive a simple double-quote (") if the shipping cost is not set.
-		$shipping_cost = floatval( $rate->get_cost() );
+		$id                  = $shipping_rate->get_id();
+		$operator            = $this->get_operator( $carrier );
+		$operator_product_id = $pickup_point->get_id();
+		$line_id             = WC()->cart->generate_cart_id( "{$id}:{$operator}:{$operator_product_id}" );
 
-		$line_id = "{$rate->get_id()}:{$pickup_point->get_id()}";
+		// As of WC 9.9.x, the cost has to be converted to a float otherwise you may risk receive a simple double-quote (") if the shipping cost is not set.
+		$shipping_cost = floatval( $shipping_rate->get_cost() );
+		$shipping_tax  = floatval( $shipping_rate->get_shipping_tax() );
+
 		return array(
-			'id'                  => $rate->get_id(),
+			'id'                  => $id,
 			'line_id'             => $line_id,
-			'amount'              => self::format_number( $shipping_cost + $rate->get_shipping_tax() ),
-			'operator'            => $this->get_operator( $carrier ),
-			'operator_product_id' => $pickup_point->get_id(),
-			'title'               => $rate->get_label(),
+			'amount'              => self::format_number( $shipping_cost + $shipping_tax ),
+			'vat_amount'          => self::format_number( $shipping_tax ),
+			'vat'                 => $shipping_cost <= 0 ? 0 : self::format_number( $shipping_tax / $shipping_cost ),
+			'operator'            => $operator,
+			'operator_product_id' => $operator_product_id,
+			'title'               => $shipping_rate->get_label(),
 			'countries'           => array( $pickup_point->get_address()->get_country() ),
 			'description'         => $pickup_point->get_description(),
 			'delivery_method'     => 'pick_up',
@@ -421,78 +446,10 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 				'latitude'      => $pickup_point->get_coordinates()->get_latitude(),
 				'longitude'     => $pickup_point->get_coordinates()->get_longitude(),
 			),
-			'thumbnail_url'       => $this->get_pickup_point_icon( $carrier, $rate ),
+			'thumbnail_url'       => $this->get_pickup_point_icon( $carrier, $shipping_rate ),
+			'quantity'            => 1,
+			'type'                => 'shipping',
 		);
-	}
-
-	private function get_pickup_point_icon( $carrier, $shipping_rate ) {
-		$base_url = DINTERO_CHECKOUT_URL . '/assets/img/shipping';
-
-		$carrier = $this->get_operator( $carrier );
-		switch ( strtolower( $carrier ) ) {
-			case 'postnord':
-			case 'plab':
-				$img_url = "$base_url/icon-postnord.svg";
-				break;
-			case 'dhl':
-			case 'dhl freight':
-				$img_url = "$base_url/icon-dhl.svg";
-				break;
-			case 'budbee':
-				$img_url = "$base_url/icon-budbee.svg";
-				break;
-			case 'instabox':
-				$img_url = "$base_url/icon-instabox.svg";
-				break;
-			case 'schenker':
-				$img_url = "$base_url/icon-db-schenker.svg";
-				break;
-			case 'bring':
-				$img_url = "$base_url/icon-bring.svg";
-				break;
-			case 'ups':
-				$img_url = "$base_url/icon-ups.svg";
-				break;
-			case 'fedex':
-				$img_url = "$base_url/icon-fedex.svg";
-				break;
-			case 'local_pickup':
-				$img_url = "$base_url/icon-store.svg";
-				break;
-			case 'deliverycheckout':
-				$img_url = "$base_url/icon-neutral.svg";
-				break;
-			default:
-				$img_url = "$base_url/icon-neutral.svg";
-				break;
-		}
-
-		return apply_filters( 'dwc_shipping_icon', $img_url, $carrier, $shipping_rate );
-	}
-
-	private function get_operator( $carrier ) {
-		$carrier = strtolower( $carrier );
-
-		$supported_carriers = array( 'dhl', 'postnord', 'posten', 'budbee', 'instabox', 'dbschenker', 'bring', 'ups', 'fedex' );
-		foreach ( $supported_carriers as $supported_carrier ) {
-			if ( strpos( $carrier, $supported_carrier ) !== false ) {
-				return $supported_carrier;
-			}
-		}
-
-		switch ( strtolower( $carrier ) ) {
-			case 'postnord':
-			case 'plab':
-				return 'postnord';
-
-			case 'posten':
-			case 'posten-norge':
-				return 'posten';
-
-			// What remains is not a supported carrier. We'll just return the value received.
-			default:
-				return $carrier;
-		}
 	}
 
 	/**
