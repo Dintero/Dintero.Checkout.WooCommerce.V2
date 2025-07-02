@@ -4,8 +4,6 @@ jQuery( function ( $ ) {
         return
     }
 
-    const gatewayParams = dinteroCheckoutParams
-
     const dinteroCheckoutForWooCommerce = {
         bodyEl: $( "body" ),
         checkoutFormSelector: "form.checkout",
@@ -172,6 +170,8 @@ jQuery( function ( $ ) {
                 } )
                 .then( function ( checkout ) {
                     dinteroCheckoutForWooCommerce.checkout = checkout
+                    dinteroCheckoutForWooCommerce.isLocked = true
+                    $( "body" ).trigger( "update_checkout" )
                 } )
         },
 
@@ -206,8 +206,6 @@ jQuery( function ( $ ) {
             ) {
                 dinteroCheckoutForWooCommerce.moveExtraCheckoutFields()
             }
-
-            $( "form.checkout" ).trigger( "update_checkout" )
         },
 
         /**
