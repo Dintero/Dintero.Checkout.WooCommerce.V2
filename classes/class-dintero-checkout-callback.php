@@ -47,7 +47,10 @@ class Dintero_Checkout_Callback {
 			die;
 		}
 
-		$this->maybe_schedule_callback( $transaction_id, $merchant_reference, $error );
+		if ( ! $this->maybe_schedule_callback( $transaction_id, $merchant_reference, $error ) ) {
+			http_response_code( 500 );
+			die;
+		}
 
 		http_response_code( 200 );
 		die;
@@ -64,7 +67,7 @@ class Dintero_Checkout_Callback {
 	 * @param string $transaction_id The dintero transaction id.
 	 * @param string $merchant_reference The Merchant Reference from Dintero.
 	 * @param string $error Any error message from Dintero.
-	 * @return void
+	 * @return boolean True if the action was successfully scheduled or already scheduled, false if it failed to schedule.
 	 */
 	public function maybe_schedule_callback( $transaction_id, $merchant_reference, $error ) {
 		$as_args          = array(
@@ -82,12 +85,12 @@ class Dintero_Checkout_Callback {
 			$action_args = $action->get_args();
 			if ( $merchant_reference === $action_args['merchant_reference'] && $transaction_id === $action_args['transaction_id'] ) {
 				Dintero_Checkout_Logger::log( "CALLBACK [action_scheduler]: The merchant reference $merchant_reference and transaction id $transaction_id has already been scheduled for processing." );
-				return;
+				return true;
 			}
 		}
 
 		// If we get here, we should be good to create a new scheduled action, since none are currently scheduled for this order.
-		as_schedule_single_action(
+		$scheduled_action = as_schedule_single_action(
 			time() + 60, // 1 Minute in the future.
 			'dintero_scheduled_callback',
 			array(
@@ -96,6 +99,13 @@ class Dintero_Checkout_Callback {
 				'error'              => $error,
 			)
 		);
+
+		if ( empty( $scheduled_action ) ) {
+			Dintero_Checkout_Logger::log( "CALLBACK ERROR [action_scheduler]: Failed to schedule the callback for merchant reference $merchant_reference and transaction id $transaction_id." );
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
