@@ -403,6 +403,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			'delivery_method' => 'unspecified',
 			'vat_amount'      => $shipping_cost <= 0 ? 0 : self::format_number( $shipping_tax ),
 			'vat'             => $shipping_cost <= 0 ? 0 : self::format_number( $shipping_tax / $shipping_cost ),
+			'operator'        => '',
 			/* Since the shipping will be added to the list of products, it needs a quantity. */
 			'quantity'        => 1,
 			/* Dintero needs to know this is an order with multiple shipping options by setting the 'type'. */
