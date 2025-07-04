@@ -48,11 +48,8 @@ class Dintero_Checkout_Callback {
 		}
 
 		if ( ! $this->maybe_schedule_callback( $transaction_id, $merchant_reference, $error ) ) {
-			/*
-			Not sure if this is a good idea.
 			http_response_code( 500 );
 			die;
-			*/
 		}
 
 		http_response_code( 200 );
