@@ -80,8 +80,8 @@ abstract class Dintero_Checkout_Helper_Base {
 	/**
 	 * Retrieve the icon URL for a given carrier.
 	 *
-	 * @param string                                  $carrier
-	 * @param WC_Shipping_Rate|WC_Order_Item_Shipping $shipping_rate
+	 * @param string                                  $carrier The carrier name.
+	 * @param WC_Shipping_Rate|WC_Order_Item_Shipping $shipping_rate The shipping rate or order item shipping passed to the filter `dwc_shipping_icon`.
 	 * @return string URL.
 	 */
 	protected function get_pickup_point_icon( $carrier, $shipping_rate ) {

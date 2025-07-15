@@ -259,8 +259,11 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			// Check if the WC session has any chosen shipping methods instead.
 			if ( empty( $chosen_shipping ) ) {
 				$chosen_shipping_methods = WC()->session->get( 'chosen_shipping_methods' );
-				$chosen_shipping_id      = reset( $chosen_shipping_methods );
+				if ( empty( $chosen_shipping_methods ) ) {
+					return $chosen_shipping;
+				}
 
+				$chosen_shipping_id         = reset( $chosen_shipping_methods );
 				$available_shipping_options = $this->get_shipping_items();
 				foreach ( $available_shipping_options as $shipping_option ) {
 					if ( $shipping_option['id'] === $chosen_shipping_id ) {
