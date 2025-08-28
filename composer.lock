@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0a836bfe8cc7bbb82232252b8a9738b9",
+    "content-hash": "0fab37e14c8219a21ce0ce76592ddec4",
     "packages": [],
     "packages-dev": [
         {
@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "23feb19c0342c95d01e648b8062e1f24e4390a16"
+                "reference": "6739594c6563c153bb32b756db6232310b0e4cf7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/23feb19c0342c95d01e648b8062e1f24e4390a16",
-                "reference": "23feb19c0342c95d01e648b8062e1f24e4390a16",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/6739594c6563c153bb32b756db6232310b0e4cf7",
+                "reference": "6739594c6563c153bb32b756db6232310b0e4cf7",
                 "shasum": ""
             },
             "require": {
@@ -90,7 +90,7 @@
                     "type": "thanks_dev"
                 }
             ],
-            "time": "2025-04-28T01:15:05+00:00"
+            "time": "2025-06-14T08:45:00+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",

@@ -152,6 +152,9 @@ jQuery( function ( $ ) {
                         // Unused.
                     },
                     onValidateSession( event, checkout, callback ) {
+                        dinteroCheckoutForWooCommerce.logToFile(
+                            dinteroCheckoutParams.SID + " | Validating session with id: " + event.session.id,
+                        )
                         $( "#dintero-checkout-wc-form" ).block( {
                             message: null,
                             overlayCSS: {
@@ -596,6 +599,9 @@ jQuery( function ( $ ) {
                                 console.log( "try" )
                                 if ( "success" === data.result ) {
                                     console.log( "submit order success", data )
+                                    dinteroCheckoutForWooCommerce.logToFile(
+                                        dinteroCheckoutParams.SID + " | Order submitted successfully.",
+                                    )
                                     callback( { success: true } )
                                 } else {
                                     throw "Result failed"
