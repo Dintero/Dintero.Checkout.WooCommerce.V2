@@ -106,7 +106,6 @@ class Dintero_Checkout_Embedded {
 			parse_str( $_POST['post_data'], $post_data ); // phpcs:ignore
 			if ( isset( $post_data['dintero_shipping_data'] ) ) {
 				WC()->session->set( 'dintero_shipping_data', $post_data['dintero_shipping_data'] );
-				WC()->session->set( 'dintero_shipping_data_set', true );
 				$data = json_decode( $post_data['dintero_shipping_data'], true );
 				dintero_update_wc_shipping( $data );
 			}
