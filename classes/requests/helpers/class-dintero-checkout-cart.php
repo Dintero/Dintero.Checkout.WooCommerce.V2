@@ -417,7 +417,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 	 */
 	private function get_pickup_point( $shipping_rate, $pickup_point ) {
 		$meta    = $shipping_rate->get_meta_data();
-		$carrier = isset( $meta['carrier'] ) ? strtolower( $meta['carrier'] ) : $meta['udc_carrier_id'];
+		$carrier = isset( $meta['carrier'] ) ? strtolower( $meta['carrier'] ) : ($meta['udc_carrier_id'] ?? '' );
 
 		$id                  = $shipping_rate->get_id();
 		$operator            = $this->get_operator( $carrier );
