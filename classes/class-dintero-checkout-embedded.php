@@ -98,7 +98,7 @@ class Dintero_Checkout_Embedded {
 		}
 
 		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
-		if ( ! isset( $settings['express_shipping_in_iframe'] ) || 'yes' !== $settings['express_shipping_in_iframe'] ) {
+		if ( ! wc_string_to_bool( $settings['express_shipping_in_iframe'] ?? 'yes' ) ) {
 			return;
 		}
 
