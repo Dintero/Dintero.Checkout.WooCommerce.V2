@@ -98,7 +98,7 @@ class Dintero_Checkout_Embedded {
 		}
 
 		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
-		if ( ! isset( $settings['express_shipping_in_iframe'] ) || 'yes' !== $settings['express_shipping_in_iframe'] ) {
+		if ( ! wc_string_to_bool( $settings['express_shipping_in_iframe'] ?? 'yes' ) ) {
 			return;
 		}
 
@@ -169,9 +169,7 @@ class Dintero_Checkout_Embedded {
 	 * @return array
 	 */
 	public function maybe_set_selected_pickup_point( $packages ) {
-		$merchant_reference = WC()->session->get( 'dintero_merchant_reference' );
-		$chosen_shipping    = get_transient( "dintero_shipping_data_{$merchant_reference}" );
-
+		$chosen_shipping = WC()->session->get( 'dintero_selected_shipping_option' );
 		if ( empty( $chosen_shipping ) ) {
 			return $packages;
 		}
