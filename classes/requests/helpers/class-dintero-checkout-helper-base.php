@@ -54,6 +54,8 @@ abstract class Dintero_Checkout_Helper_Base {
 			WC()->session->set( 'dintero_shipping_line_id', $selected_shipping_option['line_id'] );
 		}
 
+		WC()->session->set( 'dintero_selected_shipping_option', $selected_shipping_option );
+
 		// If its express we need to add the express options.
 		if ( $is_embedded && $is_express ) {
 			// If the cart does not need shipping, unset shipping, set empty array and shipping_not_required.
@@ -80,6 +82,7 @@ abstract class Dintero_Checkout_Helper_Base {
 					// Delete the transient to force retrieve shipping from WC session instead of transient.
 					delete_transient( 'dintero_shipping_data_' . WC()->session->get( 'dintero_merchant_reference' ) );
 					$body['order']['shipping_option'] = $helper->get_shipping_option();
+					WC()->session->set( 'dintero_selected_shipping_option', $body['order']['shipping_option'] );
 				}
 			} else {
 				$body['express']['shipping_options'] = empty( $selected_shipping_option ) ? array() : array( $selected_shipping_option );
