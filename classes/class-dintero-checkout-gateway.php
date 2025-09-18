@@ -246,6 +246,14 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 */
 		public function process_embedded_payment( $order ) {
 			$reference = WC()->session->get( 'dintero_merchant_reference' );
+
+			if ( empty( $reference ) ) {
+				Dintero_Checkout_Logger::log( 'PROCESS PAYMENT EMBEDDED ERROR [reference]: Could not get a merchant reference from the session for order id: ' . $order->get_id() );
+				return array(
+					'result' => 'error',
+				);
+			}
+
 			$order->update_meta_data( '_dintero_merchant_reference', $reference );
 			$order->save();
 
@@ -264,6 +272,14 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			$session = 0.0 === floatval( $order->get_total() ) ? Dintero()->api->create_payment_token( $order->get_id() ) : Dintero()->api->create_session( $order->get_id() );
 
 			$reference = WC()->session->get( 'dintero_merchant_reference' );
+
+			if ( empty( $reference ) ) {
+				Dintero_Checkout_Logger::log( 'PROCESS PAYMENT REDIRECT ERROR [reference]: Could not get a merchant reference from the session for order id: ' . $order->get_id() );
+				return array(
+					'result' => 'error',
+				);
+			}
+
 			$order->update_meta_data( '_dintero_merchant_reference', $reference );
 			$order->save();
 
