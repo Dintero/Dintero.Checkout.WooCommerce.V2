@@ -1,9 +1,7 @@
 name: Create Dev Zip
 
 on:
-  push:
-    branches:
-      - develop-pickup-stale-data
+  workflow_dispatch:
 
 jobs:
   build:
