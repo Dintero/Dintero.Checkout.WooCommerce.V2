@@ -6,7 +6,7 @@ Tested up to: 6.8.1
 Requires PHP: 7.4
 WC requires at least: 6.1.0
 WC tested up to: 9.9.3
-Stable tag: 1.11.3
+Stable tag: 1.12.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -135,6 +135,14 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us?ut
 6. Gift cards and Discount cards available.
 7. Remove headaches and manage your reconciliation, reports, transactions, refunds (transaction level), Gift Cards, payment methods, and more in the Dintero backoffice.
 == Changelog ==
+= 2025.09.23    - version 1.12.0 =
+* Feature       - Added support for multiple shipping packages. This improves compatibility with plugins that split the cart into multiple packages, such as Dokan.
+* Tweak         - Extended logging in the client, and during processing of scheduled callbacks.
+* Tweak         - Removed reference to unused session data.
+* Tweak         - Added extra checks during payment processing for the presence of the merchant reference.
+* Fix           - Resolved an issue where shipping data could become stale when pickup points were enabled.
+* Fix           - Fixed an error caused by missing shipping operator in certain checkout flows.
+
 = 2025.06.17    - version 1.11.3 =
 * Fix           - Fixed a potential fatal error during checkout that could occur when the shipping option price was returned as a string that is not a valid number, caused by WooCommerce version 9.9.x. This issue has been addressed in WooCommerce version 9.9.4.
 * Fix           - Addresses uncaught error caused when calculating the shipping cost.
