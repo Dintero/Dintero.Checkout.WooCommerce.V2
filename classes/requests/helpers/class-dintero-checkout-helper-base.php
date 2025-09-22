@@ -48,10 +48,10 @@ abstract class Dintero_Checkout_Helper_Base {
 	 */
 	public static function add_shipping( &$body, $helper, $is_embedded, $is_express, $is_shipping_in_iframe ) {
 		// We will always need this if shipping is available, so it will always be added.
-		$shipping_option = $helper->get_shipping_option();
-		if ( ! empty( $shipping_option ) ) {
-			$body['order']['shipping_option'] = $shipping_option;
-			WC()->session->set( 'dintero_shipping_line_id', $shipping_option['line_id'] );
+		$selected_shipping_option = $helper->get_shipping_option();
+		if ( ! empty( $selected_shipping_option ) ) {
+			$body['order']['shipping_option'] = $selected_shipping_option;
+			WC()->session->set( 'dintero_shipping_line_id', $selected_shipping_option['line_id'] );
 		}
 
 		// If its express we need to add the express options.
@@ -66,8 +66,23 @@ abstract class Dintero_Checkout_Helper_Base {
 
 			if ( $is_shipping_in_iframe ) {
 				$body['express']['shipping_options'] = $helper->get_express_shipping_options();
+
+				// The transient may introduce stale data. Check if the shipping option we retrieved from the transient exist in the list of shipping options.
+				$exist = false;
+				foreach ( $body['express']['shipping_options'] as $express_shipping_option ) {
+					if ( $express_shipping_option['line_id'] === $selected_shipping_option['line_id'] ) {
+						$exist = true;
+						break;
+					}
+				}
+
+				if ( ! $exist ) {
+					// Delete the transient to force retrieve shipping from WC session instead of transient.
+					delete_transient( 'dintero_shipping_data_' . WC()->session->get( 'dintero_merchant_reference' ) );
+					$body['order']['shipping_option'] = $helper->get_shipping_option();
+				}
 			} else {
-				$body['express']['shipping_options'] = empty( $shipping_option ) ? array() : array( $shipping_option );
+				$body['express']['shipping_options'] = empty( $selected_shipping_option ) ? array() : array( $selected_shipping_option );
 			}
 
 			$body['express']['shipping_mode'] = 'shipping_required';
