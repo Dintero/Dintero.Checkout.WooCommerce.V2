@@ -20,12 +20,20 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	public $order;
 
 	/**
+	 * Whether the order being processed is a refund.
+	 *
+	 * @var bool
+	 */
+	public $is_refund = false;
+
+	/**
 	 * Class constructor.
 	 *
 	 * @param WC_Order|WC_Order_Refund $order The Woo order.
 	 */
 	public function __construct( $order ) {
-		$this->order = $order;
+		$this->order     = $order;
+		$this->is_refund = $this->order instanceof WC_Order_Refund;
 	}
 
 	/**
@@ -52,7 +60,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	public function get_tax_total() {
 		$order_total_tax = self::format_number( $this->order->get_total_tax() );
 
-		if ( $this->order instanceof WC_Order ) {
+		if ( ! $this->is_refund ) {
 			// Only available and relevant for WC_Order.
 			$refunded_total_tax = self::format_number( $this->order->get_total_tax_refunded() );
 			return absint( $order_total_tax - $refunded_total_tax );
@@ -124,7 +132,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		if ( count( $shipping_items ) > 1 ) {
 			/* If there is more than one shipping option, it will be part of the order.items to support multiple shipping packages. */
 			foreach ( $shipping_items as $order_item ) {
-				$order_line = $this->get_shipping_option( $order_item );
+				$order_line = $this->get_shipping_item( $order_item );
 				if ( ! empty( $order_line ) ) {
 					$order_lines[] = $order_line;
 				}
@@ -176,7 +184,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	private function get_items( $types = 'line_item' ) {
 		$order_items = $this->order->get_items( $types );
 
-		if ( $this->order instanceof WC_Order_Refund ) {
+		if ( $this->is_refund ) {
 			return $order_items;
 		}
 
@@ -364,35 +372,67 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	/**
 	 * Formats the shipping method to be used in order.items.
 	 *
-	 * @param WC_Shipping_rate $shipping_method The shipping method from WooCommerce.
+	 * @param WC_Order_Item_Shipping $shipping_item The WooCommerce shipping method.
 	 * @return array
 	 */
-	public function get_shipping_item( $shipping_method ) {
-		$shipping_cost = floatval( $shipping_method->get_cost() );
+	public function get_shipping_item( $shipping_item ) {
+		$id = $shipping_item->get_method_id() . ':' . $shipping_item->get_instance_id();
 
-		return array(
+		// If this is a refund, we need to retrieve the line_id from the non-refund order as the OrderRefund does not contain the original metadata in Order.
+		if ( $this->is_refund ) {
+			$line_id = wc_get_order_item_meta( $shipping_item->get_meta( '_refunded_item_id' ), '_dintero_checkout_line_id', true );
+		} else {
+			$line_id = $shipping_item->get_meta( '_dintero_checkout_line_id' );
+		}
+
+		if ( empty( $line_id ) ) {
+			// If the line_id is not set, we use the id as the line_id.
+			$line_id = $id;
+		}
+
+		$shipping_cost = floatval( $shipping_item->get_total() );
+		$shipping_tax  = floatval( $shipping_item->get_total_tax() );
+
+		$shipping_option = array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
-			'id'         => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
-			'line_id'    => $shipping_method->get_method_id() . ':' . $shipping_method->get_instance_id(),
-			'amount'     => self::format_number( $shipping_cost + $shipping_method->get_shipping_tax() ),
-			'title'      => $shipping_method->get_label(),
-			'vat_amount' => $shipping_cost <= 0 ? 0 : self::format_number( $shipping_method->get_shipping_tax() ),
-			'vat'        => $shipping_cost <= 0 ? 0 : self::format_number( $shipping_method->get_shipping_tax() / $shipping_cost ),
+			'id'              => $id,
+			'line_id'         => $line_id,
+			'amount'          => self::format_number( $shipping_cost + $shipping_tax ),
+			'description'     => $shipping_item->get_name(),
+			'title'           => $shipping_item->get_name(),
+			'delivery_method' => 'unspecified',
+			'vat_amount'      => $shipping_cost <= 0 ? 0 : self::format_number( $shipping_tax ),
+			'vat'             => $shipping_cost <= 0 ? 0 : self::format_number( $shipping_tax / $shipping_cost ),
+			'operator'        => '',
 			/* Since the shipping will be added to the list of products, it needs a quantity. */
-			'quantity'   => 1,
+			'quantity'        => 1,
 			/* Dintero needs to know this is an order with multiple shipping options by setting the 'type'. */
-			'type'       => 'shipping',
+			'type'            => 'shipping',
 		);
+
+		// Is this a pick-up point? If it has metadata, then it is a pick-up point.
+		$encoded_meta = $shipping_item->get_meta( 'udc_delivery_data' );
+		if ( ! empty( $encoded_meta ) ) {
+			$meta                             = json_decode( $encoded_meta, true );
+			$carrier                          = $meta['carrierId'];
+			$shipping_option['operator']      = $carrier;
+			$shipping_option['thumbnail_url'] = $this->get_pickup_point_icon( $carrier, $shipping_item );
+		}
+		return $shipping_option;
 	}
+
+
 
 	/**
 	 * Gets the formatted order line from shipping.
 	 *
-	 * @param WC_Order_Item_Shipping $shipping_method WooCommerce order item shipping.
+	 * The default null value is necessary to add compatibility with the Dintero_Checkout_Helper_Base::add_shipping method. If the order contains more than one shipping package, the order.shipping_option must be unset, thus we return an empty array.
+	 *
+	 * @param WC_Order_Item_Shipping|null $shipping_item WC order item shipping.
 	 * @return array
 	 */
-	public function get_shipping_option( $shipping_method = null ) {
-		if ( empty( $shipping_method ) ) {
+	public function get_shipping_option( $shipping_item = null ) {
+		if ( empty( $shipping_item ) ) {
 			if ( count( $this->get_items( 'shipping' ) ) === 1 ) {
 				/**
 				 * Process order item shipping.
@@ -400,7 +440,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 				 * @var WC_Order_Item_Shipping $order_item WooCommerce order item shipping.
 				 */
 				foreach ( $this->get_items( 'shipping' ) as $order_item ) {
-					$shipping_method = $order_item;
+					return $this->get_shipping_item( $order_item );
 				}
 			}
 		}
@@ -409,16 +449,16 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			return array();
 		}
 
-		$shipping_total     = floatval( $shipping_method->get_total() );
-		$shipping_total_tax = floatval( $shipping_method->get_total_tax() );
+		$shipping_total     = floatval( $shipping_item->get_total() );
+		$shipping_total_tax = floatval( $shipping_item->get_total_tax() );
 		return array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
-			'id'              => "{$shipping_method->get_method_id()}:{$shipping_method->get_instance_id()}",
-			'line_id'         => "{$shipping_method->get_method_id()}:{$shipping_method->get_instance_id()}",
+			'id'              => "{$shipping_item->get_method_id()}:{$shipping_item->get_instance_id()}",
+			'line_id'         => "{$shipping_item->get_method_id()}:{$shipping_item->get_instance_id()}",
 			'amount'          => self::format_number( $shipping_total + $shipping_total_tax ),
 			'operator'        => '',
 			'description'     => '',
-			'title'           => $shipping_method->get_method_title(),
+			'title'           => $shipping_item->get_method_title(),
 			'delivery_method' => 'unspecified',
 			'vat_amount'      => self::format_number( $shipping_total_tax ),
 			'vat'             => $shipping_total <= 0 ? 0 : self::format_number( $shipping_total_tax / $shipping_total ),
@@ -439,29 +479,35 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			 *
 			 * @var WC_Order_Item_Shipping $shipping_line The shipping line.
 			 */
-			$shipping_line    = array_values( $shipping_lines )[0];
-			$shipping_line_id = ! empty( $this->order->get_meta( '_dintero_shipping_line_id' ) ) ? $this->order->get_meta( '_dintero_shipping_line_id' ) : $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
+			$shipping_line = array_values( $shipping_lines )[0];
 
 			// Retrieve the shipping id from the order object itself.
-			$shipping_id = $this->order->get_meta( '_wc_dintero_shipping_id' );
+			$id = $this->order->get_meta( '_wc_dintero_shipping_id' );
 
 			// WC_Order_Refund do not share the same meta data as WC_Order, and is thus missing the shipping id meta data.
-			if ( empty( $shipping_id ) ) {
+			if ( empty( $id ) ) {
 				$parent_order = wc_get_order( $this->order->get_parent_id() );
 				// The initial subscription does not have a parent order, we must therefore account for this.
-				$shipping_id = ! empty( $parent_order ) ? $parent_order->get_meta( '_wc_dintero_shipping_id' ) : '';
+				$id = ! empty( $parent_order ) ? $parent_order->get_meta( '_wc_dintero_shipping_id' ) : '';
 			}
 
 			// If the shipping id is still missing, default to the shipping line data.
-			if ( empty( $shipping_id ) ) {
-				$shipping_id = $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
+			if ( empty( $id ) ) {
+				$id = $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
+			}
+
+			$line_id = $shipping_line->get_meta( '_dintero_checkout_line_id' );
+			if ( empty( $line_id ) ) {
+				$line_id = ! empty( $this->order->get_meta( '_dintero_shipping_line_id' ) ) ? $this->order->get_meta( '_dintero_shipping_line_id' ) : $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
+
 			}
 
 			$shipping_total     = floatval( $shipping_line->get_total() );
 			$shipping_total_tax = floatval( $shipping_line->get_total_tax() );
+
 			return array(
-				'id'          => $shipping_id,
-				'line_id'     => $shipping_line_id,
+				'id'          => $id,
+				'line_id'     => $line_id,
 				'amount'      => absint( self::format_number( $shipping_total + $shipping_total_tax ) ),
 				'operator'    => '',
 				'description' => '',
@@ -470,37 +516,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 				'vat'         => $shipping_total <= 0 ? 0 : self::format_number( $shipping_total_tax / $shipping_total ),
 			);
 		}
+
 		return null;
-	}
-
-
-	/**
-	 * Get the selected shipping objects (if available).
-	 *
-	 * @return array If no shipping is available or selected, an empty array is returned.
-	 */
-	public function get_shipping_objects() {
-
-		$shipping_lines = array();
-
-		if ( ! WC()->cart->needs_shipping() || empty( count( WC()->shipping->get_packages() ) ) ) {
-			return $shipping_lines;
-		}
-
-		$shipping_ids   = array_unique( WC()->session->get( 'chosen_shipping_methods' ) );
-		$shipping_rates = WC()->shipping->get_packages()[0]['rates'];
-
-		$is_multiple_shipping = ( count( $shipping_ids ) > 1 );
-		if ( ! $is_multiple_shipping ) {
-			$shipping_ids = array( $shipping_ids[0] );
-		}
-
-		foreach ( $shipping_ids as  $shipping_id ) {
-			$shipping_method  = $shipping_rates[ $shipping_id ];
-			$shipping_lines[] = ( $is_multiple_shipping ) ? $this->get_shipping_item( $shipping_method ) : $this->get_shipping_option( $shipping_method );
-		}
-
-		return $shipping_lines;
 	}
 
 	/**

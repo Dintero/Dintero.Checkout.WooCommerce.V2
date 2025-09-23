@@ -97,6 +97,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			 * Adds cart_item_key to the order item's meta data to be used as a unique line id. This applies to both embedded and redirect flow.
 			 */
 			add_action( 'woocommerce_checkout_create_order_line_item', array( $this, 'create_order_line_item' ), 10, 2 );
+			add_action( 'woocommerce_checkout_create_order_shipping_item', array( $this, 'create_order_shipping_item' ), 10, 3 );
 
 			/**
 			 * By default, a custom meta data will be displayed on the order page. Since the meta data _dintero_checkout_line_id is an implementation detail,
@@ -115,6 +116,26 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 */
 		public function create_order_line_item( $item, $cart_item_key ) {
 			$item->add_meta_data( '_dintero_checkout_line_id', $cart_item_key, true );
+		}
+
+		/**
+		 * Add line ID to uniquely identify order shipping item.
+		 *
+		 * @hook woocommerce_checkout_create_order_shipping_item
+		 *
+		 * @param WC_Order_Item_Shipping $item The WC order shipping item.
+		 * @param string                 $package_key The shipping package key.
+		 * @param array                  $package The shipping package.
+		 *
+		 * @return void
+		 */
+		public function create_order_shipping_item( $item, $package_key, $package ) {
+			$shipping_id = WC()->session->get( 'chosen_shipping_methods' )[ $package_key ];
+			if ( isset( $package['seller_id'] ) ) {
+				$shipping_id .= ":{$package['seller_id']}";
+			}
+
+			$item->add_meta_data( '_dintero_checkout_line_id', WC()->cart->generate_cart_id( $shipping_id ) );
 		}
 
 		/**
@@ -225,6 +246,15 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 */
 		public function process_embedded_payment( $order ) {
 			$reference = WC()->session->get( 'dintero_merchant_reference' );
+
+			if ( empty( $reference ) ) {
+				$session_id = WC()->session->get( 'dintero_checkout_session_id' );
+				Dintero_Checkout_Logger::log( 'PROCESS PAYMENT EMBEDDED ERROR [reference]: Could not get a merchant reference from the session for order id: ' . $order->get_id() . ' session id: ' . $session_id );
+				return array(
+					'result' => 'error',
+				);
+			}
+
 			$order->update_meta_data( '_dintero_merchant_reference', $reference );
 			$order->save();
 
@@ -243,6 +273,15 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			$session = 0.0 === floatval( $order->get_total() ) ? Dintero()->api->create_payment_token( $order->get_id() ) : Dintero()->api->create_session( $order->get_id() );
 
 			$reference = WC()->session->get( 'dintero_merchant_reference' );
+
+			if ( empty( $reference ) ) {
+				$session_id = WC()->session->get( 'dintero_checkout_session_id' );
+				Dintero_Checkout_Logger::log( 'PROCESS PAYMENT REDIRECT ERROR [reference]: Could not get a merchant reference from the session for order id: ' . $order->get_id() . ' session id: ' . $session_id );
+				return array(
+					'result' => 'error',
+				);
+			}
+
 			$order->update_meta_data( '_dintero_merchant_reference', $reference );
 			$order->save();
 
@@ -267,7 +306,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @param int    $order_id The WooCommerce order id.
 		 * @param float  $amount The amount to refund.
 		 * @param string $reason The reason for the refund.
-		 * @return boolean|null
+		 * @return boolean|null|WP_Error
 		 */
 		public function process_refund( $order_id, $amount = null, $reason = '' ) {
 			$order        = wc_get_order( $order_id );

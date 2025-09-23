@@ -48,10 +48,10 @@ abstract class Dintero_Checkout_Helper_Base {
 	 */
 	public static function add_shipping( &$body, $helper, $is_embedded, $is_express, $is_shipping_in_iframe ) {
 		// We will always need this if shipping is available, so it will always be added.
-		$shipping_option = $helper->get_shipping_option();
-		if ( ! empty( $shipping_option ) ) {
-			$body['order']['shipping_option'] = $shipping_option;
-			WC()->session->set( 'dintero_shipping_line_id', $shipping_option['line_id'] );
+		$selected_shipping_option = $helper->get_shipping_option();
+		if ( ! empty( $selected_shipping_option ) ) {
+			$body['order']['shipping_option'] = $selected_shipping_option;
+			WC()->session->set( 'dintero_shipping_line_id', $selected_shipping_option['line_id'] );
 		}
 
 		// If its express we need to add the express options.
@@ -66,14 +66,112 @@ abstract class Dintero_Checkout_Helper_Base {
 
 			if ( $is_shipping_in_iframe ) {
 				$body['express']['shipping_options'] = $helper->get_express_shipping_options();
+
+				// The transient may introduce stale data. Check if the shipping option we retrieved from the transient exist in the list of shipping options.
+				$exist = false;
+				foreach ( $body['express']['shipping_options'] as $express_shipping_option ) {
+					if ( $express_shipping_option['line_id'] === $selected_shipping_option['line_id'] ) {
+						$exist = true;
+						break;
+					}
+				}
+
+				if ( ! $exist ) {
+					// Delete the transient to force retrieve shipping from WC session instead of transient.
+					delete_transient( 'dintero_shipping_data_' . WC()->session->get( 'dintero_merchant_reference' ) );
+					$body['order']['shipping_option'] = $helper->get_shipping_option();
+				}
 			} else {
-				$body['express']['shipping_options'] = empty( $shipping_option ) ? array() : array( $shipping_option );
+				$body['express']['shipping_options'] = empty( $selected_shipping_option ) ? array() : array( $selected_shipping_option );
 			}
 
 			$body['express']['shipping_mode'] = 'shipping_required';
 			if ( ! empty( $body['express']['shipping_options'] ) && ! $is_shipping_in_iframe ) {
 				$body['express']['shipping_mode'] = 'shipping_not_required';
 			}
+		}
+	}
+
+	/**
+	 * Retrieve the icon URL for a given carrier.
+	 *
+	 * @param string                                  $carrier The carrier name.
+	 * @param WC_Shipping_Rate|WC_Order_Item_Shipping $shipping_rate The shipping rate or order item shipping passed to the filter `dwc_shipping_icon`.
+	 * @return string URL.
+	 */
+	protected function get_pickup_point_icon( $carrier, $shipping_rate ) {
+		$base_url = DINTERO_CHECKOUT_URL . '/assets/img/shipping';
+
+		$carrier = $this->get_operator( $carrier );
+		switch ( strtolower( $carrier ) ) {
+			case 'postnord':
+			case 'plab':
+				$img_url = "$base_url/icon-postnord.svg";
+				break;
+			case 'dhl':
+			case 'dhl freight':
+				$img_url = "$base_url/icon-dhl.svg";
+				break;
+			case 'budbee':
+				$img_url = "$base_url/icon-budbee.svg";
+				break;
+			case 'instabox':
+				$img_url = "$base_url/icon-instabox.svg";
+				break;
+			case 'schenker':
+				$img_url = "$base_url/icon-db-schenker.svg";
+				break;
+			case 'bring':
+				$img_url = "$base_url/icon-bring.svg";
+				break;
+			case 'ups':
+				$img_url = "$base_url/icon-ups.svg";
+				break;
+			case 'fedex':
+				$img_url = "$base_url/icon-fedex.svg";
+				break;
+			case 'local_pickup':
+				$img_url = "$base_url/icon-store.svg";
+				break;
+			case 'deliverycheckout':
+				$img_url = "$base_url/icon-neutral.svg";
+				break;
+			default:
+				$img_url = "$base_url/icon-neutral.svg";
+				break;
+		}
+
+		return apply_filters( 'dwc_shipping_icon', $img_url, $carrier, $shipping_rate );
+	}
+
+	/**
+	 * Get the operator for a given carrier.
+	 *
+	 * @param string $carrier The carrier to get the operator for.
+	 * @return string The operator.
+	 */
+	protected function get_operator( $carrier ) {
+		$carrier = strtolower( $carrier );
+
+		$supported_carriers = array( 'dhl', 'postnord', 'posten', 'budbee', 'instabox', 'dbschenker', 'bring', 'ups', 'fedex' );
+		foreach ( $supported_carriers as $supported_carrier ) {
+			if ( strpos( $carrier, $supported_carrier ) !== false ) {
+				return $supported_carrier;
+			}
+		}
+
+		switch ( strtolower( $carrier ) ) {
+			case 'postnord':
+			case 'plab':
+				return 'postnord';
+
+			case 'posten':
+			case 'posten-norge':
+				return 'posten';
+
+			// What remains is not a supported carrier. We'll just return the value received.
+			default:
+				return $carrier;
 		}
 	}
 

@@ -5,14 +5,14 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/Dintero.Checkout.WooCommerce.V2\n"
-"POT-Creation-Date: 2025-06-17 12:58:04+00:00\n"
+"POT-Creation-Date: 2025-09-23 08:42:42+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "PO-Revision-Date: 2025-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"X-Generator: grunt-wp-i18n 1.0.3\n"
+"X-Generator: grunt-wp-i18n 1.0.4\n"
 
 #: classes/class-dintero-checkout-assets.php:204
 msgid "Payment in progress"
@@ -22,11 +22,11 @@ msgstr ""
 msgid "The cart was modified. Please try again."
 msgstr ""
 
-#: classes/class-dintero-checkout-callback.php:171
+#: classes/class-dintero-checkout-callback.php:181
 msgid "The order was CANCELED in the Dintero."
 msgstr ""
 
-#: classes/class-dintero-checkout-callback.php:185
+#: classes/class-dintero-checkout-callback.php:195
 msgid "The order was not approved by Dintero."
 msgstr ""
 
@@ -60,11 +60,11 @@ msgstr ""
 msgid "Dintero Checkout"
 msgstr ""
 
-#: classes/class-dintero-checkout-gateway.php:255
+#: classes/class-dintero-checkout-gateway.php:294
 msgid "Customer redirected to Dintero payment page."
 msgstr ""
 
-#: classes/class-dintero-checkout-gateway.php:279
+#: classes/class-dintero-checkout-gateway.php:318
 msgid ""
 "Refunds are only possible for orders that have been completed. If you have "
 "an order that has not been completed and needs to be canceled, set the "
@@ -529,22 +529,22 @@ msgstr ""
 msgid "Background color:"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-cart.php:524
-#: classes/requests/helpers/class-dintero-checkout-cart.php:547
-#: classes/requests/helpers/class-dintero-checkout-order.php:355
+#: classes/requests/helpers/class-dintero-checkout-cart.php:484
+#: classes/requests/helpers/class-dintero-checkout-cart.php:507
+#: classes/requests/helpers/class-dintero-checkout-order.php:363
 msgid "Gift card"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-cart.php:568
+#: classes/requests/helpers/class-dintero-checkout-cart.php:528
 msgid "Gift card:"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-helper-base.php:90
-#: classes/requests/helpers/class-dintero-checkout-helper-base.php:123
+#: classes/requests/helpers/class-dintero-checkout-helper-base.php:188
+#: classes/requests/helpers/class-dintero-checkout-helper-base.php:221
 msgid "Rounding fee"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-order.php:243
+#: classes/requests/helpers/class-dintero-checkout-order.php:251
 msgid ""
 "This order contain a product that was permanently deleted. Cannot proceed "
 "with action."
