@@ -4,5 +4,5 @@ The package engine version is fixed to the same version as the WooCommerce plugi
 
 ```sh
 corepack enable
-corepack use pnpm@9.1.3
+corepack use pnpm@9.14.4
 ```
