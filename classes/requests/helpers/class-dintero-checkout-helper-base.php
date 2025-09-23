@@ -79,7 +79,11 @@ abstract class Dintero_Checkout_Helper_Base {
 				if ( ! $exist ) {
 					// Delete the transient to force retrieve shipping from WC session instead of transient.
 					delete_transient( 'dintero_shipping_data_' . WC()->session->get( 'dintero_merchant_reference' ) );
-					$body['order']['shipping_option'] = $helper->get_shipping_option();
+					$selected_shipping_option = $helper->get_shipping_option();
+					if ( ! empty( $selected_shipping_option ) ) {
+						$body['order']['shipping_option'] = $selected_shipping_option;
+						WC()->session->set( 'dintero_shipping_line_id', $selected_shipping_option['line_id'] );
+					}
 				}
 			} else {
 				$body['express']['shipping_options'] = empty( $selected_shipping_option ) ? array() : array( $selected_shipping_option );
