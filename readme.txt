@@ -6,7 +6,7 @@ Tested up to: 6.8.2
 Requires PHP: 7.4
 WC requires at least: 6.1.0
 WC tested up to: 10.2.1
-Stable tag: 1.12.0
+Stable tag: 1.12.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -135,6 +135,9 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us?ut
 6. Gift cards and Discount cards available.
 7. Remove headaches and manage your reconciliation, reports, transactions, refunds (transaction level), Gift Cards, payment methods, and more in the Dintero backoffice.
 == Changelog ==
+= 2025.09.24    - version 1.12.1 =
+* Fix           - Fixed an issue where shipping was not properly set when the shipping setting "Hide shipping costs until an address is entered" was enabled in WooCommerce.
+
 = 2025.09.23    - version 1.12.0 =
 * Feature       - Added support for multiple shipping packages. This improves compatibility with plugins that split the cart into multiple packages, such as Dokan.
 * Tweak         - Extended logging in the client, and during processing of scheduled callbacks.
