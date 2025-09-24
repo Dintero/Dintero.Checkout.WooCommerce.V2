@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/Dintero.Checkout.WooCommerce.V2\n"
-"POT-Creation-Date: 2025-09-23 08:42:42+00:00\n"
+"POT-Creation-Date: 2025-09-24 06:57:41+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -539,8 +539,8 @@ msgstr ""
 msgid "Gift card:"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-helper-base.php:188
-#: classes/requests/helpers/class-dintero-checkout-helper-base.php:221
+#: classes/requests/helpers/class-dintero-checkout-helper-base.php:192
+#: classes/requests/helpers/class-dintero-checkout-helper-base.php:225
 msgid "Rounding fee"
 msgstr ""
 
@@ -551,59 +551,79 @@ msgid ""
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:45
+#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:47
 msgid "Shipping Information"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:171
+#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:190
 msgid "Selected pickup point"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:179
+#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:192
 msgid "Edit"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:242
+#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:232
 msgid "Change"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:264
+#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:256
 msgid "Invalid order id"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:269
+#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:263
 msgid "Invalid shipping line id"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:274
+#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:270
 msgid "No pickup points found"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:285
+#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:284
 msgid "Invalid pickup point id"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:291
+#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:292
 msgid "Could not save shipping line"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:298
+#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:304
 msgid "Pickup point updated"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Calculations.php:26
+#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Calculations.php:27
 msgid "Shipping tax"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/PickupPoint/PickupPoint.php:302
+#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/PickupPoint/PickupPoint.php:332
 msgid "Address"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/PickupPoint/PickupPoint.php:328
+#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/PickupPoint/PickupPoint.php:363
 msgid "Open hours"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/PickupPoint/PickupPoint.php:369
+#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/PickupPoint/PickupPoint.php:389
 msgid "Show on map"
+msgstr ""
+
+#: dependencies/krokedil/shipping/src/SessionHandler.php:229
+msgid ""
+"The shipping methods have been changed during the checkout process. Please "
+"verify your selected shipping method and try again."
 msgstr ""
 
 #: dintero-checkout-for-woocommerce.php:88
