@@ -192,6 +192,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-templates.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-ajax.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-embedded.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-shipping-settings.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-order-status.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-meta-box.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/class-dintero-checkout-subscription.php';
