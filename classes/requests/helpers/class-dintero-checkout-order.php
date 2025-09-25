@@ -393,9 +393,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		$shipping_cost = floatval( $shipping_item->get_total() );
 		$shipping_tax  = floatval( $shipping_item->get_total_tax() );
 
-		$shipping_method = get_option( "woocommerce_{$shipping_item->get_method_id()}_{$shipping_item->get_instance_id()}_settings", array() );
-		// While there is no hard-limit on the description length in the API, we will limit it to 200 characters.
-		$description = mb_substr( trim( $shipping_method['dintero_description'] ?? '' ), 0, 200 );
+		$description = $this->get_shipping_method_option( $shipping_item, 'dintero_description' );
 
 		$shipping_option = array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */

@@ -24,6 +24,35 @@ abstract class Dintero_Checkout_Helper_Base {
 	}
 
 	/**
+	 * Retrieve the shipping method option for a given setting name.
+	 *
+	 * @param WC_Shipping_Rate|WC_Order_Item_Shipping $shipping The shipping rate or order item shipping to retrieve from.
+	 * @param string                                  $setting_name The setting name to retrieve. The prefix 'dintero_' can be omitted.
+	 * @return mixed The setting value or null if not found.
+	 */
+	protected function get_shipping_method_option( $shipping, $setting_name ) {
+		if ( $shipping instanceof WC_Order_Item_Shipping ) {
+			$settings = get_option( "woocommerce_{$shipping->get_method_id()}_{$shipping->get_instance_id()}_settings", array() );
+		} elseif ( $shipping instanceof WC_Shipping_Rate ) {
+			$settings = get_option( "woocommerce_{$shipping->method_id}_{$shipping->instance_id}_settings", array() );
+		} else {
+			$settings = array();
+		}
+
+		if ( empty( $settings ) ) {
+			return null;
+		}
+
+		switch ( $setting_name ) {
+			case 'dintero_description':
+				// While there is no hard-limit on the description length in the API, we will limit it to 200 characters.
+				return mb_substr( trim( $settings[ $setting_name ] ?? '' ), 0, 200 );
+			default:
+				return $settings[ $setting_name ] ?? null;
+		}
+	}
+
+	/**
 	 * Helper function to format the shipping item for the order management requests.
 	 *
 	 * @param array $shipping The shipping object.
