@@ -22,8 +22,8 @@ class Dintero_Checkout_Get_Session_Profile extends Dintero_Checkout_Request_Get 
 	public function __construct( $arguments ) {
 		parent::__construct( $arguments );
 
-		$this->log_title      = 'Get Admin session profile.';
-		$this->request_filter = 'dintero_checkout_get_admin_session_profile_args';
+		$this->log_title      = 'Get session profile.';
+		$this->request_filter = 'dintero_checkout_get_session_profile_args';
 	}
 
 	/**
