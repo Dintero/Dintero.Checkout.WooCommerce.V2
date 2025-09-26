@@ -187,20 +187,21 @@ function dintero_confirm_order( $order, $transaction_id ) {
 				dintero_retrieve_error_message( $dintero_order )
 			)
 		);
-		$order->save();
+		$order->save_meta_data();
 		return;
 	}
 
-	// Save the payment token if available.
 	$payment_token = Dintero_Checkout_Subscription::get_payment_token_from_response( $dintero_order );
-	if ( $payment_token ) {
-		Dintero_Checkout_Subscription::save_payment_token( $order_id, $payment_token );
+	// If we have a payment token, then save it to the subscription and order, also get the payment product type.
+	if ( ! empty( $payment_token ) ) {
+		$payment_product_type = Dintero_Checkout_Subscription::get_payment_product_type_from_response( $dintero_order );
+		Dintero_Checkout_Subscription::save_subscription_metadata( $order, $payment_product_type, $payment_token, 'payment' );
 	}
 
 	/* Remove duplicate words from the payment method type (e.g., swish.swish → Swish). Otherwise, prints as is (e.g., collector.invoice → Collector Invoice). */
 	$payment_method = dintero_get_payment_method_name( wc_get_var( $dintero_order['payment_product_type'], $order->get_meta( '_dintero_payment_method' ) ) );
 	$order->update_meta_data( '_dintero_payment_method', $payment_method );
-	$order->save(); // Save the metadata before reading the order again from the database.
+	$order->save_meta_data(); // Save the metadata before reading the order again from the database.
 
 	// Get the order from the database again to prevent any concurrency issues if the page loads twice at the same time.
 	$order = wc_get_order( $order_id );
@@ -218,7 +219,6 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	} else {
 		// Check if the order has already been processed.
 		if ( ! empty( $order->get_date_paid() ) ) {
-			$order->save();
 			return;
 		}
 
@@ -244,7 +244,7 @@ function dintero_confirm_order( $order, $transaction_id ) {
 		$order->delete_meta_data( Dintero()->order_management->status( 'on_hold' ) );
 	}
 
-	$order->save();
+	$order->save_meta_data();
 }
 
 /**
