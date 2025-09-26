@@ -43,7 +43,9 @@ class Dintero_Checkout_Payment_Token extends Dintero_Checkout_Request_Post {
 	 * @return array
 	 */
 	public function get_body() {
-		$helper = ! empty( $this->arguments['order_id'] ) ? new Dintero_Checkout_Order( wc_get_order( $this->arguments['order_id'] ) ) : new Dintero_Checkout_Cart();
+		$order          = ! empty( $this->arguments['order_id'] ) ? wc_get_order( $this->arguments['order_id'] ) : null;
+		$helper         = ! empty( $order ) ? new Dintero_Checkout_Order( $order ) : new Dintero_Checkout_Cart();
+		$token_provider = Dintero_Checkout_Subscription::get_token_provider_string_from_order( $order );
 
 		$body = array(
 			'session'        => array(
@@ -60,7 +62,7 @@ class Dintero_Checkout_Payment_Token extends Dintero_Checkout_Request_Post {
 				),
 			),
 			'token_provider' => array(
-				'payment_product_type' => 'payex.creditcard',
+				'payment_product_type' => $token_provider,
 				'token_types'          => array( 'payment_token' ),
 			),
 		);

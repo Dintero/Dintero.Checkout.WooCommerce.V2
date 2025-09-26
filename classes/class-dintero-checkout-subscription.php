@@ -17,7 +17,7 @@ class Dintero_Checkout_Subscription {
 	private const GATEWAY_ID     = 'dintero_checkout';
 	public const RECURRING_TOKEN = '_' . self::GATEWAY_ID . '_recurring_token';
 	public const PAYMENT_TOKEN   = '_' . self::GATEWAY_ID . '_payment_token';
-
+	public const PAYMENT_PRODUCT_TYPE = '_' . self::GATEWAY_ID . '_payment_product_type';
 	public const DO_NOT_RETRY = '_' . self::GATEWAY_ID . '_do_not_retry';
 
 	/**
@@ -106,40 +106,32 @@ class Dintero_Checkout_Subscription {
 			foreach ( $subscriptions as $subscription ) {
 				$subscription->add_order_note( $message );
 				$subscription->update_meta_data( self::DO_NOT_RETRY, $payment_token );
-				$subscription->save();
+				$subscription->save_meta_data();
 			}
 
 			return;
 		}
 
 		$payment_token = self::get_payment_token_from_response( $initiate_payment );
-		if ( empty( $payment_token ) ) {
-			$renewal_order->update_status( 'failed', __( 'The payment token could not be retrieved.', 'dintero-checkout-for-woocommerce' ) );
-			return;
-		}
-
+		// If we have a payment token, we need to add a extra message to the order note.
+		// translators: %s: The payment token.
+		$token_message = empty( $payment_token ) ? '' : sprintf( ' ' . __( 'Payment token: %s', 'dintero-checkout-for-woocommerce' ), $payment_token );
 		$success_message = sprintf(
-			/* translators: %s: subscription id */
-			__( 'Subscription renewal was made successfully via Dintero Checkout. Payment token: %s', 'dintero-checkout-for-woocommerce' ),
-			$payment_token
+			// translators: %s: Extra payment token message if needed.
+			__( 'Subscription renewal was made successfully via Dintero Checkout. %s', 'dintero-checkout-for-woocommerce' ),
+			$token_message
 		);
 		$renewal_order->add_order_note( $success_message );
 
 		$dintero_order_id = wc_get_var( $initiate_payment['id'] );
+		dintero_confirm_order( $renewal_order, $dintero_order_id );
 		foreach ( $subscriptions as $subscription ) {
 			if ( isset( $dintero_order_id ) ) {
-				$subscription->payment_complete( $dintero_order_id );
 				$subscription->add_order_note( $success_message );
-				$subscription->save();
 			} else {
 				$subscription->payment_failed();
 			}
-
-			// Save to the subscription.
-			self::save_payment_token( $subscription->get_id(), $payment_token );
 		}
-
-		dintero_confirm_order( $renewal_order, $dintero_order_id );
 	}
 
 	/**
@@ -153,7 +145,9 @@ class Dintero_Checkout_Subscription {
 		$parent_order = $subscription->get_parent();
 		if ( $parent_order->get_meta( '_wc_dintero_shipping_id' ) ) {
 			$renewal_order->update_meta_data( '_wc_dintero_shipping_id', $parent_order->get_meta( '_wc_dintero_shipping_id' ) );
-			$renewal_order->save();
+			$renewal_order->update_meta_data( self::PAYMENT_TOKEN, $parent_order->get_meta( self::PAYMENT_TOKEN ) );
+			$renewal_order->update_meta_data( self::PAYMENT_PRODUCT_TYPE, $parent_order->get_meta( self::PAYMENT_PRODUCT_TYPE ) );
+			$renewal_order->save_meta_data();
 		}
 
 		return $renewal_order;
@@ -239,21 +233,16 @@ class Dintero_Checkout_Subscription {
 		}
 
 		$body = json_decode( $request['body'], true );
+		$configuration = $body['configuration'] ?? array();
 
-		// Dintero only supports subscriptions with card payments. Required for recurring payments.
-		$body['configuration']['payex']['creditcard'] = array(
-			'enabled'                => true,
-			'generate_payment_token' => true,
-		);
+		// Get the profile id and the updated configuration.
+		$profile_id            = self::get_subscription_profile_id();
+		$updated_configuration = self::set_token_provider( $configuration, $profile_id );
 
-		// Use the Profile ID for subscriptions.
-		$settings           = get_option( 'woocommerce_dintero_checkout_settings' );
-		$body['profile_id'] = wc_get_var( $settings['subscription_profile_id'] );
-		if ( empty( $body['profile_id'] ) ) {
-			$body['profile_id'] = wc_get_var( $settings['profile_id'] );
-		}
-
-		$request['body'] = wp_json_encode( $body );
+		// Ensure the correct profile id is used for the subscriptions, and set the updated configuration.
+		$body['profile_id']    = $profile_id;
+		$body['configuration'] = $updated_configuration;
+		$request['body']       = wp_json_encode( $body );
 		return $request;
 	}
 
@@ -316,7 +305,6 @@ class Dintero_Checkout_Subscription {
 			}
 
 			$subscription->add_order_note( $message );
-			$subscription->save();
 			return;
 		}
 
@@ -329,18 +317,17 @@ class Dintero_Checkout_Subscription {
 				$response->get_error_message()
 			);
 		} else {
-			$payment_token = self::get_payment_token_from_response( $response );
-			$message       = sprintf(
+			$payment_token        = self::get_payment_token_from_response( $response );
+			$payment_product_type = self::get_payment_product_type_from_response( $response );
+			$message              = sprintf(
 			/* translators: Payment token. */
 				__( 'Payment token created: %s', 'dintero-checkout-for-woocommerce' ),
 				$payment_token
 			);
-
-			self::save_payment_token( $subscription_id, $payment_token );
+			self::save_subscription_metadata( $subscription, $payment_product_type, $payment_token, 'payment' );
 		}
 
 		$subscription->add_order_note( $message );
-		$subscription->save();
 	}
 
 	/**
@@ -353,58 +340,13 @@ class Dintero_Checkout_Subscription {
 	public static function add_order_note( $subscriptions, $note ) {
 		if ( ! is_array( $subscriptions ) ) {
 			$subscriptions->add_order_note( $note );
-			$subscriptions->save();
 
 			return;
 		}
 
 		foreach ( $subscriptions as $subscription ) {
 			$subscription->add_order_note( $note );
-			$subscription->save();
 		}
-	}
-
-	/**
-	 * Save the recurring token to the order and its subscription(s).
-	 *
-	 * @param string $order_id The WooCommerce order id.
-	 * @param string $recurring_token The recurring token ("customer token").
-	 * @return void
-	 */
-	public static function save_recurring_token( $order_id, $recurring_token ) {
-		self::save_token( $order_id, $recurring_token, 'recurrence' );
-	}
-
-	/**
-	 * Save the recurring token to the order and its subscription(s).
-	 *
-	 * @param string $order_id The WooCommerce order id.
-	 * @param string $payment_token The payment token ("customer token").
-	 * @return void
-	 */
-	public static function save_payment_token( $order_id, $payment_token ) {
-		self::save_token( $order_id, $payment_token, 'payment' );
-	}
-
-	/**
-	 * Save a token to the order and its subscription(s).
-	 *
-	 * @param string $order_id The WooCommerce order id.
-	 * @param string $token The token ("customer token").
-	 * @param string $token_type The type of token may be either 'payment' or 'recurrence'.
-	 * @return void
-	 */
-	public static function save_token( $order_id, $token, $token_type ) {
-		$order      = wc_get_order( $order_id );
-		$token_type = 'recurrence' === $token_type ? self::RECURRING_TOKEN : self::PAYMENT_TOKEN;
-		$order->update_meta_data( $token_type, $token );
-
-		foreach ( wcs_get_subscriptions_for_order( $order, array( 'order_type' => 'any' ) ) as $subscription ) {
-			$subscription->update_meta_data( $token_type, $token );
-			$subscription->save();
-		}
-
-		$order->save();
 	}
 
 	/**
@@ -461,30 +403,25 @@ class Dintero_Checkout_Subscription {
 	 * @return string|false The payment token or false if none is found.
 	 */
 	public static function get_payment_token_from_response( $dintero_order ) {
-		$payment_token = wc_get_var( $dintero_order['card']['payment_token'], false );
+		$payment_product_type = self::get_payment_product_type_from_response( $dintero_order );
+		$payment_token        = wc_get_var( $dintero_order['card']['payment_token'], false );
 		if ( empty( $payment_token ) ) {
 
 			// On renewal, the payment token is stored in the customer property.
-			$payment_token = wc_get_var( $dintero_order['customer']['tokens']['payex.creditcard']['payment_token'], false );
+			$payment_token = wc_get_var( $dintero_order['customer']['tokens'][ $payment_product_type ]['payment_token'], false );
 		}
 
 		return $payment_token;
 	}
 
 	/**
-	 * Get a subscription's parent order.
+	 * Get the payment product type from a Dintero order (API response).
 	 *
-	 * @param int $order_id The WooCommerce order id.
-	 * @return WC_Order|false The parent order or false if none is found.
+	 * @param array $dintero_order The Dintero order.
+	 * @return string|false The payment product type or false if none is found.
 	 */
-	public static function get_parent_order( $order_id ) {
-		$subscriptions = wcs_get_subscriptions_for_renewal_order( $order_id );
-		foreach ( $subscriptions as $subscription ) {
-			$parent_order = $subscription->get_parent();
-			return $parent_order;
-		}
-
-		return false;
+	public static function get_payment_product_type_from_response( $dintero_order ) {
+		return wc_get_var( $dintero_order['payment_product_type'], false );
 	}
 
 	/**
@@ -494,20 +431,6 @@ class Dintero_Checkout_Subscription {
 	 */
 	public static function is_change_payment_method() {
 		return isset( $_GET['change_payment_method'] );
-	}
-
-	/**
-	 * Check if an order contains a subscription.
-	 *
-	 * @param WC_Order $order The WooCommerce order or leave empty to use the cart (default).
-	 * @return bool
-	 */
-	public static function order_has_subscription( $order ) {
-		if ( empty( $order ) ) {
-			return false;
-		}
-
-		return function_exists( 'wcs_order_contains_subscription' ) && wcs_order_contains_subscription( $order, array( 'parent', 'resubscribe', 'switch', 'renewal' ) );
 	}
 
 	/**
@@ -593,7 +516,7 @@ class Dintero_Checkout_Subscription {
 						$payment_token
 					)
 				);
-				$order->save();
+				$order->save_meta_data();
 
 				// If the recurring token was changed, we can assume the merchant didn't update the subscription as that would require a recurring token which as has now been modified, but not yet saved.
 				return true;
@@ -635,6 +558,216 @@ class Dintero_Checkout_Subscription {
 				<?php
 		}
 	}
-}
 
-	new Dintero_Checkout_Subscription();
+	/**
+	 * Save the required metadata to the order and its subscriptions.
+	 *
+	 * @param WC_Order $order The WooCommerce order.
+	 * @param string   $token_provider The token provider (e.g. "payex.creditcard" or "bambora.creditcard").
+	 * @param string   $token The token.
+	 * @param string   $token_type The type of token may be either 'payment' or 'recurrence'. Default is 'payment'.
+	 *
+	 * @return void
+	 */
+	public static function save_subscription_metadata( $order, $token_provider = '', $token = '', $token_type = 'payment' ) {
+		$update_token    = ! empty( $token );
+		$update_provider = ! empty( $token_provider );
+
+		// If the token and token provider are empty, don't do anything.
+		if ( ! $update_token && ! $update_provider ) { return; }
+
+		// Get the metadata key to use for the token based on the type, and ensure its valid.
+		$token_type = 'recurrence' === $token_type ? self::RECURRING_TOKEN : self::PAYMENT_TOKEN;
+
+		if ( $update_token ) { $order->update_meta_data( $token_type, $token ); }
+		if ( $update_provider ) { $order->update_meta_data( self::PAYMENT_PRODUCT_TYPE, $token_provider ); }
+
+		// Get each subscription for the order and update the metadata there too.
+		foreach ( wcs_get_subscriptions_for_order( $order, array( 'order_type' => 'any' ) ) as $subscription ) {
+			if ( $update_token ) { $subscription->update_meta_data( $token_type, $token ); }
+			if ( $update_provider ) { $subscription->update_meta_data( self::PAYMENT_PRODUCT_TYPE, $token_provider ); }
+
+			$subscription->save_meta_data();
+		}
+
+		$order->save_meta_data();
+	}
+
+	/**
+	 * Get the token provider.
+	 *
+	 * @param array       $configuration The configuration to add the token provider information to.
+	 * @param string|null $profile_id The profile ID to use. If null, if not passed we will get it from the settings instead.
+	 *
+	 * @return array
+	 */
+	public static function set_token_provider( $configuration, $profile_id = null ) {
+		$profile_id      = $profile_id ?? self::get_subscription_profile_id();
+		$session_profile = self::get_subscription_session_profile( $profile_id );
+
+		// If the session profile is empty we cannot do anything.
+		if ( empty( $session_profile ) ) {
+			return $configuration;
+		}
+
+		return self::set_token_provider_from_profile( $session_profile, $configuration );
+	}
+
+	/**
+	 * Get the token provider as a string for the payment token request.
+	 *
+	 * @param string|null $profile_id The profile ID to use. If null, if not passed we will get it from the settings instead.
+	 *
+	 * @return string|null The token provider ID or null if none is found.
+	 */
+	public static function get_token_provider_string_from_profile( $profile_id = null ) {
+		$profile_id      = $profile_id ?? self::get_subscription_profile_id();
+		$session_profile = self::get_subscription_session_profile( $profile_id );
+
+		// If the session profile is empty we cannot do anything.
+		if ( empty( $session_profile ) ) {
+			return null;
+		}
+
+		$token_provider = self::get_token_provider_from_profile( $session_profile );
+		return ! empty( $token_provider ) ? "{$token_provider['id']}.{$token_provider['product_key']}" : null;
+	}
+
+	/**
+	 * Get the token provider string from an order if we have it stored.
+	 *
+	 * @param WC_Order $order The WooCommerce order.
+	 *
+	 * @return string|null The token provider ID or null if none is found.
+	 */
+	public static function get_token_provider_string_from_order( $order ) {
+		// Get the token provider from the metadata set on the order.
+		$token_provider = $order->get_meta( self::PAYMENT_PRODUCT_TYPE );
+
+		// If the token provider is still empty, get it from the session instead as a string.
+		if ( empty( $token_provider ) ) {
+			$token_provider = Dintero_Checkout_Subscription::get_token_provider_string_from_profile();
+		}
+
+		// Save the token provider to the order if we have it.
+		if ( ! empty( $token_provider ) ) {
+			$order->add_meta_data( self::PAYMENT_PRODUCT_TYPE, $token_provider );
+			$order->save_meta_data();
+		}
+
+		return $token_provider;
+	}
+
+	/**
+	 * Get the profile id to use for subscriptions.
+	 *
+	 * @return string The profile id.
+	 */
+	public static function get_subscription_profile_id() {
+		$settings = get_option( 'woocommerce_dintero_checkout_settings', array( 'profile_id' => '', 'subscription_profile_id' => '' ) );
+		return ! empty( $settings['subscription_profile_id'] ) ? $settings['subscription_profile_id'] : $settings['profile_id'];
+	}
+
+	/**
+	 * Get the session profile from Dintero for subscriptions.
+	 *
+	 * @param string $profile_id The profile ID to use.
+	 *
+	 * @return array|null The profile data or null if it could not be retrieved.
+	 */
+	private static function get_subscription_session_profile( $profile_id ) {
+		// If the profile ID is empty, we cannot do anything.
+		if ( empty( $profile_id ) ) {
+			return null;
+		}
+
+		// Make the request to get the profile.
+		$profile_response = Dintero()->api->get_session_profile( $profile_id );
+
+		// Ensure we got a valid response.
+		if ( is_wp_error( $profile_response ) || ! isset( $profile_response['id'] ) ) {
+			Dintero_Checkout_Logger::log( "Could not get session profile from Dintero for profile ID: $profile_id" );
+			return null;
+		}
+
+
+		return $profile_response;
+	}
+
+	/**
+	 * Set the token provider from the profile data.
+	 *
+	 * @param array $profile The profile data from Dintero.
+	 * @param array $configuration The configuration data from Dintero to add the token provider information to.
+	 *
+	 * @return array
+	 */
+	private static function set_token_provider_from_profile( $profile, $configuration ) {
+		// Get the configuration from the profile, defaulting to an empty array if not set.
+		$token_provider = self::get_token_provider_from_profile( $profile );
+
+		// If no token provider was found, we cannot do anything.
+		if ( empty( $token_provider ) ) {
+			return $configuration;
+		}
+
+		// Add the token provider information to the configuration.
+		$configuration[ $token_provider['id'] ][ $token_provider['product_key'] ] = array(
+			'enabled'                => true,
+			'generate_payment_token' => true,
+		);
+
+		// Return the configuration which should be updated with the token provider information.
+		return $configuration;
+	}
+
+	/**
+	 * Get the token provider from the profile response data.
+	 *
+	 * @param array $profile The profile data from Dintero.
+	 *
+	 * @return array|null The token provider data or null if none is found.
+	 */
+	private static function get_token_provider_from_profile( $profile ) {
+		$token_provider = null;
+
+		// Get the configuration from the profile, defaulting to an empty array if not set.
+		$profile_configuration = $profile['configuration'] ?? array();
+
+		// Get all lines that are of the type "payment_type".
+		$payment_types = array_filter( $profile_configuration, function ( $config_item ) {
+			return is_array( $config_item ) && isset( $config_item['type'] ) && $config_item['type'] === 'payment_type';
+		} );
+
+		// If there are no lines of the type "payment_type", return the configuration as is.
+		if ( empty( $payment_types ) ) {
+			return $token_provider;
+		}
+
+		// Iterate through the filtered payment type configurations.
+		foreach ( $payment_types as $id => $data ) {
+			// Filter the data to get the once that are of the type "payment_product_type" and are enabled.
+			$payment_product_types = array_filter( $data, function ( $product_value ) {
+				if ( ! is_array( $product_value ) ) {
+					return false;
+				}
+				$type    = $product_value['type'] ?? null;
+				$enabled = $product_value['enabled'] ?? null;
+
+				return $type === 'payment_product_type' && $enabled === true;
+			} );
+
+			// If we get any payment product types, we will use the first one to enable tokenization.
+			if ( ! empty( $payment_product_types ) ) {
+				$product_key = array_key_first( $payment_product_types );
+				$token_provider = array(
+					'id'                      => $id,
+					'product_key'             => $product_key,
+				);
+				break;
+			}
+		}
+
+		return $token_provider;
+	}
+}
