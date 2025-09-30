@@ -281,6 +281,8 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 					if ( $chosen_shipping['delivery_method'] === 'pick_up' ) {
 						$id           = $chosen_shipping['operator_product_id'];
 						$pickup_point = Dintero()->pickup_points()->get_pickup_point_from_rate_by_id( $rate, $id );
+
+						// If we get the selected pickup point by the id return it, otherwise let the shipping rate be returned as a normal shipping item which will reset the selected pickup point.
 						if ( ! empty( $pickup_point ) ) {
 							return $this->get_pickup_point( $rate, $pickup_point );
 						}
