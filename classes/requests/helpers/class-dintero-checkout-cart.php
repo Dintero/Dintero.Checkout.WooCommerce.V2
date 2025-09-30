@@ -255,7 +255,6 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		if ( empty( $shipping_rate ) ) {
 			$merchant_reference = WC()->session->get( 'dintero_merchant_reference' );
 			$chosen_shipping    = get_transient( "dintero_shipping_data_{$merchant_reference}" );
-
 			// Check if the WC session has any chosen shipping methods instead.
 			if ( empty( $chosen_shipping ) ) {
 				$chosen_shipping_methods = WC()->session->get( 'chosen_shipping_methods' );
@@ -282,8 +281,9 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 					if ( $chosen_shipping['delivery_method'] === 'pick_up' ) {
 						$id           = $chosen_shipping['operator_product_id'];
 						$pickup_point = Dintero()->pickup_points()->get_pickup_point_from_rate_by_id( $rate, $id );
-
-						return $this->get_pickup_point( $rate, $pickup_point );
+						if ( ! empty( $pickup_point ) ) {
+							return $this->get_pickup_point( $rate, $pickup_point );
+						}
 					}
 
 					return $this->get_shipping_item( $rate );
