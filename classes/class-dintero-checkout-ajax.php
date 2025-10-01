@@ -152,7 +152,7 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 
 		$max_diff = 10; // minor units.
 		$diff     = $total - $wc_total;
-		if ( $max_diff > $diff ) {
+		if ( $max_diff > abs( $diff ) ) {
 			wp_send_json_success( $diff );
 		}
 
