@@ -59,7 +59,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 		private $pickup_points;
 
 		/**
-		 * Pickup points service.
+		 * Subscription class instance.
 		 *
 		 * @var Dintero_Checkout_Subscription $subscriptions
 		 */
