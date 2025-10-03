@@ -118,14 +118,8 @@ class Dintero_Checkout_Embedded {
 	 * @return void
 	 */
 	public function update_dintero_checkout_session() {
-		// We can only do this during AJAX, so if it is not an ajax call, we should just bail.
-		if ( ! is_checkout() || ! wp_doing_ajax() ) {
-			return;
-		}
-
-		// Only when its an actual AJAX request to update the order review (this is when update_checkout is triggered).
-		$ajax = filter_input( INPUT_GET, 'wc-ajax', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		if ( 'update_order_review' !== $ajax ) {
+		// If we should not update the checkout, then just return.
+		if ( ! dwc_can_update_checkout() ) {
 			return;
 		}
 
@@ -144,13 +138,6 @@ class Dintero_Checkout_Embedded {
 		// Reload the page so the standard WooCommerce checkout page will appear.
 		if ( ! WC()->cart->needs_payment() ) {
 			WC()->session->reload_checkout = true;
-		}
-
-		// Check if we have locked the iframe first, if not then this should not happen since it will return an error.
-		$raw_post_data = filter_input( INPUT_POST, 'post_data', FILTER_SANITIZE_URL );
-		parse_str( $raw_post_data, $post_data );
-		if ( ! isset( $post_data['dintero_locked'] ) ) {
-			return;
 		}
 
 		// Only if we have a current session active.
