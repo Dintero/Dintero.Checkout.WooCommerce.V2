@@ -145,17 +145,24 @@ function dintero_update_wc_shipping( $data ) {
 }
 
 /**
- * Maybe update the merchant reference on a Dintero order if if was not done before,
- * or if the order number has changed.
+ * Maybe set the merchant reference on a Dintero order if if was not done before.
+ *
  * @param WC_Order $order The WooCommerce order.
- * @param string $transaction_id The Dintero transaction id.
+ * @param string   $transaction_id The Dintero transaction id.
  *
  * @return void
  */
-function dintero_maybe_update_merchant_reference_2($order, $transaction_id) {
+function dintero_maybe_set_merchant_reference_2( $order, $transaction_id ) {
     $order_number              = $order->get_order_number();
     $meta_merchant_reference_2 = $order->get_meta( '_dintero_merchant_reference_' );
-    if ( empty( $meta_merchant_reference_2 ) || $meta_merchant_reference_2 !== $order_number ) {
+
+	// If the merchant reference has changed since it was set, log it since we cant update if after it was set.
+	if ( ! empty( $meta_merchant_reference_2 ) && $meta_merchant_reference_2 !== $order_number ) {
+		Dintero_Checkout_Logger::log( "The WC order {$order->get_id()} with transaction ID {$transaction_id} has a different order number ({$order_number}) than the previously set merchant_reference_2 ({$meta_merchant_reference_2})." );
+		return;
+	}
+
+    if ( empty( $meta_merchant_reference_2 ) ) {
     	Dintero()->api->update_transaction( $transaction_id, $order_number );
     }
 }
@@ -251,7 +258,7 @@ function dintero_process_authorized_order( $order, $settings, $transaction_id ) 
  * Confirms the Dintero Order.
  *
  * @param WC_Order $order The Woo order.
- * @param string   $transaction_id The Dintero transaction id.
+ * @param string $transaction_id The Dintero transaction id.
  * @return void
  */
 function dintero_confirm_order( $order, $transaction_id ) {
@@ -264,7 +271,7 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	$order->update_meta_data( '_dintero_transaction_id', $transaction_id );
 
 	// Set the merchant_reference_2 for the Dintero order if it was not set before, or it does not match the order number.
-	dintero_maybe_update_merchant_reference_2( $order, $transaction_id );
+	dintero_maybe_set_merchant_reference_2( $order, $transaction_id );
 
 	// Get the order from Dintero to ensure the merchant reference was set, get any potential card tokens and other data we need to store.
 	$params        = array( 'includes' => 'card.payment_token' );
@@ -281,8 +288,8 @@ function dintero_confirm_order( $order, $transaction_id ) {
 		return;
 	}
 
-	// If the merchant reference was set, save it as a meta field in the order to stop future updates from callbacks.
-	dintero_set_confirmation_order_meta( $dintero_order, $order ); // Save the metadata before reading the order again from the database.
+	// Set the required metadata from the Dintero order to the WooCommerce order.
+	dintero_set_confirmation_order_meta( $dintero_order, $order );
 
 	// Get the order from the database again to prevent any concurrency issues if the page loads twice at the same time.
 	$order = wc_get_order( $order_id );
