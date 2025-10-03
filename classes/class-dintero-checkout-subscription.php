@@ -14,11 +14,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class for handling subscriptions.
  */
 class Dintero_Checkout_Subscription {
-	private const GATEWAY_ID     = 'dintero_checkout';
-	public const RECURRING_TOKEN = '_' . self::GATEWAY_ID . '_recurring_token';
-	public const PAYMENT_TOKEN   = '_' . self::GATEWAY_ID . '_payment_token';
+	private const GATEWAY_ID          = 'dintero_checkout';
+	public const RECURRING_TOKEN      = '_' . self::GATEWAY_ID . '_recurring_token';
+	public const PAYMENT_TOKEN        = '_' . self::GATEWAY_ID . '_payment_token';
 	public const PAYMENT_PRODUCT_TYPE = '_' . self::GATEWAY_ID . '_payment_product_type';
-	public const DO_NOT_RETRY = '_' . self::GATEWAY_ID . '_do_not_retry';
+	public const DO_NOT_RETRY         = '_' . self::GATEWAY_ID . '_do_not_retry';
 
 	/**
 	 * Register hooks.
@@ -115,7 +115,7 @@ class Dintero_Checkout_Subscription {
 		$payment_token = self::get_payment_token_from_response( $initiate_payment );
 		// If we have a payment token, we need to add a extra message to the order note.
 		// translators: %s: The payment token.
-		$token_message = empty( $payment_token ) ? '' : sprintf( ' ' . __( 'Payment token: %s', 'dintero-checkout-for-woocommerce' ), $payment_token );
+		$token_message   = empty( $payment_token ) ? '' : sprintf( ' ' . __( 'Payment token: %s', 'dintero-checkout-for-woocommerce' ), $payment_token );
 		$success_message = sprintf(
 			// translators: %s: Extra payment token message if needed.
 			__( 'Subscription renewal was made successfully via Dintero Checkout. %s', 'dintero-checkout-for-woocommerce' ),
@@ -232,7 +232,7 @@ class Dintero_Checkout_Subscription {
 			return $request;
 		}
 
-		$body = json_decode( $request['body'], true );
+		$body          = json_decode( $request['body'], true );
 		$configuration = $body['configuration'] ?? array();
 
 		// Get the profile id and the updated configuration.
@@ -278,7 +278,8 @@ class Dintero_Checkout_Subscription {
 	 */
 	public function handle_redirect_from_change_payment_method( $subscription_id ) {
 		// We need to distinguish between whether the customer has changed payment method or is viewing a subscription as this endpoint will be triggered in either case.
-		if ( wc_get_var( $_GET['dwc_redirect'], '' ) !== 'subscription' ) {
+		$dwc_redirect = filter_input( INPUT_GET, 'dwc_redirect', FILTER_SANITIZE_SPECIAL_CHARS );
+		if ( 'subscription' !== $dwc_redirect ) {
 			return;
 		}
 
@@ -574,18 +575,23 @@ class Dintero_Checkout_Subscription {
 		$update_provider = ! empty( $token_provider );
 
 		// If the token and token provider are empty, don't do anything.
-		if ( ! $update_token && ! $update_provider ) { return; }
+		if ( ! $update_token && ! $update_provider ) {
+			return; }
 
 		// Get the metadata key to use for the token based on the type, and ensure its valid.
 		$token_type = 'recurrence' === $token_type ? self::RECURRING_TOKEN : self::PAYMENT_TOKEN;
 
-		if ( $update_token ) { $order->update_meta_data( $token_type, $token ); }
-		if ( $update_provider ) { $order->update_meta_data( self::PAYMENT_PRODUCT_TYPE, $token_provider ); }
+		if ( $update_token ) {
+			$order->update_meta_data( $token_type, $token ); }
+		if ( $update_provider ) {
+			$order->update_meta_data( self::PAYMENT_PRODUCT_TYPE, $token_provider ); }
 
 		// Get each subscription for the order and update the metadata there too.
 		foreach ( wcs_get_subscriptions_for_order( $order, array( 'order_type' => 'any' ) ) as $subscription ) {
-			if ( $update_token ) { $subscription->update_meta_data( $token_type, $token ); }
-			if ( $update_provider ) { $subscription->update_meta_data( self::PAYMENT_PRODUCT_TYPE, $token_provider ); }
+			if ( $update_token ) {
+				$subscription->update_meta_data( $token_type, $token ); }
+			if ( $update_provider ) {
+				$subscription->update_meta_data( self::PAYMENT_PRODUCT_TYPE, $token_provider ); }
 
 			$subscription->save_meta_data();
 		}
@@ -646,7 +652,7 @@ class Dintero_Checkout_Subscription {
 
 		// If the token provider is still empty, get it from the session instead as a string.
 		if ( empty( $token_provider ) ) {
-			$token_provider = Dintero_Checkout_Subscription::get_token_provider_string_from_profile();
+			$token_provider = self::get_token_provider_string_from_profile();
 		}
 
 		// Save the token provider to the order if we have it.
@@ -664,7 +670,13 @@ class Dintero_Checkout_Subscription {
 	 * @return string The profile id.
 	 */
 	public static function get_subscription_profile_id() {
-		$settings = get_option( 'woocommerce_dintero_checkout_settings', array( 'profile_id' => '', 'subscription_profile_id' => '' ) );
+		$settings = get_option(
+			'woocommerce_dintero_checkout_settings',
+			array(
+				'profile_id'              => '',
+				'subscription_profile_id' => '',
+			)
+		);
 		return ! empty( $settings['subscription_profile_id'] ) ? $settings['subscription_profile_id'] : $settings['profile_id'];
 	}
 
@@ -689,7 +701,6 @@ class Dintero_Checkout_Subscription {
 			Dintero_Checkout_Logger::log( "Could not get session profile from Dintero for profile ID: $profile_id" );
 			return null;
 		}
-
 
 		return $profile_response;
 	}
@@ -735,9 +746,12 @@ class Dintero_Checkout_Subscription {
 		$profile_configuration = $profile['configuration'] ?? array();
 
 		// Get all lines that are of the type "payment_type".
-		$payment_types = array_filter( $profile_configuration, function ( $config_item ) {
-			return is_array( $config_item ) && isset( $config_item['type'] ) && $config_item['type'] === 'payment_type';
-		} );
+		$payment_types = array_filter(
+			$profile_configuration,
+			function ( $config_item ) {
+				return is_array( $config_item ) && isset( $config_item['type'] ) && 'payment_type' === $config_item['type'];
+			}
+		);
 
 		// If there are no lines of the type "payment_type", return the configuration as is.
 		if ( empty( $payment_types ) ) {
@@ -747,22 +761,25 @@ class Dintero_Checkout_Subscription {
 		// Iterate through the filtered payment type configurations.
 		foreach ( $payment_types as $id => $data ) {
 			// Filter the data to get the once that are of the type "payment_product_type" and are enabled.
-			$payment_product_types = array_filter( $data, function ( $product_value ) {
-				if ( ! is_array( $product_value ) ) {
-					return false;
-				}
-				$type    = $product_value['type'] ?? null;
-				$enabled = $product_value['enabled'] ?? null;
+			$payment_product_types = array_filter(
+				$data,
+				function ( $product_value ) {
+					if ( ! is_array( $product_value ) ) {
+						return false;
+					}
+					$type    = $product_value['type'] ?? null;
+					$enabled = $product_value['enabled'] ?? null;
 
-				return $type === 'payment_product_type' && $enabled === true;
-			} );
+					return 'payment_product_type' === $type && true === $enabled;
+				}
+			);
 
 			// If we get any payment product types, we will use the first one to enable tokenization.
 			if ( ! empty( $payment_product_types ) ) {
-				$product_key = array_key_first( $payment_product_types );
+				$product_key    = array_key_first( $payment_product_types );
 				$token_provider = array(
-					'id'                      => $id,
-					'product_key'             => $product_key,
+					'id'          => $id,
+					'product_key' => $product_key,
 				);
 				break;
 			}

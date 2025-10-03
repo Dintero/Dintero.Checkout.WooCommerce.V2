@@ -76,7 +76,7 @@ class Dintero_Settings_Fields {
 				'default'     => '',
 				'desc_tip'    => true,
 				'description' => __( 'The profile to apply if the cart or order contain subscriptions. Found under (SETTINGS → Payment windows) in Dintero Backoffice.', 'dintero-checkout-for-woocommerce' ),
-      ),
+			),
 			'checkout_settings'                       => array(
 				'title' => __( 'Checkout settings', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'title',
