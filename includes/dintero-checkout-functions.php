@@ -154,7 +154,7 @@ function dintero_update_wc_shipping( $data ) {
  */
 function dintero_maybe_set_merchant_reference_2( $order, $transaction_id ) {
     $order_number              = $order->get_order_number();
-    $meta_merchant_reference_2 = $order->get_meta( '_dintero_merchant_reference_' );
+    $meta_merchant_reference_2 = $order->get_meta( '_dintero_merchant_reference_2' );
 
 	// If the merchant reference has changed since it was set, log it since we cant update if after it was set.
 	if ( ! empty( $meta_merchant_reference_2 ) && $meta_merchant_reference_2 !== $order_number ) {
@@ -176,7 +176,7 @@ function dintero_maybe_set_merchant_reference_2( $order, $transaction_id ) {
  */
 function dintero_set_confirmation_order_meta( $dintero_order, &$order ) {
     if ( ! empty( $dintero_order['merchant_reference_2'] ?? '' ) ) {
-    	$order->update_meta_data( '_dintero_merchant_reference_', wc_clean( $dintero_order['merchant_reference_2'] ) );
+    	$order->update_meta_data( '_dintero_merchant_reference_2', wc_clean( $dintero_order['merchant_reference_2'] ) );
     }
 
     // Save shipping id to the order if it was not set before.
