@@ -787,4 +787,27 @@ class Dintero_Checkout_Subscription {
 
 		return $token_provider;
 	}
+
+	/**
+	 * If the cart has changed from a subscription to a non-subscription, or vice versa, we need to clear the session and create a new.
+	 * This is to ensure that we do not have a session with a profile that does not what the purchase is for.
+	 *
+	 * @return bool True if the session was reset, false otherwise.
+	 */
+	public static function maybe_reset_session_on_subscription_change() {
+		$subscription_session = WC()->session->get( 'dintero_checkout_subscription_session', false );
+		$has_subscription     = Dintero_Checkout_Subscription::cart_has_subscription();
+
+		// If the session matches the cart state, we don't need to do anything.
+		if ( $subscription_session === $has_subscription ) {
+			return false;
+		}
+
+		dintero_unset_sessions();
+
+		// Set the new state after clearing the previous session.
+		WC()->session->set( 'dintero_checkout_subscription_session', $has_subscription );
+
+		return true;
+	}
 }
