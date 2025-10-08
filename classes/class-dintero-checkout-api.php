@@ -188,6 +188,19 @@ class Dintero_Checkout_API {
 	}
 
 	/**
+	 * Get the session profile for a specific profile id.
+	 * Used to get the correct token provider for subscriptions.
+	 *
+	 * @param int|false $profile_id The profile id to retrieve.
+	 * @return array|WP_Error
+	 */
+	public function get_session_profile( $profile_id = null ) {
+		$request  = new Dintero_Checkout_Get_Session_Profile( array( 'profile_id' => $profile_id ) );
+		$response = $request->request();
+		return $this->check_for_api_error( $response );
+	}
+
+	/**
 	 * Checks for WP Errors and returns either the response as array.
 	 *
 	 * @param array $response The response from the request.

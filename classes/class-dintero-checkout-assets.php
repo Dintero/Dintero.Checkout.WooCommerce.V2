@@ -139,7 +139,8 @@ class Dintero_Checkout_Assets {
 		);
 
 		$session_id = WC()->session->get( 'dintero_checkout_session_id' );
-		if ( empty( $session_id ) ) {
+		// If we don't have a session, or the cart has changed subscription status, create a new session.
+		if ( empty( $session_id ) || Dintero_Checkout_Subscription::maybe_reset_session_on_subscription_change() ) {
 			WC()->cart->calculate_shipping();
 			// The checkout is only available for free orders if the cart contains subscriptions.
 			// We therefore don't have to check if the cart contains subscriptions. Refer to Dintero_Checkout_Subscription::is_available().

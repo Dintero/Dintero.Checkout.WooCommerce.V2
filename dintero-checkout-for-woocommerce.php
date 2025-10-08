@@ -59,6 +59,14 @@ if ( ! class_exists( 'Dintero' ) ) {
 		private $pickup_points;
 
 		/**
+		 * Subscription class instance.
+		 *
+		 * @var Dintero_Checkout_Subscription $subscriptions
+		 */
+		private $subscriptions;
+
+
+		/**
 		 * The reference the *Singleton* instance of this class.
 		 *
 		 * @var Dintero $instance
@@ -207,6 +215,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/helpers/class-dintero-checkout-order.php';
 
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/get/class-dintero-checkout-get-order.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/get/class-dintero-checkout-get-session-profile.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/get/class-dintero-checkout-get-session.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-create-session.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-cancel-order.php';
@@ -220,6 +229,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			$this->api              = new Dintero_Checkout_API();
 			$this->pickup_points    = new PickupPoints();
 			$this->order_management = Dintero_Checkout_Order_Management::get_instance();
+			$this->subscriptions    = new Dintero_Checkout_Subscription();
 
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateways' ) );
 
@@ -330,6 +340,15 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 */
 		public function pickup_points() {
 			return $this->pickup_points;
+		}
+
+		/**
+		 * Get the subscriptions service.
+		 *
+		 * @return Dintero_Checkout_Subscription
+		 */
+		public function subscriptions() {
+			return $this->subscriptions;
 		}
 	}
 

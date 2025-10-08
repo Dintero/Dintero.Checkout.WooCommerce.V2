@@ -275,7 +275,8 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 				return $chosen_shipping;
 			}
 
-			$rates = WC()->shipping->get_packages()[0]['rates'];
+			$packages = WC()->shipping->get_packages();
+			$rates    = reset( $packages )['rates'] ?? array();
 			foreach ( $rates as $rate ) {
 
 				if ( $rate->get_id() === $chosen_shipping['id'] ) {
@@ -313,7 +314,8 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		}
 
 		$shipping_ids   = array_unique( $shipping_ids );
-		$shipping_rates = WC()->shipping->get_packages()[0]['rates'];
+		$packages       = WC()->shipping->get_packages();
+		$shipping_rates = reset( $packages )['rates'] ?? array();
 
 		if ( empty( $shipping_rates ) ) {
 			return $shipping_options;
