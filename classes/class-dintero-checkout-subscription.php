@@ -145,8 +145,6 @@ class Dintero_Checkout_Subscription {
 		$parent_order = $subscription->get_parent();
 		if ( $parent_order->get_meta( '_wc_dintero_shipping_id' ) ) {
 			$renewal_order->update_meta_data( '_wc_dintero_shipping_id', $parent_order->get_meta( '_wc_dintero_shipping_id' ) );
-			$renewal_order->update_meta_data( self::PAYMENT_TOKEN, $parent_order->get_meta( self::PAYMENT_TOKEN ) );
-			$renewal_order->update_meta_data( self::PAYMENT_PRODUCT_TYPE, $parent_order->get_meta( self::PAYMENT_PRODUCT_TYPE ) );
 			$renewal_order->save_meta_data();
 		}
 
@@ -378,19 +376,20 @@ class Dintero_Checkout_Subscription {
 	 * @return string The token or empty string.
 	 */
 	public static function get_token( $order_id, $token_type ) {
-		$order      = wc_get_order( $order_id );
-		$token_type = 'recurrence' === $token_type ? self::RECURRING_TOKEN : self::PAYMENT_TOKEN;
-		$token      = $order->get_meta( $token_type );
+		$token_type    = 'recurrence' === $token_type ? self::RECURRING_TOKEN : self::PAYMENT_TOKEN;
+		$subscriptions = wcs_get_subscriptions_for_renewal_order( $order_id );
+		foreach ( $subscriptions as $subscription ) {
+			// Get the token from the subscription if possible.
+			$token = $subscription->get_meta( $token_type );
+			if ( ! empty( $token ) ) {
+				break;
+			}
 
-		if ( empty( $token ) ) {
-			$subscriptions = wcs_get_subscriptions_for_renewal_order( $order_id );
-			foreach ( $subscriptions as $subscription ) {
-				$parent_order = $subscription->get_parent();
-				$token        = $parent_order->get_meta( $token_type );
+			$parent_order = $subscription->get_parent();
+			$token        = $parent_order->get_meta( $token_type );
 
-				if ( ! empty( $token ) ) {
-					break;
-				}
+			if ( ! empty( $token ) ) {
+				break;
 			}
 		}
 
@@ -657,7 +656,7 @@ class Dintero_Checkout_Subscription {
 
 		// Save the token provider to the order if we have it.
 		if ( ! empty( $token_provider ) ) {
-			$order->add_meta_data( self::PAYMENT_PRODUCT_TYPE, $token_provider );
+			$order->update_meta_data( self::PAYMENT_PRODUCT_TYPE, $token_provider );
 			$order->save_meta_data();
 		}
 
