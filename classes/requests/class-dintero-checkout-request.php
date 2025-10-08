@@ -241,10 +241,9 @@ abstract class Dintero_Checkout_Request {
 	 * @return boolean
 	 */
 	public function is_embedded() {
-		if ( ! dwc_is_embedded( $this->settings ) || is_wc_endpoint_url( 'order-pay' ) ) {
+		if ( ! dwc_is_embedded( $this->settings ) || is_wc_endpoint_url( 'order-pay' ) || Dintero_Checkout_Subscription::is_change_payment_method() ) {
 			return false;
 		}
-
 		return true;
 	}
 
