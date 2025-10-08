@@ -794,8 +794,14 @@ class Dintero_Checkout_Subscription {
 	 * @return bool True if the session was reset, false otherwise.
 	 */
 	public static function maybe_reset_session_on_subscription_change() {
-		$subscription_session = WC()->session->get( 'dintero_checkout_subscription_session', false );
+		$subscription_session = WC()->session->get( 'dintero_checkout_subscription_session', null );
 		$has_subscription     = self::cart_has_subscription();
+
+		// If the subscription_session is null, set it to the current cart state and return false.
+		if ( is_null( $subscription_session ) ) {
+			WC()->session->set( 'dintero_checkout_subscription_session', $has_subscription );
+			return false;
+		}
 
 		// If the session matches the cart state, we don't need to do anything.
 		if ( $subscription_session === $has_subscription ) {
