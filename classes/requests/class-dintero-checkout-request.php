@@ -196,6 +196,7 @@ abstract class Dintero_Checkout_Request {
 		// The request succeeded, check for API errors.
 		$code = wp_remote_retrieve_response_code( $response );
 		if ( $code < 200 || $code > 200 ) {
+			$errors = array(); // Default the errors to an empty array to avoid undefined variable notice.
 			if ( ! is_null( json_decode( $response['body'], true ) ) ) {
 				$data   = 'URL: ' . $request_url . ' - ' . wp_json_encode( $request_args );
 				$errors = json_decode( $response['body'], true )['error'];
@@ -206,7 +207,7 @@ abstract class Dintero_Checkout_Request {
 			return array(
 				'code'     => $code,
 				'result'   => $errors,
-				'request'  => $this->request_args,
+				'request'  => $request_args,
 				'is_error' => true,
 			);
 		}
