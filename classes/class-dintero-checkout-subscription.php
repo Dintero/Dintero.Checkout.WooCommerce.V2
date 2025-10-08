@@ -796,7 +796,7 @@ class Dintero_Checkout_Subscription {
 	 */
 	public static function maybe_reset_session_on_subscription_change() {
 		$subscription_session = WC()->session->get( 'dintero_checkout_subscription_session', false );
-		$has_subscription     = Dintero_Checkout_Subscription::cart_has_subscription();
+		$has_subscription     = self::cart_has_subscription();
 
 		// If the session matches the cart state, we don't need to do anything.
 		if ( $subscription_session === $has_subscription ) {
