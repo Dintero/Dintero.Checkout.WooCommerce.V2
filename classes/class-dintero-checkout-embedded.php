@@ -146,6 +146,12 @@ class Dintero_Checkout_Embedded {
 			return;
 		}
 
+		// If the subscription state of the cart has changed, we need to re-create the session.
+		if ( Dintero_Checkout_Subscription::maybe_reset_session_on_subscription_change() ) {
+			WC()->session->reload_checkout = true;
+			return;
+		}
+
 		Dintero()->api->update_checkout_session( $session_id );
 	}
 
