@@ -41,7 +41,9 @@ class Dintero_Checkout_Sessions_Pay extends Dintero_Checkout_Request_Post {
 	 * @return array
 	 */
 	public function get_body() {
-		$helper = new Dintero_Checkout_Order( wc_get_order( $this->arguments['order_id'] ) );
+		$order          = wc_get_order( $this->arguments['order_id'] );
+		$helper         = new Dintero_Checkout_Order( $order );
+		$token_provider = Dintero_Checkout_Subscription::get_token_provider_string_from_order( $order );
 
 		$body = array(
 			'session' => array(
@@ -56,7 +58,7 @@ class Dintero_Checkout_Sessions_Pay extends Dintero_Checkout_Request_Post {
 					'email'        => $helper->get_billing_address()['email'],
 					'phone_number' => $helper->get_billing_address()['phone_number'],
 					'tokens'       => array(
-						'payex.creditcard' => array(
+						$token_provider => array(
 							'payment_token' => Dintero_Checkout_Subscription::get_payment_token( $helper->order->get_id() ),
 						),
 					),
@@ -66,7 +68,7 @@ class Dintero_Checkout_Sessions_Pay extends Dintero_Checkout_Request_Post {
 				),
 			),
 			'payment' => array(
-				'payment_product_type' => 'payex.creditcard',
+				'payment_product_type' => $token_provider,
 				'operation'            => 'unscheduled_purchase',
 			),
 		);

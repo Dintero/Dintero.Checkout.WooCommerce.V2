@@ -2,17 +2,17 @@
 Contributors: dintero, krokedil, NiklasHogefjord
 Tags: woocommerce, dintero, ecommerce, e-commerce, checkout
 Requires at least: 5.8.3
-Tested up to: 6.8.2
+Tested up to: 6.8.3
 Requires PHP: 7.4
 WC requires at least: 6.1.0
-WC tested up to: 10.2.1
-Stable tag: 1.12.1
+WC tested up to: 10.2.2
+Stable tag: 1.13.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 == Description ==
-**Accept Visa, MasterCard, Vipps, Apple Pay, Google Pay, Click to Pay, Swish, MobilePay, 
-Klarna, Walley, Billie, invoices, installments, and buy now pay later (BNPL) payment 
+**Accept Visa, MasterCard, Vipps, Apple Pay, Google Pay, Click to Pay, Swish, MobilePay,
+Klarna, Walley, Billie, invoices, installments, and buy now pay later (BNPL) payment
 solutions.**
 
 With Dintero Checkout for WooCommerce Payment Methods, you can either embed or redirect our checkout in your WooCommerce installation. The plugin lets you capture, cancel, refund or partially refund orders, and adapt the checkout for B2B / B2C customers or just one customer type. You can also customize branding with logo colors and placement.
@@ -25,16 +25,16 @@ With Dintero Checkout for WooCommerce Payment Methods, you can either embed or r
 
 ### Why choose Dintero payment?
 
-Dintero Checkout delivers the ultimate formula for high conversions with customer-first designed features, such as: 
+Dintero Checkout delivers the ultimate formula for high conversions with customer-first designed features, such as:
 
--  Remembering customer details  
--  Localised payment methods and language  
--  Proactive technical solutions to prevent shipping errors before they occur.  
+-  Remembering customer details
+-  Localised payment methods and language
+-  Proactive technical solutions to prevent shipping errors before they occur.
 
 Our feature-rich components create a seamless, effortless buying experience for customers while offering full customisation for businesses. And is a one stop shop for digital payment, offering card payments, invoice, installments, BNPL, and mobile payment solutions.
 
 ### High conversions
-Supercharge your sales with a high converting checkout solution. Offer all the payment methods your customers want, globally and locally. One payment solution, endless possibilities. 
+Supercharge your sales with a high converting checkout solution. Offer all the payment methods your customers want, globally and locally. One payment solution, endless possibilities.
 
 ### Manage all your payments in one place with Dintero Backoffice
 
@@ -63,42 +63,42 @@ No more multiple logins. With our powerful Backoffice, there is one place to vie
 
 For the full list of Payment Methods, supported countries, and pricing, visit our [Pricing](https://www.dintero.com/pricing?utm_source=wordpressplugin&utm_medium=plugin) page.
 
-### Dintero Express Checkout Features  
+### Dintero Express Checkout Features
 
 The Dintero Express Checkout remembers customer details (if they opt-in) so we can give them an even faster and frictionless checkout experience with their next purchases, which increases conversion rates for returning customers. Available for embedded solutions.
 
-### API  
+### API
 Dintero Checkout supports any business model, and with our APIs you can automate and simplify the user experience for your customers.
 
 === Getting started ===
 
-Get started with Dintero Checkout for WooCommerce Payment Methods in 4 easy steps. 
+Get started with Dintero Checkout for WooCommerce Payment Methods in 4 easy steps.
 
 1. [Create a Dintero account](https://dintero.com/get-started?utm_source=wordpressplugin&utm_medium=plugin)
-2. In [Dintero Backoffice](https://backoffice.dintero.com?utm_source=wordpressplugin&utm_medium=plugin), go to Settings > Payment methods and click Activate 
+2. In [Dintero Backoffice](https://backoffice.dintero.com?utm_source=wordpressplugin&utm_medium=plugin), go to Settings > Payment methods and click Activate
 payments. We’ll notify you once approved.
 3. [Install the Dintero plugin](https://www.dintero.com/our-services/dintero-checkout/install-woocommerce-plugin?utm_source=wordpressplugin&utm_medium=plugin) on your website.
 4. [Create API keys](https://docs.dintero.com/docs/checkout/checkout-client/?utm_source=wordpressplugin&utm_medium=plugin) in Dintero Backoffice, and enter them into the WooCommerce Dintero plugin’s settings.
 
-### Dependencies  
+### Dependencies
 
 **Dintero Web SDK**
-The plugin uses Dintero’s Web SDK for embedding the Dintero Checkout. The SDK can be found at [GitHub](https://github.com/Dintero/Dintero.Checkout.Web.SDK?utm_source=wordpressplugin&utm_medium=plugin), and is licensed with an MIT license.  
+The plugin uses Dintero’s Web SDK for embedding the Dintero Checkout. The SDK can be found at [GitHub](https://github.com/Dintero/Dintero.Checkout.Web.SDK?utm_source=wordpressplugin&utm_medium=plugin), and is licensed with an MIT license.
 
-The SDK follows the same terms as when creating a Dintero account, with its [terms of service](https://www.dintero.com/terms/terms-of-service?utm_source=wordpressplugin&utm_medium=plugin) and [privacy policy](https://www.dintero.com/legal/privacy-policy?utm_source=wordpressplugin&utm_medium=plugin).  
+The SDK follows the same terms as when creating a Dintero account, with its [terms of service](https://www.dintero.com/terms/terms-of-service?utm_source=wordpressplugin&utm_medium=plugin) and [privacy policy](https://www.dintero.com/legal/privacy-policy?utm_source=wordpressplugin&utm_medium=plugin).
 
-### FAQ  
+### FAQ
 
-Does this require an SSL certificate?  
-> Yes, you need a certificate with at least TLS 1.2 to use Dintero Checkout.  
+Does this require an SSL certificate?
+> Yes, you need a certificate with at least TLS 1.2 to use Dintero Checkout.
 
-Does this support both production mode and sandbox mode for testing?  
-> Yes, sandbox is instantly available for all new accounts.  
+Does this support both production mode and sandbox mode for testing?
+> Yes, sandbox is instantly available for all new accounts.
 
-Where can I find documentation?  
-> Go to [Dintero Documentation](https://docs.dintero.com/docs/checkout/plugins/woo-plugin?utm_source=wordpressplugin&utm_medium=plugin) to find more thorough documentation.  
+Where can I find documentation?
+> Go to [Dintero Documentation](https://docs.dintero.com/docs/checkout/plugins/woo-plugin?utm_source=wordpressplugin&utm_medium=plugin) to find more thorough documentation.
 
-Where can I get support?  
+Where can I get support?
 > Go to [Dintero Support](https://www.dintero.com/support)
 
 == Installation ==
@@ -135,6 +135,17 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us?ut
 6. Gift cards and Discount cards available.
 7. Remove headaches and manage your reconciliation, reports, transactions, refunds (transaction level), Gift Cards, payment methods, and more in the Dintero backoffice.
 == Changelog ==
+= 2025.10.08    - version 1.13.0 =
+* Feature       - We will now save the billing organization number from Dintero to the WooCommerce order if available as '_billing_org_nr'.
+* Enhancement   - Improve the flow when placing an order to reduce the amount of times we save the WooCommerce order.
+* Enhancement   - Adds logic to update the Dintero session on the page load for the checkout if a session exists.
+* Enhancement   - Reduces the amount of update requests made to Dintero for the session when using Express checkout.
+* Enhancement   - Prevents callbacks from trying to set the merchant reference in Dintero after it has been set once.
+* Fix           - Fixed an issue where the Dintero session was not always updated when loading the checkout if the cart had been changed.
+* Fix           - Fixed issue with not getting the token provider for subscriptions dynamically.
+* Fix           - Fixed an issue that could happen if a pickup point that was selected is missing from the pickup points for a shipping method during an update.
+* Fix           - Fixed an issue when comparing the difference between the order total in Dintero with WooCommerce.
+
 = 2025.09.24    - version 1.12.1 =
 * Fix           - Fixed an issue where shipping was not properly set when the shipping setting "Hide shipping costs until an address is entered" was enabled in WooCommerce.
 
@@ -249,7 +260,7 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us?ut
 
 = 2023.03.09    - version 1.5.1 =
 * Fix           - Email notification should now be sent as expected when changing order status from "Manual review" provided that email notifications is enabled in the WooCommerce settings.
-* Fix           - Fixed an issue where placing an order failed when the shipping address fields were unset, and Embedded Dintero Checkout was used. 
+* Fix           - Fixed an issue where placing an order failed when the shipping address fields were unset, and Embedded Dintero Checkout was used.
 * Tweak         - A blank character is used as a placeholder when shipping first and last name is not available. Previously, this was "N/A".
 
 = 2023.02.01    - version 1.5.0 =
@@ -302,7 +313,7 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us?ut
 = 2022.08.18    - version 1.1.2 =
 * Tweak         - Better error handling especially in situations where there is no front end to display the error message (e.g., in a cronjob environment).
 * Fix           - Fixed various PHP notices.
-* Fix           - Fixed backward compatibility problem for orders that were placed prior to version 1.1.0. 
+* Fix           - Fixed backward compatibility problem for orders that were placed prior to version 1.1.0.
 
 = 2022.08.16    - version 1.1.1 =
 * Fix           - The metadata 'dintero_checkout_line_id' should now be hidden.

@@ -15,6 +15,29 @@ jQuery( function ( $ ) {
         checkout: null,
         validation: false,
         isLocked: false,
+        updateTimer: null,
+
+        /**
+         * Updates the checkout based on a timer to not spam updates each time an event wants to, but rather limits to one update per second.
+         */
+        delayUpdateCheckout() {
+            if ( dinteroCheckoutForWooCommerce.updateTimer ) {
+                clearTimeout( dinteroCheckoutForWooCommerce.updateTimer )
+            }
+
+            // If the session is not locked, do so.
+            if ( dinteroCheckoutForWooCommerce.isLocked === false && dinteroCheckoutForWooCommerce.checkout !== null ) {
+                dinteroCheckoutForWooCommerce.isLocked = true
+                dinteroCheckoutForWooCommerce.checkout.lockSession()
+            } else {
+                dinteroCheckoutForWooCommerce.updateCheckout()
+            }
+
+            dinteroCheckoutForWooCommerce.updateTimer = setTimeout( () => {
+                $( document.body ).trigger( "update_checkout" )
+                dinteroCheckoutForWooCommerce.updateTimer = null
+            }, 1000 )
+        },
 
         init() {
             $( document ).ready( dinteroCheckoutForWooCommerce.documentReady )
@@ -28,7 +51,6 @@ jQuery( function ( $ ) {
                 dinteroCheckoutForWooCommerce.selectAnotherSelector,
                 dinteroCheckoutForWooCommerce.changeFromDinteroCheckout,
             )
-
             if ( $( "#dintero-checkout-iframe" ).length !== 0 ) {
                 dinteroCheckoutForWooCommerce.renderIframe()
             } else {
@@ -56,24 +78,17 @@ jQuery( function ( $ ) {
 
         updateCheckout() {
             if ( dinteroCheckoutForWooCommerce.checkout !== null && ! dinteroCheckoutForWooCommerce.validation ) {
-                if ( dinteroCheckoutForWooCommerce.isLocked ) {
-                    /* If the dintero_locked is present, we'll issue an update request to Dintero. WC takes care of submitting the form through AJAX. */
-                    $( dinteroCheckoutForWooCommerce.checkoutFormSelector ).append(
-                        '<input type="hidden" name="dintero_locked" id="dintero_locked" value=1>',
-                    )
-                } else {
-                    dinteroCheckoutForWooCommerce.checkout.lockSession()
-                }
+                $( dinteroCheckoutForWooCommerce.checkoutFormSelector ).append(
+                    '<input type="hidden" name="dintero_locked" id="dintero_locked" value=1>',
+                )
             }
         },
 
         updatedCheckout() {
             if ( dinteroCheckoutForWooCommerce.checkout !== null && ! dinteroCheckoutForWooCommerce.validation ) {
-                if ( dinteroCheckoutForWooCommerce.isLocked ) {
-                    $( "#dintero_locked" ).remove()
-                    dinteroCheckoutForWooCommerce.isLocked = false
-                    dinteroCheckoutForWooCommerce.checkout.refreshSession()
-                }
+                $( "#dintero_locked" ).remove()
+                dinteroCheckoutForWooCommerce.isLocked = false
+                dinteroCheckoutForWooCommerce.checkout.refreshSession()
             }
         },
 
@@ -136,10 +151,7 @@ jQuery( function ( $ ) {
                         dinteroCheckoutForWooCommerce.unsetSession( window.location.pathname )
                     },
                     onSessionLocked( event, checkout, callback ) {
-                        dinteroCheckoutForWooCommerce.isLocked = true
-
-                        /* A checkout update happened, but the checkout was not locked. The checkout is now locked: */
-                        $( document.body ).trigger( "update_checkout" )
+                        dinteroCheckoutForWooCommerce.delayUpdateCheckout()
                     },
                     onSessionLockFailed( event, checkout ) {
                         console.warn( "Failed to lock the checkout.", event )
@@ -210,7 +222,7 @@ jQuery( function ( $ ) {
                 dinteroCheckoutForWooCommerce.moveExtraCheckoutFields()
             }
 
-            $( "form.checkout" ).trigger( "update_checkout" )
+            dinteroCheckoutForWooCommerce.delayUpdateCheckout()
         },
 
         /**
@@ -426,9 +438,9 @@ jQuery( function ( $ ) {
 
             // Trigger changes
             if ( update && dinteroCheckoutForWooCommerce.validation !== true ) {
-                $( "#billing_email" ).change()
-                $( "#billing_email" ).blur()
-                $( "form.checkout" ).trigger( "update_checkout" )
+                //$( "#billing_email" ).change()
+                //$( "#billing_email" ).blur()
+                dinteroCheckoutForWooCommerce.delayUpdateCheckout()
             }
         },
 
@@ -475,14 +487,14 @@ jQuery( function ( $ ) {
 
             if ( "country" in address ) {
                 $( "#shipping_country" ).val( address.country )
-                $( "#shipping_country" ).change()
+                //$( "#shipping_country" ).change()
             }
         },
 
         shippingMethodChanged( shipping ) {
             $( "#dintero_shipping_data" ).val( JSON.stringify( shipping ) )
             $( "body" ).trigger( "dintero_shipping_option_changed", [ shipping ] )
-            $( "body" ).trigger( "update_checkout" )
+            dinteroCheckoutForWooCommerce.delayUpdateCheckout()
         },
 
         /**
