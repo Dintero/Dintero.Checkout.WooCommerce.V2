@@ -69,6 +69,7 @@ function dintero_checkout_wc_show_another_gateway_button() {
 function dintero_unset_sessions() {
 	WC()->session->__unset( 'dintero_checkout_session_id' );
 	WC()->session->__unset( 'dintero_merchant_reference' );
+	WC()->session->__unset( 'dintero_checkout_subscription_session' );
 }
 
 /**
@@ -145,10 +146,120 @@ function dintero_update_wc_shipping( $data ) {
 }
 
 /**
+ * Maybe set the merchant reference on a Dintero order if if was not done before.
+ *
+ * @param WC_Order $order The WooCommerce order.
+ * @param string   $transaction_id The Dintero transaction id.
+ *
+ * @return void
+ */
+function dintero_maybe_set_merchant_reference_2( $order, $transaction_id ) {
+    $order_number              = $order->get_order_number();
+    $meta_merchant_reference_2 = $order->get_meta( '_dintero_merchant_reference_2' );
+
+	// If the merchant reference has changed since it was set, log it since we cant update if after it was set.
+	if ( ! empty( $meta_merchant_reference_2 ) && $meta_merchant_reference_2 !== $order_number ) {
+		Dintero_Checkout_Logger::log( "The WC order {$order->get_id()} with transaction ID {$transaction_id} has a different order number ({$order_number}) than the previously set merchant_reference_2 ({$meta_merchant_reference_2})." );
+		return;
+	}
+
+    if ( empty( $meta_merchant_reference_2 ) ) {
+    	Dintero()->api->update_transaction( $transaction_id, $order_number );
+    }
+}
+
+/**
+ * Set the confirmation order meta from the dintero order to the WooCommerce order.
+ * @param array    $dintero_order The Dintero order from the GET request.
+ * @param WC_Order $order The WooCommerce order. Passed by reference.
+ *
+ * @return void
+ */
+function dintero_set_confirmation_order_meta( $dintero_order, &$order ) {
+    if ( ! empty( $dintero_order['merchant_reference_2'] ?? '' ) ) {
+    	$order->update_meta_data( '_dintero_merchant_reference_2', wc_clean( $dintero_order['merchant_reference_2'] ) );
+    }
+
+    // Save shipping id to the order if it was not set before.
+    $shipping = $order->get_shipping_methods();
+    if ( ! empty( $shipping ) && empty( $order->get_meta( '_wc_dintero_shipping_id' ) ) ) {
+    	$shipping_option = $dintero_order['shipping_option']['id'] ?? reset( $shipping );
+
+    	// When processing a Woo subscription, the shipping option is an instance of WC_Order_Item_Shipping.
+    	if ( is_object( $shipping_option ) ) {
+    		$shipping_option = $shipping_option->get_method_id() . ':' . $shipping_option->get_instance_id();
+    	}
+
+    	$order->update_meta_data( '_wc_dintero_shipping_id', $shipping_option );
+    }
+
+    $payment_token = Dintero_Checkout_Subscription::get_payment_token_from_response( $dintero_order );
+    // If we have a payment token, then save it to the subscription and order, also get the payment product type.
+    if ( ! empty( $payment_token ) ) {
+    	$payment_product_type = Dintero_Checkout_Subscription::get_payment_product_type_from_response( $dintero_order );
+    	Dintero_Checkout_Subscription::save_subscription_metadata( $order, $payment_product_type, $payment_token, 'payment' );
+    }
+
+    /* Remove duplicate words from the payment method type (e.g., swish.swish → Swish). Otherwise, prints as is (e.g., collector.invoice → Collector Invoice). */
+    $payment_method = dintero_get_payment_method_name( wc_get_var( $dintero_order['payment_product_type'], $order->get_meta( '_dintero_payment_method' ) ) );
+    $order->update_meta_data( '_dintero_payment_method', $payment_method );
+    $order->save_meta_data();
+}
+
+/**
+ * Process the order that requires further authentication and set it to the correct status.
+ *
+ * @param WC_Order $order The WooCommerce order. Passed by reference.
+ * @param string   $transaction_id The Dintero transaction id.
+ * @param string   $pending_auth_status The status to use for the pending authorization status.
+ *
+ * @return void
+ */
+function dintero_process_require_authentication( $order, $transaction_id, $pending_auth_status ) {
+    $order->set_transaction_id( $transaction_id );
+    $order->update_meta_data( Dintero()->order_management->status( 'on_hold' ), $transaction_id );
+
+    // translators: %s the Dintero transaction ID.
+	$order_note = sprintf( __( 'The order was placed successfully, but requires further authorization by Dintero. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id );
+    $order->update_status( $pending_auth_status, $order_note ); // Update the status with the note. This will also save the order.
+    Dintero_Checkout_Logger::log( "REDIRECT: The WC order {$order->get_id()} (transaction ID: $transaction_id) will require further authorization from Dintero." );
+}
+
+function dintero_process_authorized_order( $order, $settings, $transaction_id ) {
+	// If the order was already processed, we don't need to do anything.
+    if ( ! empty( $order->get_date_paid() ) ) {
+    	return;
+    }
+
+	$was_pending_authorization = ! empty( $order->get_meta( Dintero()->order_management->status( 'on_hold' ) ) );
+	$order_note = $was_pending_authorization ? __( 'The order has been authorized.', 'dintero-checkout-for-woocommerce' )
+		// translators: %s the Dintero transaction ID.
+		: sprintf( __( 'The order was placed successfully via Dintero Checkout. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id );
+
+    $order->add_order_note( $order_note );
+	$order->delete_meta_data( Dintero()->order_management->status( 'on_hold' ) ); // Delete the meta data for the manual review status if it was set.
+
+	// If the default status for authorized orders is not "processing", then set it to that status.
+    $default_status_authorized = $settings['order_status_authorized'] ?? 'processing';
+    if ( 'processing' !== $default_status_authorized ) {
+    	$order->set_transaction_id( $transaction_id );
+    	$order->set_status( $default_status_authorized );
+    	if ( ! $order->get_date_paid( 'edit' ) ) {
+    		$order->set_date_paid( time() );
+    	}
+		// Save the order to store any changes made to the order.
+		$order->save();
+    } else {
+		// If the status is processing, we can use the built-in payment_complete function to set the status and date paid. This will also save the order.
+    	$order->payment_complete( $transaction_id );
+    }
+}
+
+/**
  * Confirms the Dintero Order.
  *
  * @param WC_Order $order The Woo order.
- * @param string   $transaction_id The Dintero transaction id.
+ * @param string $transaction_id The Dintero transaction id.
  * @return void
  */
 function dintero_confirm_order( $order, $transaction_id ) {
@@ -160,23 +271,10 @@ function dintero_confirm_order( $order, $transaction_id ) {
 	$order->update_meta_data( '_wc_dintero_checkout_environment', 'yes' === $settings['test_mode'] ? 'Test' : 'Production' );
 	$order->update_meta_data( '_dintero_transaction_id', $transaction_id );
 
-	// Set the merchant_reference_2 for the Dintero order.
-	Dintero()->api->update_transaction( $transaction_id, $order->get_order_number() );
+	// Set the merchant_reference_2 for the Dintero order if it was not set before, or it does not match the order number.
+	dintero_maybe_set_merchant_reference_2( $order, $transaction_id );
 
-	// Save shipping id to the order.
-	$shipping = $order->get_shipping_methods();
-	if ( ! empty( $shipping ) && empty( $order->get_meta( '_wc_dintero_shipping_id' ) ) ) {
-		$shipping_option = $dintero_order['shipping_option']['id'] ?? reset( $shipping );
-
-		// When processing a Woo subscription, the shipping option is an instance of WC_Order_Item_Shipping.
-		if ( is_object( $shipping_option ) ) {
-			$shipping_option = $shipping_option->get_method_id() . ':' . $shipping_option->get_instance_id();
-		}
-
-		$order->update_meta_data( '_wc_dintero_shipping_id', $shipping_option );
-	}
-
-	// Request the payment token in the response.
+	// Get the order from Dintero to ensure the merchant reference was set, get any potential card tokens and other data we need to store.
 	$params        = array( 'includes' => 'card.payment_token' );
 	$dintero_order = Dintero()->api->get_order( $transaction_id, $params );
 	if ( is_wp_error( $dintero_order ) ) {
@@ -191,57 +289,17 @@ function dintero_confirm_order( $order, $transaction_id ) {
 		return;
 	}
 
-	$payment_token = Dintero_Checkout_Subscription::get_payment_token_from_response( $dintero_order );
-	// If we have a payment token, then save it to the subscription and order, also get the payment product type.
-	if ( ! empty( $payment_token ) ) {
-		$payment_product_type = Dintero_Checkout_Subscription::get_payment_product_type_from_response( $dintero_order );
-		Dintero_Checkout_Subscription::save_subscription_metadata( $order, $payment_product_type, $payment_token, 'payment' );
-	}
-
-	/* Remove duplicate words from the payment method type (e.g., swish.swish → Swish). Otherwise, prints as is (e.g., collector.invoice → Collector Invoice). */
-	$payment_method = dintero_get_payment_method_name( wc_get_var( $dintero_order['payment_product_type'], $order->get_meta( '_dintero_payment_method' ) ) );
-	$order->update_meta_data( '_dintero_payment_method', $payment_method );
-	$order->save_meta_data(); // Save the metadata before reading the order again from the database.
+	// Set the required metadata from the Dintero order to the WooCommerce order.
+	dintero_set_confirmation_order_meta( $dintero_order, $order );
 
 	// Get the order from the database again to prevent any concurrency issues if the page loads twice at the same time.
 	$order = wc_get_order( $order_id );
 
 	$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
-	if ( $require_authorization ) {
-		$order->set_transaction_id( $transaction_id );
-		$order->update_meta_data( Dintero()->order_management->status( 'on_hold' ), $transaction_id );
-
-		$default_pending_authorization = $settings['order_status_pending_authorization'] ?? 'manual-review';
-
-		// translators: %s the Dintero transaction ID.
-		$order->update_status( $default_pending_authorization, sprintf( __( 'The order was placed successfully, but requires further authorization by Dintero. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
-		Dintero_Checkout_Logger::log( "REDIRECT: The WC order $order_id (transaction ID: $transaction_id) will require further authorization from Dintero." );
-	} else {
-		// Check if the order has already been processed.
-		if ( ! empty( $order->get_date_paid() ) ) {
-			return;
-		}
-
-		// Check if the order is currently locked due to manual review.
-		if ( $order->get_meta( Dintero()->order_management->status( 'on_hold' ) ) ) {
-			$order->add_order_note( __( 'The order has been authorized.', 'dintero-checkout-for-woocommerce' ) );
-		} else {
-			// translators: %s the Dintero transaction ID.
-			$order->add_order_note( sprintf( __( 'The order was placed successfully via Dintero Checkout. Transaction ID: %s', 'dintero-checkout-for-woocommerce' ), $transaction_id ) );
-		}
-
-		$default_status_authorized = $settings['order_status_authorized'] ?? 'processing';
-		if ( 'processing' !== $default_status_authorized ) {
-			$order->set_transaction_id( $transaction_id );
-			$order->set_status( $default_status_authorized );
-			if ( ! $order->get_date_paid( 'edit' ) ) {
-				$order->set_date_paid( time() );
-			}
-		} else {
-			$order->payment_complete( $transaction_id );
-		}
-
-		$order->delete_meta_data( Dintero()->order_management->status( 'on_hold' ) );
+	if ( $require_authorization ) { // If the order needs to be authenticated.
+		dintero_process_require_authentication( $order, $transaction_id, $settings['order_status_pending_authorization'] ?? 'manual-review' );
+	} else { // Otherwise process the authenticated order.
+		dintero_process_authorized_order( $order, $settings, $transaction_id );
 	}
 
 	$order->save_meta_data();
@@ -451,4 +509,33 @@ function dwc_is_popout( $settings ) {
 	}
 
 	return 'yes' === $settings['checkout_popout'] && 'embedded' === $settings['form_factor'];
+}
+
+/**
+ * Whether we can update the checkout.
+ *
+ * @return bool
+ */
+function dwc_can_update_checkout() {
+	// If we are not on checkout, return false.
+	if ( ! is_checkout() ) {
+		return false;
+	}
+
+	// If there is not an ajax call happening, then just return true.
+	if ( ! is_ajax() ) {
+		return true;
+	}
+
+	// Get the current ajax action from the query string.
+	$ajax = filter_input( INPUT_GET, 'wc-ajax', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+	// Get the posted data to see if we have locked the iframe or not.
+	$raw_post_data = filter_input( INPUT_POST, 'post_data', FILTER_SANITIZE_URL ) ?? '';
+	parse_str( $raw_post_data, $post_data );
+	if ( ! is_array( $post_data ) || ! isset( $post_data['dintero_locked'] ) ) {
+		return false;
+	}
+
+	return $ajax === 'update_order_review'; // We only want to update the checkout during update_order_review if we are doing ajax.
 }
