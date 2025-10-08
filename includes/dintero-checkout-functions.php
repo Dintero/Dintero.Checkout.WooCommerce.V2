@@ -203,6 +203,9 @@ function dintero_set_confirmation_order_meta( $dintero_order, &$order ) {
     /* Remove duplicate words from the payment method type (e.g., swish.swish → Swish). Otherwise, prints as is (e.g., collector.invoice → Collector Invoice). */
     $payment_method = dintero_get_payment_method_name( wc_get_var( $dintero_order['payment_product_type'], $order->get_meta( '_dintero_payment_method' ) ) );
     $order->update_meta_data( '_dintero_payment_method', $payment_method );
+
+	dintero_maybe_save_org_nr( $dintero_order, $order );
+
     $order->save_meta_data();
 }
 
@@ -538,4 +541,19 @@ function dwc_can_update_checkout() {
 	}
 
 	return $ajax === 'update_order_review'; // We only want to update the checkout during update_order_review if we are doing ajax.
+}
+
+/**
+ * Save the organization number to the order if available.
+ *
+ * @param WC_Order $order The Woo order.
+ * @return void
+ */
+function dintero_maybe_save_org_nr( $dintero_order, $order ) {
+	$billing_org_nr = $dintero_order['billing_address']['organization_number'] ?? '';
+
+	if ( ! empty( $billing_org_nr ) ) {
+		$order->update_meta_data( '_billing_org_nr', wc_clean( $billing_org_nr ) );
+		$order->save();
+	}
 }

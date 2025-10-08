@@ -104,6 +104,8 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			 * we should hide it on the order page. The meta key has to be prefixed with an underscore (_) to also hide the meta data beyond the order page (e.g., in emails, PDF documents).
 			 */
 			add_filter( 'woocommerce_hidden_order_itemmeta', array( $this, 'hidden_order_itemmeta' ) );
+			// Add billing organization number to the order admin page.
+			add_action( 'woocommerce_admin_order_data_after_billing_address', array( $this, 'add_billing_org_nr' ) );
 		}
 
 		/**
@@ -324,6 +326,28 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			}
 
 			return Dintero()->order_management->refund_order( $order_id, $reason );
+		}
+
+		/**
+		 * Maybe adds the billing org number to the address in an order.
+		 *
+		 * @param WC_Order $order The WooCommerce order.
+		 * @return void
+		 */
+		public function add_billing_org_nr( $order ) {
+			if ( $this->id === $order->get_payment_method() ) {
+				$billing_org_nr = $order->get_meta( '_billing_org_nr', true );
+				if ( $billing_org_nr ) {
+					?>
+					<p>
+						<strong>
+							<?php esc_html_e( 'Organization number:', 'dintero-checkout-for-woocommerce' ); ?>
+						</strong>
+						<?php echo esc_html( $billing_org_nr ); ?>
+					</p>
+					<?php
+				}
+			}
 		}
 	}
 }
