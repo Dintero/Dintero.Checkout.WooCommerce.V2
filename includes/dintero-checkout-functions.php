@@ -69,6 +69,7 @@ function dintero_checkout_wc_show_another_gateway_button() {
 function dintero_unset_sessions() {
 	WC()->session->__unset( 'dintero_checkout_session_id' );
 	WC()->session->__unset( 'dintero_merchant_reference' );
+	WC()->session->__unset( 'dintero_checkout_subscription_session' );
 }
 
 /**
