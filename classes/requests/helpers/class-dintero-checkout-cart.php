@@ -385,6 +385,8 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		$shipping_cost = floatval( $shipping_rate->get_cost() );
 		$shipping_tax  = floatval( $shipping_rate->get_shipping_tax() );
 
+		$description = $this->get_shipping_method_option( $shipping_rate, 'dintero_description' );
+
 		$shipping_option = array(
 			'id'              => $shipping_rate->get_id(),
 			'line_id'         => $line_id,
@@ -392,7 +394,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			'vat_amount'      => self::format_number( $shipping_tax ),
 			'vat'             => $shipping_cost <= 0 ? 0 : self::format_number( $shipping_tax / $shipping_cost ),
 			'operator'        => '',
-			'description'     => '',
+			'description'     => $description ?? '',
 			'title'           => html_entity_decode( $shipping_rate->get_label() ),
 			'delivery_method' => 'unspecified',
 			'quantity'        => 1,

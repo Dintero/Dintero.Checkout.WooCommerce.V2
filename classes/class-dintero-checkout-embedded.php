@@ -64,7 +64,7 @@ class Dintero_Checkout_Embedded {
 	}
 
 	/**
-	 * Add a hidden input field for the shipping data from Qliro One.
+	 * Add a hidden input field for the shipping data from Dintero.
 	 *
 	 * @param array $fields The WooCommerce checkout fields.
 	 * @return array
