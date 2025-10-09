@@ -20,6 +20,7 @@
 
 use KrokedilDinteroCheckoutDeps\Krokedil\Shipping\Interfaces\PickupPointServiceInterface;
 use KrokedilDinteroCheckoutDeps\Krokedil\Shipping\PickupPoints;
+use KrokedilDinteroCheckoutDeps\Krokedil\Shipping\ShippingRate;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -59,11 +60,27 @@ if ( ! class_exists( 'Dintero' ) ) {
 		private $pickup_points;
 
 		/**
+		 * Shipping rate helper.
+		 *
+		 * @var ShippingRate
+		 */
+		private $shipping_rate;
+
+		/**
 		 * The reference the *Singleton* instance of this class.
 		 *
 		 * @var Dintero $instance
 		 */
 		private static $instance;
+
+		/**
+		 * Get the shipping rate helper.
+		 *
+		 * @return ShippingRate
+		 */
+		public function shipping_rate() {
+			return $this->shipping_rate;
+		}
 
 		/**
 		 * Returns the *Singleton* instance of this class.
@@ -220,6 +237,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 
 			$this->api              = new Dintero_Checkout_API();
 			$this->pickup_points    = new PickupPoints();
+			$this->shipping_rate    = new ShippingRate( array( 'show_description' => false ) );
 			$this->order_management = Dintero_Checkout_Order_Management::get_instance();
 
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateways' ) );

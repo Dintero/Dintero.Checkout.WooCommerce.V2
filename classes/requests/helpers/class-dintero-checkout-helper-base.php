@@ -31,25 +31,48 @@ abstract class Dintero_Checkout_Helper_Base {
 	 * @return string|null The setting value or null if not found.
 	 */
 	protected function get_shipping_method_option( $shipping, $setting_name ) {
-		if ( $shipping instanceof WC_Order_Item_Shipping ) {
-			$settings = get_option( "woocommerce_{$shipping->get_method_id()}_{$shipping->get_instance_id()}_settings", array() );
-		} elseif ( $shipping instanceof WC_Shipping_Rate ) {
-			$settings = get_option( "woocommerce_{$shipping->method_id}_{$shipping->instance_id}_settings", array() );
-		} else {
-			$settings = array();
-		}
-
+		$settings = $this->get_shipping_method_settings( $shipping );
 		if ( empty( $settings ) ) {
 			return null;
 		}
 
 		switch ( $setting_name ) {
 			case 'dintero_description':
+				$description = $settings[ $setting_name ] ?? '';
+				if ( empty( $description ) && $shipping instanceof WC_Shipping_Rate ) {
+					$description = Dintero()->shipping_rate()->get_shipping_rate_description( $shipping );
+				}
 				// While there is no hard-limit on the description length in the API, we will limit it to 200 characters.
-				return mb_substr( trim( $settings[ $setting_name ] ?? '' ), 0, 200 );
+				return mb_substr( trim( $description ), 0, 200 );
 			default:
 				return $settings[ $setting_name ] ?? null;
 		}
+	}
+
+	/**
+	 * Retrieve the shipping method settings.
+	 *
+	 * @param WC_Shipping_Rate|WC_Order_Item_Shipping $shipping_rate The shipping rate or order item shipping.
+	 * @return array The shipping method settings.
+	 */
+	private function get_shipping_method_settings( $shipping_rate ) {
+		if ( $shipping_rate instanceof WC_Order_Item_Shipping ) {
+			return get_option( "woocommerce_{$shipping_rate->get_method_id()}_{$shipping_rate->get_instance_id()}_settings", array() );
+		} elseif ( $shipping_rate instanceof WC_Shipping_Rate ) {
+			return get_option( "woocommerce_{$shipping_rate->method_id}_{$shipping_rate->instance_id}_settings", array() );
+		} else {
+			return array();
+		}
+	}
+
+	/**
+	 * Get the shipping rate description.
+	 *
+	 * @param WC_Shipping_Rate|WC_Order_Item_Shipping $shipping The shipping rate.
+	 * @return string
+	 */
+	protected function get_shipping_rate_description( $shipping ) {
+		return Dintero()->shipping_rate()->get_shipping_rate_description( $shipping );
 	}
 
 	/**
