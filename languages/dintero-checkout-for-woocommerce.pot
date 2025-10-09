@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/Dintero.Checkout.WooCommerce.V2\n"
-"POT-Creation-Date: 2025-09-24 06:57:41+00:00\n"
+"POT-Creation-Date: 2025-10-08 10:02:11+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -14,11 +14,11 @@ msgstr ""
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "X-Generator: grunt-wp-i18n 1.0.4\n"
 
-#: classes/class-dintero-checkout-assets.php:204
+#: classes/class-dintero-checkout-assets.php:205
 msgid "Payment in progress"
 msgstr ""
 
-#: classes/class-dintero-checkout-assets.php:208
+#: classes/class-dintero-checkout-assets.php:209
 msgid "The cart was modified. Please try again."
 msgstr ""
 
@@ -60,15 +60,19 @@ msgstr ""
 msgid "Dintero Checkout"
 msgstr ""
 
-#: classes/class-dintero-checkout-gateway.php:294
+#: classes/class-dintero-checkout-gateway.php:296
 msgid "Customer redirected to Dintero payment page."
 msgstr ""
 
-#: classes/class-dintero-checkout-gateway.php:318
+#: classes/class-dintero-checkout-gateway.php:320
 msgid ""
 "Refunds are only possible for orders that have been completed. If you have "
 "an order that has not been completed and needs to be canceled, set the "
 "order status to \"Canceled\"."
+msgstr ""
+
+#: classes/class-dintero-checkout-gateway.php:344
+msgid "Organization number:"
 msgstr ""
 
 #: classes/class-dintero-checkout-meta-box.php:58
@@ -461,51 +465,50 @@ msgid ""
 "allowed."
 msgstr ""
 
-#: classes/class-dintero-checkout-subscription.php:117
-msgid "The payment token could not be retrieved."
+#: classes/class-dintero-checkout-subscription.php:118
+#. translators: %s: The payment token.
+msgid "Payment token: %s"
 msgstr ""
 
-#: classes/class-dintero-checkout-subscription.php:123
-#. translators: %s: subscription id
-msgid ""
-"Subscription renewal was made successfully via Dintero Checkout. Payment "
-"token: %s"
+#: classes/class-dintero-checkout-subscription.php:121
+#. translators: %s: Extra payment token message if needed.
+msgid "Subscription renewal was made successfully via Dintero Checkout. %s"
 msgstr ""
 
-#: classes/class-dintero-checkout-subscription.php:305
+#: classes/class-dintero-checkout-subscription.php:293
 msgid ""
 "Change payment method to Dintero for subscription failed. Customer "
 "cancelled the checkout payment."
 msgstr ""
 
-#: classes/class-dintero-checkout-subscription.php:307
+#: classes/class-dintero-checkout-subscription.php:295
 msgid ""
 "Change payment method to Dintero for subscription failed. Customer did not "
 "authorize the payment."
 msgstr ""
 
-#: classes/class-dintero-checkout-subscription.php:309
+#: classes/class-dintero-checkout-subscription.php:297
 msgid ""
 "Change payment method to Dintero for subscription failed. An error may have "
 "occurred during transaction processing or was rejected by Dintero."
 msgstr ""
 
-#: classes/class-dintero-checkout-subscription.php:328
+#: classes/class-dintero-checkout-subscription.php:315
 #. translators: Error message.
 msgid "Failed to create payment token. Reason: %s"
 msgstr ""
 
-#: classes/class-dintero-checkout-subscription.php:335
+#: classes/class-dintero-checkout-subscription.php:323
 #. translators: Payment token.
 msgid "Payment token created: %s"
 msgstr ""
 
-#: classes/class-dintero-checkout-subscription.php:590
+#: classes/class-dintero-checkout-subscription.php:513
 #. translators: 1: User name, 2: Existing token, 3: New token.
 msgid "%1$s updated the subscription payment token from \"%2$s\" to \"%3$s\"."
 msgstr ""
 
-#: classes/class-dintero-checkout-subscription.php:627
+#: classes/class-dintero-checkout-subscription.php:550
 msgid "Dintero payment token"
 msgstr ""
 
@@ -529,13 +532,13 @@ msgstr ""
 msgid "Background color:"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-cart.php:484
-#: classes/requests/helpers/class-dintero-checkout-cart.php:507
+#: classes/requests/helpers/class-dintero-checkout-cart.php:486
+#: classes/requests/helpers/class-dintero-checkout-cart.php:509
 #: classes/requests/helpers/class-dintero-checkout-order.php:363
 msgid "Gift card"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-cart.php:528
+#: classes/requests/helpers/class-dintero-checkout-cart.php:530
 msgid "Gift card:"
 msgstr ""
 
@@ -551,72 +554,58 @@ msgid ""
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:45
-#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:47
 msgid "Shipping Information"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:171
-#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:190
 msgid "Selected pickup point"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:179
-#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:192
 msgid "Edit"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:242
-#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:232
 msgid "Change"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:264
-#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:256
 msgid "Invalid order id"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:269
-#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:263
 msgid "Invalid shipping line id"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:274
-#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:270
 msgid "No pickup points found"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:285
-#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:284
 msgid "Invalid pickup point id"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:291
-#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:292
 msgid "Could not save shipping line"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Admin/EditOrderPage.php:298
-#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Admin/EditOrderPage.php:304
 msgid "Pickup point updated"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/Calculations.php:26
-#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/Calculations.php:27
 msgid "Shipping tax"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/PickupPoint/PickupPoint.php:302
-#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/PickupPoint/PickupPoint.php:332
 msgid "Address"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/PickupPoint/PickupPoint.php:328
-#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/PickupPoint/PickupPoint.php:363
 msgid "Open hours"
 msgstr ""
 
 #: dependencies/krokedil/shipping/src/PickupPoint/PickupPoint.php:369
-#: tmp-b6e3775773/source/vendor/krokedil/shipping/src/PickupPoint/PickupPoint.php:389
 msgid "Show on map"
 msgstr ""
 
@@ -626,38 +615,38 @@ msgid ""
 "verify your selected shipping method and try again."
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:88
-#: dintero-checkout-for-woocommerce.php:98
+#: dintero-checkout-for-woocommerce.php:96
+#: dintero-checkout-for-woocommerce.php:106
 msgid "Nope"
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:134
-#: dintero-checkout-for-woocommerce.php:151
+#: dintero-checkout-for-woocommerce.php:142
+#: dintero-checkout-for-woocommerce.php:159
 #. translators: 1: composer command. 2: plugin directory
 msgid ""
 "Your installation of the Dintero Checkout plugin is incomplete. Please run "
 "%1$s within the %2$s directory."
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:258
+#: dintero-checkout-for-woocommerce.php:268
 msgid "Dismiss"
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:260
+#: dintero-checkout-for-woocommerce.php:270
 msgid "The decimal setting for prices in WooCommerce is currently set to 0."
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:261
+#: dintero-checkout-for-woocommerce.php:271
 msgid ""
 "This may cause rounding issues with pricing and taxes. Learn more about why "
 "this can be problematic — and what to do instead: "
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:261
+#: dintero-checkout-for-woocommerce.php:271
 msgid "Don’t display prices with 0 decimals in WooCommerce"
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:291
+#: dintero-checkout-for-woocommerce.php:301
 msgid "Settings"
 msgstr ""
 
@@ -665,27 +654,27 @@ msgstr ""
 msgid "Select another payment method"
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:186
-#. translators: %s the error message.
-msgid ""
-"The order was completed, but the confirmation step failed due to a WP "
-"error. Error: %s"
-msgstr ""
-
-#: includes/dintero-checkout-functions.php:216
+#: includes/dintero-checkout-functions.php:226
 #. translators: %s the Dintero transaction ID.
 msgid ""
 "The order was placed successfully, but requires further authorization by "
 "Dintero. Transaction ID: %s"
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:227
+#: includes/dintero-checkout-functions.php:238
 msgid "The order has been authorized."
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:230
+#: includes/dintero-checkout-functions.php:240
 #. translators: %s the Dintero transaction ID.
 msgid "The order was placed successfully via Dintero Checkout. Transaction ID: %s"
+msgstr ""
+
+#: includes/dintero-checkout-functions.php:287
+#. translators: %s the error message.
+msgid ""
+"The order was completed, but the confirmation step failed due to a WP "
+"error. Error: %s"
 msgstr ""
 
 #: templates/dintero-checkout-express.php:10

@@ -5,12 +5,12 @@
  * Description: Dintero offers a complete payment solution. Simplifying the payment process for you and the customer.
  * Author: Dintero, Krokedil
  * Author URI: https://krokedil.com/
- * Version: 1.12.1
+ * Version: 1.13.0
  * Text Domain: dintero-checkout-for-woocommerce
  * Domain Path: /languages
  *
  * WC requires at least: 6.1.0
- * WC tested up to: 10.2.1
+ * WC tested up to: 10.2.2
  *
  * Copyright (c) 2025 Krokedil
  *
@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'DINTERO_CHECKOUT_VERSION', '1.12.1' );
+define( 'DINTERO_CHECKOUT_VERSION', '1.13.0' );
 define( 'DINTERO_CHECKOUT_URL', untrailingslashit( plugin_dir_url( __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_MAIN_FILE', __FILE__ );
@@ -65,6 +65,13 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * @var ShippingRate
 		 */
 		private $shipping_rate;
+    
+		/**
+		 * Subscription class instance.
+		 *
+		 * @var Dintero_Checkout_Subscription $subscriptions
+		 */
+		private $subscriptions;
 
 		/**
 		 * The reference the *Singleton* instance of this class.
@@ -225,6 +232,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/helpers/class-dintero-checkout-order.php';
 
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/get/class-dintero-checkout-get-order.php';
+			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/get/class-dintero-checkout-get-session-profile.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/get/class-dintero-checkout-get-session.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-create-session.php';
 			include_once DINTERO_CHECKOUT_PATH . '/classes/requests/post/class-dintero-checkout-cancel-order.php';
@@ -239,6 +247,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 			$this->pickup_points    = new PickupPoints();
 			$this->shipping_rate    = new ShippingRate( array( 'show_description' => false ) );
 			$this->order_management = Dintero_Checkout_Order_Management::get_instance();
+			$this->subscriptions    = new Dintero_Checkout_Subscription();
 
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateways' ) );
 
@@ -349,6 +358,15 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 */
 		public function pickup_points() {
 			return $this->pickup_points;
+		}
+
+		/**
+		 * Get the subscriptions service.
+		 *
+		 * @return Dintero_Checkout_Subscription
+		 */
+		public function subscriptions() {
+			return $this->subscriptions;
 		}
 	}
 
