@@ -15,11 +15,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Dintero_Checkout_Assets {
 
 	/**
+	 * The settings for the Dintero Checkout.
+	 *
+	 * @var array
+	 */
+	private $settings;
+
+	/**
 	 * Hook onto enqueue actions.
 	 */
 	public function __construct() {
-		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
-		if ( dwc_is_embedded( $settings ) ) {
+		$this->settings = get_option( 'woocommerce_dintero_checkout_settings' );
+		if ( dwc_is_embedded( $this->settings ) ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 			add_action( 'wp_enqueue_scripts', array( $this, 'dintero_load_css' ) );
 		}
@@ -113,7 +120,7 @@ class Dintero_Checkout_Assets {
 			return;
 		}
 
-		if ( ! is_checkout() || is_order_received_page() || is_wc_endpoint_url( 'order-pay' ) ) {
+		if ( ! is_checkout() || is_order_received_page() || is_checkout_pay_page() ) {
 			return;
 		}
 
@@ -130,9 +137,10 @@ class Dintero_Checkout_Assets {
 			false /* must be loaded early, add to <header>. */
 		);
 
+		$asset_path = 'assets/js/dintero-checkout' . ( strpos( $settings['checkout_flow'], 'checkout' ) !== false ? '' : '-express' ) . '.js';
 		wp_register_script(
 			'dintero-checkout',
-			plugins_url( 'assets/js/dintero-checkout-express.js', DINTERO_CHECKOUT_MAIN_FILE ),
+			plugins_url( $asset_path, DINTERO_CHECKOUT_MAIN_FILE ),
 			array( 'dintero-checkout-sdk', 'wc-cart', 'jquery-blockui' ),
 			DINTERO_CHECKOUT_VERSION,
 			true
