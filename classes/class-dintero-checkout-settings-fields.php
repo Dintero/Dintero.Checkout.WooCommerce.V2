@@ -271,6 +271,16 @@ class Dintero_Settings_Fields {
 				'title' => __( 'Custom color (HEX)', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'color',
 			),
+			'branding_logo_color_mode'                => array(
+				'title'   => __( 'Logo color mode', 'dintero-checkout-for-woocommerce' ),
+				'type'    => 'select',
+				'label'   => __( 'Color mode', 'dintero-checkout-for-woocommerce' ),
+				'default' => 'color',
+				'options' => array(
+					'colors'     => __( 'Light', 'dintero-checkout-for-woocommerce' ),
+					'darkcolors' => __( 'Dark', 'dintero-checkout-for-woocommerce' ),
+				),
+			),
 		);
 
 		return apply_filters( 'dintero_checkout_settings', $settings );

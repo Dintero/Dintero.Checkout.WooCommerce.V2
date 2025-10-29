@@ -5,13 +5,16 @@ jQuery( function ( $ ) {
         branding: {
             logo_color_checkbox: $( "#woocommerce_dintero_checkout_branding_logo_color" ),
             logo_custom_color: $( "#woocommerce_dintero_checkout_branding_logo_color_custom" ),
+            logo_custom_color_mode: $( "#woocommerce_dintero_checkout_branding_logo_color_mode" ),
             toggle_logo_color() {
                 if ( dwc.branding.logo_color_checkbox.is( ":checked" ) ) {
                     dwc.branding.logo_custom_color.parents( "tr" ).hide()
                     dwc.branding.logo_color_checkbox.parents( "tr" ).css( "flex-basis", "100%" )
+                    dwc.branding.logo_custom_color_mode.parents( "tr" ).show()
                 } else {
                     dwc.branding.logo_custom_color.parents( "tr" ).show()
                     dwc.branding.logo_color_checkbox.parents( "tr" ).css( "flex", "" )
+                    dwc.branding.logo_custom_color_mode.parents( "tr" ).hide()
                 }
             },
         },
