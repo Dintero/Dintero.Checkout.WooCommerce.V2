@@ -370,15 +370,6 @@ if ( ! class_exists( 'Dintero' ) ) {
 		public function subscriptions() {
 			return $this->subscriptions;
 		}
-
-		/**
-		 * Get the subscriptions service.
-		 *
-		 * @return Dintero_Checkout_Subscription
-		 */
-		public function subscriptions() {
-			return $this->subscriptions;
-		}
 	}
 
 	Dintero::get_instance();
