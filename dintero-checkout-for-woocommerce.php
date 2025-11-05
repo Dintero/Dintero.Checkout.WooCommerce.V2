@@ -249,7 +249,6 @@ if ( ! class_exists( 'Dintero' ) ) {
 			$this->shipping_rate    = new ShippingRate( array( 'show_description' => false ) );
 			$this->order_management = Dintero_Checkout_Order_Management::get_instance();
 			$this->subscriptions    = new Dintero_Checkout_Subscription();
-			$this->subscriptions    = new Dintero_Checkout_Subscription();
 
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateways' ) );
 
