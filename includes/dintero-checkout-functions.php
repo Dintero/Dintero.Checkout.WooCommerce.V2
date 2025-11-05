@@ -263,7 +263,7 @@ function dintero_process_authorized_order( $order, $settings, $transaction_id ) 
  * Confirms the Dintero Order.
  *
  * @param WC_Order $order The Woo order.
- * @param string   $transaction_id The Dintero transaction id.
+ * @param string $transaction_id The Dintero transaction id.
  * @return void
  */
 function dintero_confirm_order( $order, $transaction_id ) {
