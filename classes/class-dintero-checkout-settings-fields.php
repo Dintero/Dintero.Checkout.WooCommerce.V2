@@ -141,18 +141,6 @@ class Dintero_Settings_Fields {
 				'placeholder' => __( 'Choose your payment method in our checkout.', 'dintero-checkout-for-woocommerce' ),
 				'class'       => 'redirect-only',
 			),
-			'redirect_logo_color'                     => array(
-				'title'   => __( 'Logo color', 'dintero-checkout-for-woocommerce' ),
-				'type'    => 'checkbox',
-				'label'   => __( 'Default color', 'dintero-checkout-for-woocommerce' ),
-				'default' => 'yes',
-				'class'   => 'redirect-only',
-			),
-			'redirect_logo_color_custom'              => array(
-				'title' => __( 'Custom color (HEX)', 'dintero-checkout-for-woocommerce' ),
-				'type'  => 'color',
-				'class' => 'redirect-only',
-			),
 			'redirect_select_another_method_text'     => array(
 				'title'       => __( '"Go to payment" button', 'dintero-checkout-for-woocommerce' ),
 				'type'        => 'text',
@@ -270,6 +258,16 @@ class Dintero_Settings_Fields {
 			'branding_logo_color_custom'              => array(
 				'title' => __( 'Custom color (HEX)', 'dintero-checkout-for-woocommerce' ),
 				'type'  => 'color',
+			),
+			'branding_logo_color_mode'                => array(
+				'title'   => __( 'Logo color mode', 'dintero-checkout-for-woocommerce' ),
+				'type'    => 'select',
+				'label'   => __( 'Color mode', 'dintero-checkout-for-woocommerce' ),
+				'default' => 'color',
+				'options' => array(
+					'colors'     => __( 'Light', 'dintero-checkout-for-woocommerce' ),
+					'darkcolors' => __( 'Dark', 'dintero-checkout-for-woocommerce' ),
+				),
 			),
 		);
 
