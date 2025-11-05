@@ -393,12 +393,14 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		$shipping_cost = floatval( $shipping_item->get_total() );
 		$shipping_tax  = floatval( $shipping_item->get_total_tax() );
 
+		$description = $this->get_shipping_method_option( $shipping_item, 'dintero_description' );
+
 		$shipping_option = array(
 			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
 			'id'              => $id,
 			'line_id'         => $line_id,
 			'amount'          => self::format_number( $shipping_cost + $shipping_tax ),
-			'description'     => $shipping_item->get_name(),
+			'description'     => ! empty( $description ) ? $description : $shipping_item->get_name(),
 			'title'           => $shipping_item->get_name(),
 			'delivery_method' => 'unspecified',
 			'vat_amount'      => $shipping_cost <= 0 ? 0 : self::format_number( $shipping_tax ),

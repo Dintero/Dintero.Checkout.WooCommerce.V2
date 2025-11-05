@@ -1,6 +1,6 @@
 {
   "name": "dintero-checkout-for-woocommerce",
-  "version": "1.12.1",
+  "version": "1.13.1",
   "repository": "git@github.com:Dintero/Dintero.Checkout.WooCommerce.V2.git",
   "author": "Krokedil <info@krokedil.se>",
   "license": "GPL-3.0+",
@@ -21,7 +21,7 @@
     "grunt-move": "^1.0.3",
     "grunt-wp-i18n": "^1.0.4",
     "prettier": "npm:wp-prettier@latest",
-    "webpack": "^5.101.3",
+    "webpack": "^5.102.1",
     "webpack-cli": "^4.10.0"
   },
   "scripts": {
@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
-    "@dintero/checkout-web-sdk": "^0.8.29",
+    "@dintero/checkout-web-sdk": "^0.9.0",
     "grunt-cli": "^1.5.0",
     "grunt-zip": "^0.18.2"
   },

@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "krokedil/shipping",
-            "version": "2.3.1",
+            "version": "2.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/krokedil/shipping.git",
-                "reference": "dbb898599861fec20d8e2818a245fba7891f0211"
+                "reference": "af8100f70dd10470fe72721f599d4a68201dc03c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/krokedil/shipping/zipball/dbb898599861fec20d8e2818a245fba7891f0211",
-                "reference": "dbb898599861fec20d8e2818a245fba7891f0211",
+                "url": "https://api.github.com/repos/krokedil/shipping/zipball/af8100f70dd10470fe72721f599d4a68201dc03c",
+                "reference": "af8100f70dd10470fe72721f599d4a68201dc03c",
                 "shasum": ""
             },
             "require": {
@@ -65,10 +65,10 @@
             },
             "description": "Shipping method extensions from Krokedil",
             "support": {
-                "source": "https://github.com/krokedil/shipping/tree/2.3.1",
+                "source": "https://github.com/krokedil/shipping/tree/2.3.2",
                 "issues": "https://github.com/krokedil/shipping/issues"
             },
-            "time": "2025-09-16T12:52:02+00:00"
+            "time": "2025-10-14T09:26:45+00:00"
         },
         {
             "name": "psr/container",
