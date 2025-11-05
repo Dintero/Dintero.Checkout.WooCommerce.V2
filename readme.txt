@@ -137,6 +137,7 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us?ut
 == Changelog ==
 = 2025.11.05    - version 1.13.1 =
 * Enhancement   - Added the option to set a custom shipping description for each shipping method.
+* Enhancement   - Added a new 'Logo color mode' setting, allowing you to choose between light or dark mode for the Dintero logos displayed in the checkout.
 * Tweak         - Updated Web SDK to the latest version.
 
 = 2025.10.08    - version 1.13.0 =
