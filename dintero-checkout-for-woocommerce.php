@@ -5,7 +5,7 @@
  * Description: Dintero offers a complete payment solution. Simplifying the payment process for you and the customer.
  * Author: Dintero, Krokedil
  * Author URI: https://krokedil.com/
- * Version: 1.13.1
+ * Version: 1.13.2
  * Text Domain: dintero-checkout-for-woocommerce
  * Domain Path: /languages
  *
@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'DINTERO_CHECKOUT_VERSION', '1.13.1' );
+define( 'DINTERO_CHECKOUT_VERSION', '1.13.2' );
 define( 'DINTERO_CHECKOUT_URL', untrailingslashit( plugin_dir_url( __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_MAIN_FILE', __FILE__ );
@@ -127,7 +127,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * Class constructor.
 		 */
 		public function __construct() {
-			add_action( 'plugin_loaded', array( $this, 'init' ) );
+			add_action( 'plugins_loaded', array( $this, 'init' ) );
 			add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'plugin_action_links' ) );
 
 			// Postpone loading of textdomain until the plugin is loaded.
