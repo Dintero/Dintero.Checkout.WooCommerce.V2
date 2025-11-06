@@ -127,7 +127,7 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * Class constructor.
 		 */
 		public function __construct() {
-			add_action( 'plugin_loaded', array( $this, 'init' ) );
+			add_action( 'plugins_loaded', array( $this, 'init' ) );
 			add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'plugin_action_links' ) );
 
 			// Postpone loading of textdomain until the plugin is loaded.
