@@ -6,7 +6,7 @@ Tested up to: 6.8.3
 Requires PHP: 7.4
 WC requires at least: 6.1.0
 WC tested up to: 10.3.4
-Stable tag: 1.13.1
+Stable tag: 1.13.2
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -135,6 +135,10 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us?ut
 6. Gift cards and Discount cards available.
 7. Remove headaches and manage your reconciliation, reports, transactions, refunds (transaction level), Gift Cards, payment methods, and more in the Dintero backoffice.
 == Changelog ==
+= 2025.11.06    - version 1.13.2 =
+* Fix           - Fixed an issue that could cause parts of the plugin to register multiple listeners of the same hook.
+* Fix           - Fixed not catching all subscriptions types when controlling what profile ID to use for a purchase, for example early renewals.
+
 = 2025.11.05    - version 1.13.1 =
 * Enhancement   - Added the option to set a custom shipping description for each shipping method.
 * Enhancement   - Added a new 'Logo color mode' setting, allowing you to choose between light or dark mode for the Dintero logos displayed in the checkout.

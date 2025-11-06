@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/Dintero.Checkout.WooCommerce.V2\n"
-"POT-Creation-Date: 2025-11-05 11:17:52+00:00\n"
+"POT-Creation-Date: 2025-11-06 09:32:04+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -529,12 +529,12 @@ msgstr ""
 msgid "Payment token created: %s"
 msgstr ""
 
-#: classes/class-dintero-checkout-subscription.php:513
+#: classes/class-dintero-checkout-subscription.php:518
 #. translators: 1: User name, 2: Existing token, 3: New token.
 msgid "%1$s updated the subscription payment token from \"%2$s\" to \"%3$s\"."
 msgstr ""
 
-#: classes/class-dintero-checkout-subscription.php:550
+#: classes/class-dintero-checkout-subscription.php:555
 msgid "Dintero payment token"
 msgstr ""
 
@@ -654,25 +654,25 @@ msgid ""
 "%1$s within the %2$s directory."
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:288
+#: dintero-checkout-for-woocommerce.php:286
 msgid "Dismiss"
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:290
+#: dintero-checkout-for-woocommerce.php:288
 msgid "The decimal setting for prices in WooCommerce is currently set to 0."
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:291
+#: dintero-checkout-for-woocommerce.php:289
 msgid ""
 "This may cause rounding issues with pricing and taxes. Learn more about why "
 "this can be problematic — and what to do instead: "
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:291
+#: dintero-checkout-for-woocommerce.php:289
 msgid "Don’t display prices with 0 decimals in WooCommerce"
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:321
+#: dintero-checkout-for-woocommerce.php:319
 msgid "Settings"
 msgstr ""
 
