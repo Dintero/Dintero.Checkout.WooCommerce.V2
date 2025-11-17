@@ -46,7 +46,7 @@ jQuery(function ($) {
             const embeddedOnly = $(".embedded-only").parents("tr")
 
             redirectOnly.toggle(flow.includes("redirect"))
-            embeddedOnly.toggle(flow.includes("embedded"))
+            embeddedOnly.toggle(flow.includes("embedded") || flow.includes("express_popout"))
 
             dwc.toggle_express_shipping(flow.includes("express"))
         },
