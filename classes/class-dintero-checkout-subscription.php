@@ -177,14 +177,14 @@ class Dintero_Checkout_Subscription {
 	 * @return bool
 	 */
 	public function is_available( $is_available ) {
-		// If no subscription is found, we don't need to do anything.
-		if ( ! self::cart_has_subscription() ) {
-			return $is_available;
-		}
-
 		// Allow free orders when changing subscription payment method.
 		if ( self::is_change_payment_method() ) {
 			return true;
+		}
+
+		// If no subscription is found, we don't need to do anything.
+		if ( ! self::cart_has_subscription() ) {
+			return $is_available;
 		}
 
 		// Mixed checkout not allowed.
