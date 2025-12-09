@@ -114,14 +114,16 @@ class Dintero_Checkout_API {
 	 * @param string $dintero_id The Dintero transaction id.
 	 * @param int    $order_id The WooCommerce order id.
 	 * @param string $reason The given reason for the refund.
+	 * @param string $wc_refund Whether a WooCommerce refund exists. Default 'yes'.
 	 * @return array|WP_Error
 	 */
-	public function refund_order( $dintero_id, $order_id, $reason ) {
+	public function refund_order( $dintero_id, $order_id, $reason, $wc_refund = 'yes' ) {
 		$request  = new Dintero_Checkout_Refund_Order(
 			array(
 				'dintero_id' => $dintero_id,
 				'order_id'   => $order_id,
 				'reason'     => $reason,
+				'wc_refund'  => $wc_refund,
 			)
 		);
 		$response = $request->request();

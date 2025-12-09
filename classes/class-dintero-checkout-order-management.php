@@ -223,22 +223,15 @@ class Dintero_Checkout_Order_Management {
 			return;
 		}
 
-		// If the payment method is Swish, we need to refund instead of cancel.
-		if ( 'swish' === strtolower( $payment_method ) ) {
-			$refund = wc_create_refund(
-				array(
-					'amount'         => $order->get_total(),
-					'reason'         => 'Swish order canceled by customer.',
-					'order_id'       => $order_id,
-					'refund_payment' => true,
-				)
-			);
-			return;
-		}
-
 				// Check if Dintero order has been canceled in the back-office.
 		if ( ! $this->is_canceled( $order_id ) ) {
-			$response = Dintero()->api->cancel_order( $order->get_transaction_id() );
+
+			// If the payment method is Swish, we need to refund instead of cancel the order in Dintero.
+			if ( 'swish' === strtolower( $payment_method ) ) {
+				$response = Dintero()->api->refund_order( $order->get_transaction_id(), $order_id, 'Swish order cancellation', 'no' );
+			} else {
+				$response = Dintero()->api->cancel_order( $order->get_transaction_id() );
+			}
 
 			if ( is_wp_error( $response ) ) {
 				/**
@@ -258,9 +251,9 @@ class Dintero_Checkout_Order_Management {
 			}
 		}
 
-				$order->add_order_note( __( 'The Dintero order has been canceled.', 'dintero-checkout-for-woocommerce' ) );
-				$order->update_meta_data( $this->status['canceled'], current_time( ' Y-m-d H:i:s' ) );
-				$order->save();
+		$order->add_order_note( __( 'The Dintero order has been canceled.', 'dintero-checkout-for-woocommerce' ) );
+		$order->update_meta_data( $this->status['canceled'], current_time( ' Y-m-d H:i:s' ) );
+		$order->save();
 	}
 
 	/**
