@@ -206,7 +206,9 @@ class Dintero_Checkout_Order_Management {
 			return;
 		}
 
-		if ( $order->get_meta( $this->status['captured'] ) ) {
+		$payment_method = $order->get_meta( '_dintero_payment_method' ) ?? '';
+
+		if ( $order->get_meta( $this->status['captured'] ) && 'swish' !== strtolower( $payment_method ) ) {
 			$order->add_order_note( __( 'The Dintero order has been captured, and can therefore no longer be canceled.', 'dintero-checkout-for-woocommerce' ) );
 			return;
 		}
@@ -221,9 +223,15 @@ class Dintero_Checkout_Order_Management {
 			return;
 		}
 
-		// Check if Dintero order has been canceled in the back-office.
+				// Check if Dintero order has been canceled in the back-office.
 		if ( ! $this->is_canceled( $order_id ) ) {
-			$response = Dintero()->api->cancel_order( $order->get_transaction_id() );
+
+			// If the payment method is Swish, we need to refund instead of cancel the order in Dintero.
+			if ( 'swish' === strtolower( $payment_method ) ) {
+				$response = Dintero()->api->refund_order( $order->get_transaction_id(), $order_id, 'Swish order cancellation', 'no' );
+			} else {
+				$response = Dintero()->api->cancel_order( $order->get_transaction_id() );
+			}
 
 			if ( is_wp_error( $response ) ) {
 				/**
