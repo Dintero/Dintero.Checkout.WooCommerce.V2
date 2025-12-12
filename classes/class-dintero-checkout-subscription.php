@@ -93,8 +93,8 @@ class Dintero_Checkout_Subscription {
 			$renewal_order->update_status( 'failed' );
 			return;
 		}
-
-		if ( 'FAILED' === $initiate_payment['status'] ) {
+		$rejected_statuses = array( 'FAILED', 'AUTHORIZATION_VOIDED', 'DECLINED' );
+		if ( in_array( $initiate_payment['status'], $rejected_statuses, true ) ) {
 			$message = __( 'The renewal was rejected by Dintero. No further renewal attempts are allowed.', 'dintero-checkout-for-woocommerce' );
 
 			// Store the payment token that shouldn't be allowed for renewal.
