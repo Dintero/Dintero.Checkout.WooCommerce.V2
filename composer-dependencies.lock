@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a83b82488a33151e0e7d315b70777b69",
+    "content-hash": "7dd505eb80284e3b724b2c19beee383a",
     "packages": [
         {
             "name": "krokedil/shipping",
-            "version": "2.3.2",
+            "version": "dev-develop-fix-no-shipping-option",
             "source": {
                 "type": "git",
                 "url": "https://github.com/krokedil/shipping.git",
-                "reference": "af8100f70dd10470fe72721f599d4a68201dc03c"
+                "reference": "bf09df941f05841bfacb31f98363312be306c6b3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/krokedil/shipping/zipball/af8100f70dd10470fe72721f599d4a68201dc03c",
-                "reference": "af8100f70dd10470fe72721f599d4a68201dc03c",
+                "url": "https://api.github.com/repos/krokedil/shipping/zipball/bf09df941f05841bfacb31f98363312be306c6b3",
+                "reference": "bf09df941f05841bfacb31f98363312be306c6b3",
                 "shasum": ""
             },
             "require": {
@@ -65,10 +65,10 @@
             },
             "description": "Shipping method extensions from Krokedil",
             "support": {
-                "source": "https://github.com/krokedil/shipping/tree/2.3.2",
+                "source": "https://github.com/krokedil/shipping/tree/develop-fix-no-shipping-option",
                 "issues": "https://github.com/krokedil/shipping/issues"
             },
-            "time": "2025-10-14T09:26:45+00:00"
+            "time": "2026-01-12T09:54:58+00:00"
         },
         {
             "name": "psr/container",
@@ -128,13 +128,15 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {},
+    "stability-flags": {
+        "krokedil/shipping": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": ">=7.4"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "platform-overrides": {
         "php": "7.4"
     },

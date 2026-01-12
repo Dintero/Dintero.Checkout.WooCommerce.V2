@@ -1,7 +1,7 @@
 {
     "require": {
         "php": ">=7.4",
-        "krokedil/shipping": "^2.0.0"
+        "krokedil/shipping": "dev-develop-fix-no-shipping-option"
     },
     "config": {
         "platform": {
