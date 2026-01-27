@@ -41,11 +41,15 @@ class Dintero_Checkout_Refund_Order extends Dintero_Checkout_Request_Post {
 	 * @return array
 	 */
 	public function get_body() {
-		$order        = wc_get_order( $this->arguments['order_id'] );
-		$refunds      = $order->get_refunds();
-		$refund_order = reset( $refunds );
+		$order = wc_get_order( $this->arguments['order_id'] );
 
-		$helper = new Dintero_Checkout_Order( $refund_order );
+		// In cases where no refund has been made in WooCommerce (as for Swish order cancellations), use the original order.
+		if ( 'yes' === $this->arguments['wc_refund'] ?? 'yes' ) {
+			$refunds = $order->get_refunds();
+			$order   = reset( $refunds );
+		}
+
+		$helper = new Dintero_Checkout_Order( $order );
 
 		$order_lines = $helper->get_order_lines();
 		$shipping    = $helper->get_shipping_object();

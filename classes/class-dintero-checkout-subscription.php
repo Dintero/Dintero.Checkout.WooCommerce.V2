@@ -93,8 +93,8 @@ class Dintero_Checkout_Subscription {
 			$renewal_order->update_status( 'failed' );
 			return;
 		}
-
-		if ( 'FAILED' === $initiate_payment['status'] ) {
+		$rejected_statuses = array( 'FAILED', 'AUTHORIZATION_VOIDED', 'DECLINED' );
+		if ( in_array( $initiate_payment['status'], $rejected_statuses, true ) ) {
 			$message = __( 'The renewal was rejected by Dintero. No further renewal attempts are allowed.', 'dintero-checkout-for-woocommerce' );
 
 			// Store the payment token that shouldn't be allowed for renewal.
@@ -177,14 +177,14 @@ class Dintero_Checkout_Subscription {
 	 * @return bool
 	 */
 	public function is_available( $is_available ) {
-		// If no subscription is found, we don't need to do anything.
-		if ( ! self::cart_has_subscription() ) {
-			return $is_available;
-		}
-
 		// Allow free orders when changing subscription payment method.
 		if ( self::is_change_payment_method() ) {
 			return true;
+		}
+
+		// If no subscription is found, we don't need to do anything.
+		if ( ! self::cart_has_subscription() ) {
+			return $is_available;
 		}
 
 		// Mixed checkout not allowed.

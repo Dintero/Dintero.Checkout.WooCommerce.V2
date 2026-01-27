@@ -2,11 +2,11 @@
 Contributors: dintero, krokedil, NiklasHogefjord
 Tags: woocommerce, dintero, ecommerce, e-commerce, checkout
 Requires at least: 5.8.3
-Tested up to: 6.8.3
+Tested up to: 6.9
 Requires PHP: 7.4
 WC requires at least: 6.1.0
-WC tested up to: 10.3.4
-Stable tag: 1.13.2
+WC tested up to: 10.4.3
+Stable tag: 1.13.3
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -135,6 +135,14 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us?ut
 6. Gift cards and Discount cards available.
 7. Remove headaches and manage your reconciliation, reports, transactions, refunds (transaction level), Gift Cards, payment methods, and more in the Dintero backoffice.
 == Changelog ==
+= 2026.01.27    - version 1.13.3 =
+* Enhancement   - Added the 'dintero_standard_woocommerce_fields' filter, allowing developers to customize the standard WooCommerce checkout fields used by the Dintero plugin. Thanks to @jjmss for the contribution!
+* Fix           - Swish payments are now refunded instead of cancelled, on order cancellations.
+* Fix           - Resolved the Express Pop-out checkout flow not displaying the checkout layout setting.
+* Fix           - Resolved the gateway sometimes showing as not available when changing payment methods.
+* Fix           - Returned renewal order response FAILED, AUTHORIZATION_VOIDED and DECLINED are now handled as a renewal rejection.
+* Fix           - [shipping] Added default value to the shipping rate output method to avoid a potential error when no shipping option is selected.
+
 = 2025.11.06    - version 1.13.2 =
 * Fix           - Fixed an issue that could cause parts of the plugin to register multiple listeners of the same hook.
 * Fix           - Fixed not catching all subscriptions types when controlling what profile ID to use for a purchase, for example early renewals.
