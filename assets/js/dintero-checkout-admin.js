@@ -57,7 +57,7 @@ jQuery( function ( $ ) {
             redirectOnly.toggle( flow.includes( "redirect" ) )
             embeddedOnly.toggle( flow.includes( "embedded" ) || flow.includes( "express_popout" ) )
 
-            if ( flow.includes( "checkout_embedded" ) ) {
+            if ( flow.includes( "express_embedded" ) ) {
                 dwc.toggle_checkout_layout( false )
             }
 
