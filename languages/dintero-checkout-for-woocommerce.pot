@@ -1,15 +1,15 @@
-# Copyright (C) 2025 
+# Copyright (C) 2026 
 # This file is distributed under the same license as the  package.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/Dintero.Checkout.WooCommerce.V2\n"
-"POT-Creation-Date: 2025-11-06 09:32:04+00:00\n"
+"POT-Creation-Date: 2026-01-27 06:36:03+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2025-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2026-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "X-Generator: grunt-wp-i18n 1.0.4\n"
@@ -98,7 +98,7 @@ msgstr ""
 
 #: classes/class-dintero-checkout-order-management.php:85
 #: classes/class-dintero-checkout-order-management.php:204
-#: classes/class-dintero-checkout-order-management.php:279
+#: classes/class-dintero-checkout-order-management.php:287
 msgid "The order is missing a transaction ID."
 msgstr ""
 
@@ -140,48 +140,48 @@ msgstr ""
 msgid "The order must be authorized by Dintero before it can be canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:210
+#: classes/class-dintero-checkout-order-management.php:212
 msgid ""
 "The Dintero order has been captured, and can therefore no longer be "
 "canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:215
+#: classes/class-dintero-checkout-order-management.php:217
 msgid "The Dintero order has already been canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:220
+#: classes/class-dintero-checkout-order-management.php:222
 msgid "The Dintero order has been refunded and can no longer be canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:246
+#: classes/class-dintero-checkout-order-management.php:254
 msgid "The Dintero order has been canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:285
+#: classes/class-dintero-checkout-order-management.php:293
 msgid ""
 "There is nothing to refund. The order has not yet been captured in "
 "WooCommerce."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:290
+#: classes/class-dintero-checkout-order-management.php:298
 msgid "The Dintero order cannot be refunded since it is canceled."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:295
+#: classes/class-dintero-checkout-order-management.php:303
 msgid "The Dintero order has already been refunded."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:335
+#: classes/class-dintero-checkout-order-management.php:343
 #. translators: the amount, the currency.
 msgid "The Dintero order has been partially refunded. Refunded amount: %1$.2f %2$s."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:340
+#: classes/class-dintero-checkout-order-management.php:348
 msgid "The Dintero order has been partially refunded."
 msgstr ""
 
-#: classes/class-dintero-checkout-order-management.php:347
+#: classes/class-dintero-checkout-order-management.php:355
 msgid "The Dintero order has been refunded."
 msgstr ""
 
