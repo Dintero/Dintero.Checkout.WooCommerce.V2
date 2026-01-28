@@ -39,14 +39,6 @@ jQuery( function ( $ ) {
                 setting.fadeOut()
             }
         },
-        toggle_checkout_layout: ( show ) => {
-            const setting = $( "#woocommerce_dintero_checkout_checkout_layout" ).parents( "tr" )
-            if ( show ) {
-                setting.fadeIn()
-            } else {
-                setting.fadeOut()
-            }
-        },
         onFlowChange() {
             // Possible values: express_popout, express_embedded, checkout_redirect, checkout_popout, checkout_embedded.
             const flow = dwc.checkout_flow.val()
@@ -56,10 +48,6 @@ jQuery( function ( $ ) {
 
             redirectOnly.toggle( flow.includes( "redirect" ) )
             embeddedOnly.toggle( flow.includes( "express" ) )
-
-            if ( ! flow.includes( "express" ) ) {
-                dwc.toggle_checkout_layout( false )
-            }
 
             dwc.toggle_express_shipping( flow.includes( "express" ) )
         },
