@@ -16,6 +16,7 @@ jQuery( function ( $ ) {
         validation: false,
         isLocked: false,
         updateTimer: null,
+        alreadyRedirected: false,
 
         /**
          * Updates the checkout based on a timer to not spam updates each time an event wants to, but rather limits to one update per second.
@@ -123,7 +124,12 @@ jQuery( function ( $ ) {
                         }
                     },
                     onPayment( event, checkout ) {
-                        window.location = event.href
+                        // Prevent multiple redirects.
+                        if (dinteroCheckoutForWooCommerce.alreadyRedirected) {
+                            return;
+                        }
+                        dinteroCheckoutForWooCommerce.alreadyRedirected = true;
+                        window.location = event.href;
                     },
                     onPaymentError( event, checkout ) {
                         checkout.destroy()
