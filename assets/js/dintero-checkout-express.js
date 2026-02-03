@@ -125,11 +125,11 @@ jQuery( function ( $ ) {
                     },
                     onPayment( event, checkout ) {
                         // Prevent multiple redirects.
-                        if (dinteroCheckoutForWooCommerce.alreadyRedirected) {
-                            return;
+                        if ( dinteroCheckoutForWooCommerce.alreadyRedirected ) {
+                            return
                         }
-                        dinteroCheckoutForWooCommerce.alreadyRedirected = true;
-                        window.location = event.href;
+                        dinteroCheckoutForWooCommerce.alreadyRedirected = true
+                        window.location = event.href
                     },
                     onPaymentError( event, checkout ) {
                         checkout.destroy()
@@ -614,7 +614,7 @@ jQuery( function ( $ ) {
                                 if ( "success" === data.result ) {
                                     console.log( "submit order success", data )
                                     dinteroCheckoutForWooCommerce.logToFile(
-                                        dinteroCheckoutParams.SID + " | Order submitted successfully.",
+                                        `${ dinteroCheckoutParams.SID } | Order ID ${data.order_id} | Order submitted successfully.`,
                                     )
                                     callback( { success: true } )
                                 } else {
