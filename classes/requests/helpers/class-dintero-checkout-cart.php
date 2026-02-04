@@ -434,6 +434,10 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		$shipping_cost = floatval( $shipping_rate->get_cost() );
 		$shipping_tax  = floatval( $shipping_rate->get_shipping_tax() );
 
+		$description = $pickup_point->get_description();
+		// If the pickup point doesn't have a description, we'll fallback to the shipping method description.
+		$description = empty( $description ) ? $this->get_shipping_method_option( $shipping_rate, 'dintero_description' ) : $description;
+
 		return array(
 			'id'                  => $id,
 			'line_id'             => $line_id,
@@ -444,7 +448,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			'operator_product_id' => $operator_product_id,
 			'title'               => $shipping_rate->get_label(),
 			'countries'           => array( $pickup_point->get_address()->get_country() ),
-			'description'         => $pickup_point->get_description(),
+			'description'         => $description,
 			'delivery_method'     => 'pick_up',
 			'pick_up_address'     => array(
 				'address_line'  => $pickup_point->get_address()->get_street(),
