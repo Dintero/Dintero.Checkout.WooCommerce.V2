@@ -13,30 +13,6 @@ jQuery( function ( $ ) {
         checkout: null,
         validation: false,
         isLocked: false,
-        updateTimer: null,
-        alreadyRedirected: false,
-
-        /**
-         * Updates the checkout based on a timer to not spam updates each time an event wants to, but rather limits to one update per second.
-         */
-        delayUpdateCheckout() {
-            if ( dinteroCheckoutForWooCommerce.updateTimer ) {
-                clearTimeout( dinteroCheckoutForWooCommerce.updateTimer )
-            }
-
-            // If the session is not locked, do so.
-            if ( dinteroCheckoutForWooCommerce.isLocked === false && dinteroCheckoutForWooCommerce.checkout !== null ) {
-                dinteroCheckoutForWooCommerce.isLocked = true
-                dinteroCheckoutForWooCommerce.checkout.lockSession()
-            } else {
-                dinteroCheckoutForWooCommerce.updateCheckout()
-            }
-
-            dinteroCheckoutForWooCommerce.updateTimer = setTimeout( () => {
-                $( document.body ).trigger( "update_checkout" )
-                dinteroCheckoutForWooCommerce.updateTimer = null
-            }, 1000 )
-        },
 
         init() {
             $( document ).ready( dinteroCheckoutForWooCommerce.documentReady )
@@ -50,6 +26,7 @@ jQuery( function ( $ ) {
                 dinteroCheckoutForWooCommerce.selectAnotherSelector,
                 dinteroCheckoutForWooCommerce.changeFromDinteroCheckout,
             )
+
             if ( $( "#dintero-checkout-iframe" ).length !== 0 ) {
                 dinteroCheckoutForWooCommerce.renderIframe()
             } else {
@@ -77,17 +54,24 @@ jQuery( function ( $ ) {
 
         updateCheckout() {
             if ( dinteroCheckoutForWooCommerce.checkout !== null && ! dinteroCheckoutForWooCommerce.validation ) {
-                $( dinteroCheckoutForWooCommerce.checkoutFormSelector ).append(
-                    '<input type="hidden" name="dintero_locked" id="dintero_locked" value=1>',
-                )
+                if ( dinteroCheckoutForWooCommerce.isLocked ) {
+                    /* If the dintero_locked is present, we'll issue an update request to Dintero. WC takes care of submitting the form through AJAX. */
+                    $( dinteroCheckoutForWooCommerce.checkoutFormSelector ).append(
+                        '<input type="hidden" name="dintero_locked" id="dintero_locked" value=1>',
+                    )
+                } else {
+                    dinteroCheckoutForWooCommerce.checkout.lockSession()
+                }
             }
         },
 
         updatedCheckout() {
             if ( dinteroCheckoutForWooCommerce.checkout !== null && ! dinteroCheckoutForWooCommerce.validation ) {
-                $( "#dintero_locked" ).remove()
-                dinteroCheckoutForWooCommerce.isLocked = false
-                dinteroCheckoutForWooCommerce.checkout.refreshSession()
+                if ( dinteroCheckoutForWooCommerce.isLocked ) {
+                    $( "#dintero_locked" ).remove()
+                    dinteroCheckoutForWooCommerce.isLocked = false
+                    dinteroCheckoutForWooCommerce.checkout.refreshSession()
+                }
             }
         },
 
@@ -116,24 +100,14 @@ jQuery( function ( $ ) {
                             checkout.refreshSession()
                             return
                         }
-
-                        // Check for address changes and update shipping.
-                        dinteroCheckoutForWooCommerce.updateAddress(
-                            event.session.order.billing_address,
-                            event.session.order.shipping_address,
-                        )
-                        if ( event.session.order.shipping_option && dinteroCheckoutParams.shipping_in_iframe ) {
-                            // @TODO only if shipping in iframe.
-                            dinteroCheckoutForWooCommerce.shippingMethodChanged( event.session.order.shipping_option )
-                        }
                     },
-                    onPayment( event, checkout ) {
-                        // Prevent multiple redirects.
-                        if ( dinteroCheckoutForWooCommerce.alreadyRedirected ) {
-                            return
-                        }
-                        dinteroCheckoutForWooCommerce.alreadyRedirected = true
+                    onPayment(event, checkout) {
+                        // Dintero does not have an event for when the modal is closed without proceeding with the payment. Therefore, we'll unlock it, and let Dintero handle the blocking. Since the WC form is unblocked, during the split second it takes for the redirect to happen, the customer can still interact with the form when Dintero remove their block. Therefore, we block the form again while the redirect is in progress.
+                        dinteroCheckoutForWooCommerce.blockForm()
                         window.location = event.href
+                    },
+                    onPaymentCanceled() {
+                        console.log('payment canceled', arguments)
                     },
                     onPaymentError( event, checkout ) {
                         checkout.destroy()
@@ -161,7 +135,10 @@ jQuery( function ( $ ) {
                         dinteroCheckoutForWooCommerce.unsetSession( window.location.pathname )
                     },
                     onSessionLocked( event, checkout, callback ) {
-                        dinteroCheckoutForWooCommerce.delayUpdateCheckout()
+                        dinteroCheckoutForWooCommerce.isLocked = true
+
+                        /* A checkout update happened, but the checkout was not locked. The checkout is now locked: */
+                        $(document.body).trigger("update_checkout")
                     },
                     onSessionLockFailed( event, checkout ) {
                         console.warn( "Failed to lock the checkout.", event )
@@ -170,22 +147,7 @@ jQuery( function ( $ ) {
                         // Unused.
                     },
                     onValidateSession( event, checkout, callback ) {
-                        dinteroCheckoutForWooCommerce.logToFile(
-                            dinteroCheckoutParams.SID + " | Validating session with id: " + event.session.id,
-                        )
-                        $( "#dintero-checkout-wc-form" ).block( {
-                            message: null,
-                            overlayCSS: {
-                                background: "#fff",
-                                opacity: 0.6,
-                            },
-                        } )
                         dinteroCheckoutForWooCommerce.validation = true
-                        dinteroCheckoutForWooCommerce.updateAddress(
-                            event.session.order.billing_address,
-                            event.session.order.shipping_address,
-                            true,
-                        )
                         if ( 0 < $( "form.checkout #terms" ).length ) {
                             $( "form.checkout #terms" ).prop( "checked", true )
                         }
@@ -225,14 +187,7 @@ jQuery( function ( $ ) {
                 dinteroCheckoutForWooCommerce.paymentMethod = "dintero_checkout"
             }
 
-            if (
-                ! dinteroCheckoutParams.payForOrder &&
-                dinteroCheckoutForWooCommerce.paymentMethod === "dintero_checkout"
-            ) {
-                dinteroCheckoutForWooCommerce.moveExtraCheckoutFields()
-            }
-
-            dinteroCheckoutForWooCommerce.delayUpdateCheckout()
+            $( "form.checkout" ).trigger( "update_checkout" )
         },
 
         /**
@@ -298,251 +253,13 @@ jQuery( function ( $ ) {
         isSelectedGateway() {
             return $( 'input[name="payment_method"]' ).filter( ":checked" ).val() === "dintero_checkout"
         },
-        /**
-         * Moves all non standard fields to the extra checkout fields.
-         */
-        moveExtraCheckoutFields() {
-            // Move order comments.
-            $( ".woocommerce-additional-fields" ).appendTo( "#dintero-express-extra-checkout-fields" )
-
-            const form = $( 'form[name="checkout"] input, form[name="checkout"] select, textarea' )
-            for ( let i = 0; i < form.length; i++ ) {
-                const name = form[ i ].name
-                // Check if field is inside the order review.
-                if ( $( "table.woocommerce-checkout-review-order-table" ).find( form[ i ] ).length ) {
-                    continue
-                }
-
-                // Check if this is a standard field.
-                if ( -1 === $.inArray( name, dinteroCheckoutParams.standardWooCheckoutFields ) ) {
-                    // This is not a standard Woo field, move to our div.
-                    if ( 0 < $( "p#" + name + "_field" ).length ) {
-                        $( "p#" + name + "_field" ).appendTo( "#dintero-express-extra-checkout-fields" )
-                    } else {
-                        $( 'input[name="' + name + '"]' )
-                            .closest( "p" )
-                            .appendTo( "#dintero-express-extra-checkout-fields" )
-                    }
-                }
-            }
-        },
-
-        /* Maybe update the shipping and billing address. */
-        updateAddress( billingAddress, shippingAddress, finalize = false ) {
-            if (
-                "express_popout" !== dinteroCheckoutParams.checkout_flow &&
-                "express_embedded" !== dinteroCheckoutParams.checkout_flow
-            ) {
-                return
-            }
-
-            let update = false
-
-            if ( billingAddress ) {
-                // Maybe set names if its a b2b purchase.
-                if ( billingAddress.co_address ) {
-                    billingAddress.first_name =
-                        billingAddress.first_name ||
-                        billingAddress.co_address.split( " " )[ 0 ] ||
-                        billingAddress.business_name
-                    billingAddress.last_name =
-                        billingAddress.last_name ||
-                        billingAddress.co_address.split( " " )[ 1 ] ||
-                        billingAddress.business_name
-                }
-
-                if ( "first_name" in billingAddress ) {
-                    // first_name=shipping_address.first_name || shipping_address.co_address.split(" ")[0] || shipping_address.business_name
-                    $( "#billing_first_name" ).val( billingAddress.first_name )
-                }
-
-                if ( "last_name" in billingAddress ) {
-                    // first_name=shipping_address.first_name || shipping_address.co_address.split(" ")[0] || shipping_address.business_name
-                    $( "#billing_last_name" ).val( billingAddress.last_name )
-                }
-
-                if ( "business_name" in billingAddress ) {
-                    $( "#billing_company" ).val( billingAddress.business_name )
-                }
-
-                if ( "address_line" in billingAddress ) {
-                    $( "#billing_address_1" ).val( billingAddress.address_line )
-                }
-
-                if ( "postal_code" in billingAddress ) {
-                    $( "#billing_postcode" ).val( billingAddress.postal_code )
-                }
-
-                if ( "postal_place" in billingAddress ) {
-                    $( "#billing_city" ).val( billingAddress.postal_place )
-                }
-
-                if ( "country" in billingAddress ) {
-                    $( "#billing_country" ).val( billingAddress.country )
-                }
-
-                if ( "email" in billingAddress ) {
-                    $( "#billing_email" ).val( billingAddress.email )
-                }
-
-                if ( "phone_number" in billingAddress ) {
-                    $( "#billing_phone" ).val( billingAddress.phone_number )
-                }
-
-                // 'billing' => Default to customer billing address
-                // 'shipping' => Default to customer shipping address
-                // 'billing_only' => Force shipping to the customer billing address only.
-                if (
-                    "billing_only" !== dinteroCheckoutParams.woocommerceShipToDestination &&
-                    ! dinteroCheckoutParams.allowDifferentBillingShippingAddress
-                ) {
-                    dinteroCheckoutForWooCommerce.saveAddressToShippingFields( billingAddress )
-                }
-
-                /**
-                 * Dintero does not require first and last name for business purchases, whereas this is required by WooCommerce.
-                 * For this purpose, we have to add 'N/A' to these fields. These default values will be overwritten the
-                 * next time Dintero sends us first and last name.
-                 */
-                if ( finalize ) {
-                    if ( ! $( "#billing_first_name" ).val().trim() ) {
-                        $( "#billing_first_name" ).val( "N/A" )
-                    }
-
-                    if ( ! $( "#billing_last_name" ).val().trim() ) {
-                        $( "#billing_last_name" ).val( "⠀" )
-                    }
-                }
-
-                update = true
-            }
-
-            if (
-                dinteroCheckoutParams.allowDifferentBillingShippingAddress &&
-                shippingAddress &&
-                Object.keys( shippingAddress ).length > 1
-            ) {
-                dinteroCheckoutForWooCommerce.saveAddressToShippingFields( shippingAddress )
-
-                /**
-                 * Dintero does not require first and last name for business purchases, whereas this is required by WooCommerce.
-                 * For this purpose, we have to add 'N/A' to these fields. These default values will be overwritten the
-                 * next time Dintero sends us first and last name.
-                 */
-
-                /* The billing address should never be unset, but the shipping address may be unset: */
-                if ( finalize ) {
-                    const shippingFirstName = $( "#shipping_first_name" )
-                    if ( shippingFirstName.length > 0 && ! shippingFirstName.val().trim() ) {
-                        shippingFirstName.val( "N/A" )
-                    }
-
-                    const shippingLastName = $( "#shipping_last_name" )
-                    if ( shippingLastName.length > 0 && ! shippingLastName.val().trim() ) {
-                        shippingLastName.val( "⠀" )
-                    }
-                }
-
-                update = true
-            }
-
-            // Trigger changes
-            if ( update && dinteroCheckoutForWooCommerce.validation !== true ) {
-                //$( "#billing_email" ).change()
-                //$( "#billing_email" ).blur()
-                dinteroCheckoutForWooCommerce.delayUpdateCheckout()
-            }
-        },
-
-        /**
-         * Saves the address to the shipping fields.
-         *
-         * @param {Object} address - The address object containing address details.
-         */
-        saveAddressToShippingFields( address ) {
-            $( "#ship-to-different-address-checkbox" ).prop( "checked", true )
-
-            if ( address.co_address ) {
-                address.first_name = address.first_name || address.co_address.split( " " )[ 0 ] || address.business_name
-                address.last_name = address.last_name || address.co_address.split( " " )[ 1 ] || address.business_name
-            }
-
-            if ( "first_name" in address ) {
-                $( "#shipping_first_name" ).val( address.first_name )
-            }
-
-            if ( "last_name" in address ) {
-                $( "#shipping_last_name" ).val( address.last_name )
-            }
-
-            if ( "business_name" in address ) {
-                if ( 0 === $( "#billing_company" ).length ) {
-                    $( "#billing_company" ).val( address.business_name )
-                }
-
-                $( "#shipping_company" ).val( address.business_name )
-            }
-
-            if ( "address_line" in address ) {
-                $( "#shipping_address_1" ).val( address.address_line )
-            }
-
-            if ( "postal_code" in address ) {
-                $( "#shipping_postcode" ).val( address.postal_code )
-            }
-
-            if ( "postal_place" in address ) {
-                $( "#shipping_city" ).val( address.postal_place )
-            }
-
-            if ( "country" in address ) {
-                $( "#shipping_country" ).val( address.country )
-                //$( "#shipping_country" ).change()
-            }
-        },
-
-        shippingMethodChanged( shipping ) {
-            $( "#dintero_shipping_data" ).val( JSON.stringify( shipping ) )
-            $( "body" ).trigger( "dintero_shipping_option_changed", [ shipping ] )
-            dinteroCheckoutForWooCommerce.delayUpdateCheckout()
-        },
-
-        /**
-         * Display Shipping Price in order review if Display shipping methods in iframe settings is active.
-         */
-        maybeDisplayShippingPrice() {
-            // Check if we already have set the price. If we have, return.
-            if ( $( ".dintero-shipping" ).length ) {
-                return
-            }
-            if (
-                "dintero_checkout" === dinteroCheckoutForWooCommerce.paymentMethod &&
-                dinteroCheckoutParams.shipping_in_iframe
-            ) {
-                if ( $( "#shipping_method input[type='radio']" ).length ) {
-                    // Multiple shipping options available.
-                    $( "#shipping_method input[type='radio']:checked" ).each( function () {
-                        const idVal = $( this ).attr( "id" )
-                        const shippingPrice = $( "label[for='" + idVal + "']" ).text()
-                        $( ".woocommerce-shipping-totals td" ).html( shippingPrice )
-                        $( ".woocommerce-shipping-totals td" ).addClass( "dintero-shipping" )
-                    } )
-                } else {
-                    // Only one shipping option available.
-                    const idVal = $( "#shipping_method input[name='shipping_method[0]']" ).attr( "id" )
-                    const shippingPrice = $( "label[for='" + idVal + "']" ).text()
-                    $( ".woocommerce-shipping-totals td" ).html( shippingPrice )
-                    $( ".woocommerce-shipping-totals td" ).addClass( "dintero-shipping" )
-                }
-            }
-        },
 
         /**
          * Block form fields from being modified by the user.
          */
         blockForm() {
-            /* Order review. */
-            $( ".woocommerce-checkout-review-order-table" ).block( {
+            /* Order review, address fields. */
+            $( ".woocommerce-checkout-review-order-table, #customer_details" ).block( {
                 message: dinteroCheckoutParams.pip_text,
                 overlayCSS: {
                     background: "#fff",
@@ -556,15 +273,6 @@ jQuery( function ( $ ) {
                 blockMsgClass: "dintero-checkout-pip",
             } )
 
-            /* Additional checkout fields. */
-            $( "#dintero-express-extra-checkout-fields" ).block( {
-                message: null,
-                overlayCSS: {
-                    background: "#fff",
-                },
-                blockMsgClass: "dintero-checkout-pip",
-            } )
-
             $( ".dintero-checkout-pip" ).siblings( ".blockOverlay" ).addClass( "dintero-checkout-no-spinner" )
         },
 
@@ -572,11 +280,8 @@ jQuery( function ( $ ) {
          * Unblock form fields.
          */
         unblockForm() {
-            /* Order review. */
-            $( ".woocommerce-checkout-review-order-table" ).unblock()
-
-            /* Additional checkout fields. */
-            $( "#dintero-express-extra-checkout-fields" ).unblock()
+            /* Order review, address fields. */
+            $( ".woocommerce-checkout-review-order-table, #customer_details" ).unblock()
         },
 
         /**
@@ -586,7 +291,7 @@ jQuery( function ( $ ) {
          * @param {id} id The session id.
          */
         submitOrder( callback, id ) {
-            this.blockForm()
+            dinteroCheckoutForWooCommerce.blockForm()
 
             $.ajax( {
                 type: "POST",
@@ -617,9 +322,6 @@ jQuery( function ( $ ) {
                                 console.log( "try" )
                                 if ( "success" === data.result ) {
                                     console.log( "submit order success", data )
-                                    dinteroCheckoutForWooCommerce.logToFile(
-                                        `${ dinteroCheckoutParams.SID } | Order ID ${data.order_id} | Order submitted successfully.`,
-                                    )
                                     callback( { success: true } )
                                 } else {
                                     throw "Result failed"
@@ -641,14 +343,6 @@ jQuery( function ( $ ) {
                                     )
                                     dinteroCheckoutForWooCommerce.failOrder( "submission", "Checkout error", callback )
                                 }
-
-                                $( "#shipping_first_name" ).val( ( i, value ) => {
-                                    return value === "N/A" ? "" : "N/A"
-                                } )
-
-                                $( "#shipping_last_name" ).val( ( i, value ) => {
-                                    return value === "⠀" ? "" : "⠀"
-                                } )
                             }
                         },
                         error( data ) {
@@ -665,6 +359,9 @@ jQuery( function ( $ ) {
                             }
                             dinteroCheckoutForWooCommerce.failOrder( "ajax-error", "Internal Server Error", callback )
                         },
+                        complete() {
+                            dinteroCheckoutForWooCommerce.unblockForm()
+                        }
                     } )
                 },
                 error: () => {
@@ -685,7 +382,7 @@ jQuery( function ( $ ) {
             $( "body" ).trigger( "updated_checkout" )
             $( dinteroCheckoutForWooCommerce.checkoutFormSelector ).removeClass( "processing" )
             $( dinteroCheckoutForWooCommerce.checkoutFormSelector ).unblock()
-            this.unblockForm()
+            dinteroCheckoutForWooCommerce.unblockForm()
         },
 
         printNotice( message, noticeType = "error" ) {
