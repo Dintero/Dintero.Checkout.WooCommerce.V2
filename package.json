@@ -21,7 +21,7 @@
     "grunt-move": "^1.0.3",
     "grunt-wp-i18n": "^1.0.4",
     "prettier": "npm:wp-prettier@latest",
-    "webpack": "^5.102.1",
+    "webpack": "^5.104.1",
     "webpack-cli": "^4.10.0"
   },
   "scripts": {
