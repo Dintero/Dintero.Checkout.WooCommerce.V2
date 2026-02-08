@@ -1,16 +1,16 @@
 {
   "name": "dintero-checkout-for-woocommerce",
-  "version": "1.13.3",
+  "version": "1.13.4",
   "repository": "git@github.com:Dintero/Dintero.Checkout.WooCommerce.V2.git",
   "author": "Krokedil <info@krokedil.se>",
   "license": "GPL-3.0+",
   "packageManager": "pnpm@9.14.4+sha512.c8180b3fbe4e4bca02c94234717896b5529740a6cbadf19fa78254270403ea2f27d4e1d46a08a0f56c89b63dc8ebfd3ee53326da720273794e6200fcf0d184ab",
   "devDependencies": {
-    "@babel/core": "^7.28.4",
+    "@babel/core": "^7.29.0",
     "@babel/plugin-syntax-optional-chaining": "^7.8.3",
-    "@babel/plugin-transform-runtime": "^7.28.3",
-    "@babel/preset-env": "^7.28.3",
-    "@babel/runtime": "^7.28.4",
+    "@babel/plugin-transform-runtime": "^7.29.0",
+    "@babel/preset-env": "^7.29.0",
+    "@babel/runtime": "^7.28.6",
     "@wordpress/eslint-plugin": "^16.0.13",
     "babel-loader": "^8.4.1",
     "eslint": "^8.57.1",
@@ -21,7 +21,7 @@
     "grunt-move": "^1.0.3",
     "grunt-wp-i18n": "^1.0.4",
     "prettier": "npm:wp-prettier@latest",
-    "webpack": "^5.102.1",
+    "webpack": "^5.105.0",
     "webpack-cli": "^4.10.0"
   },
   "scripts": {
@@ -31,14 +31,14 @@
     "cssmin": "pnpm grunt cssmin",
     "jsmin": "pnpm webpack",
     "moveJS": "pnpm grunt move",
-    "lint": "pnpm prettier assets/js --paren-spacing --tab-width 4 --print-width 120 --no-semi --write",
+    "lint": "pnpm prettier assets/js --paren-spacing --tab-width 4 --print-width 120 --write",
     "lint:check": "pnpm prettier assets/js --paren-spacing --tab-width 4 --print-width 120 --no-semi --debug-check",
     "webpack:dev": "pnpm webpack --mode=development --watch",
     "build": "pnpm makepot && pnpm cssmin && pnpm lint:check && pnpm lint && pnpm jsmin && pnpm moveJS"
   },
   "dependencies": {
     "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
-    "@dintero/checkout-web-sdk": "^0.9.0",
+    "@dintero/checkout-web-sdk": "^0.9.1",
     "grunt-cli": "^1.5.0",
     "grunt-zip": "^0.18.2"
   },
