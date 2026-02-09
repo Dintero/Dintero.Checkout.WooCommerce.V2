@@ -237,6 +237,8 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			} else {
 				$result = $this->process_redirect_payment( $order );
 			}
+
+			$result['order_id'] = $order->get_id();
 			return $result;
 		}
 
@@ -299,6 +301,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			return array(
 				'result'   => 'success',
 				'redirect' => $session['url'],
+				'order_id' => $order->get_id(),
 			);
 		}
 
