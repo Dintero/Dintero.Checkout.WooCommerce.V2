@@ -279,7 +279,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			foreach ( $rates as $rate ) {
 
 				if ( $rate->get_id() === $chosen_shipping['id'] ) {
-					if ( $chosen_shipping['delivery_method'] === 'pick_up' ) {
+					if ( 'pick_up' === $chosen_shipping['delivery_method'] ) {
 						$id           = $chosen_shipping['operator_product_id'];
 						$pickup_point = Dintero()->pickup_points()->get_pickup_point_from_rate_by_id( $rate, $id );
 

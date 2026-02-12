@@ -541,12 +541,13 @@ function dwc_can_update_checkout() {
 		return false;
 	}
 
-	return $ajax === 'update_order_review'; // We only want to update the checkout during update_order_review if we are doing ajax.
+	return 'update_order_review' === $ajax; // We only want to update the checkout during update_order_review if we are doing ajax.
 }
 
 /**
  * Save the organization number to the order if available.
  *
+ * @param array    $dintero_order The Dintero order from the GET request.
  * @param WC_Order $order The Woo order.
  * @return void
  */
