@@ -279,7 +279,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			foreach ( $rates as $rate ) {
 
 				if ( $rate->get_id() === $chosen_shipping['id'] ) {
-					if ( $chosen_shipping['delivery_method'] === 'pick_up' ) {
+					if ( 'pick_up' === $chosen_shipping['delivery_method'] ) {
 						$id           = $chosen_shipping['operator_product_id'];
 						$pickup_point = Dintero()->pickup_points()->get_pickup_point_from_rate_by_id( $rate, $id );
 
@@ -323,14 +323,17 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			return $shipping_options;
 		}
 
-		$shipping_packages = WC()->shipping->get_packages();
+		$is_shipping_in_iframe = dwc_is_shipping_in_iframe();
+		$shipping_packages     = WC()->shipping->get_packages();
 		foreach ( $shipping_packages as $package_index => $package ) {
 			$shipping_rates = $package['rates'];
 			$index          = isset( $package['seller_id'] ) ? $package['seller_id'] : $package_index;
 
 			foreach ( $shipping_rates as $shipping_rate ) {
 				$pickup_points = Dintero()->pickup_points()->get_pickup_points_from_rate( $shipping_rate );
-				if ( ! empty( $pickup_points ) ) {
+				// To prevent changing pick-up point from becoming out of sync when it is displayed outside the iframe, we'll only send the shipping method to Dintero instead.
+				// The data about the actually selected pick-up point will be managed by WooCommerce.
+				if ( $is_shipping_in_iframe && ! empty( $pickup_points ) ) {
 					foreach ( $pickup_points as $pickup_point ) {
 						$shipping_options[] = $this->get_pickup_point( $shipping_rate, $pickup_point );
 					}

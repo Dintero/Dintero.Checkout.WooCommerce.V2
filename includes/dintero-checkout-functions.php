@@ -541,12 +541,13 @@ function dwc_can_update_checkout() {
 		return false;
 	}
 
-	return $ajax === 'update_order_review'; // We only want to update the checkout during update_order_review if we are doing ajax.
+	return 'update_order_review' === $ajax; // We only want to update the checkout during update_order_review if we are doing ajax.
 }
 
 /**
  * Save the organization number to the order if available.
  *
+ * @param array    $dintero_order The Dintero order from the GET request.
  * @param WC_Order $order The Woo order.
  * @return void
  */
@@ -557,4 +558,21 @@ function dintero_maybe_save_org_nr( $dintero_order, $order ) {
 		$order->update_meta_data( '_billing_org_nr', wc_clean( $billing_org_nr ) );
 		$order->save();
 	}
+}
+
+/**
+ * Returns if shipping is handled by the iframe.
+ *
+ * @return boolean
+ */
+function dwc_is_shipping_in_iframe() {
+	$settings = wp_parse_args(
+		get_option( 'woocommerce_dintero_checkout_settings', array() ),
+		array(
+			'checkout_flow'              => 'express_popout',
+			'express_shipping_in_iframe' => 'no',
+		)
+	);
+
+	return dwc_is_express( $settings ) && wc_string_to_bool( $settings['express_shipping_in_iframe'] ?? false );
 }
