@@ -559,3 +559,13 @@ function dintero_maybe_save_org_nr( $dintero_order, $order ) {
 		$order->save();
 	}
 }
+
+/**
+ * Returns if shipping is handled by the iframe.
+ *
+ * @return boolean
+ */
+function dwc_is_shipping_in_iframe() {
+	$settings = get_option( 'woocommerce_dintero_checkout_settings' );
+	return ( dwc_is_embedded( $settings ) || dwc_is_express( $settings ) ) && wc_string_to_bool( $settings['express_shipping_in_iframe'] ?? false );
+}
