@@ -566,6 +566,13 @@ function dintero_maybe_save_org_nr( $dintero_order, $order ) {
  * @return boolean
  */
 function dwc_is_shipping_in_iframe() {
-	$settings = get_option( 'woocommerce_dintero_checkout_settings' );
+	$settings = wp_parse_args(
+		get_option( 'woocommerce_dintero_checkout_settings', array() ),
+		array(
+			'checkout_flow'              => 'express_popout',
+			'express_shipping_in_iframe' => 'no',
+		)
+	);
+
 	return dwc_is_express( $settings ) && wc_string_to_bool( $settings['express_shipping_in_iframe'] ?? false );
 }
