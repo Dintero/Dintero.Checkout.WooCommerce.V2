@@ -111,18 +111,6 @@ function dintero_print_error_message( $wp_error ) {
 }
 
 /**
- * Sanitize phone number.
- * Allow only '+' (if at the start), and numbers.
- *
- * @param string $phone Phone number.
- * @return string
- */
-function dintero_sanitize_phone_number( $phone ) {
-	// Allowed regex: ^\+?\d{5,15}$.
-	return preg_replace( '/(?!^\+)[^\d]/', '', $phone );
-}
-
-/**
  * Sets the shipping method in WooCommerce from Dintero.
  *
  * @param array|bool $data The shipping data from Dintero. False if not set.
