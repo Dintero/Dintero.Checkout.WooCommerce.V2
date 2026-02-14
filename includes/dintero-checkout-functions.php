@@ -118,7 +118,8 @@ function dintero_print_error_message( $wp_error ) {
  * @return string
  */
 function dintero_sanitize_phone_number( $phone ) {
-	return preg_replace( '/(?!^)[+]?[^\d]/', '', $phone );
+	// Allowed regex: ^\+?\d{5,15}$.
+	return preg_replace( '/(?!^\+)[^\d]/', '', $phone );
 }
 
 /**
