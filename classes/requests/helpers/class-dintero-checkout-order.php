@@ -537,7 +537,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			'postal_code'    => $this->order->get_billing_postcode(),
 			'postal_place'   => $this->order->get_billing_city(),
 			'country'        => $this->order->get_billing_country(),
-			'phone_number'   => dintero_sanitize_phone_number( $this->order->get_billing_phone() ),
+			'phone_number'   => wc_sanitize_phone_number( $this->order->get_billing_phone() ),
 			'email'          => $this->order->get_billing_email(),
 		);
 
@@ -570,7 +570,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 
 		// Check if a shipping phone number exist. Default to billing phone.
 		$phone                            = $this->order->get_shipping_phone();
-		$shipping_address['phone_number'] = dintero_sanitize_phone_number( ! empty( $phone ) ? $phone : $this->order->get_billing_phone() );
+		$shipping_address['phone_number'] = wc_sanitize_phone_number( ! empty( $phone ) ? $phone : $this->order->get_billing_phone() );
 
 		/* Sanitize all values. Remove all empty elements (required by Dintero). */
 		return array_filter(

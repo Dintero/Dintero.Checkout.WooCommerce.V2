@@ -61,7 +61,7 @@ class Dintero_Checkout_Callback {
 	 *
 	 * Only schedules one if there are none already pending for the same transaction id and reference.
 	 * This is done to prevent race conditions between simultaneous callbacks from Dintero that can happen
-	 * on rare occasions. We can do this since we dont trust the data from Dintero in the callback, and will
+	 * on rare occasions. We can do this since we don't trust the data from Dintero in the callback, and will
 	 * always fetch the order from their API when handling a callback.
 	 *
 	 * @param string $transaction_id The dintero transaction id.
@@ -70,18 +70,18 @@ class Dintero_Checkout_Callback {
 	 * @return boolean True if the action was successfully scheduled or already scheduled, false if it failed to schedule.
 	 */
 	public function maybe_schedule_callback( $transaction_id, $merchant_reference, $error ) {
-		$as_args          = array(
+		$as_args           = array(
 			'hook'   => 'dintero_scheduled_callback',
 			'status' => ActionScheduler_Store::STATUS_PENDING,
 		);
-		$sheduled_actions = as_get_scheduled_actions( $as_args, OBJECT );
+		$scheduled_actions = as_get_scheduled_actions( $as_args, OBJECT );
 
 		/**
 		 * Loop all actions to check if this one has been scheduled already.
 		 *
 		 * @var ActionScheduler_Action $action The action from the Action scheduler.
 		 */
-		foreach ( $sheduled_actions as $action ) {
+		foreach ( $scheduled_actions as $action ) {
 			$action_args = $action->get_args();
 			if ( $merchant_reference === $action_args['merchant_reference'] && $transaction_id === $action_args['transaction_id'] ) {
 				Dintero_Checkout_Logger::log( "CALLBACK [action_scheduler]: The merchant reference $merchant_reference and transaction id $transaction_id has already been scheduled for processing." );
