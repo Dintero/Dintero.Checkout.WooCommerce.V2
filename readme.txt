@@ -2,11 +2,11 @@
 Contributors: dintero, krokedil, NiklasHogefjord
 Tags: woocommerce, dintero, ecommerce, e-commerce, checkout
 Requires at least: 5.8.3
-Tested up to: 6.9
+Tested up to: 6.9.1
 Requires PHP: 7.4
 WC requires at least: 6.1.0
-WC tested up to: 10.4.3
-Stable tag: 1.13.4
+WC tested up to: 10.5.2
+Stable tag: 1.13.5
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -135,6 +135,10 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us?ut
 6. Gift cards and Discount cards available.
 7. Remove headaches and manage your reconciliation, reports, transactions, refunds (transaction level), Gift Cards, payment methods, and more in the Dintero backoffice.
 == Changelog ==
+= 2026.02.18    - version 1.13.5 =
+* Tweak         - Pick-up points are no longer shown in Express Checkout when the “Display shipping in the iframe” setting is disabled. This also ensures that your custom shipping method description is displayed correctly at checkout. 
+* Fix           - Improved phone number validation by aligning it with WooCommerce’s built-in validation. This ensures consistent phone number checks between Dintero and WooCommerce during checkout.
+
 = 2026.02.09    - version 1.13.4 =
 * Fix           - Prevented multiple redirect attempts to confirmation page when a payment event is repeatedly triggered in quick succession.
 * Tweak         - The setting option "Checkout layout" is hidden when not relevant.
