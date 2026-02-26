@@ -262,7 +262,7 @@ class Dintero_Settings_Fields {
 			'branding_logo_color_mode'                => array(
 				'title'   => __( 'Logo variant', 'dintero-checkout-for-woocommerce' ),
 				'type'    => 'select',
-				'label'   => __( 'Color mode', 'dintero-checkout-for-woocommerce' ),
+				'label'   => __( 'Logo variant', 'dintero-checkout-for-woocommerce' ),
 				'default' => 'logomark',
 				'options' => array(
 					'logomark'   => __( 'Logomark', 'dintero-checkout-for-woocommerce' ),
