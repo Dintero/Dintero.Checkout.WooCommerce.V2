@@ -305,12 +305,12 @@ function dintero_confirm_order( $order, $transaction_id ) {
  * @return string URL
  */
 function dintero_get_brand_image_url( $icon_color = 'cecece' ) {
-	$settings = get_option( 'woocommerce_dintero_checkout_settings' );
+	$settings = get_option( 'woocommerce_dintero_checkout_settings', array() );
 
-	$variant  = $settings['branding_logo_color_mode'] ?? 'colors';
+	$variant  = $settings['branding_logo_color_mode'] ?? 'logomark';
 	$color    = str_replace( '#', '', $icon_color );
-	$width    = 600;
-	$template = 'dintero_top_frame';
+	$width    = 'logomark' === $variant ? 300 : 600;
+	$template = 'logomark' === $variant ? 'logos' : 'dintero_top_frame';
 	$account  = ( ( 'yes' === $settings['test_mode'] ) ? 'T' : 'P' ) . $settings['account_id'];
 	$profile  = $settings['profile_id'];
 

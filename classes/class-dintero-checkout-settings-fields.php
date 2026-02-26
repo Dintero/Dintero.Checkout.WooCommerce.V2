@@ -260,13 +260,14 @@ class Dintero_Settings_Fields {
 				'type'  => 'color',
 			),
 			'branding_logo_color_mode'                => array(
-				'title'   => __( 'Logo color mode', 'dintero-checkout-for-woocommerce' ),
+				'title'   => __( 'Logo variant', 'dintero-checkout-for-woocommerce' ),
 				'type'    => 'select',
 				'label'   => __( 'Color mode', 'dintero-checkout-for-woocommerce' ),
-				'default' => 'color',
+				'default' => 'logomark',
 				'options' => array(
-					'colors'     => __( 'Light', 'dintero-checkout-for-woocommerce' ),
-					'darkcolors' => __( 'Dark', 'dintero-checkout-for-woocommerce' ),
+					'logomark'   => __( 'Logomark', 'dintero-checkout-for-woocommerce' ),
+					'colors'     => __( 'Light mode', 'dintero-checkout-for-woocommerce' ),
+					'darkcolors' => __( 'Dark mode', 'dintero-checkout-for-woocommerce' ),
 				),
 			),
 		);
