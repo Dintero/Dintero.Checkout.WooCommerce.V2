@@ -301,16 +301,15 @@ function dintero_confirm_order( $order, $transaction_id ) {
 /**
  * The URL to the branding image.
  *
- * @param  string $icon_color A hexadecimal RGB value for the foreground color. Default is #cecece.
+ * @param array  $settings The Dintero checkout settings.
+ * @param string $icon_color A hexadecimal RGB value for the foreground color. Default is #cecece.
  * @return string URL
  */
-function dintero_get_brand_image_url( $icon_color = 'cecece' ) {
-	$settings = get_option( 'woocommerce_dintero_checkout_settings' );
-
-	$variant  = $settings['branding_logo_color_mode'] ?? 'colors';
+function dintero_get_brand_image_url( $settings, $icon_color = 'cecece' ) {
+	$variant  = $settings['branding_logo_color_mode'] ?? 'logomark';
 	$color    = str_replace( '#', '', $icon_color );
-	$width    = 600;
-	$template = 'dintero_top_frame';
+	$width    = 'logomark' === $variant ? 300 : 600;
+	$template = 'logomark' === $variant ? 'logos' : 'dintero_top_frame';
 	$account  = ( ( 'yes' === $settings['test_mode'] ) ? 'T' : 'P' ) . $settings['account_id'];
 	$profile  = $settings['profile_id'];
 
