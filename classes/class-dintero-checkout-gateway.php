@@ -171,7 +171,10 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return string
 		 */
 		public function get_icon() {
-			return '<img class="dintero-logos" src="' . esc_attr( dintero_get_brand_image_url() ) . '" style="max-width: 90%" alt="Dintero logo" />';
+			$settings = get_option( 'woocommerce_dintero_checkout_settings', array() );
+			$variant  = $settings['branding_logo_color_mode'] ?? 'logomark';
+
+			return '<img class="dintero-logos logo-variant-' . esc_attr( $variant ) . '" src="' . esc_attr( dintero_get_brand_image_url( $settings ) ) . '" style="max-width: 90%" alt="Dintero logo" />';
 		}
 
 		/**

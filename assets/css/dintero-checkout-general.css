@@ -7,3 +7,8 @@ ul.payment_methods label[for="payment_method_dintero_checkout"]:after {
     display: block;
     clear: right;
 }
+
+#payment ul.payment_methods li img.dintero-logos.logo-variant-logomark {
+    float: none;
+}
+

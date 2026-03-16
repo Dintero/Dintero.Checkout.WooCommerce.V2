@@ -112,12 +112,14 @@ class Dintero_Checkout_Widget extends WP_Widget {
 	 * @return void
 	 */
 	private function print_icon( $icon_color = 'cecece', $background_color = false ) {
-		$icon_url = dintero_get_brand_image_url( $icon_color );
+		$settings = get_option( 'woocommerce_dintero_checkout_settings', array() );
+		$variant  = $settings['branding_logo_color_mode'] ?? 'logomark';
+		$icon_url = dintero_get_brand_image_url( $settings, $icon_color );
 
 		?>
 			<div style="padding: 20px 0; <?php echo ( ! empty( $background_color ) ) ? esc_attr( "background-color: $background_color" ) : ''; ?> ">
 			<a href="https://www.dintero.com" target="_blank" title="<?php echo dintero_keyword_backlinks(); ?>">
-				<img loading="lazy" style="margin: 0 auto;" src="<?php echo esc_attr( $icon_url ); ?>" style="max-width: 90%" alt="<?php echo dintero_alt_backlinks(); ?>" />
+				<img loading="lazy" class="logo-variant-<?php echo esc_attr( $variant ); ?>" style="margin: 0 auto;" src="<?php echo esc_attr( $icon_url ); ?>" style="max-width: 90%" alt="<?php echo dintero_alt_backlinks(); ?>" />
 			</a>
 			</div>
 		<?php
