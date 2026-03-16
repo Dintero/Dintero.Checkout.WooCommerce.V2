@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f25402b4c5b86de6ec02e694ce2e2bde",
+    "content-hash": "f06a69f9b94debfaa3153b0da47ba382",
     "packages": [],
     "packages-dev": [
         {
@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "9c42a808cf53f4ab9b531af2023ef1815699938a"
+                "reference": "101786698b7686dc5c26aafe941e4791dbe0efee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/9c42a808cf53f4ab9b531af2023ef1815699938a",
-                "reference": "9c42a808cf53f4ab9b531af2023ef1815699938a",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/101786698b7686dc5c26aafe941e4791dbe0efee",
+                "reference": "101786698b7686dc5c26aafe941e4791dbe0efee",
                 "shasum": ""
             },
             "require": {
@@ -84,7 +84,7 @@
                     "type": "thanks_dev"
                 }
             ],
-            "time": "2026-02-05T23:49:55+00:00"
+            "time": "2026-03-07T04:19:43+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
@@ -240,15 +240,15 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {},
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=7.4"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "platform-overrides": {
         "php": "7.4"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
