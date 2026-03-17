@@ -227,7 +227,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			$shipping_line_id = WC()->session->get( 'dintero_shipping_line_id' );
 			if ( ! empty( $shipping_line_id ) ) {
 				$order->update_meta_data( '_dintero_shipping_line_id', $shipping_line_id );
-				$order->save();
+				$order->save_meta_data();
 			}
 
 			if ( Dintero_Checkout_Subscription::is_change_payment_method() ) {
@@ -263,7 +263,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			}
 
 			$order->update_meta_data( '_dintero_merchant_reference', $reference );
-			$order->save();
+			$order->save_meta_data();
 
 			return array(
 				'result' => 'success',
@@ -290,7 +290,6 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			}
 
 			$order->update_meta_data( '_dintero_merchant_reference', $reference );
-			$order->save();
 
 			if ( is_wp_error( $session ) ) {
 				return array(
