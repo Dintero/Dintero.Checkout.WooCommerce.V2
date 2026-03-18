@@ -258,44 +258,59 @@ function dintero_process_authorized_order( $order, $settings, $transaction_id ) 
 function dintero_confirm_order( $order, $transaction_id ) {
 	$order_id = $order->get_id();
 
-	$settings = get_option( 'woocommerce_dintero_checkout_settings' );
+	$did_lock = false;
+	if ( apply_filters( 'dintero_wc_lock_confirmation', false, $transaction_id, $order_id ) ) {
+		$did_lock = Dintero_Checkout_Redirect::lock_dintero_confirmation( $transaction_id, $order_id );
+		if ( ! $did_lock ) {
+			Dintero_Checkout_Logger::log( "Simultaneous confirmation attempt for Dintero transaction ID #{$transaction_id} and WooCommerce order ID #{$order_id}. Stopping process." );
+			return;
+		}
+	}
 
-	// Save the environment mode for use in the meta box.
-	$order->update_meta_data( '_wc_dintero_checkout_environment', 'yes' === $settings['test_mode'] ? 'Test' : 'Production' );
-	$order->update_meta_data( '_dintero_transaction_id', $transaction_id );
+	try {
+		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
 
-	// Set the merchant_reference_2 for the Dintero order if it was not set before, or it does not match the order number.
-	dintero_maybe_set_merchant_reference_2( $order, $transaction_id );
+		// Save the environment mode for use in the meta box.
+		$order->update_meta_data( '_wc_dintero_checkout_environment', 'yes' === $settings['test_mode'] ? 'Test' : 'Production' );
+		$order->update_meta_data( '_dintero_transaction_id', $transaction_id );
 
-	// Get the order from Dintero to ensure the merchant reference was set, get any potential card tokens and other data we need to store.
-	$params        = array( 'includes' => 'card.payment_token' );
-	$dintero_order = Dintero()->api->get_order( $transaction_id, $params );
-	if ( is_wp_error( $dintero_order ) ) {
-		$order->add_order_note(
-			sprintf(
+		// Set the merchant_reference_2 for the Dintero order if it was not set before, or it does not match the order number.
+		dintero_maybe_set_merchant_reference_2( $order, $transaction_id );
+
+		// Get the order from Dintero to ensure the merchant reference was set, get any potential card tokens and other data we need to store.
+		$params        = array( 'includes' => 'card.payment_token' );
+		$dintero_order = Dintero()->api->get_order( $transaction_id, $params );
+		if ( is_wp_error( $dintero_order ) ) {
+			$order->add_order_note(
+				sprintf(
 				/* translators: %s the error message. */
-				__( 'The order was completed, but the confirmation step failed due to a WP error. Error: %s', 'dintero-checkout-for-woocommerce' ),
-				dintero_retrieve_error_message( $dintero_order )
-			)
-		);
+					__( 'The order was completed, but the confirmation step failed due to a WP error. Error: %s', 'dintero-checkout-for-woocommerce' ),
+					dintero_retrieve_error_message( $dintero_order )
+				)
+			);
+			$order->save_meta_data();
+			return;
+		}
+
+		// Set the required metadata from the Dintero order to the WooCommerce order.
+		dintero_set_confirmation_order_meta( $dintero_order, $order );
+
+		// Get the order from the database again to prevent any concurrency issues if the page loads twice at the same time.
+		$order = wc_get_order( $order_id );
+
+		$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
+		if ( $require_authorization ) { // If the order needs to be authenticated.
+			dintero_process_require_authentication( $order, $transaction_id, $settings['order_status_pending_authorization'] ?? 'manual-review' );
+		} else { // Otherwise process the authenticated order.
+			dintero_process_authorized_order( $order, $settings, $transaction_id );
+		}
+
 		$order->save_meta_data();
-		return;
+	} finally {
+		if ( $did_lock ) {
+			Dintero_Checkout_Redirect::unlock_dintero_confirmation( $transaction_id, $order_id );
+		}
 	}
-
-	// Set the required metadata from the Dintero order to the WooCommerce order.
-	dintero_set_confirmation_order_meta( $dintero_order, $order );
-
-	// Get the order from the database again to prevent any concurrency issues if the page loads twice at the same time.
-	$order = wc_get_order( $order_id );
-
-	$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
-	if ( $require_authorization ) { // If the order needs to be authenticated.
-		dintero_process_require_authentication( $order, $transaction_id, $settings['order_status_pending_authorization'] ?? 'manual-review' );
-	} else { // Otherwise process the authenticated order.
-		dintero_process_authorized_order( $order, $settings, $transaction_id );
-	}
-
-	$order->save_meta_data();
 }
 
 /**
