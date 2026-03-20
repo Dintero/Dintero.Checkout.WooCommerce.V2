@@ -484,13 +484,15 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			$shipping_line = array_values( $shipping_lines )[0];
 
 			// Retrieve the shipping id from the order object itself.
-			$id = $this->order->get_meta( '_wc_dintero_shipping_id' );
+			$id      = $this->order->get_meta( '_wc_dintero_shipping_id' );
+			$line_id = '';
 
 			// WC_Order_Refund do not share the same meta data as WC_Order, and is thus missing the shipping id meta data.
 			if ( empty( $id ) ) {
 				$parent_order = wc_get_order( $this->order->get_parent_id() );
 				// The initial subscription does not have a parent order, we must therefore account for this.
-				$id = ! empty( $parent_order ) ? $parent_order->get_meta( '_wc_dintero_shipping_id' ) : '';
+				$id      = ! empty( $parent_order ) ? $parent_order->get_meta( '_wc_dintero_shipping_id' ) : '';
+				$line_id = ! empty( $parent_order ) ? $parent_order->get_meta( '_dintero_shipping_line_id' ) : '';
 			}
 
 			// If the shipping id is still missing, default to the shipping line data.
@@ -498,7 +500,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 				$id = $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
 			}
 
-			$line_id = $shipping_line->get_meta( '_dintero_checkout_line_id' );
+			// $line_id = $shipping_line->get_meta( '_dintero_checkout_line_id' );
+
 			if ( empty( $line_id ) ) {
 				$line_id = ! empty( $this->order->get_meta( '_dintero_shipping_line_id' ) ) ? $this->order->get_meta( '_dintero_shipping_line_id' ) : $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
 
