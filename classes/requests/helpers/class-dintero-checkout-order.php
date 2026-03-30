@@ -468,6 +468,36 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
+	 * Get the shipping line id from the order meta.
+	 *
+	 * This is needed to support refunds, as the WC_Order_Refund does not contain the original order item meta data. The shipping line id must be the same for the refund and the original order, otherwise the refund will not be able to match the correct shipping line in Dintero.
+	 *
+	 * @param WC_Order               $order The WooCommerce order.
+	 * @param WC_Order_Item_Shipping $shipping_line The WooCommerce order item shipping.
+	 * @return string
+	 */
+	private function get_shipping_line_id( $order, $shipping_line ) {
+		$order_meta_shipping_line_id = $order->get_meta( '_dintero_shipping_line_id' );
+
+		// If the metadata was set, return it.
+		if ( ! empty( $order_meta_shipping_line_id ) ) {
+			return $order_meta_shipping_line_id;
+		}
+
+		/**
+		 * Otherwise use the '_wc_dintero_shipping_id' meta if it was set. This is needed to support orders placed before 1.11.0.
+		 *
+		 * @link https://github.com/Dintero/Dintero.Checkout.WooCommerce.V2/blob/1.10.8/classes/requests/helpers/class-dintero-checkout-order.php#L420-L445
+		 */
+		$order_meta_shipping_id = $order->get_meta( '_wc_dintero_shipping_id' );
+		if ( ! empty( $order_meta_shipping_id ) ) {
+			return $order_meta_shipping_id;
+		}
+
+		return '';
+	}
+
+	/**
 	 * Get the formatted shipping object.
 	 *
 	 * @return array|null
@@ -484,24 +514,24 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			$shipping_line = array_values( $shipping_lines )[0];
 
 			// Retrieve the shipping id from the order object itself.
-			$id = $this->order->get_meta( '_wc_dintero_shipping_id' );
+			$id      = $this->order->get_meta( '_wc_dintero_shipping_id' );
+			$line_id = '';
 
 			// WC_Order_Refund do not share the same meta data as WC_Order, and is thus missing the shipping id meta data.
 			if ( empty( $id ) ) {
 				$parent_order = wc_get_order( $this->order->get_parent_id() );
 				// The initial subscription does not have a parent order, we must therefore account for this.
-				$id = ! empty( $parent_order ) ? $parent_order->get_meta( '_wc_dintero_shipping_id' ) : '';
+				$id      = ! empty( $parent_order ) ? $parent_order->get_meta( '_wc_dintero_shipping_id' ) : '';
+				$line_id = ! empty( $parent_order ) ? $this->get_shipping_line_id( $parent_order, $shipping_line ) : '';
 			}
 
-			// If the shipping id is still missing, default to the shipping line data.
-			if ( empty( $id ) ) {
-				$id = $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
-			}
-
-			$line_id = $shipping_line->get_meta( '_dintero_checkout_line_id' );
 			if ( empty( $line_id ) ) {
-				$line_id = ! empty( $this->order->get_meta( '_dintero_shipping_line_id' ) ) ? $this->order->get_meta( '_dintero_shipping_line_id' ) : $shipping_line->get_method_id() . ':' . $shipping_line->get_instance_id();
+				$line_id = $this->get_shipping_line_id( $this->order, $shipping_line );
+			}
 
+			if ( empty( $line_id ) ) {
+				// If we get here, use the shipping method id and instance id as a final fallback to use the same fallback the plugin has always used.
+				$line_id = "{$shipping_line->get_method_id()}:{$shipping_line->get_instance_id()}";
 			}
 
 			$shipping_total     = floatval( $shipping_line->get_total() );

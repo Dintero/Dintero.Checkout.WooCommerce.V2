@@ -2,11 +2,11 @@
 Contributors: dintero, krokedil, NiklasHogefjord
 Tags: woocommerce, dintero, ecommerce, e-commerce, checkout
 Requires at least: 5.8.3
-Tested up to: 6.9
+Tested up to: 6.9.4
 Requires PHP: 7.4
 WC requires at least: 6.1.0
 WC tested up to: 10.6.1
-Stable tag: 1.13.6
+Stable tag: 1.13.7
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -135,6 +135,10 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us?ut
 6. Gift cards and Discount cards available.
 7. Remove headaches and manage your reconciliation, reports, transactions, refunds (transaction level), Gift Cards, payment methods, and more in the Dintero backoffice.
 == Changelog ==
+= 2026.03.30    - version 1.13.7 =
+* Tweak         - Changed how the 'line_id' is retrieved to prevent issues related to mismatching line_id.
+* Enhancement   - Added an atomic lock to prevent simultaneous updates to the same order, helping resolve issues when multiple callbacks for that order are processed at the same time. For now, this lock must be enabled by returning true in the 'dintero_wc_lock_confirmation' filter.
+
 = 2026.03.16    - version 1.13.6 =
 * Enhancement   - Added a new 'Logomark' style option in settings to control the logo style used for the Dintero payment option at checkout.
 
