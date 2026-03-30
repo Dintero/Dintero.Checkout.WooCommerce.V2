@@ -9,8 +9,8 @@
     "@babel/core": "^7.29.0",
     "@babel/plugin-syntax-optional-chaining": "^7.8.3",
     "@babel/plugin-transform-runtime": "^7.29.0",
-    "@babel/preset-env": "^7.29.0",
-    "@babel/runtime": "^7.28.6",
+    "@babel/preset-env": "^7.29.2",
+    "@babel/runtime": "^7.29.2",
     "@wordpress/eslint-plugin": "^16.0.13",
     "babel-loader": "^8.4.1",
     "eslint": "^8.57.1",
@@ -21,7 +21,7 @@
     "grunt-move": "^1.0.3",
     "grunt-wp-i18n": "^1.0.4",
     "prettier": "npm:wp-prettier@latest",
-    "webpack": "^5.105.0",
+    "webpack": "^5.105.4",
     "webpack-cli": "^4.10.0"
   },
   "scripts": {
