@@ -288,7 +288,11 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @throws Exception If the merchant reference is not found in the session or if the API call fails.
 		 */
 		public function process_redirect_payment( $order ) {
-			$session = 0.0 === floatval( $order->get_total() ) ? Dintero()->api->create_payment_token( $order->get_id() ) : Dintero()->api->create_session( $order->get_id() );
+			if ( 0.0 === floatval( $order->get_total() ) ) {
+				$session = Dintero()->api->create_payment_token( $order->get_id() );
+			} else {
+				$session = Dintero()->api->create_session( $order->get_id() );
+			}
 
 			$reference = WC()->session->get( 'dintero_merchant_reference' );
 
