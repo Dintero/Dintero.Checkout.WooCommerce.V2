@@ -218,8 +218,8 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		/**
 		 * Process the payment and return the result.
 		 *
-		 * @param int $order_id WooCommerced order id.
-		 * @return array An associative array containing the success status and redirect URl.
+		 * @param int $order_id WooCommerce order id.
+		 * @return array An associative array containing the success status and redirect URL.
 		 * @throws Exception If the payment processing fails.
 		 */
 		public function process_payment( $order_id ) {
