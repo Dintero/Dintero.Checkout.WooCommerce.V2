@@ -306,6 +306,15 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			$order->save();
 
 			if ( is_wp_error( $session ) ) {
+				Dintero_Checkout_Logger::log(
+					sprintf(
+						'[PROCESS_PAYMENT]: Failed to create redirect session for order id: %d code: %s message: %s',
+						$order->get_id(),
+						$session->get_error_code(),
+						$session->get_error_message()
+					)
+				);
+
 				throw new Exception();
 			}
 
