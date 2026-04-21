@@ -249,7 +249,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 					$message = __( 'An error occurred while processing the payment. Please try again.', 'dintero-checkout-for-woocommerce' );
 				}
 
-				throw new Exception( $message );
+				throw new Exception( $message, $e->getCode(), $e );
 			}
 
 			$result['order_id'] = $order->get_id();
