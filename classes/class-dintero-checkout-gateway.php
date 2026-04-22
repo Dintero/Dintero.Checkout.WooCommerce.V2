@@ -218,8 +218,9 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		/**
 		 * Process the payment and return the result.
 		 *
-		 * @param int $order_id WooCommerced order id.
-		 * @return array An associative array containing the success status and redirect URl.
+		 * @param int $order_id WooCommerce order id.
+		 * @return array An associative array containing the success status and redirect URL.
+		 * @throws Exception If the payment processing fails.
 		 */
 		public function process_payment( $order_id ) {
 			$order = wc_get_order( $order_id );
@@ -230,15 +231,25 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				$order->save();
 			}
 
-			if ( Dintero_Checkout_Subscription::is_change_payment_method() ) {
-				return $this->process_redirect_payment( $order );
-			}
+			try {
+				if ( Dintero_Checkout_Subscription::is_change_payment_method() ) {
+					return $this->process_redirect_payment( $order );
+				}
 
-			/* For all form factors, redirect is used for order-pay since the cart object (used for embedded) is not available. */
-			if ( dwc_is_embedded( $this->settings ) && ! is_wc_endpoint_url( 'order-pay' ) ) {
-				$result = $this->process_embedded_payment( $order );
-			} else {
-				$result = $this->process_redirect_payment( $order );
+				/* For all form factors, redirect is used for order-pay since the cart object (used for embedded) is not available. */
+				if ( dwc_is_embedded( $this->settings ) && ! is_wc_endpoint_url( 'order-pay' ) ) {
+					$result = $this->process_embedded_payment( $order );
+				} else {
+					$result = $this->process_redirect_payment( $order );
+				}
+			} catch ( Exception $e ) {
+				// Unless explicitly specified, use a generic error message.
+				$message = $e->getMessage();
+				if ( empty( $message ) ) {
+					$message = __( 'An error occurred while processing the payment. Please try again.', 'dintero-checkout-for-woocommerce' );
+				}
+
+				throw new Exception( $message, $e->getCode(), $e );
 			}
 
 			$result['order_id'] = $order->get_id();
@@ -248,7 +259,8 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		/**
 		 * Process an embedded payment method.
 		 *
-		 * @param WC_Order $order The Woo order.
+		 * @param WC_Order $order The WC order.
+		 * @throws Exception If the merchant reference is not found in the session.
 		 * @return array
 		 */
 		public function process_embedded_payment( $order ) {
@@ -257,9 +269,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			if ( empty( $reference ) ) {
 				$session_id = WC()->session->get( 'dintero_checkout_session_id' );
 				Dintero_Checkout_Logger::log( 'PROCESS PAYMENT EMBEDDED ERROR [reference]: Could not get a merchant reference from the session for order id: ' . $order->get_id() . ' session id: ' . $session_id );
-				return array(
-					'result' => 'error',
-				);
+				throw new Exception();
 			}
 
 			$order->update_meta_data( '_dintero_merchant_reference', $reference );
@@ -275,27 +285,37 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 *
 		 * @param WC_Order $order The Woo Order.
 		 * @return array
+		 * @throws Exception If the merchant reference is not found in the session or if the API call fails.
 		 */
 		public function process_redirect_payment( $order ) {
-			$session = 0.0 === floatval( $order->get_total() ) ? Dintero()->api->create_payment_token( $order->get_id() ) : Dintero()->api->create_session( $order->get_id() );
+			if ( 0.0 === floatval( $order->get_total() ) ) {
+				$session = Dintero()->api->create_payment_token( $order->get_id() );
+			} else {
+				$session = Dintero()->api->create_session( $order->get_id() );
+			}
 
 			$reference = WC()->session->get( 'dintero_merchant_reference' );
 
 			if ( empty( $reference ) ) {
 				$session_id = WC()->session->get( 'dintero_checkout_session_id' );
 				Dintero_Checkout_Logger::log( 'PROCESS PAYMENT REDIRECT ERROR [reference]: Could not get a merchant reference from the session for order id: ' . $order->get_id() . ' session id: ' . $session_id );
-				return array(
-					'result' => 'error',
-				);
+				throw new Exception();
 			}
 
 			$order->update_meta_data( '_dintero_merchant_reference', $reference );
 			$order->save();
 
 			if ( is_wp_error( $session ) ) {
-				return array(
-					'result' => 'error',
+				Dintero_Checkout_Logger::log(
+					sprintf(
+						'[PROCESS_PAYMENT]: Failed to create redirect session for order id: %d code: %s message: %s',
+						$order->get_id(),
+						$session->get_error_code(),
+						$session->get_error_message()
+					)
 				);
+
+				throw new Exception();
 			}
 
 			$order->add_order_note( __( 'Customer redirected to Dintero payment page.', 'dintero-checkout-for-woocommerce' ) );
