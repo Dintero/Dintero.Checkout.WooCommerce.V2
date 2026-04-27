@@ -146,10 +146,14 @@ abstract class Dintero_Checkout_Request {
 	 * @return string
 	 */
 	protected function get_user_agent() {
-		return apply_filters(
-			'http_headers_useragent',
-			'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' )
-		) . ' - WooCommerce: ' . WC()->version . ' - Dintero Checkout: ' . DINTERO_CHECKOUT_VERSION . ' - PHP Version: ' . phpversion() . ' - Krokedil';
+		$wp_version      = get_bloginfo( 'version' );
+		$wp_url          = get_bloginfo( 'url' );
+		$wc_version      = WC()->version;
+		$plugin_version  = DINTERO_CHECKOUT_VERSION;
+		$php_version     = phpversion();
+		$user_agent      = "WordPress/{$wp_version}; {$wp_url} - WooCommerce: {$wc_version} - Dintero Checkout: {$plugin_version} - PHP Version: {$php_version} - Krokedil";
+
+		return apply_filters( 'http_headers_useragent', $user_agent, $this->get_request_url() );
 	}
 
 	/**
