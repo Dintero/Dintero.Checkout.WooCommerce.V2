@@ -113,19 +113,26 @@ jQuery( function ( $ ) {
                         if ( event.session === undefined || event.session.order === undefined ) {
                             // Refresh the session to display the error message from Dintero. The error itself should be handled by any of other event handlers.
                             checkout.refreshSession();
-                            return;
                         }
-
-                        // Check for address changes and update shipping.
+                    },
+                     onAddressCallback: function (event, checkout, callback) {
+                         console.log("address callback to handle express session address updates", event.session);
+                        
+                         // Check for address changes and update shipping.
                         dinteroCheckoutForWooCommerce.updateAddress(
                             event.session.order.billing_address,
                             event.session.order.shipping_address,
                         );
+
                         if ( event.session.order.shipping_option && dinteroCheckoutParams.shipping_in_iframe ) {
-                            // @TODO only if shipping in iframe.
                             dinteroCheckoutForWooCommerce.shippingMethodChanged( event.session.order.shipping_option );
                         }
-                    },
+
+                        callback({
+                            success: true,
+                            error: undefined,
+                        });
+                     },
                     onPayment( event, checkout ) {
                         // Prevent multiple redirects.
                         if ( dinteroCheckoutForWooCommerce.alreadyRedirected ) {
