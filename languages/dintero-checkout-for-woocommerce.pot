@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/Dintero.Checkout.WooCommerce.V2\n"
-"POT-Creation-Date: 2026-03-16 10:07:06+00:00\n"
+"POT-Creation-Date: 2026-05-04 08:15:52+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -61,18 +61,22 @@ msgstr ""
 msgid "Dintero Checkout"
 msgstr ""
 
-#: classes/class-dintero-checkout-gateway.php:301
+#: classes/class-dintero-checkout-gateway.php:249
+msgid "An error occurred while processing the payment. Please try again."
+msgstr ""
+
+#: classes/class-dintero-checkout-gateway.php:321
 msgid "Customer redirected to Dintero payment page."
 msgstr ""
 
-#: classes/class-dintero-checkout-gateway.php:326
+#: classes/class-dintero-checkout-gateway.php:346
 msgid ""
 "Refunds are only possible for orders that have been completed. If you have "
 "an order that has not been completed and needs to be canceled, set the "
 "order status to \"Canceled\"."
 msgstr ""
 
-#: classes/class-dintero-checkout-gateway.php:350
+#: classes/class-dintero-checkout-gateway.php:370
 msgid "Organization number:"
 msgstr ""
 
@@ -559,13 +563,13 @@ msgstr ""
 msgid "Background color:"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-cart.php:493
-#: classes/requests/helpers/class-dintero-checkout-cart.php:516
+#: classes/requests/helpers/class-dintero-checkout-cart.php:496
+#: classes/requests/helpers/class-dintero-checkout-cart.php:519
 #: classes/requests/helpers/class-dintero-checkout-order.php:363
 msgid "Gift card"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-cart.php:537
+#: classes/requests/helpers/class-dintero-checkout-cart.php:540
 msgid "Gift card:"
 msgstr ""
 
@@ -697,7 +701,7 @@ msgstr ""
 msgid "The order was placed successfully via Dintero Checkout. Transaction ID: %s"
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:277
+#: includes/dintero-checkout-functions.php:287
 #. translators: %s the error message.
 msgid ""
 "The order was completed, but the confirmation step failed due to a WP "
