@@ -8,6 +8,7 @@
  * Version: 1.13.7
  * Text Domain: dintero-checkout-for-woocommerce
  * Domain Path: /languages
+ * Requires Plugins: woocommerce
  *
  * WC requires at least: 6.1.0
  * WC tested up to: 10.6.1

@@ -31,8 +31,45 @@ jobs:
           # Re-install without dev dependencies for the release build.
           composer install --prefer-dist --no-progress --optimize-autoloader --no-dev
 
-      - name: Build with npm if package.json is present
-        if: hashFiles('package.json') != ''
+      # Node package manager: detect from package.json's "packageManager" field
+      # (or "devEngines.packageManager"). Lockfile presence is intentionally NOT
+      # used — orphan/stale lockfiles are common and the explicit declaration is
+      # the correct signal of intent (matches Corepack semantics).
+      - name: Detect Node package manager
+        id: pm
+        run: |
+          if [ ! -f package.json ]; then
+            echo "manager=none" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          pm=$(jq -r '
+            if   (.packageManager // "" | type) == "string" and .packageManager != "" then .packageManager
+            elif (.devEngines.packageManager // "" | type) == "string" and .devEngines.packageManager != "" then .devEngines.packageManager
+            elif (.devEngines.packageManager // null | type) == "object" then (.devEngines.packageManager.name // "")
+            else "" end
+          ' package.json)
+          case "$pm" in
+            pnpm@*|pnpm/*|pnpm) echo "manager=pnpm" >> "$GITHUB_OUTPUT" ;;
+            *)                  echo "manager=npm"  >> "$GITHUB_OUTPUT" ;;
+          esac
+
+      - name: Setup pnpm
+        if: steps.pm.outputs.manager == 'pnpm'
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+        # Reads the pnpm version from package.json's "packageManager" field.
+
+      - name: Build with pnpm
+        if: steps.pm.outputs.manager == 'pnpm'
+        run: |
+          pnpm install --frozen-lockfile
+          # Run the build script if it exists, but don't fail if it's not defined.
+          # Note: pnpm only treats `--if-present` as a flag when it appears
+          # BEFORE the script name; placing it after forwards the flag to the
+          # underlying script (unlike npm).
+          pnpm run --if-present build
+
+      - name: Build with npm
+        if: steps.pm.outputs.manager == 'npm'
         run: |
           npm ci
           # Run the build script if it exists, but don't fail if it's not defined.
