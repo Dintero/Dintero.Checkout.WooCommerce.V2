@@ -106,6 +106,8 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			add_filter( 'woocommerce_hidden_order_itemmeta', array( $this, 'hidden_order_itemmeta' ) );
 			// Add billing organization number to the order admin page.
 			add_action( 'woocommerce_admin_order_data_after_billing_address', array( $this, 'add_billing_org_nr' ) );
+			// Add shipping email to the order admin page.
+			add_action( 'woocommerce_admin_order_data_after_shipping_address', array( $this, 'add_shipping_email' ) );
 		}
 
 		/**
@@ -370,6 +372,28 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 							<?php esc_html_e( 'Organization number:', 'dintero-checkout-for-woocommerce' ); ?>
 						</strong>
 						<?php echo esc_html( $billing_org_nr ); ?>
+					</p>
+					<?php
+				}
+			}
+		}
+
+		/**
+		 * Maybe adds the shipping email to the address in an order.
+		 *
+		 * @param WC_Order $order The WooCommerce order.
+		 * @return void
+		 */
+		public function add_shipping_email( $order ) {
+			if ( $this->id === $order->get_payment_method() ) {
+				$shipping_email = $order->get_meta( '_shipping_email', true );
+				if ( $shipping_email ) {
+					?>
+					<p>
+						<strong>
+							<?php esc_html_e( 'Email address:', 'dintero-checkout-for-woocommerce' ); ?>
+						</strong>
+						<?php echo esc_html( $shipping_email ); ?>
 					</p>
 					<?php
 				}
