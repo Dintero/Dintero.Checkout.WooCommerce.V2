@@ -581,8 +581,8 @@ function dintero_maybe_save_shipping_contact( $dintero_order, $order ) {
 	}
 
 	$shipping_email = $dintero_order['shipping_address']['email'] ?? '';
-	if ( ! empty( $shipping_email ) ) {
-		$order->update_meta_data( '_shipping_email', wc_clean( $shipping_email ) );
+	if ( is_email( $shipping_email ) ) {
+		$order->update_meta_data( '_shipping_email', sanitize_email( $shipping_email ) );
 		$changed = true;
 	}
 

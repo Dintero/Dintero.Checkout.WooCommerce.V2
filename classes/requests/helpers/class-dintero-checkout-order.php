@@ -604,7 +604,8 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 
 		// Check if a shipping email exist. Default to billing email.
 		$email                     = $this->order->get_meta( '_shipping_email' );
-		$shipping_address['email'] = ! empty( $email ) ? $email : $this->order->get_billing_email();
+		$email                     = ! empty( $email ) ? $email : $this->order->get_billing_email();
+		$shipping_address['email'] = is_email( $email ) ? sanitize_email( $email ) : '';
 
 		/* Sanitize all values. Remove all empty elements (required by Dintero). */
 		return array_filter(
