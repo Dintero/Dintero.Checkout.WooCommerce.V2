@@ -389,7 +389,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				$shipping_email = $order->get_meta( '_shipping_email', true );
 				if ( $shipping_email ) {
 					?>
-					<p>
+					<p style="clear: both; flex-basis: 100%;">
 						<strong>
 							<?php esc_html_e( 'Email address:', 'dintero-checkout-for-woocommerce' ); ?>
 						</strong>
