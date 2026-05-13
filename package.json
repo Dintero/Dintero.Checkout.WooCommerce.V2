@@ -9,7 +9,7 @@
     "@babel/core": "^7.29.0",
     "@babel/plugin-syntax-optional-chaining": "^7.8.3",
     "@babel/plugin-transform-runtime": "^7.29.0",
-    "@babel/preset-env": "^7.29.3",
+    "@babel/preset-env": "^7.29.5",
     "@babel/runtime": "^7.29.2",
     "@wordpress/eslint-plugin": "^16.0.13",
     "babel-loader": "^8.4.1",
