@@ -503,10 +503,6 @@ jQuery( function ( $ ) {
             if ( "phone_number" in address ) {
                 $( "#shipping_phone" ).val( address.phone_number );
             }
-
-            if ( "email" in address ) {
-                $( "#shipping_email" ).val( address.email );
-            }
         },
 
         shippingMethodChanged( shipping ) {
