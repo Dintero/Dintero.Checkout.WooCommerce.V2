@@ -602,6 +602,10 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		$phone                            = $this->order->get_shipping_phone();
 		$shipping_address['phone_number'] = wc_sanitize_phone_number( ! empty( $phone ) ? $phone : $this->order->get_billing_phone() );
 
+		// Check if a shipping email exist. Default to billing email.
+		$email                     = $this->order->get_meta( '_shipping_email' );
+		$shipping_address['email'] = ! empty( $email ) ? $email : $this->order->get_billing_email();
+
 		/* Sanitize all values. Remove all empty elements (required by Dintero). */
 		return array_filter(
 			$shipping_address,

@@ -597,12 +597,15 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			'postal_code'    => WC()->customer->get_shipping_postcode(),
 			'postal_place'   => WC()->customer->get_shipping_city(),
 			'country'        => WC()->customer->get_shipping_country(),
-			'email'          => WC()->customer->get_billing_email(),
 		);
 
 		// Check if a shipping phone number exist. Default to billing phone.
 		$phone                            = WC()->customer->get_shipping_phone();
 		$shipping_address['phone_number'] = wc_sanitize_phone_number( ! empty( $phone ) ? $phone : WC()->customer->get_billing_phone() );
+
+		// Check if a shipping email exist. Default to billing email.
+		$email                     = WC()->checkout()->get_value( 'shipping_email' );
+		$shipping_address['email'] = ! empty( $email ) ? $email : WC()->customer->get_billing_email();
 
 		/* Sanitize all values. Remove all empty elements (required by Dintero). */
 		return array_filter(

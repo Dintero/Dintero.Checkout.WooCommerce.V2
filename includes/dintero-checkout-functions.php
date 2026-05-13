@@ -195,6 +195,7 @@ function dintero_set_confirmation_order_meta( $dintero_order, &$order ) {
 	$order->update_meta_data( '_dintero_payment_method', $payment_method );
 
 	dintero_maybe_save_org_nr( $dintero_order, $order );
+	dintero_maybe_save_shipping_contact( $dintero_order, $order );
 
 	$order->save_meta_data();
 }
@@ -559,6 +560,34 @@ function dintero_maybe_save_org_nr( $dintero_order, $order ) {
 
 	if ( ! empty( $billing_org_nr ) ) {
 		$order->update_meta_data( '_billing_org_nr', wc_clean( $billing_org_nr ) );
+		$order->save();
+	}
+}
+
+/**
+ * Save shipping phone and email to the order from the Dintero response if available.
+ *
+ * @param array    $dintero_order The Dintero order from the GET request.
+ * @param WC_Order $order The Woo order.
+ * @return void
+ */
+function dintero_maybe_save_shipping_contact( $dintero_order, $order ) {
+	$changed = false;
+
+	$shipping_phone = $dintero_order['shipping_address']['phone_number'] ?? '';
+	if ( ! empty( $shipping_phone ) && method_exists( $order, 'set_shipping_phone' ) ) {
+		$order->set_shipping_phone( wc_sanitize_phone_number( $shipping_phone ) );
+		$changed = true;
+	}
+
+	$shipping_email = $dintero_order['shipping_address']['email'] ?? '';
+	if ( ! empty( $shipping_email ) ) {
+		$order->update_meta_data( '_shipping_email', wc_clean( $shipping_email ) );
+		$changed = true;
+	}
+
+	if ( $changed ) {
+		// Since we're hitting core metadata, we must save() the order instead of save_meta_data() to ensure the changes are persisted.
 		$order->save();
 	}
 }
