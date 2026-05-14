@@ -13,6 +13,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class for handling cart items.
  */
 abstract class Dintero_Checkout_Helper_Base {
+
+	abstract public function get_billing_address();
+
 	/**
 	 * Format the number according to what prices should be like in Dinteros API.
 	 *
@@ -309,5 +312,16 @@ abstract class Dintero_Checkout_Helper_Base {
 		}
 
 		return $image_url;
+	}
+
+	public function get_customer() {
+		$billing_address = $this->get_billing_address();
+		$customer        = array(
+			'email' => $billing_address['email'] ?? '',
+		);
+		if ( ! empty( $billing_address['phone_number'] ) ) {
+			$customer['phone_number'] = $billing_address['phone_number'];
+		}
+		return $customer;
 	}
 }
