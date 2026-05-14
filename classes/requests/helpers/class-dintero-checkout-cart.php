@@ -612,7 +612,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 		/* Sanitize all values. Remove all empty elements (required by Dintero). */
 		return array_filter(
 			$shipping_address,
-			fn( $value ) => ! empty( wc_clean( $value ) )
+			fn ( $value ) => ! empty( wc_clean( $value ) )
 		);
 	}
 }
