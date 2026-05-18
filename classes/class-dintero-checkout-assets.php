@@ -180,7 +180,6 @@ class Dintero_Checkout_Assets {
 			'shipping_state',
 			'shipping_country',
 			'shipping_company',
-			'shipping_phone',
 			'terms',
 			'terms-field',
 			'_wp_http_referer',
