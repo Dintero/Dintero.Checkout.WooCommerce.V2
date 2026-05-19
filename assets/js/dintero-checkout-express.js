@@ -115,24 +115,24 @@ jQuery( function ( $ ) {
                             checkout.refreshSession();
                         }
                     },
-                     onAddressCallback: function (event, checkout, callback) {
-                         console.log("address callback to handle express session address updates", event.session);
-                        
-                         // Check for address changes and update shipping.
-                        dinteroCheckoutForWooCommerce.updateAddress(
-                            event.session.order.billing_address,
-                            event.session.order.shipping_address,
-                        );
+                    onAddressCallback (event, checkout, callback) {
+                        console.log("address callback to handle express session address updates", event.session);
+                       
+                        // Check for address changes and update shipping.
+                       dinteroCheckoutForWooCommerce.updateAddress(
+                           event.session.order.billing_address,
+                           event.session.order.shipping_address,
+                       );
 
-                        if ( event.session.order.shipping_option && dinteroCheckoutParams.shipping_in_iframe ) {
-                            dinteroCheckoutForWooCommerce.shippingMethodChanged( event.session.order.shipping_option );
-                        }
+                       if ( event.session.order.shipping_option && dinteroCheckoutParams.shipping_in_iframe ) {
+                           dinteroCheckoutForWooCommerce.shippingMethodChanged( event.session.order.shipping_option );
+                       }
 
-                        callback({
-                            success: true,
-                            error: undefined,
-                        });
-                     },
+                       callback({
+                           success: true,
+                           error: undefined,
+                       });
+                    },
                     onPayment( event, checkout ) {
                         // Prevent multiple redirects.
                         if ( dinteroCheckoutForWooCommerce.alreadyRedirected ) {
