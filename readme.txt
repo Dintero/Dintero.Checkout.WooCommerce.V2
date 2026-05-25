@@ -6,7 +6,7 @@ Tested up to: 6.9.4
 Requires PHP: 7.4
 WC requires at least: 6.1.0
 WC tested up to: 10.7.0
-Stable tag: 1.13.8
+Stable tag: 1.14.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -135,6 +135,10 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us?ut
 6. Gift cards and Discount cards available.
 7. Remove headaches and manage your reconciliation, reports, transactions, refunds (transaction level), Gift Cards, payment methods, and more in the Dintero backoffice.
 == Changelog ==
+= 2026.05.25    - version 1.14.0 =
+* Feature       - Added support for shipping phone and email.
+* Tweak         - The phone number will now be omitted in the request if not provided to avoid API errors.
+
 = 2026.05.04    - version 1.13.8 =
 * Fix           - Added the request URL as the 2nd parameter to the 'http_headers_useragent' filter which is required for other plugins that hook onto this filter that need the URL to modify the user agent string accordingly.
 * Tweak         - Due to recent changes in WC, a generic error message is displayed when an error occurs during payment processing. This has now been fixed to show the actual error message.
