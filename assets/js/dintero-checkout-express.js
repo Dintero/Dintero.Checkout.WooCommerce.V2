@@ -130,7 +130,7 @@ jQuery( function ( $ ) {
                         // Billing is often absent in express; fall back to shipping.
                         const billingAddress = event.session.order.billing_address || shippingAddress;
 
-                        const postData = {
+                        const payload = {
                             dintero_locked: "1",
                             dintero_address_callback: "1",
                             ship_to_different_address: "1",
@@ -161,7 +161,7 @@ jQuery( function ( $ ) {
                             data: {
                                 security: dinteroCheckoutParams.update_order_review_nonce,
                                 payment_method: "dintero_checkout",
-                                post_data: $.param( postData ),
+                                post_data: $.param( payload ),
                             },
                             complete() {
                                 callback( { success: true } );
