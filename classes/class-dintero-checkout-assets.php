@@ -210,6 +210,8 @@ class Dintero_Checkout_Assets {
 				'allowDifferentBillingShippingAddress' => 'yes' === ( $settings['express_allow_different_billing_shipping_address'] ?? 'no' ) ? true : false,
 				'woocommerceShipToDestination'         => get_option( 'woocommerce_ship_to_destination' ),
 				'checkout_flow'                        => $settings['checkout_flow'] ?? 'express_popout',
+				'update_order_review_url'              => WC_AJAX::get_endpoint( 'update_order_review' ),
+				'update_order_review_nonce'            => wp_create_nonce( 'update-order-review' ),
 			)
 		);
 

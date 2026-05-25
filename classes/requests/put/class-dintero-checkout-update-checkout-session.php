@@ -41,8 +41,14 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 	 */
 	public function get_body() {
 		$helper = new Dintero_Checkout_Cart();
-		$body   = array(
-			'order'       => array(
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$raw_post_data       = isset( $_POST['post_data'] ) ? wp_unslash( $_POST['post_data'] ) : '';
+		parse_str( $raw_post_data, $post_data );
+		$post_data           = wc_clean( $post_data );
+		$is_address_callback = ! empty( $post_data['dintero_address_callback'] );
+
+		$body = array(
+			'order' => array(
 				'amount'     => $helper->get_order_total(),
 				'currency'   => $helper->get_currency(),
 				'vat_amount' => $helper->get_tax_total(),
@@ -51,11 +57,19 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 					'id' => preg_replace( '/(https?:\/\/|www.|\/\s*$)/i', '', get_home_url() ),
 				),
 			),
-			'remove_lock' => true,
 		);
 
-		// Only non-express checkout must be updated through API since the fields are entered in WC.
-		if ( ! dwc_is_express( $this->settings ) ) {
+		// In the address callback flow Dintero holds the lock and owns the pending address.
+		// Releasing it here causes Dintero to discard the pending address and revert to the
+		// session's initial state. Only release the lock for non-address-callback updates.
+		if ( ! $is_address_callback ) {
+			$body['remove_lock'] = true;
+		}
+
+		// For non-express checkout, addresses come from WC form fields and must be sent to Dintero.
+		// For express checkout during an address callback, we must also confirm the address back
+		// so Dintero can apply it to the session.
+		if ( ! dwc_is_express( $this->settings ) || $is_address_callback ) {
 			$billing_address = $helper->get_billing_address();
 			if ( ! empty( $billing_address ) ) {
 				$body['order']['billing_address'] = $billing_address;
