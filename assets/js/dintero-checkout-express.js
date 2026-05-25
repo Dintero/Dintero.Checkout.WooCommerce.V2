@@ -99,9 +99,7 @@ jQuery( function ( $ ) {
             if ( dinteroCheckoutForWooCommerce.checkout !== null && ! dinteroCheckoutForWooCommerce.validation ) {
                 $( "#dintero_locked" ).remove();
                 dinteroCheckoutForWooCommerce.isLocked = false;
-                if ( ! dinteroCheckoutForWooCommerce.addressCallbackActive ) {
-                    dinteroCheckoutForWooCommerce.checkout.refreshSession();
-                }
+                dinteroCheckoutForWooCommerce.checkout.refreshSession();
             }
         },
 
@@ -128,46 +126,46 @@ jQuery( function ( $ ) {
                     onAddressCallback( event, checkout, callback ) {
                         dinteroCheckoutForWooCommerce.addressCallbackActive = true;
 
-                        const shippingAddr = event.session?.order?.shipping_address ?? {};
+                        const shippingAddress = event.session.order.shipping_address || {};
                         // Billing is often absent in express; fall back to shipping.
-                        const billingAddr  = event.session?.order?.billing_address  ?? {};
-                        const billing      = Object.keys( billingAddr ).length ? billingAddr : shippingAddr;
+                        const billingAddress = event.session.order.billing_address || shippingAddress;
 
-                        const postDataParts = {
-                            dintero_locked:            '1',
-                            dintero_address_callback:  '1',
-                            ship_to_different_address: '1',
-                            shipping_first_name: shippingAddr.first_name     ?? '',
-                            shipping_last_name:  shippingAddr.last_name      ?? '',
-                            shipping_address_1:  shippingAddr.address_line   ?? '',
-                            shipping_address_2:  shippingAddr.address_line_2 ?? '',
-                            shipping_postcode:   shippingAddr.postal_code    ?? '',
-                            shipping_city:       shippingAddr.postal_place   ?? '',
-                            shipping_country:    shippingAddr.country        ?? '',
-                            shipping_company:    shippingAddr.business_name  ?? '',
-                            billing_first_name:  billing.first_name     ?? '',
-                            billing_last_name:   billing.last_name      ?? '',
-                            billing_address_1:   billing.address_line   ?? '',
-                            billing_address_2:   billing.address_line_2 ?? '',
-                            billing_postcode:    billing.postal_code    ?? '',
-                            billing_city:        billing.postal_place   ?? '',
-                            billing_country:     billing.country        ?? '',
-                            billing_company:     billing.business_name  ?? '',
-                            billing_phone:       billing.phone_number   ?? shippingAddr.phone_number ?? '',
-                            billing_email:       billing.email          ?? shippingAddr.email        ?? '',
+                        const postData = {
+                            dintero_locked: "1",
+                            dintero_address_callback: "1",
+                            ship_to_different_address: "1",
+                            shipping_first_name: shippingAddress.first_name || "",
+                            shipping_last_name: shippingAddress.last_name || "",
+                            shipping_address_1: shippingAddress.address_line || "",
+                            shipping_address_2: shippingAddress.address_line_2 || "",
+                            shipping_postcode: shippingAddress.postal_code || "",
+                            shipping_city: shippingAddress.postal_place || "",
+                            shipping_country: shippingAddress.country || "",
+                            shipping_company: shippingAddress.business_name || "",
+                            billing_first_name: billingAddress.first_name || "",
+                            billing_last_name: billingAddress.last_name || "",
+                            billing_address_1: billingAddress.address_line || "",
+                            billing_address_2: billingAddress.address_line_2 || "",
+                            billing_postcode: billingAddress.postal_code || "",
+                            billing_city: billingAddress.postal_place || "",
+                            billing_country: billingAddress.country || "",
+                            billing_company: billingAddress.business_name || "",
+                            billing_phone: billingAddress.phone_number || shippingAddress.phone_number || "",
+                            billing_email: billingAddress.email || shippingAddress.email || "",
                         };
 
                         $.ajax( {
-                            type: 'POST',
-                            dataType: 'json',
+                            type: "POST",
+                            dataType: "json",
                             url: dinteroCheckoutParams.update_order_review_url,
                             data: {
-                                security:       dinteroCheckoutParams.update_order_review_nonce,
-                                payment_method: 'dintero_checkout',
-                                post_data:      new URLSearchParams( postDataParts ).toString(),
+                                security: dinteroCheckoutParams.update_order_review_nonce,
+                                payment_method: "dintero_checkout",
+                                post_data: $.param( postData ),
                             },
-                        } ).always( function() {
-                            callback( { success: true } );
+                            complete() {
+                                callback( { success: true } );
+                            },
                         } );
                     },
                     onPayment( event, checkout ) {
