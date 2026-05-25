@@ -56,10 +56,7 @@ class Dintero_Checkout_Payment_Token extends Dintero_Checkout_Request_Post {
 				'url'      => array(
 					'return_url' => add_query_arg( 'gateway', 'dintero', home_url() ),
 				),
-				'customer' => array(
-					'email'        => $helper->get_billing_address()['email'] ?? '',
-					'phone_number' => $helper->get_billing_address()['phone_number'] ?? '',
-				),
+				'customer' => $helper->get_customer(),
 			),
 			'token_provider' => array(
 				'payment_product_type' => $token_provider,

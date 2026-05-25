@@ -4,12 +4,12 @@
   "repository": "git@github.com:Dintero/Dintero.Checkout.WooCommerce.V2.git",
   "author": "Krokedil <info@krokedil.se>",
   "license": "GPL-3.0+",
-  "packageManager": "pnpm@9.14.4+sha512.c8180b3fbe4e4bca02c94234717896b5529740a6cbadf19fa78254270403ea2f27d4e1d46a08a0f56c89b63dc8ebfd3ee53326da720273794e6200fcf0d184ab",
+  "packageManager": "pnpm@11.3.0",
   "devDependencies": {
     "@babel/core": "^7.29.0",
     "@babel/plugin-syntax-optional-chaining": "^7.8.3",
     "@babel/plugin-transform-runtime": "^7.29.0",
-    "@babel/preset-env": "^7.29.3",
+    "@babel/preset-env": "^7.29.5",
     "@babel/runtime": "^7.29.2",
     "@wordpress/eslint-plugin": "^16.0.13",
     "babel-loader": "^8.4.1",
@@ -32,7 +32,7 @@
     "jsmin": "pnpm webpack",
     "moveJS": "pnpm grunt move",
     "lint": "pnpm prettier assets/js --paren-spacing --tab-width 4 --print-width 120 --write",
-    "lint:check": "pnpm prettier assets/js --paren-spacing --tab-width 4 --print-width 120 --no-semi --debug-check",
+    "lint:check": "pnpm prettier assets/js --paren-spacing --tab-width 4 --print-width 120 --debug-check",
     "webpack:dev": "pnpm webpack --mode=development --watch",
     "build": "pnpm makepot && pnpm cssmin && pnpm lint:check && pnpm lint && pnpm jsmin && pnpm moveJS"
   },
@@ -43,7 +43,7 @@
     "grunt-zip": "^0.18.2"
   },
   "engines": {
-    "node": "^20.11.1",
-    "pnpm": "9.14.4"
+    "node": ">=20.11.1",
+    "pnpm": ">=9.14.4"
   }
 }

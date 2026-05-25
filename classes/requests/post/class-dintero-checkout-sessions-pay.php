@@ -45,6 +45,13 @@ class Dintero_Checkout_Sessions_Pay extends Dintero_Checkout_Request_Post {
 		$helper         = new Dintero_Checkout_Order( $order );
 		$token_provider = Dintero_Checkout_Subscription::get_token_provider_string_from_order( $order );
 
+		$customer          = $helper->get_customer();
+		$customer['tokens'] = array(
+			$token_provider => array(
+				'payment_token' => Dintero_Checkout_Subscription::get_payment_token( $helper->order->get_id() ),
+			),
+		);
+
 		$body = array(
 			'session' => array(
 				'order'         => array(
@@ -54,15 +61,7 @@ class Dintero_Checkout_Sessions_Pay extends Dintero_Checkout_Request_Post {
 					'vat_amount'         => $helper->get_tax_total(),
 					'items'              => $helper->get_order_lines(),
 				),
-				'customer'      => array(
-					'email'        => $helper->get_billing_address()['email'],
-					'phone_number' => $helper->get_billing_address()['phone_number'],
-					'tokens'       => array(
-						$token_provider => array(
-							'payment_token' => Dintero_Checkout_Subscription::get_payment_token( $helper->order->get_id() ),
-						),
-					),
-				),
+				'customer'      => $customer,
 				'configuration' => array(
 					'auto_capture' => false,
 				),
