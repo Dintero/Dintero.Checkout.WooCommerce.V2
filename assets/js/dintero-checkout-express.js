@@ -71,8 +71,6 @@ jQuery( function ( $ ) {
                 ) {
                     window.location.reload();
                 }
-
-
             } );
 
             /* These are _WC_ events we attach onto. */
@@ -128,7 +126,7 @@ jQuery( function ( $ ) {
 
                         dinteroCheckoutForWooCommerce.updateAddress(
                             event.session.order.billing_address,
-                            event.session.order.shipping_address
+                            event.session.order.shipping_address,
                         );
 
                         $.ajax( {
@@ -138,11 +136,14 @@ jQuery( function ( $ ) {
                             data: {
                                 security: dinteroCheckoutParams.update_order_review_nonce,
                                 payment_method: "dintero_checkout",
-                                post_data: $( "form.checkout" ).serialize() + "&" + $.param( {
-                                    dintero_locked: "1",
-                                    dintero_address_callback: "1",
-                                    ship_to_different_address: "1",
-                                } ),
+                                post_data:
+                                    $( "form.checkout" ).serialize() +
+                                    "&" +
+                                    $.param( {
+                                        dintero_locked: "1",
+                                        dintero_address_callback: "1",
+                                        ship_to_different_address: "1",
+                                    } ),
                             },
                             complete() {
                                 callback( { success: true } );
@@ -352,7 +353,7 @@ jQuery( function ( $ ) {
         },
 
         /* Maybe update the shipping and billing address. */
-        updateAddress(billingAddress, shippingAddress, finalize = false) {
+        updateAddress( billingAddress, shippingAddress, finalize = false ) {
             // TODO: this logic probably applies to all embedded checkouts, not just express.
             if (
                 "express_popout" !== dinteroCheckoutParams.checkout_flow &&
