@@ -526,6 +526,10 @@ jQuery( function ( $ ) {
                 $( "#shipping_country" ).val( address.country );
                 //$( "#shipping_country" ).change()
             }
+
+            if ( "phone_number" in address ) {
+                $( "#shipping_phone" ).val( address.phone_number );
+            }
         },
 
         shippingMethodChanged( shipping ) {

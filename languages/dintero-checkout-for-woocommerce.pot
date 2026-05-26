@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/Dintero.Checkout.WooCommerce.V2\n"
-"POT-Creation-Date: 2026-03-16 10:07:06+00:00\n"
+"POT-Creation-Date: 2026-05-25 09:20:25+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -61,19 +61,27 @@ msgstr ""
 msgid "Dintero Checkout"
 msgstr ""
 
-#: classes/class-dintero-checkout-gateway.php:301
+#: classes/class-dintero-checkout-gateway.php:251
+msgid "An error occurred while processing the payment. Please try again."
+msgstr ""
+
+#: classes/class-dintero-checkout-gateway.php:323
 msgid "Customer redirected to Dintero payment page."
 msgstr ""
 
-#: classes/class-dintero-checkout-gateway.php:326
+#: classes/class-dintero-checkout-gateway.php:348
 msgid ""
 "Refunds are only possible for orders that have been completed. If you have "
 "an order that has not been completed and needs to be canceled, set the "
 "order status to \"Canceled\"."
 msgstr ""
 
-#: classes/class-dintero-checkout-gateway.php:350
+#: classes/class-dintero-checkout-gateway.php:372
 msgid "Organization number:"
+msgstr ""
+
+#: classes/class-dintero-checkout-gateway.php:394
+msgid "Email address:"
 msgstr ""
 
 #: classes/class-dintero-checkout-meta-box.php:58
@@ -559,18 +567,18 @@ msgstr ""
 msgid "Background color:"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-cart.php:493
-#: classes/requests/helpers/class-dintero-checkout-cart.php:516
+#: classes/requests/helpers/class-dintero-checkout-cart.php:496
+#: classes/requests/helpers/class-dintero-checkout-cart.php:519
 #: classes/requests/helpers/class-dintero-checkout-order.php:363
 msgid "Gift card"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-cart.php:537
+#: classes/requests/helpers/class-dintero-checkout-cart.php:540
 msgid "Gift card:"
 msgstr ""
 
-#: classes/requests/helpers/class-dintero-checkout-helper-base.php:244
-#: classes/requests/helpers/class-dintero-checkout-helper-base.php:277
+#: classes/requests/helpers/class-dintero-checkout-helper-base.php:252
+#: classes/requests/helpers/class-dintero-checkout-helper-base.php:285
 msgid "Rounding fee"
 msgstr ""
 
@@ -642,38 +650,38 @@ msgid ""
 "verify your selected shipping method and try again."
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:112
-#: dintero-checkout-for-woocommerce.php:122
+#: dintero-checkout-for-woocommerce.php:113
+#: dintero-checkout-for-woocommerce.php:123
 msgid "Nope"
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:158
-#: dintero-checkout-for-woocommerce.php:175
+#: dintero-checkout-for-woocommerce.php:159
+#: dintero-checkout-for-woocommerce.php:176
 #. translators: 1: composer command. 2: plugin directory
 msgid ""
 "Your installation of the Dintero Checkout plugin is incomplete. Please run "
 "%1$s within the %2$s directory."
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:286
+#: dintero-checkout-for-woocommerce.php:287
 msgid "Dismiss"
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:288
+#: dintero-checkout-for-woocommerce.php:289
 msgid "The decimal setting for prices in WooCommerce is currently set to 0."
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:289
+#: dintero-checkout-for-woocommerce.php:290
 msgid ""
 "This may cause rounding issues with pricing and taxes. Learn more about why "
 "this can be problematic — and what to do instead: "
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:289
+#: dintero-checkout-for-woocommerce.php:290
 msgid "Don’t display prices with 0 decimals in WooCommerce"
 msgstr ""
 
-#: dintero-checkout-for-woocommerce.php:319
+#: dintero-checkout-for-woocommerce.php:320
 msgid "Settings"
 msgstr ""
 
@@ -681,23 +689,23 @@ msgstr ""
 msgid "Select another payment method"
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:216
+#: includes/dintero-checkout-functions.php:217
 #. translators: %s the Dintero transaction ID.
 msgid ""
 "The order was placed successfully, but requires further authorization by "
 "Dintero. Transaction ID: %s"
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:228
+#: includes/dintero-checkout-functions.php:229
 msgid "The order has been authorized."
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:230
+#: includes/dintero-checkout-functions.php:231
 #. translators: %s the Dintero transaction ID.
 msgid "The order was placed successfully via Dintero Checkout. Transaction ID: %s"
 msgstr ""
 
-#: includes/dintero-checkout-functions.php:277
+#: includes/dintero-checkout-functions.php:288
 #. translators: %s the error message.
 msgid ""
 "The order was completed, but the confirmation step failed due to a WP "
