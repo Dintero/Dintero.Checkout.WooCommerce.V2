@@ -126,33 +126,10 @@ jQuery( function ( $ ) {
                     onAddressCallback( event, checkout, callback ) {
                         dinteroCheckoutForWooCommerce.addressCallbackActive = true;
 
-                        const shippingAddress = event.session.order.shipping_address || {};
-                        // Billing is often absent in express; fall back to shipping.
-                        const billingAddress = event.session.order.billing_address || shippingAddress;
-
-                        const payload = {
-                            dintero_locked: "1",
-                            dintero_address_callback: "1",
-                            ship_to_different_address: "1",
-                            shipping_first_name: shippingAddress.first_name || "",
-                            shipping_last_name: shippingAddress.last_name || "",
-                            shipping_address_1: shippingAddress.address_line || "",
-                            shipping_address_2: shippingAddress.address_line_2 || "",
-                            shipping_postcode: shippingAddress.postal_code || "",
-                            shipping_city: shippingAddress.postal_place || "",
-                            shipping_country: shippingAddress.country || "",
-                            shipping_company: shippingAddress.business_name || "",
-                            billing_first_name: billingAddress.first_name || "",
-                            billing_last_name: billingAddress.last_name || "",
-                            billing_address_1: billingAddress.address_line || "",
-                            billing_address_2: billingAddress.address_line_2 || "",
-                            billing_postcode: billingAddress.postal_code || "",
-                            billing_city: billingAddress.postal_place || "",
-                            billing_country: billingAddress.country || "",
-                            billing_company: billingAddress.business_name || "",
-                            billing_phone: billingAddress.phone_number || shippingAddress.phone_number || "",
-                            billing_email: billingAddress.email || shippingAddress.email || "",
-                        };
+                        dinteroCheckoutForWooCommerce.updateAddress(
+                            event.session.order.billing_address,
+                            event.session.order.shipping_address
+                        );
 
                         $.ajax( {
                             type: "POST",
@@ -161,7 +138,11 @@ jQuery( function ( $ ) {
                             data: {
                                 security: dinteroCheckoutParams.update_order_review_nonce,
                                 payment_method: "dintero_checkout",
-                                post_data: $.param( payload ),
+                                post_data: $( "form.checkout" ).serialize() + "&" + $.param( {
+                                    dintero_locked: "1",
+                                    dintero_address_callback: "1",
+                                    ship_to_different_address: "1",
+                                } ),
                             },
                             complete() {
                                 callback( { success: true } );
