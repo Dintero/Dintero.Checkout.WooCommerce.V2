@@ -358,7 +358,6 @@ jQuery( function ( $ ) {
 
         /* Maybe update the shipping and billing address. */
         updateAddress( billingAddress, shippingAddress, finalize = false ) {
-            // TODO: this logic probably applies to all embedded checkouts, not just express.
             if (
                 "express_popout" !== dinteroCheckoutParams.checkout_flow &&
                 "express_embedded" !== dinteroCheckoutParams.checkout_flow
