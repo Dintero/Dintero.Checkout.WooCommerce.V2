@@ -156,7 +156,7 @@ class Dintero_Checkout_Order_Management {
 				);
 
 			} else {
-				$note = __( 'The Dintero order has been captured (no amount returned).', 'dintero-checkout-for-woocommerce' );
+				$note = __( 'The Dintero order has been captured.', 'dintero-checkout-for-woocommerce' );
 			}
 		}
 
