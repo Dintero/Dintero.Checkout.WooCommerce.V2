@@ -178,6 +178,8 @@ class Dintero_Checkout_Assets {
 			'shipping_postcode',
 			'shipping_city',
 			'shipping_state',
+			'shipping_phone',
+			'shipping_email',
 			'shipping_country',
 			'shipping_company',
 			'terms',
