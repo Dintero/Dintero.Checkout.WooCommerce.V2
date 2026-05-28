@@ -69,23 +69,22 @@ class Dintero_Checkout_Embedded {
 			}
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified upstream by WC_AJAX::update_order_review().
-		$this->is_address_callback = ! empty( filter_input( INPUT_POST, 'dintero_address_callback', FILTER_SANITIZE_NUMBER_INT ) );
+		$this->is_address_callback = ! empty( $post_data['dintero_address_callback'] );
 
 		// Address callback: update address fields that Dintero provides via the address event.
 		// These are not part of the normal express form and must be set explicitly.
 		if ( $this->is_address_callback ) {
 			isset( $post_data['billing_address_1'] ) && WC()->customer->set_billing_address_1( $post_data['billing_address_1'] );
 			isset( $post_data['billing_address_2'] ) && WC()->customer->set_billing_address_2( $post_data['billing_address_2'] );
-			isset( $post_data['billing_postcode'] )  && WC()->customer->set_billing_postcode( $post_data['billing_postcode'] );
-			isset( $post_data['billing_city'] )      && WC()->customer->set_billing_city( $post_data['billing_city'] );
-			isset( $post_data['billing_country'] )   && WC()->customer->set_billing_country( $post_data['billing_country'] );
+			isset( $post_data['billing_postcode'] ) && WC()->customer->set_billing_postcode( $post_data['billing_postcode'] );
+			isset( $post_data['billing_city'] ) && WC()->customer->set_billing_city( $post_data['billing_city'] );
+			isset( $post_data['billing_country'] ) && WC()->customer->set_billing_country( $post_data['billing_country'] );
 
 			isset( $post_data['shipping_address_1'] ) && WC()->customer->set_shipping_address_1( $post_data['shipping_address_1'] );
 			isset( $post_data['shipping_address_2'] ) && WC()->customer->set_shipping_address_2( $post_data['shipping_address_2'] );
-			isset( $post_data['shipping_postcode'] )  && WC()->customer->set_shipping_postcode( $post_data['shipping_postcode'] );
-			isset( $post_data['shipping_city'] )      && WC()->customer->set_shipping_city( $post_data['shipping_city'] );
-			isset( $post_data['shipping_country'] )   && WC()->customer->set_shipping_country( $post_data['shipping_country'] );
+			isset( $post_data['shipping_postcode'] ) && WC()->customer->set_shipping_postcode( $post_data['shipping_postcode'] );
+			isset( $post_data['shipping_city'] ) && WC()->customer->set_shipping_city( $post_data['shipping_city'] );
+			isset( $post_data['shipping_country'] ) && WC()->customer->set_shipping_country( $post_data['shipping_country'] );
 		}
 	}
 
