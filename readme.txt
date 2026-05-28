@@ -5,8 +5,8 @@ Requires at least: 5.8.3
 Tested up to: 6.9.4
 Requires PHP: 7.4
 WC requires at least: 6.1.0
-WC tested up to: 10.7.0
-Stable tag: 1.14.0
+WC tested up to: 10.8.1
+Stable tag: 1.14.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -135,6 +135,9 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us?ut
 6. Gift cards and Discount cards available.
 7. Remove headaches and manage your reconciliation, reports, transactions, refunds (transaction level), Gift Cards, payment methods, and more in the Dintero backoffice.
 == Changelog ==
+= 2026.05.28    - version 1.14.1 =
+* Fix           - Resolved a checkout validation error that could occur after upgrading to WooCommerce 10.8.0, where an empty shipping phone number caused the order to fail. The shipping phone field is now correctly populated with the value from Dintero, or the billing phone number if no shipping phone is provided.
+
 = 2026.05.25    - version 1.14.0 =
 * Feature       - Added support for shipping phone and email.
 * Tweak         - The phone number will now be omitted in the request if not provided to avoid API errors.
