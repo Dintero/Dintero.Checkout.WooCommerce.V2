@@ -136,12 +136,12 @@ jQuery( function ( $ ) {
                             data: {
                                 security: dinteroCheckoutParams.update_order_review_nonce,
                                 payment_method: "dintero_checkout",
+                                dintero_address_callback: "1",
                                 post_data:
                                     $( "form.checkout" ).serialize() +
                                     "&" +
                                     $.param( {
                                         dintero_locked: "1",
-                                        dintero_address_callback: "1",
                                         ship_to_different_address: "1",
                                     } ),
                             },

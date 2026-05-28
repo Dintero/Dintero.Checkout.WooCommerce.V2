@@ -15,6 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Dintero_Checkout_Embedded {
 
 	/**
+	 * Whether the current request is an address callback from Dintero.
+	 *
+	 * @var bool
+	 */
+	private $is_address_callback = false;
+
+	/**
 	 * Class constructor.
 	 */
 	public function __construct() {
@@ -62,9 +69,12 @@ class Dintero_Checkout_Embedded {
 			}
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified upstream by WC_AJAX::update_order_review().
+		$this->is_address_callback = ! empty( filter_input( INPUT_POST, 'dintero_address_callback', FILTER_SANITIZE_NUMBER_INT ) );
+
 		// Address callback: update address fields that Dintero provides via the address event.
 		// These are not part of the normal express form and must be set explicitly.
-		if ( ! empty( $post_data['dintero_address_callback'] ) ) {
+		if ( $this->is_address_callback ) {
 			isset( $post_data['billing_address_1'] ) && WC()->customer->set_billing_address_1( $post_data['billing_address_1'] );
 			isset( $post_data['billing_address_2'] ) && WC()->customer->set_billing_address_2( $post_data['billing_address_2'] );
 			isset( $post_data['billing_postcode'] )  && WC()->customer->set_billing_postcode( $post_data['billing_postcode'] );
@@ -168,7 +178,7 @@ class Dintero_Checkout_Embedded {
 			return;
 		}
 
-		Dintero()->api->update_checkout_session( $session_id );
+		Dintero()->api->update_checkout_session( $session_id, $this->is_address_callback );
 	}
 
 	/**

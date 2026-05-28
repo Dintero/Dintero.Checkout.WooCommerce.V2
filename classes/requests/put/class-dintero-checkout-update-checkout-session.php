@@ -40,12 +40,8 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 	 * @return array
 	 */
 	public function get_body() {
-		$helper = new Dintero_Checkout_Cart();
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$raw_post_data       = isset( $_POST['post_data'] ) ? wp_unslash( $_POST['post_data'] ) : '';
-		parse_str( $raw_post_data, $post_data );
-		$post_data           = wc_clean( $post_data );
-		$is_address_callback = ! empty( $post_data['dintero_address_callback'] );
+		$helper              = new Dintero_Checkout_Cart();
+		$is_address_callback = ! empty( $this->arguments['is_address_callback'] );
 
 		$body = array(
 			'order' => array(
