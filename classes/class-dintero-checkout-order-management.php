@@ -156,13 +156,13 @@ class Dintero_Checkout_Order_Management {
 				);
 
 			} else {
-				$note = __( 'The Dintero order has been captured.', 'dintero-checkout-for-woocommerce' );
+				$note = __( 'The Dintero order has been captured (no amount returned).', 'dintero-checkout-for-woocommerce' );
 			}
 		}
 
 		if ( ! isset( $note ) ) {
 			// Dintero will capture the order immediately for some payment methods (e.g., Swish).
-			$note = __( 'The Dintero order has been captured.', 'dintero-checkout-for-woocommerce' );
+			$note = __( 'The Dintero order is already marked as captured at Dintero. No capture request was sent.', 'dintero-checkout-for-woocommerce' );
 		}
 
 		$order->add_order_note( $note );
