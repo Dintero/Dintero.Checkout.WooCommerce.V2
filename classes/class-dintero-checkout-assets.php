@@ -212,6 +212,9 @@ class Dintero_Checkout_Assets {
 				'checkout_flow'                        => $settings['checkout_flow'] ?? 'express_popout',
 				'update_order_review_url'              => WC_AJAX::get_endpoint( 'update_order_review' ),
 				'update_order_review_nonce'            => wp_create_nonce( 'update-order-review' ),
+				'i18n'                                 => array(
+					'update_order_review_error' => __( 'Failed to update order. Please try again.', 'dintero-checkout-for-woocommerce' ),
+				),
 			)
 		);
 

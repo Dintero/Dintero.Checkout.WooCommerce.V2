@@ -145,8 +145,21 @@ jQuery( function ( $ ) {
                                         ship_to_different_address: "1",
                                     } ),
                             },
-                            complete() {
-                                callback( { success: true } );
+                            success( data ) {
+                                if ( data.result === "success" ) {
+                                    callback( { success: true } );
+                                } else {
+                                    dinteroCheckoutForWooCommerce.addressCallbackActive = false;
+                                    // wc_print_notices() returns HTML, strip tags before passing to Dintero.
+                                const message = data.messages
+                                        ? data.messages.replace( /<\/?[^>]+(>|$)\s*/g, "" )
+                                        : dinteroCheckoutParams.i18n.update_order_review_error;
+                                    callback( { success: false, error: message } );
+                                }
+                            },
+                            error() {
+                                dinteroCheckoutForWooCommerce.addressCallbackActive = false;
+                                callback( { success: false, error: dinteroCheckoutParams.i18n.update_order_review_error } );
                             },
                         } );
                     },
