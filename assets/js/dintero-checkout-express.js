@@ -421,7 +421,7 @@ jQuery( function ( $ ) {
                 shippingAddress &&
                 Object.keys( shippingAddress ).length > 1
             ) {
-                dinteroCheckoutForWooCommerce.saveAddressToShippingFields( shippingAddress );
+                dinteroCheckoutForWooCommerce.saveAddressToShippingFields( shippingAddress, billingAddress );
 
                 /**
                  * Dintero does not require first and last name for business purchases, whereas this is required by WooCommerce.
@@ -457,8 +457,9 @@ jQuery( function ( $ ) {
          * Saves the address to the shipping fields.
          *
          * @param {Object} address - The address object containing address details.
+         * @param {Object} default - The default address object containing default address details.
          */
-        saveAddressToShippingFields( address ) {
+        saveAddressToShippingFields( address, defaults = {} ) {
             $( "#ship-to-different-address-checkbox" ).prop( "checked", true );
 
             if ( address.co_address ) {
@@ -500,8 +501,14 @@ jQuery( function ( $ ) {
                 //$( "#shipping_country" ).change()
             }
 
-            if ( "phone_number" in address ) {
-                $( "#shipping_phone" ).val( address.phone_number );
+            const shippingPhone = $( "#shipping_phone" );
+            if ( shippingPhone.length ) {
+                shippingPhone.val( ( address.phone_number || defaults.phone_number ) ?? "" );
+            }
+
+            const shippingEmail = $( "#shipping_email" );
+            if ( shippingEmail.length ) {
+                shippingEmail.val( ( address.email || defaults.email ) ?? "" );
             }
         },
 
