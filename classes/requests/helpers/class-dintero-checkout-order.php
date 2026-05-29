@@ -325,7 +325,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			'quantity'    => 1,
 			'amount'      => $amount,
 			'vat_amount'  => $vat_amount,
-			'vat'         => $amount <= 0 ? 0 : $vat_amount / $amount,
+			'vat'         => $fee_total <= 0 ? 0 : self::format_number( $fee_total_tax / $fee_total ),
 		);
 	}
 

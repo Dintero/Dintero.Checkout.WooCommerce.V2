@@ -170,7 +170,7 @@ class Dintero_Checkout_Cart extends Dintero_Checkout_Helper_Base {
 			'quantity'    => 1,
 			'amount'      => self::format_number( $fee->amount + $fee->tax ),
 			'vat_amount'  => self::format_number( $fee->tax ),
-			'vat'         => empty( floatval( $fee->amount + $fee->tax ) ) ? 0 : self::format_number( $fee->tax / ( $fee->amount + $fee->tax ) ),
+			'vat'         => empty( floatval( $fee->amount ) ) ? 0 : self::format_number( $fee->tax / $fee->amount ),
 		);
 	}
 
