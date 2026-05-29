@@ -17,6 +17,7 @@ jQuery( function ( $ ) {
         isLocked: false,
         updateTimer: null,
         alreadyRedirected: false,
+        pendingAddressCallback: null,
 
         /**
          * Updates the checkout based on a timer to not spam updates each time an event wants to, but rather limits to one update per second.
@@ -26,12 +27,17 @@ jQuery( function ( $ ) {
                 clearTimeout( dinteroCheckoutForWooCommerce.updateTimer );
             }
 
-            // If the session is not locked, do so.
-            if ( dinteroCheckoutForWooCommerce.isLocked === false && dinteroCheckoutForWooCommerce.checkout !== null ) {
-                dinteroCheckoutForWooCommerce.isLocked = true;
-                dinteroCheckoutForWooCommerce.checkout.lockSession();
-            } else {
-                dinteroCheckoutForWooCommerce.updateCheckout();
+            // During an address callback Dintero holds the lock. Skip locking and let the timer fire update_checkout directly, relying on updatedCheckout for the result.
+            if ( ! dinteroCheckoutForWooCommerce.pendingAddressCallback ) {
+                if (
+                    dinteroCheckoutForWooCommerce.isLocked === false &&
+                    dinteroCheckoutForWooCommerce.checkout !== null
+                ) {
+                    dinteroCheckoutForWooCommerce.isLocked = true;
+                    dinteroCheckoutForWooCommerce.checkout.lockSession();
+                } else {
+                    dinteroCheckoutForWooCommerce.updateCheckout();
+                }
             }
 
             dinteroCheckoutForWooCommerce.updateTimer = setTimeout( () => {
@@ -88,18 +94,36 @@ jQuery( function ( $ ) {
             }
         },
 
-        updatedCheckout() {
+        updatedCheckout( event, data ) {
             if ( dinteroCheckoutForWooCommerce.checkout !== null && ! dinteroCheckoutForWooCommerce.validation ) {
                 $( "#dintero_locked" ).remove();
                 dinteroCheckoutForWooCommerce.isLocked = false;
-                dinteroCheckoutForWooCommerce.checkout.refreshSession();
+
+                if ( dinteroCheckoutForWooCommerce.pendingAddressCallback ) {
+                    $( "#dintero_address_callback" ).remove();
+                    const callback = dinteroCheckoutForWooCommerce.pendingAddressCallback;
+                    dinteroCheckoutForWooCommerce.pendingAddressCallback = null;
+
+                    if ( data && data.result === "success" ) {
+                        callback( { success: true } );
+                    } else {
+                        // wc_print_notices() returns HTML, strip tags before passing to Dintero.
+                        const message =
+                            data && data.messages
+                                ? data.messages.replace( /<\/?[^>]+(>|$)\s*/g, "" )
+                                : dinteroCheckoutParams.i18n.update_order_review_error;
+                        callback( { success: false, error: message } );
+                    }
+                } else {
+                    dinteroCheckoutForWooCommerce.checkout.refreshSession();
+                }
             }
         },
 
         /**
          * Render the iframe and register callback functionality.
          */
-        async renderIframe() {
+        renderIframe() {
             const container = $( "#dintero-checkout-iframe" )[ 0 ];
 
             dintero
@@ -113,18 +137,22 @@ jQuery( function ( $ ) {
                         if ( event.session === undefined || event.session.order === undefined ) {
                             // Refresh the session to display the error message from Dintero. The error itself should be handled by any of other event handlers.
                             checkout.refreshSession();
-                            return;
                         }
+                    },
+                    onAddressCallback( event, checkout, callback ) {
+                        dinteroCheckoutForWooCommerce.pendingAddressCallback = callback;
 
-                        // Check for address changes and update shipping.
+                        $( "form.checkout" ).append(
+                            '<input type="hidden" name="dintero_locked" id="dintero_locked" value="1">',
+                        );
+                        $( "form.checkout" ).append(
+                            '<input type="hidden" name="dintero_address_callback" id="dintero_address_callback" value="1">',
+                        );
+
                         dinteroCheckoutForWooCommerce.updateAddress(
                             event.session.order.billing_address,
                             event.session.order.shipping_address,
                         );
-                        if ( event.session.order.shipping_option && dinteroCheckoutParams.shipping_in_iframe ) {
-                            // @TODO only if shipping in iframe.
-                            dinteroCheckoutForWooCommerce.shippingMethodChanged( event.session.order.shipping_option );
-                        }
                     },
                     onPayment( event, checkout ) {
                         // Prevent multiple redirects.
@@ -160,7 +188,9 @@ jQuery( function ( $ ) {
                         dinteroCheckoutForWooCommerce.unsetSession( window.location.pathname );
                     },
                     onSessionLocked( event, checkout, callback ) {
-                        dinteroCheckoutForWooCommerce.delayUpdateCheckout();
+                        if ( ! dinteroCheckoutForWooCommerce.pendingAddressCallback ) {
+                            dinteroCheckoutForWooCommerce.delayUpdateCheckout();
+                        }
                     },
                     onSessionLockFailed( event, checkout ) {
                         console.warn( "Failed to lock the checkout.", event );
@@ -335,8 +365,9 @@ jQuery( function ( $ ) {
                 return;
             }
 
-            let update = false;
+            let did_update = false;
 
+            billingAddress = billingAddress || shippingAddress;
             if ( billingAddress ) {
                 // Maybe set names if its a b2b purchase.
                 if ( billingAddress.co_address ) {
@@ -413,7 +444,7 @@ jQuery( function ( $ ) {
                     }
                 }
 
-                update = true;
+                did_update = true;
             }
 
             if (
@@ -442,11 +473,11 @@ jQuery( function ( $ ) {
                     }
                 }
 
-                update = true;
+                did_update = true;
             }
 
             // Trigger changes
-            if ( update && dinteroCheckoutForWooCommerce.validation !== true ) {
+            if ( did_update && dinteroCheckoutForWooCommerce.validation !== true ) {
                 //$( "#billing_email" ).change()
                 //$( "#billing_email" ).blur()
                 dinteroCheckoutForWooCommerce.delayUpdateCheckout();

@@ -67,8 +67,11 @@ class Dintero_Checkout_API {
 	 * @param string $session_id The Dintero session id.
 	 * @return array|WP_Error
 	 */
-	public function update_checkout_session( $session_id ) {
-		$args     = array( 'session_id' => $session_id );
+	public function update_checkout_session( $session_id, $is_address_callback = false ) {
+		$args     = array(
+			'session_id'          => $session_id,
+			'is_address_callback' => $is_address_callback,
+		);
 		$request  = new Dintero_Checkout_Update_Checkout_Session( $args );
 		$response = $request->request();
 		return $this->check_for_api_error( $response );
