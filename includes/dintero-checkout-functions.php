@@ -549,17 +549,35 @@ function dwc_can_update_checkout() {
 }
 
 /**
- * Save the organization number to the order if available.
+ * Save the organization number and company name to the order if available.
  *
  * @param array    $dintero_order The Dintero order from the GET request.
  * @param WC_Order $order The Woo order.
  * @return void
  */
 function dintero_maybe_save_org_nr( $dintero_order, $order ) {
-	$billing_org_nr = $dintero_order['billing_address']['organization_number'] ?? '';
+	$changed = false;
 
+	$billing_org_nr = $dintero_order['billing_address']['organization_number'] ?? '';
 	if ( ! empty( $billing_org_nr ) ) {
 		$order->update_meta_data( '_billing_org_nr', wc_clean( $billing_org_nr ) );
+		$changed = true;
+	}
+
+	// Business purchases provide the company name as business_name on the Dintero address; map it onto the order's company fields when not already set.
+	$billing_company = $dintero_order['billing_address']['business_name'] ?? '';
+	if ( ! empty( $billing_company ) && empty( $order->get_billing_company() ) ) {
+		$order->set_billing_company( wc_clean( $billing_company ) );
+		$changed = true;
+	}
+
+	$shipping_company = $dintero_order['shipping_address']['business_name'] ?? '';
+	if ( ! empty( $shipping_company ) && empty( $order->get_shipping_company() ) ) {
+		$order->set_shipping_company( wc_clean( $shipping_company ) );
+		$changed = true;
+	}
+
+	if ( $changed ) {
 		$order->save();
 	}
 }
