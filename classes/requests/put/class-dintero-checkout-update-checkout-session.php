@@ -40,8 +40,11 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 	 * @return array
 	 */
 	public function get_body() {
-		$helper              = new Dintero_Checkout_Cart();
-		$is_address_callback = ! empty( $this->arguments['is_address_callback'] );
+		$helper = new Dintero_Checkout_Cart();
+
+		// The address callback context lives in the WC session (set by the dintero_set_address_callback AJAX), not the request arguments.
+		$callback            = WC()->session->get( 'dintero_address_callback' );
+		$is_address_callback = ! empty( $callback );
 
 		$body = array(
 			'order' => array(
@@ -72,9 +75,9 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 				$body['order']['shipping_address'] = $shipping_address;
 			}
 		} elseif ( $is_address_callback ) {
-			$address_data      = $this->arguments['address_callback_data'] ?? array();
-			$callback_billing  = $address_data['billing_address'] ?? array();
-			$callback_shipping = $address_data['shipping_address'] ?? array();
+			// Express address callback: echo back Dintero's exact event address from the session. A copy rebuilt from WC fields makes Dintero re-fire the callback.
+			$callback_billing  = $callback['billing_address'] ?? array();
+			$callback_shipping = $callback['shipping_address'] ?? array();
 
 			// The business flow often supplies only a shipping address; use it for billing too so the organization_number reaches Dintero on both.
 			if ( empty( $callback_billing ) && ! empty( $callback_shipping ) ) {

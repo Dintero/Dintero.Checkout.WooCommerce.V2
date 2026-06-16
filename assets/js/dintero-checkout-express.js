@@ -100,8 +100,6 @@ jQuery( function ( $ ) {
                 dinteroCheckoutForWooCommerce.isLocked = false;
 
                 if ( dinteroCheckoutForWooCommerce.pendingAddressCallback ) {
-                    $( "#dintero_address_callback" ).remove();
-                    $( "#dintero_address_data" ).remove();
                     const callback = dinteroCheckoutForWooCommerce.pendingAddressCallback;
                     dinteroCheckoutForWooCommerce.pendingAddressCallback = null;
 
@@ -146,29 +144,27 @@ jQuery( function ( $ ) {
                         $( "form.checkout" ).append(
                             '<input type="hidden" name="dintero_locked" id="dintero_locked" value="1">',
                         );
-                        $( "form.checkout" ).append(
-                            '<input type="hidden" name="dintero_address_callback" id="dintero_address_callback" value="1">',
-                        );
 
-                        // Forward the address Dintero sent in the event so the session update can echo it back. It carries the organization_number for business purchases, which WooCommerce does not store and Dintero reverts if not confirmed.
+                        // Send the event address (incl. the organization_number WC has no field for) to the session so the update echoes it back verbatim. A copy rebuilt from WC fields makes Dintero re-fire the callback.
                         const order = ( event.session && event.session.order ) || {};
-                        $( "#dintero_address_data" ).remove();
-                        $( "form.checkout" ).append(
-                            $( "<input>", {
-                                type: "hidden",
-                                name: "dintero_address_data",
-                                id: "dintero_address_data",
-                                value: JSON.stringify( {
+
+                        $.ajax( {
+                            type: "POST",
+                            url: dinteroCheckoutParams.addressCallbackUrl,
+                            data: {
+                                nonce: dinteroCheckoutParams.addressCallbackNonce,
+                                address: JSON.stringify( {
                                     billing_address: order.billing_address,
                                     shipping_address: order.shipping_address,
                                 } ),
-                            } ),
-                        );
-
-                        dinteroCheckoutForWooCommerce.updateAddress(
-                            order.billing_address,
-                            order.shipping_address,
-                        );
+                            },
+                            complete() {
+                                dinteroCheckoutForWooCommerce.updateAddress(
+                                    order.billing_address,
+                                    order.shipping_address,
+                                );
+                            },
+                        } );
                     },
                     onPayment( event, checkout ) {
                         // Prevent multiple redirects.
