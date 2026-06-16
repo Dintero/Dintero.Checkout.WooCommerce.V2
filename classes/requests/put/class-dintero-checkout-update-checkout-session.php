@@ -60,7 +60,7 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 			$body['remove_lock'] = true;
 		}
 
-		// Only non-express checkout echoes the address back. In express, Dintero owns the pending address (and the organization number entered in the iframe, which WooCommerce never stores), so re-sending WooCommerce's incomplete copy would wipe it.
+		// Non-express checkout sends the address from the WC form fields. Express must not send WooCommerce's copy (it lacks the organization_number), but during an address callback it must echo back the address Dintero supplied in the event — that copy carries the organization_number, and Dintero reverts the customer's selection if it is not confirmed back.
 		if ( ! dwc_is_express( $this->settings ) ) {
 			$billing_address = $helper->get_billing_address();
 			if ( ! empty( $billing_address ) ) {
@@ -70,6 +70,23 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 			$shipping_address = $helper->get_shipping_address();
 			if ( ! empty( $shipping_address ) ) {
 				$body['order']['shipping_address'] = $shipping_address;
+			}
+		} elseif ( $is_address_callback ) {
+			$address_data      = $this->arguments['address_callback_data'] ?? array();
+			$callback_billing  = $address_data['billing_address'] ?? array();
+			$callback_shipping = $address_data['shipping_address'] ?? array();
+
+			// The business flow often supplies only a shipping address; use it for billing too so the organization_number reaches Dintero on both.
+			if ( empty( $callback_billing ) && ! empty( $callback_shipping ) ) {
+				$callback_billing = $callback_shipping;
+			}
+
+			if ( ! empty( $callback_billing ) ) {
+				$body['order']['billing_address'] = $callback_billing;
+			}
+
+			if ( ! empty( $callback_shipping ) ) {
+				$body['order']['shipping_address'] = $callback_shipping;
 			}
 		}
 

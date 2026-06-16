@@ -101,6 +101,7 @@ jQuery( function ( $ ) {
 
                 if ( dinteroCheckoutForWooCommerce.pendingAddressCallback ) {
                     $( "#dintero_address_callback" ).remove();
+                    $( "#dintero_address_data" ).remove();
                     const callback = dinteroCheckoutForWooCommerce.pendingAddressCallback;
                     dinteroCheckoutForWooCommerce.pendingAddressCallback = null;
 
@@ -149,9 +150,24 @@ jQuery( function ( $ ) {
                             '<input type="hidden" name="dintero_address_callback" id="dintero_address_callback" value="1">',
                         );
 
+                        // Forward the address Dintero sent in the event so the session update can echo it back. It carries the organization_number for business purchases, which WooCommerce does not store and Dintero reverts if not confirmed.
+                        const order = ( event.session && event.session.order ) || {};
+                        $( "#dintero_address_data" ).remove();
+                        $( "form.checkout" ).append(
+                            $( "<input>", {
+                                type: "hidden",
+                                name: "dintero_address_data",
+                                id: "dintero_address_data",
+                                value: JSON.stringify( {
+                                    billing_address: order.billing_address,
+                                    shipping_address: order.shipping_address,
+                                } ),
+                            } ),
+                        );
+
                         dinteroCheckoutForWooCommerce.updateAddress(
-                            event.session.order.billing_address,
-                            event.session.order.shipping_address,
+                            order.billing_address,
+                            order.shipping_address,
                         );
                     },
                     onPayment( event, checkout ) {
