@@ -55,17 +55,13 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 			),
 		);
 
-		// In the address callback flow Dintero holds the lock and owns the pending address.
-		// Releasing it here causes Dintero to discard the pending address and revert to the
-		// session's initial state. Only release the lock for non-address-callback updates.
+		// Keep the lock during an address callback so Dintero retains its pending session state.
 		if ( ! $is_address_callback ) {
 			$body['remove_lock'] = true;
 		}
 
-		// For non-express checkout, addresses come from WC form fields and must be sent to Dintero.
-		// For express checkout during an address callback, we must also confirm the address back
-		// so Dintero can apply it to the session.
-		if ( ! dwc_is_express( $this->settings ) || $is_address_callback ) {
+		// Only non-express checkout echoes the address back. In express, Dintero owns the pending address (and the organization number entered in the iframe, which WooCommerce never stores), so re-sending WooCommerce's incomplete copy would wipe it.
+		if ( ! dwc_is_express( $this->settings ) ) {
 			$billing_address = $helper->get_billing_address();
 			if ( ! empty( $billing_address ) ) {
 				$body['order']['billing_address'] = $billing_address;
@@ -77,8 +73,8 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 			}
 		}
 
-		// Set if express or not.
-		if ( $this->is_express() && $this->is_embedded() ) {
+		// Set the allowed customer types. Skip during an address callback, as re-sending them can reset the customer's current selection mid-switch.
+		if ( $this->is_express() && $this->is_embedded() && ! $is_address_callback ) {
 			$this->add_express_object( $body );
 		}
 
