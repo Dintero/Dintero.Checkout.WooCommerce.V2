@@ -44,6 +44,7 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 
 		// The address callback context lives in the WC session (set by the dintero_set_address_callback AJAX), not the request arguments.
 		$callback            = WC()->session->get( 'dintero_address_callback' );
+		$callback            = is_array( $callback ) ? $callback : array();
 		$is_address_callback = ! empty( $callback );
 
 		$body = array(
