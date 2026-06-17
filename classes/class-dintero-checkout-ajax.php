@@ -173,9 +173,17 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 			wp_send_json_error( 'bad_nonce' );
 		}
 
-		// Sanitised below via wc_clean() once decoded.
-		$address = isset( $_POST['address'] ) ? json_decode( wp_unslash( $_POST['address'] ), true ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		WC()->session->set( 'dintero_address_callback', is_array( $address ) ? wc_clean( $address ) : array() );
+		$raw = isset( $_POST['address'] ) ? json_decode( wp_unslash( $_POST['address'] ), true ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$raw = is_array( $raw ) ? $raw : array();
+
+		$address = array();
+		foreach ( array( 'billing_address', 'shipping_address' ) as $key ) {
+			if ( ! empty( $raw[ $key ] ) && is_array( $raw[ $key ] ) ) {
+				$address[ $key ] = wc_clean( array_filter( $raw[ $key ], 'is_scalar' ) );
+			}
+		}
+
+		WC()->session->set( 'dintero_address_callback', $address );
 
 		wp_send_json_success();
 	}
