@@ -145,12 +145,23 @@ jQuery( function ( $ ) {
                             '<input type="hidden" name="dintero_locked" id="dintero_locked" value="1">',
                         );
 
-                        // Send the event address (incl. the organization_number WC has no field for) to the session so the update echoes it back verbatim. A copy rebuilt from WC fields makes Dintero re-fire the callback.
+                        // Send the event address (incl. the organization_number WC has no field for) to the session so the update echoes it back as-is. A copy rebuilt from WC fields makes Dintero re-fire the callback.
                         const order = ( event.session && event.session.order ) || {};
+
+                        // If the context can't be persisted, abort: a normal update would drop the lock and not echo the address, reverting the selection. Remove the lock field, clear state, and fail the callback.
+                        const abort = () => {
+                            $( "#dintero_locked" ).remove();
+                            dinteroCheckoutForWooCommerce.pendingAddressCallback = null;
+                            callback( {
+                                success: false,
+                                error: dinteroCheckoutParams.i18n.update_order_review_error,
+                            } );
+                        };
 
                         $.ajax( {
                             type: "POST",
                             url: dinteroCheckoutParams.addressCallbackUrl,
+                            dataType: "json",
                             data: {
                                 nonce: dinteroCheckoutParams.addressCallbackNonce,
                                 address: JSON.stringify( {
@@ -158,12 +169,17 @@ jQuery( function ( $ ) {
                                     shipping_address: order.shipping_address,
                                 } ),
                             },
-                            complete() {
-                                dinteroCheckoutForWooCommerce.updateAddress(
-                                    order.billing_address,
-                                    order.shipping_address,
-                                );
+                            success( response ) {
+                                if ( response && response.success ) {
+                                    dinteroCheckoutForWooCommerce.updateAddress(
+                                        order.billing_address,
+                                        order.shipping_address,
+                                    );
+                                } else {
+                                    abort();
+                                }
                             },
+                            error: abort,
                         } );
                     },
                     onPayment( event, checkout ) {
