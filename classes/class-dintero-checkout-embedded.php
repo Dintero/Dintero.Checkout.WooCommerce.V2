@@ -179,10 +179,12 @@ class Dintero_Checkout_Embedded {
 			return;
 		}
 
-		Dintero()->api->update_checkout_session( $session_id );
+		$response = Dintero()->api->update_checkout_session( $session_id );
 
-		// Consume the address callback marker so it does not leak into later (non-callback) updates.
-		WC()->session->set( 'dintero_address_callback', null );
+		// Consume the address callback marker only on a successful update, so a failed update can be retried in callback mode (lock kept, address echoed back).
+		if ( ! is_wp_error( $response ) ) {
+			WC()->session->set( 'dintero_address_callback', null );
+		}
 	}
 
 	/**
