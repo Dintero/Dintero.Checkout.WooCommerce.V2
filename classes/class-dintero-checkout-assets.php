@@ -117,6 +117,11 @@ class Dintero_Checkout_Assets {
 			return;
 		}
 
+		// Don't initialize the express checkout in the theme customizer preview.
+		if ( is_customize_preview() ) {
+			return;
+		}
+
 		if ( ! dwc_is_embedded( $settings ) ) {
 			return;
 		}
@@ -141,6 +146,11 @@ class Dintero_Checkout_Assets {
 		$session_id = WC()->session->get( 'dintero_checkout_session_id' );
 		// If we don't have a session, or the cart has changed subscription status, create a new session.
 		if ( empty( $session_id ) || Dintero_Checkout_Subscription::maybe_reset_session_on_subscription_change() ) {
+			// Don't create a session without a cart. An empty cart results in an empty items array, which Dintero's API rejects.
+			if ( ! isset( WC()->cart ) || WC()->cart->is_empty() ) {
+				return;
+			}
+
 			WC()->cart->calculate_shipping();
 			// The checkout is only available for free orders if the cart contains subscriptions.
 			// We therefore don't have to check if the cart contains subscriptions. Refer to Dintero_Checkout_Subscription::is_available().
