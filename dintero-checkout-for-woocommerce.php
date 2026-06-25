@@ -11,7 +11,7 @@
  * Requires Plugins: woocommerce
  *
  * WC requires at least: 6.1.0
- * WC tested up to: 10.8.1
+ * WC tested up to: 10.9.1
  *
  * Copyright (c) 2026 Krokedil
  *
