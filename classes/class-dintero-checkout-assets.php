@@ -147,7 +147,8 @@ class Dintero_Checkout_Assets {
 
 		// A stored session id can be stale (e.g. a returning customer whose session expired at Dintero after 24h).
 		// Reusing it would hand a dead SID to the web SDK and the checkout would never render, so verify it first.
-		if ( ! empty( $session_id ) && is_wp_error( Dintero()->api->get_session( $session_id ) ) ) {
+		// Only discard on a 4xx (expired/unknown id); a transient network/5xx error keeps the id.
+		if ( ! empty( $session_id ) && dintero_is_stale_session_error( Dintero()->api->get_session( $session_id ) ) ) {
 			dintero_unset_sessions();
 			$session_id = '';
 		}

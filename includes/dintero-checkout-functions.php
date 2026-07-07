@@ -62,6 +62,27 @@ function dintero_checkout_wc_show_another_gateway_button() {
 }
 
 /**
+ * Whether a WP_Error from a session request means the stored session id is unusable.
+ *
+ * Dintero answers with a 4xx when the session id is expired, unknown or otherwise invalid
+ * (e.g. 404 NOT_FOUND for an expired session, 400 for an id it won't accept). In those cases the
+ * stored id should be discarded and a new session created. Network failures and 5xx are transient,
+ * so the id is kept to avoid needlessly dropping an otherwise-valid session.
+ *
+ * @param mixed $response The value returned from an API call.
+ * @return bool
+ */
+function dintero_is_stale_session_error( $response ) {
+	if ( ! is_wp_error( $response ) ) {
+		return false;
+	}
+
+	$code = $response->get_error_code();
+	// Transport errors carry a non-numeric code (e.g. 'http_request_failed'); those are transient.
+	return is_numeric( $code ) && intval( $code ) >= 400 && intval( $code ) < 500;
+}
+
+/**
  * Unsets all sessions set by Dintero.
  *
  * @return void
