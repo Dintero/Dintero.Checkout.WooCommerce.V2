@@ -196,6 +196,13 @@ jQuery( function ( $ ) {
                         // Freeze session updates while the order is submitted and the payment authorized. Unlike validation (reset synchronously below), this must stay set across the async submitOrder; onPayment clears it by redirecting on success, failOrder on failure.
                         dinteroCheckoutForWooCommerce.isFinalizing = true;
 
+                        // Cancel any queued update and drop the lock marker so an update_checkout scheduled just before finalizing cannot still PUT the session (dwc_can_update_checkout() requires dintero_locked).
+                        if ( dinteroCheckoutForWooCommerce.updateTimer ) {
+                            clearTimeout( dinteroCheckoutForWooCommerce.updateTimer );
+                            dinteroCheckoutForWooCommerce.updateTimer = null;
+                        }
+                        $( "#dintero_locked" ).remove();
+
                         dinteroCheckoutForWooCommerce.validation = true;
                         dinteroCheckoutForWooCommerce.updateAddress(
                             event.session.order.billing_address,
