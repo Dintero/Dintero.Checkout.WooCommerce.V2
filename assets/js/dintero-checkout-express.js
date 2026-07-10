@@ -17,11 +17,17 @@ jQuery( function ( $ ) {
         isLocked: false,
         updateTimer: null,
         alreadyRedirected: false,
+        isFinalizing: false,
 
         /**
          * Updates the checkout based on a timer to not spam updates each time an event wants to, but rather limits to one update per second.
          */
         delayUpdateCheckout() {
+            // Once the order is submitted for payment (onValidateSession), the session is being authorized/consumed by Dintero. Any session update now races the authorization, can hit a consumed session (404 NOT_FOUND), and break the onPayment redirect. Stop touching the session.
+            if ( dinteroCheckoutForWooCommerce.isFinalizing ) {
+                return;
+            }
+
             if ( dinteroCheckoutForWooCommerce.updateTimer ) {
                 clearTimeout( dinteroCheckoutForWooCommerce.updateTimer );
             }
@@ -81,7 +87,11 @@ jQuery( function ( $ ) {
         },
 
         updateCheckout() {
-            if ( dinteroCheckoutForWooCommerce.checkout !== null && ! dinteroCheckoutForWooCommerce.validation ) {
+            if (
+                dinteroCheckoutForWooCommerce.checkout !== null &&
+                ! dinteroCheckoutForWooCommerce.validation &&
+                ! dinteroCheckoutForWooCommerce.isFinalizing
+            ) {
                 $( dinteroCheckoutForWooCommerce.checkoutFormSelector ).append(
                     '<input type="hidden" name="dintero_locked" id="dintero_locked" value=1>',
                 );
@@ -89,7 +99,11 @@ jQuery( function ( $ ) {
         },
 
         updatedCheckout() {
-            if ( dinteroCheckoutForWooCommerce.checkout !== null && ! dinteroCheckoutForWooCommerce.validation ) {
+            if (
+                dinteroCheckoutForWooCommerce.checkout !== null &&
+                ! dinteroCheckoutForWooCommerce.validation &&
+                ! dinteroCheckoutForWooCommerce.isFinalizing
+            ) {
                 $( "#dintero_locked" ).remove();
                 dinteroCheckoutForWooCommerce.isLocked = false;
                 dinteroCheckoutForWooCommerce.checkout.refreshSession();
@@ -179,6 +193,9 @@ jQuery( function ( $ ) {
                                 opacity: 0.6,
                             },
                         } );
+                        // Freeze session updates while the order is submitted and the payment authorized. Unlike validation (reset synchronously below), this must stay set across the async submitOrder; onPayment clears it by redirecting on success, failOrder on failure.
+                        dinteroCheckoutForWooCommerce.isFinalizing = true;
+
                         dinteroCheckoutForWooCommerce.validation = true;
                         dinteroCheckoutForWooCommerce.updateAddress(
                             event.session.order.billing_address,
@@ -690,6 +707,10 @@ jQuery( function ( $ ) {
 
         failOrder( event, errorMessage, callback ) {
             console.log( "fail order" );
+
+            // The payment attempt failed and the customer stays on the checkout to retry, so lift the freeze to resume session updates (including the refreshSession below).
+            dinteroCheckoutForWooCommerce.isFinalizing = false;
+
             callback( { success: false, clientValidationError: errorMessage } );
 
             // Renable the form.

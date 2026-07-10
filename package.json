@@ -4,7 +4,7 @@
   "repository": "git@github.com:Dintero/Dintero.Checkout.WooCommerce.V2.git",
   "author": "Krokedil <info@krokedil.se>",
   "license": "GPL-3.0+",
-  "packageManager": "pnpm@11.3.0",
+  "packageManager": "pnpm@11.10.0",
   "devDependencies": {
     "@babel/core": "^7.29.0",
     "@babel/plugin-syntax-optional-chaining": "^7.8.3",
