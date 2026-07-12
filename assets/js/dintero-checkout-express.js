@@ -170,8 +170,11 @@ jQuery( function ( $ ) {
                         dinteroCheckoutForWooCommerce.unsetSession( event.href );
                     },
                     onSessionNotFound( event, checkout ) {
-                        /* Unset the session, and redirect the customer back to the checkout page (the same page). The checkout will automatically be destroyed. */
-                        dinteroCheckoutForWooCommerce.unsetSession( window.location.pathname );
+                        /* The session may already be paid if the page was reloaded during payment (e.g. mobile Chrome discards the tab during the Klarna app switch). Try to recover the placed order before falling back to resetting the checkout. */
+                        dinteroCheckoutForWooCommerce.logToFile(
+                            dinteroCheckoutParams.SID + " | Session not found. Attempting order recovery.",
+                        );
+                        dinteroCheckoutForWooCommerce.recoverOrder( 0 );
                     },
                     onSessionLocked( event, checkout, callback ) {
                         dinteroCheckoutForWooCommerce.delayUpdateCheckout();
@@ -234,6 +237,39 @@ jQuery( function ( $ ) {
                 complete() {
                     window.location.replace( redirectUrl );
                 },
+            } );
+        },
+
+        /**
+         * Check with the server whether the lost session was already paid, and if so redirect the customer to the confirmation page. Retries since the authorization may complete moments after the session disappears. Falls back to resetting the checkout page (the same page). The checkout will automatically be destroyed.
+         *
+         * @param {number} attempt The current attempt.
+         */
+        recoverOrder( attempt ) {
+            const retryOrReset = () => {
+                if ( attempt < 2 ) {
+                    setTimeout( () => dinteroCheckoutForWooCommerce.recoverOrder( attempt + 1 ), 2000 );
+                } else {
+                    dinteroCheckoutForWooCommerce.unsetSession( window.location.pathname );
+                }
+            };
+
+            $.ajax( {
+                type: "POST",
+                dataType: "json",
+                data: {
+                    nonce: dinteroCheckoutParams.recover_order_nonce,
+                },
+                url: dinteroCheckoutParams.recover_order_url,
+                success( response ) {
+                    if ( response.success && response.data && response.data.redirect ) {
+                        window.location.replace( response.data.redirect );
+                        return;
+                    }
+
+                    retryOrReset();
+                },
+                error: retryOrReset,
             } );
         },
         /**
