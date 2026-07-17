@@ -138,6 +138,16 @@ jQuery( function ( $ ) {
                         if ( event.session === undefined || event.session.order === undefined ) {
                             // Refresh the session to display the error message from Dintero. The error itself should be handled by any of other event handlers.
                             checkout.refreshSession();
+                            return;
+                        }
+
+                        // The customer changed the shipping option in the iframe. Forward it to WooCommerce so the totals stay in sync, but only if it differs from what we last sent to avoid an update loop.
+                        const shippingOption = event.session.order.shipping_option;
+                        if ( shippingOption && dinteroCheckoutParams.shipping_in_iframe ) {
+                            const incoming = JSON.stringify( shippingOption );
+                            if ( $( "#dintero_shipping_data" ).val() !== incoming ) {
+                                dinteroCheckoutForWooCommerce.shippingMethodChanged( shippingOption );
+                            }
                         }
                     },
                     onAddressCallback( event, checkout, callback ) {
