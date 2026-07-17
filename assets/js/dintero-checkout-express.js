@@ -100,6 +100,8 @@ jQuery( function ( $ ) {
                 dinteroCheckoutForWooCommerce.isLocked = false;
 
                 if ( dinteroCheckoutForWooCommerce.pendingAddressCallback ) {
+                    $( "#dintero_address_callback" ).remove();
+                    $( "#dintero_address_data" ).remove();
                     const callback = dinteroCheckoutForWooCommerce.pendingAddressCallback;
                     dinteroCheckoutForWooCommerce.pendingAddressCallback = null;
 
@@ -144,43 +146,29 @@ jQuery( function ( $ ) {
                         $( "form.checkout" ).append(
                             '<input type="hidden" name="dintero_locked" id="dintero_locked" value="1">',
                         );
+                        $( "form.checkout" ).append(
+                            '<input type="hidden" name="dintero_address_callback" id="dintero_address_callback" value="1">',
+                        );
 
-                        // Send the event address (incl. the organization_number WC has no field for) to the session so the update echoes it back as-is. A copy rebuilt from WC fields makes Dintero re-fire the callback.
+                        // Forward the address Dintero sent in the event so the session update can echo it back. It carries the organization_number for business purchases, which WooCommerce does not store and Dintero reverts if not confirmed.
                         const order = ( event.session && event.session.order ) || {};
-
-                        // If the context can't be persisted, abort: a normal update would drop the lock and not echo the address, reverting the selection. Remove the lock field, clear state, and fail the callback.
-                        const abort = () => {
-                            $( "#dintero_locked" ).remove();
-                            dinteroCheckoutForWooCommerce.pendingAddressCallback = null;
-                            callback( {
-                                success: false,
-                                error: dinteroCheckoutParams.i18n.update_order_review_error,
-                            } );
-                        };
-
-                        $.ajax( {
-                            type: "POST",
-                            url: dinteroCheckoutParams.addressCallbackUrl,
-                            dataType: "json",
-                            data: {
-                                nonce: dinteroCheckoutParams.addressCallbackNonce,
-                                address: JSON.stringify( {
+                        $( "#dintero_address_data" ).remove();
+                        $( "form.checkout" ).append(
+                            $( "<input>", {
+                                type: "hidden",
+                                name: "dintero_address_data",
+                                id: "dintero_address_data",
+                                value: JSON.stringify( {
                                     billing_address: order.billing_address,
                                     shipping_address: order.shipping_address,
                                 } ),
-                            },
-                            success( response ) {
-                                if ( response && response.success ) {
-                                    dinteroCheckoutForWooCommerce.updateAddress(
-                                        order.billing_address,
-                                        order.shipping_address,
-                                    );
-                                } else {
-                                    abort();
-                                }
-                            },
-                            error: abort,
-                        } );
+                            } ),
+                        );
+
+                        dinteroCheckoutForWooCommerce.updateAddress(
+                            order.billing_address,
+                            order.shipping_address,
+                        );
                     },
                     onPayment( event, checkout ) {
                         // Prevent multiple redirects.

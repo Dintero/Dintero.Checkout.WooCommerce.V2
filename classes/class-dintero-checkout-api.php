@@ -65,11 +65,15 @@ class Dintero_Checkout_API {
 	 * Update a Dintero checkout session.
 	 *
 	 * @param string $session_id The Dintero session id.
+	 * @param bool   $is_address_callback Whether this update confirms a Dintero address callback.
+	 * @param array  $address_callback_data The address Dintero provided in the callback event.
 	 * @return array|WP_Error
 	 */
-	public function update_checkout_session( $session_id ) {
+	public function update_checkout_session( $session_id, $is_address_callback = false, $address_callback_data = array() ) {
 		$args     = array(
-			'session_id' => $session_id,
+			'session_id'            => $session_id,
+			'is_address_callback'   => $is_address_callback,
+			'address_callback_data' => $address_callback_data,
 		);
 		$request  = new Dintero_Checkout_Update_Checkout_Session( $args );
 		$response = $request->request();

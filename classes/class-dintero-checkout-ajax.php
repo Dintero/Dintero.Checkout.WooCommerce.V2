@@ -30,7 +30,6 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 			'dintero_checkout_unset_session'            => true,
 			'dintero_checkout_print_notice'             => true,
 			'dintero_verify_order_total'                => true,
-			'dintero_set_address_callback'              => true,
 		);
 		foreach ( $ajax_events as $ajax_event => $nopriv ) {
 			add_action( 'wp_ajax_woocommerce_' . $ajax_event, array( __CLASS__, $ajax_event ) );
@@ -158,34 +157,6 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 		}
 
 		wp_send_json_error( $diff );
-	}
-
-	/**
-	 * Store the Dintero address callback address in the WC session.
-	 *
-	 * Lets the session update echo it back (incl. organization_number) without a hidden form field.
-	 *
-	 * @return void
-	 */
-	public static function dintero_set_address_callback() {
-		$nonce = isset( $_POST['nonce'] ) ? sanitize_key( $_POST['nonce'] ) : '';
-		if ( ! wp_verify_nonce( $nonce, 'dintero_set_address_callback' ) ) {
-			wp_send_json_error( 'bad_nonce' );
-		}
-
-		$raw = isset( $_POST['address'] ) ? json_decode( wp_unslash( $_POST['address'] ), true ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$raw = is_array( $raw ) ? $raw : array();
-
-		$address = array();
-		foreach ( array( 'billing_address', 'shipping_address' ) as $key ) {
-			if ( ! empty( $raw[ $key ] ) && is_array( $raw[ $key ] ) ) {
-				$address[ $key ] = wc_clean( array_filter( $raw[ $key ], 'is_scalar' ) );
-			}
-		}
-
-		WC()->session->set( 'dintero_address_callback', $address );
-
-		wp_send_json_success();
 	}
 }
 Dintero_Checkout_Ajax::init();

@@ -22,6 +22,14 @@ class Dintero_Checkout_Embedded {
 	private $is_address_callback = false;
 
 	/**
+	 * The address Dintero provided in the address callback event, including the
+	 * organization_number for business purchases (which WooCommerce does not store).
+	 *
+	 * @var array
+	 */
+	private $address_callback_data = array();
+
+	/**
 	 * Class constructor.
 	 */
 	public function __construct() {
@@ -45,6 +53,11 @@ class Dintero_Checkout_Embedded {
 	 */
 	public function update_wc_customer( $raw_post_data ) {
 		parse_str( $raw_post_data, $post_data );
+
+		// Capture Dintero's callback address (incl. organization_number) before sanitising, so the session update can echo it back. WooCommerce has no organization_number field.
+		if ( ! empty( $post_data['dintero_address_data'] ) ) {
+			$this->address_callback_data = json_decode( wp_unslash( $post_data['dintero_address_data'] ), true );
+		}
 
 		$post_data = array_filter(
 			wc_clean( wp_unslash( $post_data ) ),
@@ -70,8 +83,7 @@ class Dintero_Checkout_Embedded {
 			}
 		}
 
-		// The address callback context is stored in the WC session by the dintero_set_address_callback AJAX, not a hidden form field.
-		$this->is_address_callback = ! empty( WC()->session->get( 'dintero_address_callback' ) );
+		$this->is_address_callback = ! empty( $post_data['dintero_address_callback'] );
 
 		// Address callback: update address fields that Dintero provides via the address event.
 		// These are not part of the normal express form and must be set explicitly.
@@ -179,12 +191,7 @@ class Dintero_Checkout_Embedded {
 			return;
 		}
 
-		$response = Dintero()->api->update_checkout_session( $session_id );
-
-		// Consume the address callback marker only on a successful update, so a failed update can be retried in callback mode (lock kept, address echoed back).
-		if ( ! is_wp_error( $response ) ) {
-			WC()->session->set( 'dintero_address_callback', null );
-		}
+		Dintero()->api->update_checkout_session( $session_id, $this->is_address_callback, $this->address_callback_data );
 	}
 
 	/**

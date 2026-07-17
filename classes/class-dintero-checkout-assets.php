@@ -209,8 +209,6 @@ class Dintero_Checkout_Assets {
 				'verifyOrderTotalURL'                  => WC_AJAX::get_endpoint( 'dintero_verify_order_total' ),
 				'verifyOrderTotalNonce'                => wp_create_nonce( 'dintero_verify_order_total' ),
 				'verifyOrderTotalError'                => __( 'The cart was modified. Please try again.', 'dintero-checkout-for-woocommerce' ),
-				'addressCallbackUrl'                   => WC_AJAX::get_endpoint( 'dintero_set_address_callback' ),
-				'addressCallbackNonce'                 => wp_create_nonce( 'dintero_set_address_callback' ),
 				'allowDifferentBillingShippingAddress' => 'yes' === ( $settings['express_allow_different_billing_shipping_address'] ?? 'no' ) ? true : false,
 				'woocommerceShipToDestination'         => get_option( 'woocommerce_ship_to_destination' ),
 				'checkout_flow'                        => $settings['checkout_flow'] ?? 'express_popout',
