@@ -56,7 +56,9 @@ class Dintero_Checkout_Embedded {
 
 		// Capture Dintero's callback address (incl. organization_number) before sanitising, so the session update can echo it back. WooCommerce has no organization_number field.
 		if ( ! empty( $post_data['dintero_address_data'] ) ) {
-			$this->address_callback_data = json_decode( wp_unslash( $post_data['dintero_address_data'] ), true );
+			// WooCommerce already unslashed post_data before firing this hook (WC_AJAX::update_order_review), so decode as-is — unslashing again would strip the JSON's own escape sequences.
+			$address_data                = json_decode( $post_data['dintero_address_data'], true );
+			$this->address_callback_data = is_array( $address_data ) ? $address_data : array();
 		}
 
 		$post_data = array_filter(
