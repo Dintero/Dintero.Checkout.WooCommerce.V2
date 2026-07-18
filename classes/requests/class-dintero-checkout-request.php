@@ -204,6 +204,12 @@ abstract class Dintero_Checkout_Request {
 			$errors = ( is_array( $body ) && isset( $body['error'] ) ) ? $body['error'] : array();
 			$data   = 'URL: ' . $request_url . ' - ' . wp_json_encode( $request_args );
 
+			// Consumers render either a string or an array with a 'message' key. Guarantee a printable message when the response carried no usable error object (e.g. an HTML page from a proxy).
+			if ( is_array( $errors ) && empty( $errors['message'] ) ) {
+				/* translators: %d: The HTTP status code. */
+				$errors['message'] = sprintf( __( 'Unexpected response (HTTP %d) from Dintero.', 'dintero-checkout-for-woocommerce' ), $code );
+			}
+
 			return new WP_Error( $code, $errors, $data );
 		}
 
