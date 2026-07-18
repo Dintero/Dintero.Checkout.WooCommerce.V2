@@ -54,11 +54,18 @@ class Dintero_Checkout_Embedded {
 	public function update_wc_customer( $raw_post_data ) {
 		parse_str( $raw_post_data, $post_data );
 
-		// Capture Dintero's callback address (incl. organization_number) before sanitising, so the session update can echo it back. WooCommerce has no organization_number field.
+		// Capture Dintero's callback address (incl. organization_number) so the session update can echo it back. WooCommerce has no organization_number field.
 		if ( ! empty( $post_data['dintero_address_data'] ) ) {
 			// WooCommerce already unslashed post_data before firing this hook (WC_AJAX::update_order_review), so decode as-is — unslashing again would strip the JSON's own escape sequences.
-			$address_data                = json_decode( $post_data['dintero_address_data'], true );
-			$this->address_callback_data = is_array( $address_data ) ? $address_data : array();
+			$address_data = json_decode( $post_data['dintero_address_data'], true );
+			$address_data = is_array( $address_data ) ? $address_data : array();
+
+			// The field is client-side input: accept only the two expected address entries, with scalar values only, so nothing else can be injected into the session update PUT.
+			foreach ( array( 'billing_address', 'shipping_address' ) as $address_key ) {
+				if ( ! empty( $address_data[ $address_key ] ) && is_array( $address_data[ $address_key ] ) ) {
+					$this->address_callback_data[ $address_key ] = wc_clean( array_filter( $address_data[ $address_key ], 'is_scalar' ) );
+				}
+			}
 		}
 
 		$post_data = array_filter(
