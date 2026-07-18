@@ -81,6 +81,12 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 				$callback_billing = $callback_shipping;
 			}
 
+			// If the callback data is missing entirely (failed to parse, or posted by an older version of the checkout script), fall back to the WC customer copy so the pending address is still confirmed back — an unconfirmed callback leaves the session locked with the address reverted.
+			if ( empty( $callback_billing ) && empty( $callback_shipping ) ) {
+				$callback_billing  = $helper->get_billing_address();
+				$callback_shipping = $helper->get_shipping_address();
+			}
+
 			if ( ! empty( $callback_billing ) ) {
 				$body['order']['billing_address'] = $callback_billing;
 			}
