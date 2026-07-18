@@ -151,6 +151,16 @@ jQuery( function ( $ ) {
                         }
                     },
                     onAddressCallback( event, checkout, callback ) {
+                        // If the event carries no address (e.g., the session expired), fail the callback immediately. Storing it would leave the iframe waiting forever, since with nothing to update no updated_checkout cycle will run to resolve it.
+                        const order = ( event.session && event.session.order ) || {};
+                        if ( ! order.billing_address && ! order.shipping_address ) {
+                            callback( {
+                                success: false,
+                                error: dinteroCheckoutParams.i18n.update_order_review_error,
+                            } );
+                            return;
+                        }
+
                         dinteroCheckoutForWooCommerce.pendingAddressCallback = callback;
 
                         $( "form.checkout" ).append(
@@ -161,7 +171,6 @@ jQuery( function ( $ ) {
                         );
 
                         // Forward the address Dintero sent in the event so the session update can echo it back. It carries the organization_number for business purchases, which WooCommerce does not store and Dintero reverts if not confirmed.
-                        const order = ( event.session && event.session.order ) || {};
                         $( "#dintero_address_data" ).remove();
                         $( "form.checkout" ).append(
                             $( "<input>", {
