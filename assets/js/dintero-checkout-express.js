@@ -142,7 +142,7 @@ jQuery( function ( $ ) {
                             return;
                         }
 
-                        // The customer changed the shipping option in the iframe. Forward it to WooCommerce so the totals stay in sync, but only if it differs from what we last sent to avoid an update loop. Compare by identity (not serialized JSON) since the server-rendered field value is encoded differently.
+                        // The customer changed the shipping option in the iframe. Forward it to WooCommerce so the totals stay in sync, but only if it differs from what we last sent to avoid an update loop. Compare the identifying fields (id, line_id, operator_product_id) instead of serialized JSON, since the server-rendered field value is encoded differently.
                         const shippingOption = event.session.order.shipping_option;
                         if ( shippingOption && dinteroCheckoutParams.shipping_in_iframe ) {
                             const current =
