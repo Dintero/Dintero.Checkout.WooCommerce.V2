@@ -94,18 +94,7 @@ function dintero_print_error_message( $wp_error ) {
 		return;
 	}
 
-	foreach ( $wp_error->get_error_messages() as $error ) {
-		$message = $error;
-		if ( is_array( $error ) ) {
-			$error   = array_filter(
-				$error,
-				function ( $e ) {
-					return ! empty( $e );
-				}
-			);
-			$message = implode( ' ', $error );
-		}
-
+	foreach ( $wp_error->get_error_messages() as $message ) {
 		$print( $message, 'error' );
 	}
 }
@@ -428,11 +417,7 @@ function dintero_get_order_id_by_merchant_reference( $merchant_reference ) {
  * @return string
  */
 function dintero_retrieve_error_message( $error ) {
-	$message = $error->get_error_message();
-	if ( is_array( $message ) ) {
-		$message = implode( ' ', $message );
-	}
-	return $message;
+	return $error->get_error_message();
 }
 
 /**

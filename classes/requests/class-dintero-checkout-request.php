@@ -202,15 +202,20 @@ abstract class Dintero_Checkout_Request {
 		if ( $code < 200 || $code > 200 ) {
 			$body   = json_decode( $response['body'], true );
 			$errors = ( is_array( $body ) && isset( $body['error'] ) ) ? $body['error'] : array();
-			$data   = 'URL: ' . $request_url . ' - ' . wp_json_encode( $request_args );
 
-			// Consumers render either a string or an array with a 'message' key. Guarantee a printable message when the response carried no usable error object (e.g. an HTML page from a proxy).
-			if ( is_array( $errors ) && empty( $errors['message'] ) ) {
+			// WP_Error messages are consumed as strings (order notes, logs, notices), so flatten Dintero's error object to text, with a fallback when the response carried no usable error object (e.g. an HTML page from a proxy). The structured error object remains available in the error data.
+			$message = is_array( $errors ) ? implode( ' ', array_filter( $errors, 'is_string' ) ) : (string) $errors;
+			if ( empty( $message ) ) {
 				/* translators: %d: The HTTP status code. */
-				$errors['message'] = sprintf( __( 'Unexpected response (HTTP %d) from Dintero.', 'dintero-checkout-for-woocommerce' ), $code );
+				$message = sprintf( __( 'Unexpected response (HTTP %d) from Dintero.', 'dintero-checkout-for-woocommerce' ), $code );
 			}
 
-			return new WP_Error( $code, $errors, $data );
+			$data = array(
+				'error'   => $errors,
+				'request' => 'URL: ' . $request_url . ' - ' . wp_json_encode( $request_args ),
+			);
+
+			return new WP_Error( $code, $message, $data );
 		}
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
