@@ -60,7 +60,7 @@ class Dintero_Checkout_Embedded {
 			$address_data = json_decode( $post_data['dintero_address_data'], true );
 			$address_data = is_array( $address_data ) ? $address_data : array();
 
-			// The field is client-side input: accept only the two expected address entries, with scalar values only, so nothing else can be injected into the session update PUT.
+			// The field is client-side input: accept only the two expected address entries, with scalar values only, so no other structures can be injected into the session update PUT. The keys within each address are deliberately not whitelisted — the echo must confirm whatever address fields Dintero sent in the event (dropping one makes Dintero revert the pending address), and unknown keys are rejected by Dintero's own API schema validation.
 			foreach ( array( 'billing_address', 'shipping_address' ) as $address_key ) {
 				if ( ! empty( $address_data[ $address_key ] ) && is_array( $address_data[ $address_key ] ) ) {
 					$this->address_callback_data[ $address_key ] = wc_clean( array_filter( $address_data[ $address_key ], 'is_scalar' ) );
