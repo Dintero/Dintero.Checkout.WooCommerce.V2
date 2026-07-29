@@ -110,7 +110,7 @@ jQuery( function ( $ ) {
                 ! dinteroCheckoutForWooCommerce.validation &&
                 ! dinteroCheckoutForWooCommerce.isFinalizing
             ) {
-                $( "#dintero_locked" ).remove();
+                $( dinteroCheckoutForWooCommerce.checkoutFormSelector + " [name=dintero_locked]" ).remove();
                 dinteroCheckoutForWooCommerce.isLocked = false;
 
                 if ( dinteroCheckoutForWooCommerce.pendingAddressCallback ) {
@@ -230,11 +230,12 @@ jQuery( function ( $ ) {
                         dinteroCheckoutForWooCommerce.isFinalizing = true;
 
                         // Cancel any queued update and drop the lock marker so an update_checkout scheduled just before finalizing cannot still PUT the session (dwc_can_update_checkout() requires dintero_locked).
+                        // Matched by name, not id: updateCheckout() appends a marker per update, so several can coexist, and an id selector would only ever remove the first.
                         if ( dinteroCheckoutForWooCommerce.updateTimer ) {
                             clearTimeout( dinteroCheckoutForWooCommerce.updateTimer );
                             dinteroCheckoutForWooCommerce.updateTimer = null;
                         }
-                        $( "#dintero_locked" ).remove();
+                        $( dinteroCheckoutForWooCommerce.checkoutFormSelector + " [name=dintero_locked]" ).remove();
 
                         dinteroCheckoutForWooCommerce.validation = true;
                         dinteroCheckoutForWooCommerce.updateAddress(
