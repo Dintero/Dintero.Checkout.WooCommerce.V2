@@ -30,6 +30,7 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 			'dintero_checkout_unset_session'            => true,
 			'dintero_checkout_print_notice'             => true,
 			'dintero_verify_order_total'                => true,
+			'dintero_checkout_recover_order'            => true,
 		);
 		foreach ( $ajax_events as $ajax_event => $nopriv ) {
 			add_action( 'wp_ajax_woocommerce_' . $ajax_event, array( __CLASS__, $ajax_event ) );
@@ -157,6 +158,53 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 		}
 
 		wp_send_json_error( $diff );
+	}
+
+	/**
+	 * Recover a customer stuck on the checkout page after their session has already been paid.
+	 *
+	 * Triggered by the frontend when the SDK reports the session as not found. This can happen when the page is reloaded
+	 * during payment (e.g. mobile Chrome discards the tab during the Klarna app switch), and the redirect from Dintero is
+	 * never received. If the session resulted in a payable transaction, the customer is sent the same redirect URL that
+	 * Dintero would have used, and the existing redirect flow takes over (refer to Dintero_Checkout_Redirect). Otherwise,
+	 * an error is sent, and the frontend falls back to resetting the checkout.
+	 *
+	 * @return void
+	 */
+	public static function dintero_checkout_recover_order() {
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_key( $_POST['nonce'] ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'dintero_checkout_recover_order' ) ) {
+			wp_send_json_error( 'bad_nonce' );
+		}
+
+		// A session can still be read after it has been paid, and then includes the transaction id.
+		$session_id = WC()->session->get( 'dintero_checkout_session_id' );
+		$session    = empty( $session_id ) ? null : Dintero()->api->get_session( $session_id );
+		if ( ! is_array( $session ) || empty( $session['transaction_id'] ) || empty( $session['order']['merchant_reference'] ) ) {
+			wp_send_json_error( 'no_transaction' );
+		}
+
+		// The redirect flow can only confirm an order it can find. Without this check, a resolvable but order-less reference would bounce the customer between the redirect flow and the checkout page indefinitely (refer to Dintero_Checkout_Redirect::maybe_redirect).
+		if ( empty( dintero_get_order_id_by_merchant_reference( $session['order']['merchant_reference'] ) ) ) {
+			wp_send_json_error( 'no_order' );
+		}
+
+		$dintero_order = Dintero()->api->get_order( $session['transaction_id'] );
+		if ( is_wp_error( $dintero_order ) || ! in_array( $dintero_order['status'] ?? '', array( 'AUTHORIZED', 'CAPTURED', 'ON_HOLD' ), true ) ) {
+			wp_send_json_error( 'not_payable' );
+		}
+
+		Dintero_Checkout_Logger::log( "[RECOVER]: The session $session_id is already paid (transaction ID: {$session['transaction_id']}). Redirecting customer to the confirmation page." );
+
+		$redirect = add_query_arg(
+			array(
+				'gateway'            => 'dintero',
+				'merchant_reference' => $session['order']['merchant_reference'],
+				'transaction_id'     => $session['transaction_id'],
+			),
+			home_url()
+		);
+		wp_send_json_success( array( 'redirect' => $redirect ) );
 	}
 }
 Dintero_Checkout_Ajax::init();

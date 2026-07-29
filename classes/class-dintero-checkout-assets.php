@@ -211,6 +211,8 @@ class Dintero_Checkout_Assets {
 				'log_to_file_nonce'                    => wp_create_nonce( 'dintero_checkout_wc_log_js' ),
 				'unset_session_url'                    => WC_AJAX::get_endpoint( 'dintero_checkout_unset_session' ),
 				'unset_session_nonce'                  => wp_create_nonce( 'dintero_checkout_unset_session' ),
+				'recover_order_url'                    => WC_AJAX::get_endpoint( 'dintero_checkout_recover_order' ),
+				'recover_order_nonce'                  => wp_create_nonce( 'dintero_checkout_recover_order' ),
 				'print_notice_url'                     => WC_AJAX::get_endpoint( 'dintero_checkout_print_notice' ),
 				'print_notice_nonce'                   => wp_create_nonce( 'dintero_checkout_print_notice' ),
 				'shipping_in_iframe'                   => ( isset( $settings['express_shipping_in_iframe'] ) && 'yes' === $settings['express_shipping_in_iframe'] && dwc_is_express( $settings ) ),
