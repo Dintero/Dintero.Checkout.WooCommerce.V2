@@ -227,11 +227,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		public function process_payment( $order_id ) {
 			$order = wc_get_order( $order_id );
 
-			$shipping_line_id = WC()->session->get( 'dintero_shipping_line_id' );
-			if ( ! empty( $shipping_line_id ) ) {
-				$order->update_meta_data( '_dintero_shipping_line_id', $shipping_line_id );
-				$order->save();
-			}
+			$this->save_shipping_line_id( $order );
 
 			try {
 				if ( Dintero_Checkout_Subscription::is_change_payment_method() ) {
@@ -320,6 +316,9 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				throw new Exception();
 			}
 
+			/* The session is created after the WC order in the redirect flow, which means the shipping line id was not yet available in the WC session when the order was created. */
+			$this->save_shipping_line_id( $order );
+
 			$order->add_order_note( __( 'Customer redirected to Dintero payment page.', 'dintero-checkout-for-woocommerce' ) );
 			$order->save();
 
@@ -328,6 +327,22 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				'redirect' => $session['url'],
 				'order_id' => $order->get_id(),
 			);
+		}
+
+		/**
+		 * Save the shipping line id that was sent to Dintero to the order.
+		 *
+		 * The shipping line id must be identical in the session and in any order management request, otherwise the payment provider may decline the request. Since the WC session is not available when the order is captured or refunded, it has to be stored on the order.
+		 *
+		 * @param WC_Order $order The WooCommerce order.
+		 * @return void
+		 */
+		private function save_shipping_line_id( $order ) {
+			$shipping_line_id = WC()->session->get( 'dintero_shipping_line_id' );
+			if ( ! empty( $shipping_line_id ) ) {
+				$order->update_meta_data( '_dintero_shipping_line_id', $shipping_line_id );
+				$order->save();
+			}
 		}
 
 		/**
