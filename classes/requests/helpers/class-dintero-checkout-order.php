@@ -485,6 +485,20 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		}
 
 		/**
+		 * The order metadata is only available if the session was created before the WC order, which is the case for the embedded flow. In the redirect flow, the session is created during 'process_payment', and thus after the shipping line was added to the order. The shipping line metadata is however always set when the order is created, and is the line id that was sent to Dintero.
+		 */
+		$shipping_line_meta_line_id = $shipping_line->get_meta( '_dintero_checkout_line_id' );
+
+		// A WC_Order_Refund does not inherit the order item metadata, but it does reference the order item it was created from.
+		if ( empty( $shipping_line_meta_line_id ) ) {
+			$shipping_line_meta_line_id = wc_get_order_item_meta( $shipping_line->get_meta( '_refunded_item_id' ), '_dintero_checkout_line_id', true );
+		}
+
+		if ( ! empty( $shipping_line_meta_line_id ) ) {
+			return $shipping_line_meta_line_id;
+		}
+
+		/**
 		 * Otherwise use the '_wc_dintero_shipping_id' meta if it was set. This is needed to support orders placed before 1.11.0.
 		 *
 		 * @link https://github.com/Dintero/Dintero.Checkout.WooCommerce.V2/blob/1.10.8/classes/requests/helpers/class-dintero-checkout-order.php#L420-L445
@@ -532,6 +546,11 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			if ( empty( $line_id ) ) {
 				// If we get here, use the shipping method id and instance id as a final fallback to use the same fallback the plugin has always used.
 				$line_id = "{$shipping_line->get_method_id()}:{$shipping_line->get_instance_id()}";
+			}
+
+			// If the shipping id is still missing, default to the shipping line data.
+			if ( empty( $id ) ) {
+				$id = "{$shipping_line->get_method_id()}:{$shipping_line->get_instance_id()}";
 			}
 
 			$shipping_total     = floatval( $shipping_line->get_total() );
