@@ -1,0 +1,4 @@
+Type: Fix
+Needs Documentation: no
+
+Fixed the shipping line ID sent when capturing or refunding an order placed through the redirect flow not matching the line ID of the authorized transaction, which could cause the payment provider to decline the request.
