@@ -141,9 +141,20 @@ class Dintero_Checkout_Logger {
 			$logs = json_decode( $logs );
 		}
 
+		// The option may hold an empty string or malformed JSON, in which case we start the log over.
+		if ( ! is_array( $logs ) ) {
+			$logs = array();
+		}
+
 		$logs   = array_slice( $logs, -14 );
 		$logs[] = $data;
-		$logs   = wp_json_encode( $logs );
-		update_option( 'krokedil_debuglog_dintero_checkout', $logs );
+
+		$encoded = wp_json_encode( $logs );
+		if ( false === $encoded ) {
+			// Storing the failed encode would leave the option unreadable for every later request.
+			return;
+		}
+
+		update_option( 'krokedil_debuglog_dintero_checkout', $encoded );
 	}
 }
