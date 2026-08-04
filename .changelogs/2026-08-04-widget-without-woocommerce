@@ -1,0 +1,4 @@
+Type: Fix
+Needs Documentation: no
+
+Fixed a critical error that occurred on every page load if the plugin was active while WooCommerce was not.

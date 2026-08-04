@@ -137,7 +137,18 @@ if ( ! class_exists( 'Dintero' ) ) {
 			add_action( 'widgets_init', array( $this, 'register_widget' ) );
 		}
 
+		/**
+		 * Register the widget.
+		 *
+		 * The widget class is only available if the plugin was fully initialized, which requires WooCommerce.
+		 *
+		 * @return void
+		 */
 		public function register_widget() {
+			if ( ! class_exists( 'Dintero_Checkout_Widget' ) ) {
+				return;
+			}
+
 			register_widget( 'Dintero_Checkout_Widget' );
 		}
 
