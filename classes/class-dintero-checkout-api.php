@@ -213,8 +213,8 @@ class Dintero_Checkout_API {
 	/**
 	 * Checks for WP Errors and returns either the response as array.
 	 *
-	 * @param array $response The response from the request.
-	 * @param bool  $suppress_stale_session_notice Whether a stale session error should be kept from the customer. Set by callers that recover from it. Default false.
+	 * @param array|WP_Error $response The response from the request.
+	 * @param bool           $suppress_stale_session_notice Whether a stale session error should be kept from the customer. Set by callers that recover from it. Default false.
 	 * @return array|WP_Error
 	 */
 	private function check_for_api_error( $response, $suppress_stale_session_notice = false ) {

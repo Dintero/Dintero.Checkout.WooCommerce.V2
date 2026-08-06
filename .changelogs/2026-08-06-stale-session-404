@@ -1,4 +1,4 @@
 Type: Fix
 Needs Documentation: no
 
-Fixed the checkout not rendering for a returning customer whose Dintero session had expired. The stored session is now discarded when Dintero no longer accepts it, and the checkout reloads with a new session instead of showing an error.
+Fixed the checkout not rendering for a returning customer whose Dintero session had expired. The stored session is now discarded when Dintero no longer recognizes it, and the checkout reloads with a new session instead of showing an error.

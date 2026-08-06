@@ -64,12 +64,19 @@ function dintero_checkout_wc_show_another_gateway_button() {
 /**
  * Whether a WP_Error from a session request means the stored session id is unusable.
  *
- * Dintero answers with a 4xx when the session id is expired, unknown or otherwise invalid
- * (e.g. 404 NOT_FOUND for an expired session, 400 for an id it won't accept). In those cases the
- * stored id should be discarded and a new session created. Network failures and 5xx are transient,
- * so the id is kept to avoid needlessly dropping an otherwise-valid session.
+ * Dintero answers 404 NOT_FOUND when it does not know the session id, which is what a stored id
+ * that has since expired looks like. Such an id can never work again, so it is discarded and a new
+ * session created in its place.
  *
- * Every failed request is reported as a WP_Error, @see Dintero_Checkout_Request::process_response.
+ * Deliberately limited to 404. Every other failure says something about the request, the account or
+ * the connection rather than the session: 400 is a rejected payload, 401 and 403 are credential or
+ * permission problems, 408 and 429 are transient, and so are 5xx and transport errors. Discarding
+ * the session on those would throw away a valid session and hide the actual problem.
+ *
+ * Failed requests are reported as a WP_Error whose error code is the HTTP status, with a
+ * non-numeric code for transport errors.
+ *
+ * @see Dintero_Checkout_Request::process_response()
  *
  * @param mixed $response The value returned from an API call.
  * @return bool
@@ -79,9 +86,7 @@ function dintero_is_stale_session_error( $response ) {
 		return false;
 	}
 
-	$code = $response->get_error_code();
-	// Transport errors carry a non-numeric code (e.g. 'http_request_failed'); those are transient.
-	return is_numeric( $code ) && intval( $code ) >= 400 && intval( $code ) < 500;
+	return 404 === intval( $response->get_error_code() );
 }
 
 /**

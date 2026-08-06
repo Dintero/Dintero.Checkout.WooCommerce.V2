@@ -202,7 +202,7 @@ class Dintero_Checkout_Embedded {
 
 		$response = Dintero()->api->update_checkout_session( $session_id, $this->is_address_callback, $this->address_callback_data );
 
-		// If the stored session is expired/unknown at Dintero, the update returns a 4xx. Clear the
+		// If the stored session has expired, Dintero no longer knows the id and the update 404s. Clear the
 		// stale id and reload the checkout so a fresh session is created on the next render.
 		if ( dintero_is_stale_session_error( $response ) ) {
 			dintero_unset_sessions();
