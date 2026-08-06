@@ -69,6 +69,8 @@ function dintero_checkout_wc_show_another_gateway_button() {
  * stored id should be discarded and a new session created. Network failures and 5xx are transient,
  * so the id is kept to avoid needlessly dropping an otherwise-valid session.
  *
+ * Every failed request is reported as a WP_Error, @see Dintero_Checkout_Request::process_response.
+ *
  * @param mixed $response The value returned from an API call.
  * @return bool
  */
