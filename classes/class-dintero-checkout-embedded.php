@@ -22,6 +22,14 @@ class Dintero_Checkout_Embedded {
 	private $is_address_callback = false;
 
 	/**
+	 * The address Dintero provided in the address callback event, including the
+	 * organization_number for business purchases (which WooCommerce does not store).
+	 *
+	 * @var array
+	 */
+	private $address_callback_data = array();
+
+	/**
 	 * Class constructor.
 	 */
 	public function __construct() {
@@ -45,6 +53,21 @@ class Dintero_Checkout_Embedded {
 	 */
 	public function update_wc_customer( $raw_post_data ) {
 		parse_str( $raw_post_data, $post_data );
+
+		// Capture Dintero's callback address (incl. organization_number) so the session update can echo it back. WooCommerce has no organization_number field.
+		if ( ! empty( $post_data['dintero_address_data'] ) ) {
+			// WooCommerce already unslashed post_data before firing this hook (WC_AJAX::update_order_review), so decode as-is — unslashing again would strip the JSON's own escape sequences.
+			$address_data = json_decode( $post_data['dintero_address_data'], true );
+			$address_data = is_array( $address_data ) ? $address_data : array();
+
+			// The field is client-side input: accept only the two expected address entries, with scalar values only, so no other structures can be injected into the session update PUT. The keys within each address are deliberately not whitelisted — the echo must confirm whatever address fields Dintero sent in the event (dropping one makes Dintero revert the pending address), and unknown keys are rejected by Dintero's own API schema validation.
+			foreach ( array( 'billing_address', 'shipping_address' ) as $address_key ) {
+				if ( ! empty( $address_data[ $address_key ] ) && is_array( $address_data[ $address_key ] ) ) {
+					$this->address_callback_data[ $address_key ] = wc_clean( array_filter( $address_data[ $address_key ], 'is_scalar' ) );
+				}
+			}
+		}
+
 		$post_data = array_filter(
 			wc_clean( wp_unslash( $post_data ) ),
 			function ( $value ) {
@@ -177,7 +200,7 @@ class Dintero_Checkout_Embedded {
 			return;
 		}
 
-		$response = Dintero()->api->update_checkout_session( $session_id, $this->is_address_callback );
+		$response = Dintero()->api->update_checkout_session( $session_id, $this->is_address_callback, $this->address_callback_data );
 
 		// If the stored session is expired/unknown at Dintero, the update returns a 4xx. Clear the
 		// stale id and reload the checkout so a fresh session is created on the next render.

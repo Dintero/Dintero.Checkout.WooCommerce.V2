@@ -115,18 +115,7 @@ function dintero_print_error_message( $wp_error ) {
 		return;
 	}
 
-	foreach ( $wp_error->get_error_messages() as $error ) {
-		$message = $error;
-		if ( is_array( $error ) ) {
-			$error   = array_filter(
-				$error,
-				function ( $e ) {
-					return ! empty( $e );
-				}
-			);
-			$message = implode( ' ', $error );
-		}
-
+	foreach ( $wp_error->get_error_messages() as $message ) {
 		$print( $message, 'error' );
 	}
 }
@@ -449,11 +438,7 @@ function dintero_get_order_id_by_merchant_reference( $merchant_reference ) {
  * @return string
  */
 function dintero_retrieve_error_message( $error ) {
-	$message = $error->get_error_message();
-	if ( is_array( $message ) ) {
-		$message = implode( ' ', $message );
-	}
-	return $message;
+	return $error->get_error_message();
 }
 
 /**
@@ -570,17 +555,35 @@ function dwc_can_update_checkout() {
 }
 
 /**
- * Save the organization number to the order if available.
+ * Save the organization number and company name to the order if available.
  *
  * @param array    $dintero_order The Dintero order from the GET request.
  * @param WC_Order $order The Woo order.
  * @return void
  */
 function dintero_maybe_save_org_nr( $dintero_order, $order ) {
-	$billing_org_nr = $dintero_order['billing_address']['organization_number'] ?? '';
+	$changed = false;
 
+	$billing_org_nr = $dintero_order['billing_address']['organization_number'] ?? '';
 	if ( ! empty( $billing_org_nr ) ) {
 		$order->update_meta_data( '_billing_org_nr', wc_clean( $billing_org_nr ) );
+		$changed = true;
+	}
+
+	// Business purchases provide the company name as business_name on the Dintero address; map it onto the order's company fields when not already set.
+	$billing_company = $dintero_order['billing_address']['business_name'] ?? '';
+	if ( ! empty( $billing_company ) && empty( $order->get_billing_company() ) ) {
+		$order->set_billing_company( wc_clean( $billing_company ) );
+		$changed = true;
+	}
+
+	$shipping_company = $dintero_order['shipping_address']['business_name'] ?? '';
+	if ( ! empty( $shipping_company ) && empty( $order->get_shipping_company() ) ) {
+		$order->set_shipping_company( wc_clean( $shipping_company ) );
+		$changed = true;
+	}
+
+	if ( $changed ) {
 		$order->save();
 	}
 }
