@@ -64,19 +64,10 @@ function dintero_checkout_wc_show_another_gateway_button() {
 /**
  * Whether a WP_Error from a session request means the stored session id is unusable.
  *
- * Dintero answers 404 NOT_FOUND when it does not know the session id, which is what a stored id
- * that has since expired looks like. Such an id can never work again, so it is discarded and a new
- * session created in its place.
+ * Only a 404 counts: Dintero no longer knows the id, so the session has expired and must be
+ * replaced. Every other status is about the request or the connection, not the session.
  *
- * Deliberately limited to 404. Every other failure says something about the request, the account or
- * the connection rather than the session: 400 is a rejected payload, 401 and 403 are credential or
- * permission problems, 408 and 429 are transient, and so are 5xx and transport errors. Discarding
- * the session on those would throw away a valid session and hide the actual problem.
- *
- * Failed requests are reported as a WP_Error whose error code is the HTTP status, with a
- * non-numeric code for transport errors.
- *
- * @see Dintero_Checkout_Request::process_response()
+ * @see Dintero_Checkout_Request::process_response() for how the status becomes the WP_Error code.
  *
  * @param mixed $response The value returned from an API call.
  * @return bool
