@@ -55,17 +55,13 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 			),
 		);
 
-		// In the address callback flow Dintero holds the lock and owns the pending address.
-		// Releasing it here causes Dintero to discard the pending address and revert to the
-		// session's initial state. Only release the lock for non-address-callback updates.
+		// Keep the lock during an address callback so Dintero retains its pending session state.
 		if ( ! $is_address_callback ) {
 			$body['remove_lock'] = true;
 		}
 
-		// For non-express checkout, addresses come from WC form fields and must be sent to Dintero.
-		// For express checkout during an address callback, we must also confirm the address back
-		// so Dintero can apply it to the session.
-		if ( ! dwc_is_express( $this->settings ) || $is_address_callback ) {
+		// Non-express checkout sends the address from the WC form fields. Express must not send WooCommerce's copy (it lacks the organization_number), but during an address callback it must echo back the address Dintero supplied in the event — that copy carries the organization_number, and Dintero reverts the customer's selection if it is not confirmed back.
+		if ( ! dwc_is_express( $this->settings ) ) {
 			$billing_address = $helper->get_billing_address();
 			if ( ! empty( $billing_address ) ) {
 				$body['order']['billing_address'] = $billing_address;
@@ -75,10 +71,33 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 			if ( ! empty( $shipping_address ) ) {
 				$body['order']['shipping_address'] = $shipping_address;
 			}
+		} elseif ( $is_address_callback ) {
+			$address_data      = $this->arguments['address_callback_data'] ?? array();
+			$callback_billing  = $address_data['billing_address'] ?? array();
+			$callback_shipping = $address_data['shipping_address'] ?? array();
+
+			// The business flow often supplies only a shipping address; use it for billing too so the organization_number reaches Dintero on both.
+			if ( empty( $callback_billing ) && ! empty( $callback_shipping ) ) {
+				$callback_billing = $callback_shipping;
+			}
+
+			// If the callback data is missing entirely (failed to parse, or posted by an older version of the checkout script), fall back to the WC customer copy so the pending address is still confirmed back — an unconfirmed callback leaves the session locked with the address reverted.
+			if ( empty( $callback_billing ) && empty( $callback_shipping ) ) {
+				$callback_billing  = $helper->get_billing_address();
+				$callback_shipping = $helper->get_shipping_address();
+			}
+
+			if ( ! empty( $callback_billing ) ) {
+				$body['order']['billing_address'] = $callback_billing;
+			}
+
+			if ( ! empty( $callback_shipping ) ) {
+				$body['order']['shipping_address'] = $callback_shipping;
+			}
 		}
 
-		// Set if express or not.
-		if ( $this->is_express() && $this->is_embedded() ) {
+		// Set the allowed customer types. Skip during an address callback, as re-sending them can reset the customer's current selection mid-switch.
+		if ( $this->is_express() && $this->is_embedded() && ! $is_address_callback ) {
 			$this->add_express_object( $body );
 		}
 

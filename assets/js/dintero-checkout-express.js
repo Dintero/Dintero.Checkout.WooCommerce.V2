@@ -19,6 +19,7 @@ jQuery( function ( $ ) {
         alreadyRedirected: false,
         isFinalizing: false,
         pendingAddressCallback: null,
+        lastShippingOption: null,
 
         /**
          * Updates the checkout based on a timer to not spam updates each time an event wants to, but rather limits to one update per second.
@@ -115,6 +116,7 @@ jQuery( function ( $ ) {
 
                 if ( dinteroCheckoutForWooCommerce.pendingAddressCallback ) {
                     $( "#dintero_address_callback" ).remove();
+                    $( "#dintero_address_data" ).remove();
                     const callback = dinteroCheckoutForWooCommerce.pendingAddressCallback;
                     dinteroCheckoutForWooCommerce.pendingAddressCallback = null;
 
@@ -151,9 +153,36 @@ jQuery( function ( $ ) {
                         if ( event.session === undefined || event.session.order === undefined ) {
                             // Refresh the session to display the error message from Dintero. The error itself should be handled by any of other event handlers.
                             checkout.refreshSession();
+                            return;
+                        }
+
+                        // The customer changed the shipping option in the iframe. Forward it to WooCommerce so the totals stay in sync, but only if it differs from what we last sent to avoid an update loop. Compare the identifying fields (id, line_id, operator_product_id) instead of serialized JSON, since the server-rendered field value is encoded differently.
+                        const shippingOption = event.session.order.shipping_option;
+                        if ( shippingOption && dinteroCheckoutParams.shipping_in_iframe ) {
+                            const current =
+                                dinteroCheckoutForWooCommerce.lastShippingOption ||
+                                dinteroCheckoutForWooCommerce.parseShippingDataField();
+                            if (
+                                ! current ||
+                                current.id !== shippingOption.id ||
+                                current.line_id !== shippingOption.line_id ||
+                                current.operator_product_id !== shippingOption.operator_product_id
+                            ) {
+                                dinteroCheckoutForWooCommerce.shippingMethodChanged( shippingOption );
+                            }
                         }
                     },
                     onAddressCallback( event, checkout, callback ) {
+                        // If the event carries no address (e.g., the session expired), fail the callback immediately. Storing it would leave the iframe waiting forever, since with nothing to update no updated_checkout cycle will run to resolve it.
+                        const order = ( event.session && event.session.order ) || {};
+                        if ( ! order.billing_address && ! order.shipping_address ) {
+                            callback( {
+                                success: false,
+                                error: dinteroCheckoutParams.i18n.update_order_review_error,
+                            } );
+                            return;
+                        }
+
                         dinteroCheckoutForWooCommerce.pendingAddressCallback = callback;
 
                         $( "form.checkout" ).append(
@@ -163,9 +192,23 @@ jQuery( function ( $ ) {
                             '<input type="hidden" name="dintero_address_callback" id="dintero_address_callback" value="1">',
                         );
 
+                        // Forward the address Dintero sent in the event so the session update can echo it back. It carries the organization_number for business purchases, which WooCommerce does not store and Dintero reverts if not confirmed.
+                        $( "#dintero_address_data" ).remove();
+                        $( "form.checkout" ).append(
+                            $( "<input>", {
+                                type: "hidden",
+                                name: "dintero_address_data",
+                                id: "dintero_address_data",
+                                value: JSON.stringify( {
+                                    billing_address: order.billing_address,
+                                    shipping_address: order.shipping_address,
+                                } ),
+                            } ),
+                        );
+
                         dinteroCheckoutForWooCommerce.updateAddress(
-                            event.session.order.billing_address,
-                            event.session.order.shipping_address,
+                            order.billing_address,
+                            order.shipping_address,
                         );
                     },
                     onPayment( event, checkout ) {
@@ -605,9 +648,24 @@ jQuery( function ( $ ) {
         },
 
         shippingMethodChanged( shipping ) {
+            // Remember what was forwarded in a property, not just the DOM field — the field may be removed by checkout field filters, and the loop guard in onSession must always terminate.
+            dinteroCheckoutForWooCommerce.lastShippingOption = shipping;
             $( "#dintero_shipping_data" ).val( JSON.stringify( shipping ) );
             $( "body" ).trigger( "dintero_shipping_option_changed", [ shipping ] );
             dinteroCheckoutForWooCommerce.delayUpdateCheckout();
+        },
+
+        /**
+         * Parse the server-rendered value of the shipping data field, if any.
+         *
+         * @return {Object|null} The shipping option the field holds, or null.
+         */
+        parseShippingDataField() {
+            try {
+                return JSON.parse( $( "#dintero_shipping_data" ).val() ) || null;
+            } catch ( e ) {
+                return null;
+            }
         },
 
         /**
