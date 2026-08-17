@@ -1,0 +1,4 @@
+Type: Fix
+Needs Documentation: no
+
+Fixed a race where the checkout session could be updated while the payment was being authorized, which could leave the customer stranded on the checkout instead of the order confirmation.

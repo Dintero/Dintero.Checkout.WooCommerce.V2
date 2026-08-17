@@ -156,6 +156,9 @@ jQuery( function ( $ ) {
                             return;
                         }
 
+                        // The session is only reported while the checkout is interactive, so getting here after the order was submitted means the payment was abandoned.
+                        dinteroCheckoutForWooCommerce.resumeCheckout( "the payment was not completed" );
+
                         // The customer changed the shipping option in the iframe. Forward it to WooCommerce so the totals stay in sync, but only if it differs from what we last sent to avoid an update loop. Compare the identifying fields (id, line_id, operator_product_id) instead of serialized JSON, since the server-rendered field value is encoded differently.
                         const shippingOption = event.session.order.shipping_option;
                         if ( shippingOption && dinteroCheckoutParams.shipping_in_iframe ) {
@@ -269,7 +272,7 @@ jQuery( function ( $ ) {
                                 opacity: 0.6,
                             },
                         } );
-                        // Freeze session updates while the order is submitted and the payment authorized. Unlike validation (reset synchronously below), this must stay set across the async submitOrder; onPayment clears it by redirecting on success, failOrder on failure.
+                        // Freeze session updates while the order is submitted and the payment authorized. Unlike validation (reset synchronously below), this must stay set across the async submitOrder; onPayment clears it by redirecting, otherwise resumeCheckout does.
                         dinteroCheckoutForWooCommerce.isFinalizing = true;
 
                         // Cancel any queued update and drop the lock marker so an update_checkout scheduled just before finalizing cannot still PUT the session (dwc_can_update_checkout() requires dintero_locked).
@@ -298,6 +301,24 @@ jQuery( function ( $ ) {
                 .then( function ( checkout ) {
                     dinteroCheckoutForWooCommerce.checkout = checkout;
                 } );
+        },
+
+        /**
+         * Lifts the update freeze from onValidateSession, and releases the form blocked with it.
+         *
+         * @param {string} reason Why the freeze is lifted, for the log.
+         */
+        resumeCheckout( reason ) {
+            if ( ! dinteroCheckoutForWooCommerce.isFinalizing ) {
+                return;
+            }
+
+            dinteroCheckoutForWooCommerce.logToFile(
+                dinteroCheckoutParams.SID + " | Resuming checkout updates: " + reason + ".",
+            );
+            dinteroCheckoutForWooCommerce.isFinalizing = false;
+            $( "#dintero-checkout-wc-form" ).unblock();
+            dinteroCheckoutForWooCommerce.unblockForm();
         },
 
         unsetSession( redirectUrl ) {
@@ -842,7 +863,7 @@ jQuery( function ( $ ) {
             console.log( "fail order" );
 
             // The payment attempt failed and the customer stays on the checkout to retry, so lift the freeze to resume session updates (including the refreshSession below).
-            dinteroCheckoutForWooCommerce.isFinalizing = false;
+            dinteroCheckoutForWooCommerce.resumeCheckout( "the order could not be submitted" );
 
             callback( { success: false, clientValidationError: errorMessage } );
 
