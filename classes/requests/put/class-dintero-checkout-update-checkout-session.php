@@ -87,8 +87,8 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 				$callback_shipping = $helper->get_shipping_address();
 			}
 
-			// If separate billing/shipping addresses are not allowed, ship to billing — the checkout form already does this (dintero-checkout-express.js), so echo it back here too rather than trust the client-supplied callback data.
-			if ( ! empty( $callback_shipping ) && ! dwc_allow_separate_shipping_address( $this->settings ) ) {
+			// If separate billing/shipping addresses are not allowed, ship to billing — the checkout form already does this (dintero-checkout-express.js), so echo it back here too rather than trust the client-supplied callback data. Gated on the billing address, not the shipping one: a callback carrying only a billing address must still overwrite a differing shipping address that Dintero kept from an earlier event.
+			if ( ! empty( $callback_billing ) && ! dwc_allow_separate_shipping_address( $this->settings ) ) {
 				foreach ( array( 'organization_number', 'business_name' ) as $key ) {
 					if ( empty( $callback_billing[ $key ] ) && ! empty( $callback_shipping[ $key ] ) ) {
 						$callback_billing[ $key ] = $callback_shipping[ $key ];
