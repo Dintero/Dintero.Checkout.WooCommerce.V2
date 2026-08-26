@@ -526,9 +526,6 @@ function dwc_is_popout( $settings ) {
 /**
  * Whether separate billing and shipping addresses are allowed.
  *
- * Mirrors the same rule enforced client-side by the express checkout script
- * (assets/js/dintero-checkout-express.js) — keep both in sync.
- *
  * @param array|null $settings The Dintero Checkout plugin settings. Defaults to the stored option.
  * @return bool
  */

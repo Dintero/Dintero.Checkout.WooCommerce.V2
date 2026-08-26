@@ -68,7 +68,6 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			$customer_type = 'b2bc' === $customer_type ? array( 'b2c', 'b2b' ) : array( $customer_type );
 			$body['configuration']['allow_different_billing_shipping_address'] = $customer_type;
 		} elseif ( $is_express_session ) {
-			// Explicitly clear the merchant's Dintero profile default so a disabled setting can't inherit an enabled profile configuration.
 			$body['configuration']['allow_different_billing_shipping_address'] = array();
 		}
 
