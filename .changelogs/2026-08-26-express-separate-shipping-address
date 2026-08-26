@@ -1,4 +1,4 @@
 Type: Fix
 Needs Documentation: no
 
-Fixed the express checkout accepting a differing billing and shipping address from Dintero's address callback (e.g. Apple Pay/Google Pay) even when the "Allow different billing and shipping address" setting was disabled. The session update now ships to the billing address in that case, matching what the checkout form already displays.
+Fixed the express checkout accepting a differing billing and shipping address from Dintero's address callback even when the "Allow different billing and shipping address" setting was disabled.
