@@ -62,6 +62,25 @@ function dintero_checkout_wc_show_another_gateway_button() {
 }
 
 /**
+ * Whether a WP_Error from a session request means the stored session id is unusable.
+ *
+ * Only a 404 counts: Dintero no longer knows the id, so the session has expired and must be
+ * replaced. Every other status is about the request or the connection, not the session.
+ *
+ * @see Dintero_Checkout_Request::process_response() for how the status becomes the WP_Error code.
+ *
+ * @param mixed $response The value returned from an API call.
+ * @return bool
+ */
+function dintero_is_stale_session_error( $response ) {
+	if ( ! is_wp_error( $response ) ) {
+		return false;
+	}
+
+	return 404 === intval( $response->get_error_code() );
+}
+
+/**
  * Unsets all sessions set by Dintero.
  *
  * @return void
