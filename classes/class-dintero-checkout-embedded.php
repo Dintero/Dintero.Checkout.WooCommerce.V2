@@ -54,6 +54,11 @@ class Dintero_Checkout_Embedded {
 	public function update_wc_customer( $raw_post_data ) {
 		parse_str( $raw_post_data, $post_data );
 
+		// A shipping option carried over from before an address change may not exist for the new address. Drop it here, ahead of woocommerce_shipping_packages, so a stale pickup point is not applied either.
+		if ( $this->is_stale_shipping_selection( $post_data ) ) {
+			delete_transient( 'dintero_shipping_data_' . WC()->session->get( 'dintero_merchant_reference' ) );
+		}
+
 		// Capture Dintero's callback address (incl. organization_number) so the session update can echo it back. WooCommerce has no organization_number field.
 		if ( ! empty( $post_data['dintero_address_data'] ) ) {
 			// WooCommerce already unslashed post_data before firing this hook (WC_AJAX::update_order_review), so decode as-is — unslashing again would strip the JSON's own escape sequences.
@@ -153,11 +158,33 @@ class Dintero_Checkout_Embedded {
 		if ( isset( $_POST['post_data'] ) ) { // phpcs:ignore
 			parse_str( $_POST['post_data'], $post_data ); // phpcs:ignore
 			if ( isset( $post_data['dintero_shipping_data'] ) ) {
+				if ( $this->is_stale_shipping_selection( $post_data ) ) {
+					return;
+				}
+
 				WC()->session->set( 'dintero_shipping_data', $post_data['dintero_shipping_data'] );
 				$data = json_decode( $post_data['dintero_shipping_data'], true );
 				dintero_update_wc_shipping( $data );
 			}
 		}
+	}
+
+	/**
+	 * Whether the posted shipping option is unchanged from the last update during an address callback.
+	 *
+	 * @param array $post_data The checkout form data.
+	 * @return bool
+	 */
+	private function is_stale_shipping_selection( $post_data ) {
+		if ( empty( $post_data['dintero_address_callback'] ) ) {
+			return false;
+		}
+
+		// Dintero reports a shipping option change as an ordinary session update, so an unchanged value here is always a carryover. Comparing keeps a fresh selection if both land in the same update.
+		$posted   = $post_data['dintero_shipping_data'] ?? '';
+		$previous = WC()->session->get( 'dintero_shipping_data' );
+
+		return '' !== $posted && $previous === $posted;
 	}
 
 	/**

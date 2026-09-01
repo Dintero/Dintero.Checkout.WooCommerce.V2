@@ -148,6 +148,7 @@ jQuery( function ( $ ) {
                     sid: dinteroCheckoutParams.SID,
                     popOut: true == dinteroCheckoutParams.popOut ? true : false,
                     language: dinteroCheckoutParams.language,
+                    debug: true == dinteroCheckoutParams.sdkDebug,
                     onSession( event, checkout ) {
                         // If the session expires, the order object will be missing.
                         if ( event.session === undefined || event.session.order === undefined ) {
