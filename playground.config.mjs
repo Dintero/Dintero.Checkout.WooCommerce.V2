@@ -29,11 +29,30 @@ export default {
 
 	options: {
 		all: {
+			// The full form-field defaults are seeded (not only the keys that
+			// differ): the plugin reads some of them from the settings array
+			// without a fallback (e.g. express_customer_type,
+			// branding_logo_color), which warns when the option lacks them.
+			// On a real site saving the settings form persists every default.
 			woocommerce_dintero_checkout_settings: {
 				enabled: 'yes',
 				test_mode: 'yes',
 				logging: 'yes',
 				checkout_flow: 'express_popout',
+				checkout_layout: 'two_column_right',
+				redirect_title: 'Dintero Checkout',
+				redirect_description: '',
+				redirect_select_another_method_text: '',
+				order_status_authorized: 'processing',
+				order_status_pending_authorization: 'manual-review',
+				order_management_manual_refund: 'yes',
+				express_customer_type: 'b2bc',
+				express_shipping_in_iframe: 'no',
+				express_allow_different_billing_shipping_address: 'no',
+				branding_logo_color: 'yes',
+				branding_logo_color_custom: '',
+				branding_logo_color_mode: 'logomark',
+				subscription_profile_id: '',
 				account_id: envSecret( 'DINTERO_TEST_ACCOUNT_ID' ),
 				client_id: envSecret( 'DINTERO_TEST_CLIENT_ID' ),
 				client_secret: envSecret( 'DINTERO_TEST_CLIENT_SECRET' ),
