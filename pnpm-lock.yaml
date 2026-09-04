@@ -13,7 +13,7 @@ importers:
         version: 7.20.7(@babel/core@7.29.0)
       '@dintero/checkout-web-sdk':
         specifier: latest
-        version: 0.14.0
+        version: 0.12.13
       grunt-cli:
         specifier: ^1.5.0
         version: 1.5.0
@@ -639,8 +639,8 @@ packages:
     resolution: {integrity: sha512-LwdZHpScM4Qz8Xw2iKSzS+cfglZzJGvofQICy7W7v4caru4EaAmyUuO6BGrbyQ2mYV11W0U8j5mBhd14dd3B0A==}
     engines: {node: '>=6.9.0'}
 
-  '@dintero/checkout-web-sdk@0.14.0':
-    resolution: {integrity: sha512-tN2I3z/g+RgHOS64c4FaXHZ3POF6HiUB1EdN7EY6rmxUgQOb0LiVwA33eFHu4FN2L/7gveQ93wvg5wxpbLtlYg==}
+  '@dintero/checkout-web-sdk@0.12.13':
+    resolution: {integrity: sha512-r4VPwGLVsI+v4jT3LcS33XFadg8Qm94+9QjjhlnL8Xp9G7+tJgoU9OJBPixrBiPYC2aLM+P5EanXRB33uIb+fg==}
 
   '@discoveryjs/json-ext@0.5.7':
     resolution: {integrity: sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==}
@@ -4370,7 +4370,7 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
 
-  '@dintero/checkout-web-sdk@0.14.0':
+  '@dintero/checkout-web-sdk@0.12.13':
     dependencies:
       native-promise-only: 0.8.1
 
