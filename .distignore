@@ -3,6 +3,7 @@ docker_tag
 output.log
 
 .babelrc
+.claude
 .editorconfig
 .eslintignore
 .distignore
@@ -15,6 +16,14 @@ output.log
 .prettierignore
 .travis.yml
 .wordpress-org
+.npmrc
+.nvmrc
+.playground
+.env
+CLAUDE.md
+playground.config.mjs
+tools
+pr-screenshots
 
 *.DS_Store
 
