@@ -166,8 +166,10 @@ jQuery( function ( $ ) {
                             const current =
                                 dinteroCheckoutForWooCommerce.lastShippingOption ||
                                 dinteroCheckoutForWooCommerce.parseShippingDataField();
-                            if (
-                                ! current ||
+                            if ( ! current ) {
+                                // On load, adopt the current option as the baseline instead of forwarding it: a fresh load otherwise looks like a shipping change and churns a lock/refresh cycle that leaves the checkout busy when the wallet launches.
+                                dinteroCheckoutForWooCommerce.lastShippingOption = shippingOption;
+                            } else if (
                                 current.id !== shippingOption.id ||
                                 current.line_id !== shippingOption.line_id ||
                                 current.operator_product_id !== shippingOption.operator_product_id
