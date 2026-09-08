@@ -89,6 +89,8 @@ function dintero_unset_sessions() {
 	WC()->session->__unset( 'dintero_checkout_session_id' );
 	WC()->session->__unset( 'dintero_merchant_reference' );
 	WC()->session->__unset( 'dintero_checkout_subscription_session' );
+	WC()->session->__unset( 'dintero_shipping_line_id' );
+	WC()->session->__unset( 'dintero_shipping_data' );
 }
 
 /**
