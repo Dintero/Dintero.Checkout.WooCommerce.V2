@@ -435,36 +435,16 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 */
 	public function get_shipping_option( $shipping_item = null ) {
 		if ( empty( $shipping_item ) ) {
-			if ( count( $this->get_items( 'shipping' ) ) === 1 ) {
-				/**
-				 * Process order item shipping.
-				 *
-				 * @var WC_Order_Item_Shipping $order_item WooCommerce order item shipping.
-				 */
-				foreach ( $this->get_items( 'shipping' ) as $order_item ) {
-					return $this->get_shipping_item( $order_item );
-				}
+			$shipping_items = $this->get_items( 'shipping' );
+			if ( count( $shipping_items ) !== 1 ) {
+				// More than one shipping package: shipping must live in order.items, not shipping_option.
+				return array();
 			}
+
+			$shipping_item = array_values( $shipping_items )[0];
 		}
 
-		if ( empty( $shipping_method ) ) {
-			return array();
-		}
-
-		$shipping_total     = floatval( $shipping_item->get_total() );
-		$shipping_total_tax = floatval( $shipping_item->get_total_tax() );
-		return array(
-			/* NOTE: The id and line_id must match the same id and line_id on capture and refund. */
-			'id'              => "{$shipping_item->get_method_id()}:{$shipping_item->get_instance_id()}",
-			'line_id'         => "{$shipping_item->get_method_id()}:{$shipping_item->get_instance_id()}",
-			'amount'          => self::format_number( $shipping_total + $shipping_total_tax ),
-			'operator'        => '',
-			'description'     => '',
-			'title'           => $shipping_item->get_method_title(),
-			'delivery_method' => 'unspecified',
-			'vat_amount'      => self::format_number( $shipping_total_tax ),
-			'vat'             => $shipping_total <= 0 ? 0 : self::format_number( $shipping_total_tax / $shipping_total ),
-		);
+		return $this->get_shipping_item( $shipping_item );
 	}
 
 	/**
