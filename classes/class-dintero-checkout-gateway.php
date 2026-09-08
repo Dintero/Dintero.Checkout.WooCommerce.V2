@@ -136,8 +136,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		public function create_order_shipping_item( $item, $package_key, $package ) {
 			$chosen_shipping_methods = WC()->session->get( 'chosen_shipping_methods' );
 			if ( empty( $chosen_shipping_methods[ $package_key ] ) ) {
-				// No chosen method for this package: skip rather than hash an empty string, which
-				// would give every shipping item on the order the same line_id.
+				// Hashing an empty string would give every shipping item the same line id.
 				return;
 			}
 
@@ -262,10 +261,9 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		}
 
 		/**
-		 * Persist the WC session's shipping line id to the order.
+		 * Save the shipping line id from the WC session to the order.
 		 *
-		 * Reads the value that Dintero_Checkout_Helper_Base::add_shipping() sets in the WC
-		 * session whenever a Dintero session request body is built for this checkout.
+		 * The value is set by Dintero_Checkout_Helper_Base::add_shipping() when a session request body is built.
 		 *
 		 * @param WC_Order $order The WC order.
 		 * @return void
@@ -318,12 +316,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				$session = Dintero()->api->create_session( $order->get_id() );
 			}
 
-			/*
-			 * The Dintero session for the redirect flow is created here, after process_payment()
-			 * already called save_shipping_line_id() once. The WC session's shipping line id
-			 * (set by add_shipping() while building the request body above) was not yet available
-			 * on that first call, so save it again now that it is.
-			 */
+			// The line id was not yet in the session when process_payment() ran, since the session is created above.
 			$this->save_shipping_line_id( $order );
 
 			$reference = WC()->session->get( 'dintero_merchant_reference' );

@@ -1,0 +1,4 @@
+Type: Fix
+Needs Documentation: no
+
+Fixed captures and refunds being declined for orders placed through the redirect flow, because the shipping line ID sent did not match the authorized transaction.

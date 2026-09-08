@@ -437,7 +437,7 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 		if ( empty( $shipping_item ) ) {
 			$shipping_items = $this->get_items( 'shipping' );
 			if ( count( $shipping_items ) !== 1 ) {
-				// More than one shipping package: shipping must live in order.items, not shipping_option.
+				// Multiple shipping packages are part of order.items instead.
 				return array();
 			}
 
@@ -512,6 +512,11 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 			if ( empty( $line_id ) ) {
 				// If we get here, use the shipping method id and instance id as a final fallback to use the same fallback the plugin has always used.
 				$line_id = "{$shipping_line->get_method_id()}:{$shipping_line->get_instance_id()}";
+			}
+
+			if ( empty( $id ) ) {
+				// Prevent sending the shipping line with an empty id.
+				$id = "{$shipping_line->get_method_id()}:{$shipping_line->get_instance_id()}";
 			}
 
 			$shipping_total     = floatval( $shipping_line->get_total() );

@@ -168,6 +168,51 @@ function dintero_maybe_set_merchant_reference_2( $order, $transaction_id ) {
 }
 
 /**
+ * Set the shipping line id on the order to the one on the authorized transaction.
+ *
+ * The line id must match the authorized transaction, or the payment provider may decline the
+ * capture or refund. The order meta can be missing (never written in the redirect flow) or stale
+ * (inherited from a previous order in the same session), so read it from the transaction instead.
+ *
+ * @param WC_Order $order The WooCommerce order.
+ * @return void
+ */
+function dintero_maybe_set_shipping_line_id( $order ) {
+	$transaction_id = $order->get_transaction_id();
+	if ( empty( $transaction_id ) ) {
+		return;
+	}
+
+	// The transaction is checked more than once per capture or refund.
+	static $transactions = array();
+	if ( ! array_key_exists( $transaction_id, $transactions ) ) {
+		$transactions[ $transaction_id ] = Dintero()->api->get_order( $transaction_id );
+	}
+
+	$dintero_order = $transactions[ $transaction_id ];
+	if ( is_wp_error( $dintero_order ) ) {
+		Dintero_Checkout_Logger::log( "Could not retrieve the shipping line id for the WC order {$order->get_id()} from the transaction {$transaction_id}: " . $dintero_order->get_error_message() );
+		return;
+	}
+
+	// Absent if the shipping is part of order.items, as for multiple packages and renewals.
+	$line_id = $dintero_order['shipping_option']['line_id'] ?? '';
+	if ( empty( $line_id ) ) {
+		return;
+	}
+
+	$order_line_id = $order->get_meta( '_dintero_shipping_line_id' );
+	if ( $line_id === $order_line_id ) {
+		return;
+	}
+
+	$order->update_meta_data( '_dintero_shipping_line_id', $line_id );
+	$order->save_meta_data();
+
+	Dintero_Checkout_Logger::log( "Set the shipping line id for the WC order {$order->get_id()} to the one on the transaction {$transaction_id}. Was: " . ( empty( $order_line_id ) ? '(missing)' : $order_line_id ) );
+}
+
+/**
  * Set the confirmation order meta from the dintero order to the WooCommerce order.
  *
  * @param array    $dintero_order The Dintero order from the GET request.
