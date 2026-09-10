@@ -524,6 +524,21 @@ function dwc_is_popout( $settings ) {
 }
 
 /**
+ * Whether separate billing and shipping addresses are allowed.
+ *
+ * @param array|null $settings The Dintero Checkout plugin settings. Defaults to the stored option.
+ * @return bool
+ */
+function dwc_allow_separate_shipping_address( $settings = null ) {
+	if ( null === $settings ) {
+		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
+	}
+
+	return ! wc_ship_to_billing_address_only()
+		&& wc_string_to_bool( $settings['express_allow_different_billing_shipping_address'] ?? 'no' );
+}
+
+/**
  * Whether we can update the checkout.
  *
  * @return bool
