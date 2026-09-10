@@ -37,3 +37,6 @@ tmp-*
 /release/
 yarn.lock
 assets/js/dintero-checkout-express.min.js.LICENSE.txt
+.playground/
+/pr-screenshots/
+.env

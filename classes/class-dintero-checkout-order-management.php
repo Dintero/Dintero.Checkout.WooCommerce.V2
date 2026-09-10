@@ -114,6 +114,8 @@ class Dintero_Checkout_Order_Management {
 			return;
 		}
 
+		dintero_maybe_set_shipping_line_id( $order );
+
 		// Check if the Dintero order has been captured in the back-office.
 		if ( ! $this->is_captured( $order_id ) ) {
 			$response = Dintero()->api->capture_order( $order->get_transaction_id(), $order_id );
@@ -295,6 +297,8 @@ class Dintero_Checkout_Order_Management {
 			$order->add_order_note( __( 'The Dintero order has already been refunded.', 'dintero-checkout-for-woocommerce' ) );
 			return;
 		}
+
+		dintero_maybe_set_shipping_line_id( $order );
 
 		// Check if the Dintero order has been _fully_ refunded in the back-office.
 		if ( ! $this->is_refunded( $order_id ) ) {
