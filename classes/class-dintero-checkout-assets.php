@@ -211,9 +211,11 @@ class Dintero_Checkout_Assets {
 				'log_to_file_nonce'                    => wp_create_nonce( 'dintero_checkout_wc_log_js' ),
 				'unset_session_url'                    => WC_AJAX::get_endpoint( 'dintero_checkout_unset_session' ),
 				'unset_session_nonce'                  => wp_create_nonce( 'dintero_checkout_unset_session' ),
+				'recover_order_url'                    => WC_AJAX::get_endpoint( 'dintero_checkout_recover_order' ),
+				'recover_order_nonce'                  => wp_create_nonce( 'dintero_checkout_recover_order' ),
 				'print_notice_url'                     => WC_AJAX::get_endpoint( 'dintero_checkout_print_notice' ),
 				'print_notice_nonce'                   => wp_create_nonce( 'dintero_checkout_print_notice' ),
-				'shipping_in_iframe'                   => ( isset( $settings['express_shipping_in_iframe'] ) && 'yes' === $settings['express_shipping_in_iframe'] && dwc_is_express( $settings ) ),
+				'shipping_in_iframe'                   => ( wc_string_to_bool( $settings['express_shipping_in_iframe'] ?? 'no' ) && dwc_is_express( $settings ) ),
 				'pip_text'                             => __( 'Payment in progress', 'dintero-checkout-for-woocommerce' ),
 				'popOut'                               => dwc_is_popout( $settings ),
 				'verifyOrderTotalURL'                  => WC_AJAX::get_endpoint( 'dintero_verify_order_total' ),
@@ -224,6 +226,8 @@ class Dintero_Checkout_Assets {
 				'checkout_flow'                        => $settings['checkout_flow'] ?? 'express_popout',
 				'update_order_review_url'              => WC_AJAX::get_endpoint( 'update_order_review' ),
 				'update_order_review_nonce'            => wp_create_nonce( 'update-order-review' ),
+				// The SDK's debug mode logs the full unredacted session to the browser console. Kept separate from the 'logging' setting, which merchants leave enabled in production.
+				'sdkDebug'                             => (bool) apply_filters( 'dintero_checkout_sdk_debug', wc_string_to_bool( $settings['sdk_debug'] ?? 'no' ) ),
 				'i18n'                                 => array(
 					'update_order_review_error' => __( 'Failed to update order. Please try again.', 'dintero-checkout-for-woocommerce' ),
 				),
