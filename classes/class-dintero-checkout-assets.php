@@ -227,7 +227,7 @@ class Dintero_Checkout_Assets {
 				'update_order_review_url'              => WC_AJAX::get_endpoint( 'update_order_review' ),
 				'update_order_review_nonce'            => wp_create_nonce( 'update-order-review' ),
 				// The SDK's debug mode logs the full unredacted session to the browser console. Kept separate from the 'logging' setting, which merchants leave enabled in production.
-				'sdkDebug'                             => (bool) apply_filters( 'dintero_checkout_sdk_debug', false ),
+				'sdkDebug'                             => (bool) apply_filters( 'dintero_checkout_sdk_debug', wc_string_to_bool( $settings['sdk_debug'] ?? 'no' ) ),
 				'i18n'                                 => array(
 					'update_order_review_error' => __( 'Failed to update order. Please try again.', 'dintero-checkout-for-woocommerce' ),
 				),

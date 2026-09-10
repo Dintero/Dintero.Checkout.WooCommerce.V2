@@ -1,0 +1,4 @@
+Type: Enhancement
+Needs Documentation: yes
+
+Added a new 'Enable SDK debug mode' setting that logs the activity of the Dintero checkout SDK to the browser console. This previously required the 'dintero_checkout_sdk_debug' filter, which still works and takes precedence over the setting.
