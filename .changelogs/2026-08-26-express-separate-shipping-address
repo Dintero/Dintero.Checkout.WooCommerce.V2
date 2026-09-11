@@ -1,0 +1,4 @@
+Type: Fix
+Needs Documentation: no
+
+Fixed the express checkout accepting a differing billing and shipping address from Dintero's address callback even when the "Allow different billing and shipping address" setting was disabled.
