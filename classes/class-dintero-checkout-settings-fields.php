@@ -97,6 +97,14 @@ class Dintero_Settings_Fields {
 				'default'     => 'yes',
 				'desc_tip'    => true,
 			),
+			'sdk_debug'                               => array(
+				'title'       => __( 'Enable SDK debug mode', 'dintero-checkout-for-woocommerce' ),
+				'label'       => ' ',
+				'type'        => 'checkbox',
+				'description' => __( 'Logs the activity of the Dintero checkout SDK to the browser console. Only enable while troubleshooting, since the output contains the full payment session.', 'dintero-checkout-for-woocommerce' ),
+				'default'     => 'no',
+				'desc_tip'    => true,
+			),
 			'checkout_flow'                           => array(
 				'title'       => __( 'Checkout flow', 'dintero-checkout-for-woocommerce' ),
 				'default'     => 'express_popout',

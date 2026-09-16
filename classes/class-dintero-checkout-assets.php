@@ -117,6 +117,11 @@ class Dintero_Checkout_Assets {
 			return;
 		}
 
+		// Don't initialize the express checkout in the theme customizer preview.
+		if ( is_customize_preview() ) {
+			return;
+		}
+
 		if ( ! dwc_is_embedded( $settings ) ) {
 			return;
 		}
@@ -141,6 +146,11 @@ class Dintero_Checkout_Assets {
 		$session_id = WC()->session->get( 'dintero_checkout_session_id' );
 		// If we don't have a session, or the cart has changed subscription status, create a new session.
 		if ( empty( $session_id ) || Dintero_Checkout_Subscription::maybe_reset_session_on_subscription_change() ) {
+			// Don't create a session without a cart. An empty cart results in an empty items array, which Dintero's API rejects.
+			if ( ! isset( WC()->cart ) || WC()->cart->is_empty() ) {
+				return;
+			}
+
 			WC()->cart->calculate_shipping();
 			// The checkout is only available for free orders if the cart contains subscriptions.
 			// We therefore don't have to check if the cart contains subscriptions. Refer to Dintero_Checkout_Subscription::is_available().
@@ -201,17 +211,26 @@ class Dintero_Checkout_Assets {
 				'log_to_file_nonce'                    => wp_create_nonce( 'dintero_checkout_wc_log_js' ),
 				'unset_session_url'                    => WC_AJAX::get_endpoint( 'dintero_checkout_unset_session' ),
 				'unset_session_nonce'                  => wp_create_nonce( 'dintero_checkout_unset_session' ),
+				'recover_order_url'                    => WC_AJAX::get_endpoint( 'dintero_checkout_recover_order' ),
+				'recover_order_nonce'                  => wp_create_nonce( 'dintero_checkout_recover_order' ),
 				'print_notice_url'                     => WC_AJAX::get_endpoint( 'dintero_checkout_print_notice' ),
 				'print_notice_nonce'                   => wp_create_nonce( 'dintero_checkout_print_notice' ),
-				'shipping_in_iframe'                   => ( isset( $settings['express_shipping_in_iframe'] ) && 'yes' === $settings['express_shipping_in_iframe'] && dwc_is_express( $settings ) ),
+				'shipping_in_iframe'                   => ( wc_string_to_bool( $settings['express_shipping_in_iframe'] ?? 'no' ) && dwc_is_express( $settings ) ),
 				'pip_text'                             => __( 'Payment in progress', 'dintero-checkout-for-woocommerce' ),
 				'popOut'                               => dwc_is_popout( $settings ),
 				'verifyOrderTotalURL'                  => WC_AJAX::get_endpoint( 'dintero_verify_order_total' ),
 				'verifyOrderTotalNonce'                => wp_create_nonce( 'dintero_verify_order_total' ),
 				'verifyOrderTotalError'                => __( 'The cart was modified. Please try again.', 'dintero-checkout-for-woocommerce' ),
-				'allowDifferentBillingShippingAddress' => 'yes' === ( $settings['express_allow_different_billing_shipping_address'] ?? 'no' ) ? true : false,
+				'allowDifferentBillingShippingAddress' => dwc_allow_separate_shipping_address( $settings ),
 				'woocommerceShipToDestination'         => get_option( 'woocommerce_ship_to_destination' ),
 				'checkout_flow'                        => $settings['checkout_flow'] ?? 'express_popout',
+				'update_order_review_url'              => WC_AJAX::get_endpoint( 'update_order_review' ),
+				'update_order_review_nonce'            => wp_create_nonce( 'update-order-review' ),
+				// The SDK's debug mode logs the full unredacted session to the browser console. Kept separate from the 'logging' setting, which merchants leave enabled in production.
+				'sdkDebug'                             => wc_string_to_bool( apply_filters( 'dintero_checkout_sdk_debug', wc_string_to_bool( $settings['sdk_debug'] ?? 'no' ) ) ),
+				'i18n'                                 => array(
+					'update_order_review_error' => __( 'Failed to update order. Please try again.', 'dintero-checkout-for-woocommerce' ),
+				),
 			)
 		);
 

@@ -65,13 +65,21 @@ class Dintero_Checkout_API {
 	 * Update a Dintero checkout session.
 	 *
 	 * @param string $session_id The Dintero session id.
+	 * @param bool   $is_address_callback Whether this update confirms a Dintero address callback.
+	 * @param array  $address_callback_data The address Dintero provided in the callback event.
 	 * @return array|WP_Error
 	 */
-	public function update_checkout_session( $session_id ) {
-		$args     = array( 'session_id' => $session_id );
+	public function update_checkout_session( $session_id, $is_address_callback = false, $address_callback_data = array() ) {
+		$args     = array(
+			'session_id'            => $session_id,
+			'is_address_callback'   => $is_address_callback,
+			'address_callback_data' => $address_callback_data,
+		);
 		$request  = new Dintero_Checkout_Update_Checkout_Session( $args );
 		$response = $request->request();
-		return $this->check_for_api_error( $response );
+
+		// The caller discards a stale session and reloads the checkout, so the customer never needs to be told about it.
+		return $this->check_for_api_error( $response, true );
 	}
 
 	/**
@@ -205,15 +213,23 @@ class Dintero_Checkout_API {
 	/**
 	 * Checks for WP Errors and returns either the response as array.
 	 *
-	 * @param array $response The response from the request.
+	 * @param array|WP_Error $response The response from the request.
+	 * @param bool           $suppress_stale_session_notice Whether a stale session error should be kept from the customer. Set by callers that recover from it. Default false.
 	 * @return array|WP_Error
 	 */
-	private function check_for_api_error( $response ) {
-		if ( is_wp_error( $response ) ) {
-			if ( ! is_admin() && ! wp_is_serving_rest_request() ) {
-				dintero_print_error_message( $response );
-			}
+	private function check_for_api_error( $response, $suppress_stale_session_notice = false ) {
+		if ( ! is_wp_error( $response ) ) {
+			return $response;
 		}
+
+		if ( $suppress_stale_session_notice && dintero_is_stale_session_error( $response ) ) {
+			return $response;
+		}
+
+		if ( ! is_admin() && ! wp_is_serving_rest_request() ) {
+			dintero_print_error_message( $response );
+		}
+
 		return $response;
 	}
 }

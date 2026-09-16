@@ -17,21 +17,34 @@ jQuery( function ( $ ) {
         isLocked: false,
         updateTimer: null,
         alreadyRedirected: false,
+        isFinalizing: false,
+        pendingAddressCallback: null,
+        lastShippingOption: null,
 
         /**
          * Updates the checkout based on a timer to not spam updates each time an event wants to, but rather limits to one update per second.
          */
         delayUpdateCheckout() {
+            // Once the order is submitted for payment (onValidateSession), the session is being authorized/consumed by Dintero. Any session update now races the authorization, can hit a consumed session (404 NOT_FOUND), and break the onPayment redirect. Stop touching the session.
+            if ( dinteroCheckoutForWooCommerce.isFinalizing ) {
+                return;
+            }
+
             if ( dinteroCheckoutForWooCommerce.updateTimer ) {
                 clearTimeout( dinteroCheckoutForWooCommerce.updateTimer );
             }
 
-            // If the session is not locked, do so.
-            if ( dinteroCheckoutForWooCommerce.isLocked === false && dinteroCheckoutForWooCommerce.checkout !== null ) {
-                dinteroCheckoutForWooCommerce.isLocked = true;
-                dinteroCheckoutForWooCommerce.checkout.lockSession();
-            } else {
-                dinteroCheckoutForWooCommerce.updateCheckout();
+            // During an address callback Dintero holds the lock. Skip locking and let the timer fire update_checkout directly, relying on updatedCheckout for the result.
+            if ( ! dinteroCheckoutForWooCommerce.pendingAddressCallback ) {
+                if (
+                    dinteroCheckoutForWooCommerce.isLocked === false &&
+                    dinteroCheckoutForWooCommerce.checkout !== null
+                ) {
+                    dinteroCheckoutForWooCommerce.isLocked = true;
+                    dinteroCheckoutForWooCommerce.checkout.lockSession();
+                } else {
+                    dinteroCheckoutForWooCommerce.updateCheckout();
+                }
             }
 
             dinteroCheckoutForWooCommerce.updateTimer = setTimeout( () => {
@@ -81,25 +94,52 @@ jQuery( function ( $ ) {
         },
 
         updateCheckout() {
-            if ( dinteroCheckoutForWooCommerce.checkout !== null && ! dinteroCheckoutForWooCommerce.validation ) {
+            if (
+                dinteroCheckoutForWooCommerce.checkout !== null &&
+                ! dinteroCheckoutForWooCommerce.validation &&
+                ! dinteroCheckoutForWooCommerce.isFinalizing
+            ) {
                 $( dinteroCheckoutForWooCommerce.checkoutFormSelector ).append(
                     '<input type="hidden" name="dintero_locked" id="dintero_locked" value=1>',
                 );
             }
         },
 
-        updatedCheckout() {
-            if ( dinteroCheckoutForWooCommerce.checkout !== null && ! dinteroCheckoutForWooCommerce.validation ) {
-                $( "#dintero_locked" ).remove();
+        updatedCheckout( event, data ) {
+            if (
+                dinteroCheckoutForWooCommerce.checkout !== null &&
+                ! dinteroCheckoutForWooCommerce.validation &&
+                ! dinteroCheckoutForWooCommerce.isFinalizing
+            ) {
+                $( dinteroCheckoutForWooCommerce.checkoutFormSelector + " [name=dintero_locked]" ).remove();
                 dinteroCheckoutForWooCommerce.isLocked = false;
-                dinteroCheckoutForWooCommerce.checkout.refreshSession();
+
+                if ( dinteroCheckoutForWooCommerce.pendingAddressCallback ) {
+                    $( "#dintero_address_callback" ).remove();
+                    $( "#dintero_address_data" ).remove();
+                    const callback = dinteroCheckoutForWooCommerce.pendingAddressCallback;
+                    dinteroCheckoutForWooCommerce.pendingAddressCallback = null;
+
+                    if ( data && data.result === "success" ) {
+                        callback( { success: true } );
+                    } else {
+                        // wc_print_notices() returns HTML, strip tags before passing to Dintero.
+                        const message =
+                            data && data.messages
+                                ? data.messages.replace( /<\/?[^>]+(>|$)\s*/g, "" )
+                                : dinteroCheckoutParams.i18n.update_order_review_error;
+                        callback( { success: false, error: message } );
+                    }
+                } else {
+                    dinteroCheckoutForWooCommerce.checkout.refreshSession();
+                }
             }
         },
 
         /**
          * Render the iframe and register callback functionality.
          */
-        async renderIframe() {
+        renderIframe() {
             const container = $( "#dintero-checkout-iframe" )[ 0 ];
 
             dintero
@@ -108,6 +148,7 @@ jQuery( function ( $ ) {
                     sid: dinteroCheckoutParams.SID,
                     popOut: true == dinteroCheckoutParams.popOut ? true : false,
                     language: dinteroCheckoutParams.language,
+                    debug: true == dinteroCheckoutParams.sdkDebug,
                     onSession( event, checkout ) {
                         // If the session expires, the order object will be missing.
                         if ( event.session === undefined || event.session.order === undefined ) {
@@ -116,15 +157,65 @@ jQuery( function ( $ ) {
                             return;
                         }
 
-                        // Check for address changes and update shipping.
-                        dinteroCheckoutForWooCommerce.updateAddress(
-                            event.session.order.billing_address,
-                            event.session.order.shipping_address,
-                        );
-                        if ( event.session.order.shipping_option && dinteroCheckoutParams.shipping_in_iframe ) {
-                            // @TODO only if shipping in iframe.
-                            dinteroCheckoutForWooCommerce.shippingMethodChanged( event.session.order.shipping_option );
+                        // The session is only reported while the checkout is interactive, so getting here after the order was submitted means the payment was abandoned.
+                        dinteroCheckoutForWooCommerce.resumeCheckout( "the payment was not completed" );
+
+                        // The customer changed the shipping option in the iframe. Forward it to WooCommerce so the totals stay in sync, but only if it differs from what we last sent to avoid an update loop. Compare the identifying fields (id, line_id, operator_product_id) instead of serialized JSON, since the server-rendered field value is encoded differently.
+                        const shippingOption = event.session.order.shipping_option;
+                        if ( shippingOption && dinteroCheckoutParams.shipping_in_iframe ) {
+                            const current =
+                                dinteroCheckoutForWooCommerce.lastShippingOption ||
+                                dinteroCheckoutForWooCommerce.parseShippingDataField();
+                            if ( ! current ) {
+                                // On load, adopt the current option as the baseline instead of forwarding it: a fresh load otherwise looks like a shipping change and churns a lock/refresh cycle that leaves the checkout busy when the wallet launches.
+                                dinteroCheckoutForWooCommerce.lastShippingOption = shippingOption;
+                            } else if (
+                                current.id !== shippingOption.id ||
+                                current.line_id !== shippingOption.line_id ||
+                                current.operator_product_id !== shippingOption.operator_product_id
+                            ) {
+                                dinteroCheckoutForWooCommerce.shippingMethodChanged( shippingOption );
+                            }
                         }
+                    },
+                    onAddressCallback( event, checkout, callback ) {
+                        // If the event carries no address (e.g., the session expired), fail the callback immediately. Storing it would leave the iframe waiting forever, since with nothing to update no updated_checkout cycle will run to resolve it.
+                        const order = ( event.session && event.session.order ) || {};
+                        if ( ! order.billing_address && ! order.shipping_address ) {
+                            callback( {
+                                success: false,
+                                error: dinteroCheckoutParams.i18n.update_order_review_error,
+                            } );
+                            return;
+                        }
+
+                        dinteroCheckoutForWooCommerce.pendingAddressCallback = callback;
+
+                        $( "form.checkout" ).append(
+                            '<input type="hidden" name="dintero_locked" id="dintero_locked" value="1">',
+                        );
+                        $( "form.checkout" ).append(
+                            '<input type="hidden" name="dintero_address_callback" id="dintero_address_callback" value="1">',
+                        );
+
+                        // Forward the address Dintero sent in the event so the session update can echo it back. It carries the organization_number for business purchases, which WooCommerce does not store and Dintero reverts if not confirmed.
+                        $( "#dintero_address_data" ).remove();
+                        $( "form.checkout" ).append(
+                            $( "<input>", {
+                                type: "hidden",
+                                name: "dintero_address_data",
+                                id: "dintero_address_data",
+                                value: JSON.stringify( {
+                                    billing_address: order.billing_address,
+                                    shipping_address: order.shipping_address,
+                                } ),
+                            } ),
+                        );
+
+                        dinteroCheckoutForWooCommerce.updateAddress(
+                            order.billing_address,
+                            order.shipping_address,
+                        );
                     },
                     onPayment( event, checkout ) {
                         // Prevent multiple redirects.
@@ -156,11 +247,16 @@ jQuery( function ( $ ) {
                         dinteroCheckoutForWooCommerce.unsetSession( event.href );
                     },
                     onSessionNotFound( event, checkout ) {
-                        /* Unset the session, and redirect the customer back to the checkout page (the same page). The checkout will automatically be destroyed. */
-                        dinteroCheckoutForWooCommerce.unsetSession( window.location.pathname );
+                        /* The session may already be paid if the page was reloaded during payment (e.g. mobile Chrome discards the tab during the Klarna app switch). Try to recover the placed order before falling back to resetting the checkout. */
+                        dinteroCheckoutForWooCommerce.logToFile(
+                            dinteroCheckoutParams.SID + " | Session not found. Attempting order recovery.",
+                        );
+                        dinteroCheckoutForWooCommerce.recoverOrder( 0 );
                     },
                     onSessionLocked( event, checkout, callback ) {
-                        dinteroCheckoutForWooCommerce.delayUpdateCheckout();
+                        if ( ! dinteroCheckoutForWooCommerce.pendingAddressCallback ) {
+                            dinteroCheckoutForWooCommerce.delayUpdateCheckout();
+                        }
                     },
                     onSessionLockFailed( event, checkout ) {
                         console.warn( "Failed to lock the checkout.", event );
@@ -179,6 +275,17 @@ jQuery( function ( $ ) {
                                 opacity: 0.6,
                             },
                         } );
+                        // Freeze session updates while the order is submitted and the payment authorized. Unlike validation (reset synchronously below), this must stay set across the async submitOrder; onPayment clears it by redirecting, otherwise resumeCheckout does.
+                        dinteroCheckoutForWooCommerce.isFinalizing = true;
+
+                        // Cancel any queued update and drop the lock marker so an update_checkout scheduled just before finalizing cannot still PUT the session (dwc_can_update_checkout() requires dintero_locked).
+                        // Matched by name, not id: updateCheckout() appends a marker per update, so several can coexist, and an id selector would only ever remove the first.
+                        if ( dinteroCheckoutForWooCommerce.updateTimer ) {
+                            clearTimeout( dinteroCheckoutForWooCommerce.updateTimer );
+                            dinteroCheckoutForWooCommerce.updateTimer = null;
+                        }
+                        $( dinteroCheckoutForWooCommerce.checkoutFormSelector + " [name=dintero_locked]" ).remove();
+
                         dinteroCheckoutForWooCommerce.validation = true;
                         dinteroCheckoutForWooCommerce.updateAddress(
                             event.session.order.billing_address,
@@ -199,6 +306,24 @@ jQuery( function ( $ ) {
                 } );
         },
 
+        /**
+         * Lifts the update freeze from onValidateSession, and releases the form blocked with it.
+         *
+         * @param {string} reason Why the freeze is lifted, for the log.
+         */
+        resumeCheckout( reason ) {
+            if ( ! dinteroCheckoutForWooCommerce.isFinalizing ) {
+                return;
+            }
+
+            dinteroCheckoutForWooCommerce.logToFile(
+                dinteroCheckoutParams.SID + " | Resuming checkout updates: " + reason + ".",
+            );
+            dinteroCheckoutForWooCommerce.isFinalizing = false;
+            $( "#dintero-checkout-wc-form" ).unblock();
+            dinteroCheckoutForWooCommerce.unblockForm();
+        },
+
         unsetSession( redirectUrl ) {
             $.ajax( {
                 type: "POST",
@@ -210,6 +335,39 @@ jQuery( function ( $ ) {
                 complete() {
                     window.location.replace( redirectUrl );
                 },
+            } );
+        },
+
+        /**
+         * Check with the server whether the lost session was already paid, and if so redirect the customer to the confirmation page. Retries since the authorization may complete moments after the session disappears. Falls back to resetting the checkout page (the same page). The checkout will automatically be destroyed.
+         *
+         * @param {number} attempt The current attempt.
+         */
+        recoverOrder( attempt ) {
+            const retryOrReset = () => {
+                if ( attempt < 2 ) {
+                    setTimeout( () => dinteroCheckoutForWooCommerce.recoverOrder( attempt + 1 ), 2000 );
+                } else {
+                    dinteroCheckoutForWooCommerce.unsetSession( window.location.pathname );
+                }
+            };
+
+            $.ajax( {
+                type: "POST",
+                dataType: "json",
+                data: {
+                    nonce: dinteroCheckoutParams.recover_order_nonce,
+                },
+                url: dinteroCheckoutParams.recover_order_url,
+                success( response ) {
+                    if ( response.success && response.data && response.data.redirect ) {
+                        window.location.replace( response.data.redirect );
+                        return;
+                    }
+
+                    retryOrReset();
+                },
+                error: retryOrReset,
             } );
         },
         /**
@@ -335,8 +493,9 @@ jQuery( function ( $ ) {
                 return;
             }
 
-            let update = false;
+            let did_update = false;
 
+            billingAddress = billingAddress || shippingAddress;
             if ( billingAddress ) {
                 // Maybe set names if its a b2b purchase.
                 if ( billingAddress.co_address ) {
@@ -413,7 +572,7 @@ jQuery( function ( $ ) {
                     }
                 }
 
-                update = true;
+                did_update = true;
             }
 
             if (
@@ -442,11 +601,11 @@ jQuery( function ( $ ) {
                     }
                 }
 
-                update = true;
+                did_update = true;
             }
 
             // Trigger changes
-            if ( update && dinteroCheckoutForWooCommerce.validation !== true ) {
+            if ( did_update && dinteroCheckoutForWooCommerce.validation !== true ) {
                 //$( "#billing_email" ).change()
                 //$( "#billing_email" ).blur()
                 dinteroCheckoutForWooCommerce.delayUpdateCheckout();
@@ -513,9 +672,24 @@ jQuery( function ( $ ) {
         },
 
         shippingMethodChanged( shipping ) {
+            // Remember what was forwarded in a property, not just the DOM field — the field may be removed by checkout field filters, and the loop guard in onSession must always terminate.
+            dinteroCheckoutForWooCommerce.lastShippingOption = shipping;
             $( "#dintero_shipping_data" ).val( JSON.stringify( shipping ) );
             $( "body" ).trigger( "dintero_shipping_option_changed", [ shipping ] );
             dinteroCheckoutForWooCommerce.delayUpdateCheckout();
+        },
+
+        /**
+         * Parse the server-rendered value of the shipping data field, if any.
+         *
+         * @return {Object|null} The shipping option the field holds, or null.
+         */
+        parseShippingDataField() {
+            try {
+                return JSON.parse( $( "#dintero_shipping_data" ).val() ) || null;
+            } catch ( e ) {
+                return null;
+            }
         },
 
         /**
@@ -690,6 +864,10 @@ jQuery( function ( $ ) {
 
         failOrder( event, errorMessage, callback ) {
             console.log( "fail order" );
+
+            // The payment attempt failed and the customer stays on the checkout to retry, so lift the freeze to resume session updates (including the refreshSession below).
+            dinteroCheckoutForWooCommerce.resumeCheckout( "the order could not be submitted" );
+
             callback( { success: false, clientValidationError: errorMessage } );
 
             // Renable the form.

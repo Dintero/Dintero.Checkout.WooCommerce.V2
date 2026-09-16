@@ -129,10 +129,12 @@ abstract class Dintero_Checkout_Helper_Base {
 
 				// The transient may introduce stale data. Check if the shipping option we retrieved from the transient exist in the list of shipping options.
 				$exist = false;
-				foreach ( $body['express']['shipping_options'] as $express_shipping_option ) {
-					if ( $express_shipping_option['line_id'] === $selected_shipping_option['line_id'] ) {
-						$exist = true;
-						break;
+				if ( ! empty( $selected_shipping_option ) ) {
+					foreach ( $body['express']['shipping_options'] as $express_shipping_option ) {
+						if ( $express_shipping_option['line_id'] === $selected_shipping_option['line_id'] ) {
+							$exist = true;
+							break;
+						}
 					}
 				}
 

@@ -15,6 +15,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Dintero_Checkout_Embedded {
 
 	/**
+	 * Whether the current request is an address callback from Dintero.
+	 *
+	 * @var bool
+	 */
+	private $is_address_callback = false;
+
+	/**
+	 * The address Dintero provided in the address callback event, including the
+	 * organization_number for business purchases (which WooCommerce does not store).
+	 *
+	 * @var array
+	 */
+	private $address_callback_data = array();
+
+	/**
 	 * Class constructor.
 	 */
 	public function __construct() {
@@ -38,6 +53,26 @@ class Dintero_Checkout_Embedded {
 	 */
 	public function update_wc_customer( $raw_post_data ) {
 		parse_str( $raw_post_data, $post_data );
+
+		// A shipping option carried over from before an address change may not exist for the new address. Drop it here, ahead of woocommerce_shipping_packages, so a stale pickup point is not applied either.
+		if ( $this->is_stale_shipping_selection( $post_data ) ) {
+			delete_transient( 'dintero_shipping_data_' . WC()->session->get( 'dintero_merchant_reference' ) );
+		}
+
+		// Capture Dintero's callback address (incl. organization_number) so the session update can echo it back. WooCommerce has no organization_number field.
+		if ( ! empty( $post_data['dintero_address_data'] ) ) {
+			// WooCommerce already unslashed post_data before firing this hook (WC_AJAX::update_order_review), so decode as-is — unslashing again would strip the JSON's own escape sequences.
+			$address_data = json_decode( $post_data['dintero_address_data'], true );
+			$address_data = is_array( $address_data ) ? $address_data : array();
+
+			// The field is client-side input: accept only the two expected address entries, with scalar values only, so no other structures can be injected into the session update PUT. The keys within each address are deliberately not whitelisted — the echo must confirm whatever address fields Dintero sent in the event (dropping one makes Dintero revert the pending address), and unknown keys are rejected by Dintero's own API schema validation.
+			foreach ( array( 'billing_address', 'shipping_address' ) as $address_key ) {
+				if ( ! empty( $address_data[ $address_key ] ) && is_array( $address_data[ $address_key ] ) ) {
+					$this->address_callback_data[ $address_key ] = wc_clean( array_filter( $address_data[ $address_key ], 'is_scalar' ) );
+				}
+			}
+		}
+
 		$post_data = array_filter(
 			wc_clean( wp_unslash( $post_data ) ),
 			function ( $value ) {
@@ -60,6 +95,24 @@ class Dintero_Checkout_Embedded {
 			if ( method_exists( WC()->customer, 'set_shipping_phone' ) && isset( $post_data['shipping_phone'] ) ) {
 				WC()->customer->set_shipping_phone( $post_data['shipping_phone'] );
 			}
+		}
+
+		$this->is_address_callback = ! empty( $post_data['dintero_address_callback'] );
+
+		// Address callback: update address fields that Dintero provides via the address event.
+		// These are not part of the normal express form and must be set explicitly.
+		if ( $this->is_address_callback ) {
+			isset( $post_data['billing_address_1'] ) && WC()->customer->set_billing_address_1( $post_data['billing_address_1'] );
+			isset( $post_data['billing_address_2'] ) && WC()->customer->set_billing_address_2( $post_data['billing_address_2'] );
+			isset( $post_data['billing_postcode'] ) && WC()->customer->set_billing_postcode( $post_data['billing_postcode'] );
+			isset( $post_data['billing_city'] ) && WC()->customer->set_billing_city( $post_data['billing_city'] );
+			isset( $post_data['billing_country'] ) && WC()->customer->set_billing_country( $post_data['billing_country'] );
+
+			isset( $post_data['shipping_address_1'] ) && WC()->customer->set_shipping_address_1( $post_data['shipping_address_1'] );
+			isset( $post_data['shipping_address_2'] ) && WC()->customer->set_shipping_address_2( $post_data['shipping_address_2'] );
+			isset( $post_data['shipping_postcode'] ) && WC()->customer->set_shipping_postcode( $post_data['shipping_postcode'] );
+			isset( $post_data['shipping_city'] ) && WC()->customer->set_shipping_city( $post_data['shipping_city'] );
+			isset( $post_data['shipping_country'] ) && WC()->customer->set_shipping_country( $post_data['shipping_country'] );
 		}
 	}
 
@@ -105,11 +158,33 @@ class Dintero_Checkout_Embedded {
 		if ( isset( $_POST['post_data'] ) ) { // phpcs:ignore
 			parse_str( $_POST['post_data'], $post_data ); // phpcs:ignore
 			if ( isset( $post_data['dintero_shipping_data'] ) ) {
+				if ( $this->is_stale_shipping_selection( $post_data ) ) {
+					return;
+				}
+
 				WC()->session->set( 'dintero_shipping_data', $post_data['dintero_shipping_data'] );
 				$data = json_decode( $post_data['dintero_shipping_data'], true );
 				dintero_update_wc_shipping( $data );
 			}
 		}
+	}
+
+	/**
+	 * Whether the posted shipping option is unchanged from the last update during an address callback.
+	 *
+	 * @param array $post_data The checkout form data.
+	 * @return bool
+	 */
+	private function is_stale_shipping_selection( $post_data ) {
+		if ( empty( $post_data['dintero_address_callback'] ) ) {
+			return false;
+		}
+
+		// Dintero reports a shipping option change as an ordinary session update, so an unchanged value here is always a carryover. Comparing keeps a fresh selection if both land in the same update.
+		$posted   = $post_data['dintero_shipping_data'] ?? '';
+		$previous = WC()->session->get( 'dintero_shipping_data' );
+
+		return '' !== $posted && $previous === $posted;
 	}
 
 	/**
@@ -152,7 +227,14 @@ class Dintero_Checkout_Embedded {
 			return;
 		}
 
-		Dintero()->api->update_checkout_session( $session_id );
+		$response = Dintero()->api->update_checkout_session( $session_id, $this->is_address_callback, $this->address_callback_data );
+
+		// If the stored session has expired, Dintero no longer knows the id and the update 404s. Clear the
+		// stale id and reload the checkout so a fresh session is created on the next render.
+		if ( dintero_is_stale_session_error( $response ) ) {
+			dintero_unset_sessions();
+			WC()->session->reload_checkout = true;
+		}
 	}
 
 	/**

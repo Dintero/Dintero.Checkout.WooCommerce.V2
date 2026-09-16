@@ -62,6 +62,25 @@ function dintero_checkout_wc_show_another_gateway_button() {
 }
 
 /**
+ * Whether a WP_Error from a session request means the stored session id is unusable.
+ *
+ * Only a 404 counts: Dintero no longer knows the id, so the session has expired and must be
+ * replaced. Every other status is about the request or the connection, not the session.
+ *
+ * @see Dintero_Checkout_Request::process_response() for how the status becomes the WP_Error code.
+ *
+ * @param mixed $response The value returned from an API call.
+ * @return bool
+ */
+function dintero_is_stale_session_error( $response ) {
+	if ( ! is_wp_error( $response ) ) {
+		return false;
+	}
+
+	return 404 === intval( $response->get_error_code() );
+}
+
+/**
  * Unsets all sessions set by Dintero.
  *
  * @return void
@@ -70,6 +89,8 @@ function dintero_unset_sessions() {
 	WC()->session->__unset( 'dintero_checkout_session_id' );
 	WC()->session->__unset( 'dintero_merchant_reference' );
 	WC()->session->__unset( 'dintero_checkout_subscription_session' );
+	WC()->session->__unset( 'dintero_shipping_line_id' );
+	WC()->session->__unset( 'dintero_shipping_data' );
 }
 
 /**
@@ -94,18 +115,7 @@ function dintero_print_error_message( $wp_error ) {
 		return;
 	}
 
-	foreach ( $wp_error->get_error_messages() as $error ) {
-		$message = $error;
-		if ( is_array( $error ) ) {
-			$error   = array_filter(
-				$error,
-				function ( $e ) {
-					return ! empty( $e );
-				}
-			);
-			$message = implode( ' ', $error );
-		}
-
+	foreach ( $wp_error->get_error_messages() as $message ) {
 		$print( $message, 'error' );
 	}
 }
@@ -155,6 +165,51 @@ function dintero_maybe_set_merchant_reference_2( $order, $transaction_id ) {
 	if ( empty( $meta_merchant_reference_2 ) ) {
 		Dintero()->api->update_transaction( $transaction_id, $order_number );
 	}
+}
+
+/**
+ * Set the shipping line id on the order to the one on the authorized transaction.
+ *
+ * The line id must match the authorized transaction, or the payment provider may decline the
+ * capture or refund. The order meta can be missing (never written in the redirect flow) or stale
+ * (inherited from a previous order in the same session), so read it from the transaction instead.
+ *
+ * @param WC_Order $order The WooCommerce order.
+ * @return void
+ */
+function dintero_maybe_set_shipping_line_id( $order ) {
+	$transaction_id = $order->get_transaction_id();
+	if ( empty( $transaction_id ) ) {
+		return;
+	}
+
+	// The transaction is checked more than once per capture or refund.
+	static $transactions = array();
+	if ( ! array_key_exists( $transaction_id, $transactions ) ) {
+		$transactions[ $transaction_id ] = Dintero()->api->get_order( $transaction_id );
+	}
+
+	$dintero_order = $transactions[ $transaction_id ];
+	if ( is_wp_error( $dintero_order ) ) {
+		Dintero_Checkout_Logger::log( "Could not retrieve the shipping line id for the WC order {$order->get_id()} from the transaction {$transaction_id}: " . $dintero_order->get_error_message() );
+		return;
+	}
+
+	// Absent if the shipping is part of order.items, as for multiple packages and renewals.
+	$line_id = $dintero_order['shipping_option']['line_id'] ?? '';
+	if ( empty( $line_id ) ) {
+		return;
+	}
+
+	$order_line_id = $order->get_meta( '_dintero_shipping_line_id' );
+	if ( $line_id === $order_line_id ) {
+		return;
+	}
+
+	$order->update_meta_data( '_dintero_shipping_line_id', $line_id );
+	$order->save_meta_data();
+
+	Dintero_Checkout_Logger::log( "Set the shipping line id for the WC order {$order->get_id()} to the one on the transaction {$transaction_id}. Was: " . ( empty( $order_line_id ) ? '(missing)' : $order_line_id ) );
 }
 
 /**
@@ -428,11 +483,7 @@ function dintero_get_order_id_by_merchant_reference( $merchant_reference ) {
  * @return string
  */
 function dintero_retrieve_error_message( $error ) {
-	$message = $error->get_error_message();
-	if ( is_array( $message ) ) {
-		$message = implode( ' ', $message );
-	}
-	return $message;
+	return $error->get_error_message();
 }
 
 /**
@@ -520,6 +571,21 @@ function dwc_is_popout( $settings ) {
 }
 
 /**
+ * Whether separate billing and shipping addresses are allowed.
+ *
+ * @param array|null $settings The Dintero Checkout plugin settings. Defaults to the stored option.
+ * @return bool
+ */
+function dwc_allow_separate_shipping_address( $settings = null ) {
+	if ( null === $settings ) {
+		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
+	}
+
+	return ! wc_ship_to_billing_address_only()
+		&& wc_string_to_bool( $settings['express_allow_different_billing_shipping_address'] ?? 'no' );
+}
+
+/**
  * Whether we can update the checkout.
  *
  * @return bool
@@ -549,17 +615,35 @@ function dwc_can_update_checkout() {
 }
 
 /**
- * Save the organization number to the order if available.
+ * Save the organization number and company name to the order if available.
  *
  * @param array    $dintero_order The Dintero order from the GET request.
  * @param WC_Order $order The Woo order.
  * @return void
  */
 function dintero_maybe_save_org_nr( $dintero_order, $order ) {
-	$billing_org_nr = $dintero_order['billing_address']['organization_number'] ?? '';
+	$changed = false;
 
+	$billing_org_nr = $dintero_order['billing_address']['organization_number'] ?? '';
 	if ( ! empty( $billing_org_nr ) ) {
 		$order->update_meta_data( '_billing_org_nr', wc_clean( $billing_org_nr ) );
+		$changed = true;
+	}
+
+	// Business purchases provide the company name as business_name on the Dintero address; map it onto the order's company fields when not already set.
+	$billing_company = $dintero_order['billing_address']['business_name'] ?? '';
+	if ( ! empty( $billing_company ) && empty( $order->get_billing_company() ) ) {
+		$order->set_billing_company( wc_clean( $billing_company ) );
+		$changed = true;
+	}
+
+	$shipping_company = $dintero_order['shipping_address']['business_name'] ?? '';
+	if ( ! empty( $shipping_company ) && empty( $order->get_shipping_company() ) ) {
+		$order->set_shipping_company( wc_clean( $shipping_company ) );
+		$changed = true;
+	}
+
+	if ( $changed ) {
 		$order->save();
 	}
 }

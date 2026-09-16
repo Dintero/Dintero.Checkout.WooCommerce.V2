@@ -60,18 +60,15 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			'profile_id' => $this->settings['profile_id'],
 		);
 
-		// 'billing' => Default to customer billing address
-		// 'shipping' => Default to customer shipping address
-		// 'billing_only' => Force shipping to the customer billing address only.
-		$shipping_destination = get_option( 'woocommerce_ship_to_destination' );
+		// Set if express or not. For order-pay, we default to redirect flow.
+		$is_express_session = ! is_wc_endpoint_url( 'order-pay' ) && $this->is_express() && $this->is_embedded();
 
-		$separate_shipping = wc_string_to_bool( $this->settings['express_allow_different_billing_shipping_address'] ?? 'no' );
-		if ( 'billing_only' !== $shipping_destination && $separate_shipping ) {
-			$customer_type = $this->settings['express_customer_type'];
+		if ( dwc_allow_separate_shipping_address( $this->settings ) ) {
+			$customer_type = $this->settings['express_customer_type'] ?? 'b2bc';
 			$customer_type = 'b2bc' === $customer_type ? array( 'b2c', 'b2b' ) : array( $customer_type );
 			$body['configuration']['allow_different_billing_shipping_address'] = $customer_type;
-
-			// By default this configuration is an empty array, therefore, we don't have to set it if $separate_shipping is set to false.
+		} elseif ( $is_express_session ) {
+			$body['configuration']['allow_different_billing_shipping_address'] = array();
 		}
 
 		$billing_address = $helper->get_billing_address();
@@ -88,8 +85,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 			$body['url']['callback_url'] = Dintero_Checkout_Callback::callback_url();
 		}
 
-		// Set if express or not. For order-pay, we default to redirect flow.
-		if ( ! is_wc_endpoint_url( 'order-pay' ) && $this->is_express() && $this->is_embedded() ) {
+		if ( $is_express_session ) {
 			$this->add_express_object( $body );
 		}
 

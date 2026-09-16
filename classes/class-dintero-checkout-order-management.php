@@ -114,6 +114,8 @@ class Dintero_Checkout_Order_Management {
 			return;
 		}
 
+		dintero_maybe_set_shipping_line_id( $order );
+
 		// Check if the Dintero order has been captured in the back-office.
 		if ( ! $this->is_captured( $order_id ) ) {
 			$response = Dintero()->api->capture_order( $order->get_transaction_id(), $order_id );
@@ -124,11 +126,7 @@ class Dintero_Checkout_Order_Management {
 				 *
 				 * @var WP_Error $response The WP_Error response.
 				 */
-				if ( is_array( $response->get_error_message() ) ) {
-					$note = sprintf( '[%s] %s', $response->get_error_code(), $response->get_error_message()['message'] );
-				} else {
-					$note = ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.';
-				}
+				$note = ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.';
 
 				$order->add_order_note( $note );
 				$order->update_status( 'on-hold' );
@@ -150,8 +148,8 @@ class Dintero_Checkout_Order_Management {
 
 				$note = sprintf(
 					// translators: the amount, the currency.
-					__( 'The Dintero order has been captured. Captured amount: %1$.2f %2$s.', 'dintero-checkout-for-woocommerce' ),
-					substr_replace( $amount, wc_get_price_decimal_separator(), -2, 0 ),
+					__( 'The Dintero order has been captured. Captured amount: %1$s %2$s.', 'dintero-checkout-for-woocommerce' ),
+					number_format( $amount / 100, 2, wc_get_price_decimal_separator(), '' ),
 					$response['currency']
 				);
 
@@ -239,11 +237,7 @@ class Dintero_Checkout_Order_Management {
 				 *
 				 * @var WP_Error $response The WP_Error response.
 				 */
-				if ( is_array( $response->get_error_message() ) ) {
-					$note = sprintf( '[%s] %s', $response->get_error_code(), $response->get_error_message()['message'] );
-				} else {
-					$note = ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.';
-				}
+				$note = ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.';
 
 				$order->add_order_note( $note );
 				$order->update_status( 'on-hold' );
@@ -304,6 +298,8 @@ class Dintero_Checkout_Order_Management {
 			return;
 		}
 
+		dintero_maybe_set_shipping_line_id( $order );
+
 		// Check if the Dintero order has been _fully_ refunded in the back-office.
 		if ( ! $this->is_refunded( $order_id ) ) {
 			$response = Dintero()->api->refund_order( $order->get_transaction_id(), $order_id, $reason );
@@ -314,11 +310,7 @@ class Dintero_Checkout_Order_Management {
 				 *
 				 * @var WP_Error $response The WP_Error response.
 				 */
-				if ( is_array( $response->get_error_message() ) ) {
-					$note = sprintf( '[%s] %s', $response->get_error_code(), $response->get_error_message()['message'] );
-				} else {
-					$note = ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.';
-				}
+				$note = ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.';
 
 				$order->add_order_note( $note );
 				return;

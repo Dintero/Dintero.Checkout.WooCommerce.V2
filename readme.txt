@@ -2,11 +2,11 @@
 Contributors: dintero, krokedil, NiklasHogefjord
 Tags: woocommerce, dintero, ecommerce, e-commerce, checkout
 Requires at least: 5.8.3
-Tested up to: 6.9.4
+Tested up to: 7.1
 Requires PHP: 7.4
 WC requires at least: 6.1.0
-WC tested up to: 10.8.1
-Stable tag: 1.14.2
+WC tested up to: 11.1.0
+Stable tag: 1.15.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -135,6 +135,19 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us?ut
 6. Gift cards and Discount cards available.
 7. Remove headaches and manage your reconciliation, reports, transactions, refunds (transaction level), Gift Cards, payment methods, and more in the Dintero backoffice.
 == Changelog ==
+= 2026.09.16    - version 1.15.0 =
+* Feature       - Added support for Apple Pay and Google Pay in the embedded checkout through Dintero's new 'onAddressCallback' event. The address the customer enters in the wallet popup is now applied to the cart, and the updated shipping options and order lines are sent back to Dintero before the payment is completed.
+* Enhancement   - Added a new 'Enable SDK debug mode' setting that logs the activity of the Dintero checkout SDK to the browser console. This previously required the 'dintero_checkout_sdk_debug' filter, which still works and takes precedence over the setting.
+* Fix           - Fixed captures and refunds being declined for orders placed through the redirect flow, because the shipping line ID sent did not match the authorized transaction.
+* Fix           - Fixed the express checkout accepting a differing billing and shipping address from Dintero's address callback even when the "Allow different billing and shipping address" setting was disabled.
+* Fix           - Fixed a race where the checkout session could be updated while the payment was being authorized, which could leave the customer stranded on the checkout instead of the order confirmation.
+* Fix           - Fixed the captured amount in the order note being rounded down for orders with decimals, where an order of 0.90 was noted as 0.00.
+* Fix           - Fixed the checkout not rendering for a returning customer whose Dintero session had expired. The stored session is now discarded when Dintero no longer recognizes it, and the checkout reloads with a new session instead of showing an error.
+* Fix           - Fixed a critical error that occurred if the plugin was active while WooCommerce was not.
+* Fix           - Fixed a critical error that could occur when attempting to parse the plugin log.
+* Fix           - Fixed the VAT rate reported for fee lines being calculated on the gross amount, which made a 25% fee show up as 0.2 in the Dintero portal.
+* Tweak         - A checkout session is no longer created when the cart is empty, since Dintero rejects a session without any items. The express checkout is also no longer initialized in the theme customizer preview.
+
 = 2026.05.28    - version 1.14.2 =
 * Fix           - Resolved a checkout validation error that could occur after upgrading to WooCommerce 10.8.0, where an empty shipping phone number caused the order to fail. The shipping phone field is now correctly populated with the value from Dintero, or the billing phone number if no shipping phone is provided.
 
