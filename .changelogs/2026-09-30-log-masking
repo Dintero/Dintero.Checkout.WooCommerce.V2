@@ -1,0 +1,4 @@
+Type: Enhancement
+Needs Documentation: yes
+
+Masked customer personal data, payment links and API credentials in the plugin log and in the stored copy of failed requests. Postal code, city, country, order lines, amounts and Dintero IDs stay readable.
