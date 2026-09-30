@@ -60,6 +60,13 @@ class LogMasking {
 	);
 
 	/**
+	 * The kept keys that may hold a list of scalars. Every other kept key must hold a scalar.
+	 *
+	 * @var string[]
+	 */
+	private static $kept_list_keys = array( 'token_types' );
+
+	/**
 	 * Whether the key names have been handed to the package.
 	 *
 	 * @var bool
@@ -108,18 +115,19 @@ class LogMasking {
 				return KeyMasker::mask( $data );
 			}
 
-			$masked = KeyMasker::mask( FieldMasker::mask( $data, self::fields() ) );
-			return self::restore_kept( $masked, $data );
+			// Restore from the allow listed entry, so only key name hits are undone, never an allow list.
+			$fielded = FieldMasker::mask( $data, self::fields() );
+			return self::restore_kept( KeyMasker::mask( $fielded ), $fielded );
 		} catch ( \Throwable $e ) {
 			return array( 'error' => KeyMasker::FAILED );
 		}
 	}
 
 	/**
-	 * Put back the values of the kept keys, walking the masked and the original entry side by side.
+	 * Put back the values of the kept keys, walking the masked entry and the one before key name masking side by side.
 	 *
 	 * @param mixed  $masked   The masked node.
-	 * @param mixed  $original The same node before masking.
+	 * @param mixed  $original The same node before key name masking.
 	 * @param string $parent   The key the node sits under, lowercased.
 	 * @return mixed
 	 */
@@ -137,7 +145,7 @@ class LogMasking {
 			$name = is_int( $key ) ? $parent : strtolower( (string) $key );
 
 			// The value shape checks still apply, so a kept key holding a token stays masked.
-			if ( ! is_int( $key ) && self::is_kept( $name, $parent ) && self::is_plain( $original[ $key ] ) ) {
+			if ( ! is_int( $key ) && self::is_kept( $name, $parent ) && self::is_plain( $original[ $key ], $name ) ) {
 				$masked[ $key ] = KeyMasker::mask( $original[ $key ] );
 				continue;
 			}
@@ -160,14 +168,15 @@ class LogMasking {
 	}
 
 	/**
-	 * Whether a value is a scalar or a list of scalars, the only shapes a kept key is restored with.
+	 * Whether a value has the shape a kept key is restored with: a scalar, or a list of scalars for the list keys.
 	 *
-	 * @param mixed $value The original value.
+	 * @param mixed  $value The value before key name masking.
+	 * @param string $name  The key, lowercased.
 	 * @return bool
 	 */
-	private static function is_plain( $value ) {
+	private static function is_plain( $value, $name ) {
 		if ( is_array( $value ) ) {
-			return count( array_filter( $value, 'is_scalar' ) ) === count( $value );
+			return in_array( $name, self::$kept_list_keys, true ) && count( array_filter( $value, 'is_scalar' ) ) === count( $value );
 		}
 
 		return is_scalar( $value ) || null === $value;
