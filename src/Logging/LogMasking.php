@@ -48,6 +48,18 @@ class LogMasking {
 	);
 
 	/**
+	 * Keys the key name masking catches by substring but that hold nothing sensitive, restored
+	 * after masking. '*' applies anywhere, any other entry only directly below that parent key.
+	 *
+	 * @var array<string, string[]>
+	 */
+	private static $kept_keys = array(
+		'*'               => array( 'token_type', 'token_types' ),
+		// A pickup point is a store, not the customer.
+		'pick_up_address' => array( 'address_line', 'business_name' ),
+	);
+
+	/**
 	 * Whether the key names have been handed to the package.
 	 *
 	 * @var bool
@@ -92,13 +104,72 @@ class LogMasking {
 		try {
 			self::register();
 
-			if ( is_array( $data ) ) {
-				$data = FieldMasker::mask( $data, self::fields() );
+			if ( ! is_array( $data ) ) {
+				return KeyMasker::mask( $data );
 			}
 
-			return KeyMasker::mask( $data );
+			$masked = KeyMasker::mask( FieldMasker::mask( $data, self::fields() ) );
+			return self::restore_kept( $masked, $data );
 		} catch ( \Throwable $e ) {
 			return array( 'error' => KeyMasker::FAILED );
 		}
+	}
+
+	/**
+	 * Put back the values of the kept keys, walking the masked and the original entry side by side.
+	 *
+	 * @param mixed  $masked   The masked node.
+	 * @param mixed  $original The same node before masking.
+	 * @param string $parent   The key the node sits under, lowercased.
+	 * @return mixed
+	 */
+	private static function restore_kept( $masked, $original, $parent = '' ) {
+		if ( ! is_array( $masked ) || ! is_array( $original ) ) {
+			return $masked;
+		}
+
+		foreach ( $masked as $key => $value ) {
+			if ( ! array_key_exists( $key, $original ) ) {
+				continue;
+			}
+
+			// A list entry has no name of its own, so it sits under the list's parent.
+			$name = is_int( $key ) ? $parent : strtolower( (string) $key );
+
+			// The value shape checks still apply, so a kept key holding a token stays masked.
+			if ( ! is_int( $key ) && self::is_kept( $name, $parent ) && self::is_plain( $original[ $key ] ) ) {
+				$masked[ $key ] = KeyMasker::mask( $original[ $key ] );
+				continue;
+			}
+
+			$masked[ $key ] = self::restore_kept( $value, $original[ $key ], $name );
+		}
+
+		return $masked;
+	}
+
+	/**
+	 * Whether a key is one of the kept keys where it sits.
+	 *
+	 * @param string $name   The key, lowercased.
+	 * @param string $parent The parent key, lowercased.
+	 * @return bool
+	 */
+	private static function is_kept( $name, $parent ) {
+		return in_array( $name, self::$kept_keys['*'], true ) || in_array( $name, self::$kept_keys[ $parent ] ?? array(), true );
+	}
+
+	/**
+	 * Whether a value is a scalar or a list of scalars, the only shapes a kept key is restored with.
+	 *
+	 * @param mixed $value The original value.
+	 * @return bool
+	 */
+	private static function is_plain( $value ) {
+		if ( is_array( $value ) ) {
+			return count( array_filter( $value, 'is_scalar' ) ) === count( $value );
+		}
+
+		return is_scalar( $value ) || null === $value;
 	}
 }
