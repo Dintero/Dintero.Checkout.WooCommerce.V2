@@ -71,6 +71,9 @@ class Dintero_Checkout_Redirect {
 		$verified      = is_wp_error( $dintero_order ) ? $dintero_order : dintero_verify_transaction_for_order( $order, $dintero_order, $transaction_id );
 		if ( is_wp_error( $verified ) ) {
 			Dintero_Checkout_Logger::log( "REDIRECT ERROR [transaction]: {$verified->get_error_message()} WC order id: {$order->get_id()} (transaction ID: $transaction_id). Redirecting customer back to checkout page." );
+			if ( ! is_wp_error( $dintero_order ) ) {
+				dintero_add_rejected_transaction_note( $order, $dintero_order, $verified );
+			}
 			wc_add_notice( __( 'Something went wrong with completing the order. Please try again or contact the store.', 'dintero-checkout-for-woocommerce' ), 'error' );
 			wp_safe_redirect( wc_get_checkout_url() );
 			exit;

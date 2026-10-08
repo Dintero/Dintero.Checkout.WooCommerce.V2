@@ -174,8 +174,7 @@ class Dintero_Checkout_Callback {
 		$verified = dintero_verify_transaction_for_order( $order, $dintero_order, $transaction_id );
 		if ( is_wp_error( $verified ) ) {
 			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR [transaction]: %s WC order id: %s (transaction ID: %s).', $verified->get_error_message(), $order->get_id(), $transaction_id ) );
-			// translators: 1: The Dintero transaction id. 2: The reason the transaction was rejected.
-			$order->add_order_note( sprintf( __( 'The Dintero transaction %1$s was not applied to this order. %2$s', 'dintero-checkout-for-woocommerce' ), $transaction_id, $verified->get_error_message() ) );
+			dintero_add_rejected_transaction_note( $order, $dintero_order, $verified );
 			return;
 		}
 

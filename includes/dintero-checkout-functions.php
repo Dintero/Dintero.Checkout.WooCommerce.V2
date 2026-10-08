@@ -305,6 +305,24 @@ function dintero_process_authorized_order( $order, $settings, $transaction_id ) 
 }
 
 /**
+ * Add an order note about a transaction that was rejected by dintero_verify_transaction_for_order.
+ *
+ * @param WC_Order $order The WooCommerce order.
+ * @param array    $dintero_order The transaction from Dintero.
+ * @param WP_Error $error The reason the transaction was rejected.
+ * @return void
+ */
+function dintero_add_rejected_transaction_note( $order, $dintero_order, $error ) {
+	// The requested id differs from the transaction, so there is no trustworthy id to show.
+	if ( 'requested_id_mismatch' === $error->get_error_code() ) {
+		return;
+	}
+
+	// translators: 1: The Dintero transaction id. 2: The reason the transaction was rejected.
+	$order->add_order_note( sprintf( __( 'The Dintero transaction %1$s was not applied to this order. %2$s', 'dintero-checkout-for-woocommerce' ), $dintero_order['id'], $error->get_error_message() ) );
+}
+
+/**
  * Verify that a Dintero transaction belongs to the WooCommerce order before it is applied to it.
  *
  * @param WC_Order $order The WooCommerce order.
@@ -313,7 +331,7 @@ function dintero_process_authorized_order( $order, $settings, $transaction_id ) 
  * @return true|WP_Error
  */
 function dintero_verify_transaction_for_order( $order, $dintero_order, $transaction_id ) {
-	// The id is placed in the request path as is, so a suffixed id can still fetch the transaction.
+	// The id comes from the request, so make sure Dintero returned that exact transaction.
 	if ( ( $dintero_order['id'] ?? '' ) !== $transaction_id ) {
 		return new WP_Error( 'requested_id_mismatch', 'The requested transaction id does not match the transaction.' );
 	}
