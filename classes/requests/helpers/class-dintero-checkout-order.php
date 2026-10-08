@@ -91,14 +91,59 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
+	 * Store a merchant reference on the order before a Dintero session is created for it.
+	 *
+	 * An existing reference is kept, so that callbacks for an earlier payment attempt still find the order.
+	 * It is only replaced when another order shares it, which orders from before references were unique can.
+	 *
+	 * @param WC_Order $order The WC order.
+	 * @return void
+	 */
+	public static function maybe_set_merchant_reference( $order ) {
+		$stored = strval( $order->get_meta( '_dintero_merchant_reference' ) );
+		if ( ! empty( $stored ) && ! self::is_reference_shared( $stored, $order ) ) {
+			return;
+		}
+
+		$merchant_reference = self::get_order_reference( $order );
+		if ( self::is_reference_shared( $merchant_reference, $order ) ) {
+			$merchant_reference = uniqid( "{$merchant_reference}-" );
+		}
+
+		$order->update_meta_data( '_dintero_merchant_reference', $merchant_reference );
+		$order->save();
+	}
+
+	/**
 	 * Derive a merchant reference from the order alone, so that two orders in the same WC session never share one.
 	 *
 	 * @param WC_Order $order The WC order.
 	 * @return string
 	 */
-	public static function get_order_reference( $order ) {
+	private static function get_order_reference( $order ) {
 		$merchant_reference = strval( $order->get_order_number() );
 		return empty( $merchant_reference ) ? strval( $order->get_id() ) : $merchant_reference;
+	}
+
+	/**
+	 * Whether another order already has the merchant reference.
+	 *
+	 * @param string   $merchant_reference The merchant reference.
+	 * @param WC_Order $order The order the reference is for.
+	 * @return bool
+	 */
+	private static function is_reference_shared( $merchant_reference, $order ) {
+		$order_ids = wc_get_orders(
+			array(
+				'meta_key'     => '_dintero_merchant_reference', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'   => $merchant_reference, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'meta_compare' => '=',
+				'limit'        => 2,
+				'return'       => 'ids',
+			)
+		);
+
+		return ! empty( array_diff( array_map( 'intval', $order_ids ), array( $order->get_id() ) ) );
 	}
 
 	/**

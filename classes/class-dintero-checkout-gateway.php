@@ -311,8 +311,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 */
 		public function process_redirect_payment( $order ) {
 			// Stored before the session is created, since the request sends the stored reference.
-			$order->update_meta_data( '_dintero_merchant_reference', Dintero_Checkout_Order::get_order_reference( $order ) );
-			$order->save();
+			Dintero_Checkout_Order::maybe_set_merchant_reference( $order );
 
 			if ( 0.0 === floatval( $order->get_total() ) ) {
 				$session = Dintero()->api->create_payment_token( $order->get_id() );
