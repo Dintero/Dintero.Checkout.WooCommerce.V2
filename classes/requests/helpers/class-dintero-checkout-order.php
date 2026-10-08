@@ -79,28 +79,26 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
-	 * Get or create the merchant reference if it doesn't already exist.
+	 * Get the merchant reference to send to Dintero for the order.
+	 *
+	 * The stored reference wins, so that Dintero always receives exactly what callbacks are matched against.
 	 *
 	 * @return string
 	 */
 	public function get_merchant_reference() {
-		// The WC session is not available in admin pages.
-		if ( ! isset( WC()->session ) ) {
-			return $this->order->get_order_number();
-		}
+		$merchant_reference = strval( $this->order->get_meta( '_dintero_merchant_reference' ) );
+		return empty( $merchant_reference ) ? self::get_order_reference( $this->order ) : $merchant_reference;
+	}
 
-		$merchant_reference = WC()->session->get( 'dintero_merchant_reference' );
-		if ( empty( $merchant_reference ) ) {
-			$merchant_reference = $this->order->get_order_number();
-			if ( empty( $merchant_reference ) ) {
-				$merchant_reference = strval( $this->order->get_id() );
-			}
-
-			$merchant_reference = empty( $merchant_reference ) ? uniqid( 'dwc_order', true ) : $merchant_reference;
-			WC()->session->set( 'dintero_merchant_reference', $merchant_reference );
-		}
-
-		return $merchant_reference;
+	/**
+	 * Derive a merchant reference from the order alone, so that two orders in the same WC session never share one.
+	 *
+	 * @param WC_Order $order The WC order.
+	 * @return string
+	 */
+	public static function get_order_reference( $order ) {
+		$merchant_reference = strval( $order->get_order_number() );
+		return empty( $merchant_reference ) ? strval( $order->get_id() ) : $merchant_reference;
 	}
 
 	/**
