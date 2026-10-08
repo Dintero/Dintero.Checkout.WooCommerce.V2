@@ -191,7 +191,7 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 		}
 
 		$dintero_order = Dintero()->api->get_order( $session['transaction_id'] );
-		if ( ! is_array( $dintero_order ) || ! in_array( $dintero_order['status'] ?? '', array( 'AUTHORIZED', 'CAPTURED', 'ON_HOLD' ), true ) ) {
+		if ( ! is_array( $dintero_order ) || ! dintero_is_payable_transaction( $dintero_order ) ) {
 			wp_send_json_error( 'not_payable' );
 		}
 

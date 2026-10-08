@@ -305,6 +305,16 @@ function dintero_process_authorized_order( $order, $settings, $transaction_id ) 
 }
 
 /**
+ * Whether a Dintero transaction has been paid, or is awaiting authorization, and can confirm an order.
+ *
+ * @param array $dintero_order The transaction from Dintero.
+ * @return bool
+ */
+function dintero_is_payable_transaction( $dintero_order ) {
+	return in_array( $dintero_order['status'] ?? '', array( 'AUTHORIZED', 'CAPTURED', 'ON_HOLD' ), true );
+}
+
+/**
  * Add an order note about a transaction that was rejected by dintero_verify_transaction_for_order.
  *
  * @param WC_Order $order The WooCommerce order.
