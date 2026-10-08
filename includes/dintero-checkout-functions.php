@@ -305,6 +305,27 @@ function dintero_process_authorized_order( $order, $settings, $transaction_id ) 
 }
 
 /**
+ * Verify that a Dintero transaction belongs to the WooCommerce order before it is applied to it.
+ *
+ * @param WC_Order $order The WooCommerce order.
+ * @param array    $dintero_order The transaction from Dintero.
+ * @return true|WP_Error
+ */
+function dintero_verify_transaction_for_order( $order, $dintero_order ) {
+	$merchant_reference = $order->get_meta( '_dintero_merchant_reference' );
+	if ( empty( $merchant_reference ) || ( $dintero_order['merchant_reference'] ?? '' ) !== $merchant_reference ) {
+		return new WP_Error( 'merchant_reference_mismatch', 'The merchant reference of the transaction does not match the order.' );
+	}
+
+	$stored_transaction_id = $order->get_meta( '_dintero_transaction_id' );
+	if ( ! empty( $stored_transaction_id ) && ( $dintero_order['id'] ?? '' ) !== $stored_transaction_id ) {
+		return new WP_Error( 'transaction_id_mismatch', 'The order is already linked to another transaction.' );
+	}
+
+	return true;
+}
+
+/**
  * Confirms the Dintero Order.
  *
  * @param WC_Order $order The Woo order.

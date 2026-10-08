@@ -1,0 +1,4 @@
+Type: Fix
+Needs Documentation: no
+
+Improved the validation of callbacks and redirects from Dintero before an order is confirmed.
