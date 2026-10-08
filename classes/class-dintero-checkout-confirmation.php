@@ -68,7 +68,7 @@ class Dintero_Checkout_Redirect {
 	public function handle_success( $transaction_id, $order ) {
 		// The return URL can be edited by the customer, so the transaction must be shown to belong to this order.
 		$dintero_order = Dintero()->api->get_order( $transaction_id );
-		$verified      = is_wp_error( $dintero_order ) ? $dintero_order : dintero_verify_transaction_for_order( $order, $dintero_order );
+		$verified      = is_wp_error( $dintero_order ) ? $dintero_order : dintero_verify_transaction_for_order( $order, $dintero_order, $transaction_id );
 		if ( is_wp_error( $verified ) ) {
 			Dintero_Checkout_Logger::log( "REDIRECT ERROR [transaction]: {$verified->get_error_message()} WC order id: {$order->get_id()} (transaction ID: $transaction_id). Redirecting customer back to checkout page." );
 			wc_add_notice( __( 'Something went wrong with completing the order. Please try again or contact the store.', 'dintero-checkout-for-woocommerce' ), 'error' );

@@ -309,9 +309,15 @@ function dintero_process_authorized_order( $order, $settings, $transaction_id ) 
  *
  * @param WC_Order $order The WooCommerce order.
  * @param array    $dintero_order The transaction from Dintero.
+ * @param string   $transaction_id The transaction id it was requested by.
  * @return true|WP_Error
  */
-function dintero_verify_transaction_for_order( $order, $dintero_order ) {
+function dintero_verify_transaction_for_order( $order, $dintero_order, $transaction_id ) {
+	// The id is placed in the request path as is, so a suffixed id can still fetch the transaction.
+	if ( ( $dintero_order['id'] ?? '' ) !== $transaction_id ) {
+		return new WP_Error( 'requested_id_mismatch', 'The requested transaction id does not match the transaction.' );
+	}
+
 	$merchant_reference = $order->get_meta( '_dintero_merchant_reference' );
 	if ( empty( $merchant_reference ) || ( $dintero_order['merchant_reference'] ?? '' ) !== $merchant_reference ) {
 		return new WP_Error( 'merchant_reference_mismatch', 'The merchant reference of the transaction does not match the order.' );
