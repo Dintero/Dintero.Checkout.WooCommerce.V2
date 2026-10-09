@@ -81,6 +81,29 @@ function dintero_is_stale_session_error( $response ) {
 }
 
 /**
+ * Whether a WP_Error from an API call is a temporary failure rather than Dintero rejecting the request.
+ *
+ * @see Dintero_Checkout_Request::process_response() for how the status becomes the WP_Error code.
+ *
+ * @param mixed $response The value returned from an API call.
+ * @return bool
+ */
+function dintero_is_transient_error( $response ) {
+	if ( ! is_wp_error( $response ) ) {
+		return false;
+	}
+
+	// Transport errors (timeout, no connection) have a string code; API errors carry the HTTP status.
+	$code = $response->get_error_code();
+	if ( ! is_int( $code ) ) {
+		return true;
+	}
+
+	// A 401 follows a failed access token request, which is not caused by the request itself.
+	return $code >= 500 || in_array( $code, array( 401, 408, 429 ), true );
+}
+
+/**
  * Unsets all sessions set by Dintero.
  *
  * @return void

@@ -68,7 +68,18 @@ class Dintero_Checkout_Redirect {
 	public function handle_success( $transaction_id, $order ) {
 		// The return URL can be edited by the customer, so the transaction must be shown to belong to this order.
 		$dintero_order = Dintero()->api->get_order( $transaction_id );
-		$verified      = is_wp_error( $dintero_order ) ? $dintero_order : dintero_verify_transaction_for_order( $order, $dintero_order, $transaction_id );
+
+		// The customer has usually paid by now, so retry a momentary failure once before giving up.
+		if ( dintero_is_transient_error( $dintero_order ) ) {
+			$dintero_order = Dintero()->api->get_order( $transaction_id );
+		}
+
+		if ( dintero_is_transient_error( $dintero_order ) ) {
+			$this->handle_unverified( $transaction_id, $order, $dintero_order );
+			return;
+		}
+
+		$verified = is_wp_error( $dintero_order ) ? $dintero_order : dintero_verify_transaction_for_order( $order, $dintero_order, $transaction_id );
 		if ( is_wp_error( $verified ) ) {
 			Dintero_Checkout_Logger::log( "REDIRECT ERROR [transaction]: {$verified->get_error_message()} WC order id: {$order->get_id()} (transaction ID: $transaction_id). Redirecting customer back to checkout page." );
 			if ( ! is_wp_error( $dintero_order ) ) {
@@ -93,6 +104,31 @@ class Dintero_Checkout_Redirect {
 		dintero_unset_sessions();
 		wp_safe_redirect( $order->get_checkout_order_received_url() );
 
+		exit;
+	}
+
+	/**
+	 * Handles a redirect whose transaction could not be fetched from Dintero, leaving the order to the callback.
+	 *
+	 * The order-received URL carries the order key, so it is never used for a transaction that was not verified.
+	 *
+	 * @param string   $transaction_id The Transaction ID from Dintero.
+	 * @param WC_Order $order The WooCommerce order.
+	 * @param WP_Error $error The error from the request to Dintero.
+	 * @return void
+	 */
+	public function handle_unverified( $transaction_id, $order, $error ) {
+		Dintero_Checkout_Logger::log( "REDIRECT ERROR [unverified]: Could not reach Dintero to verify the transaction: {$error->get_error_message()} WC order id: {$order->get_id()} (transaction ID: $transaction_id). Emptying the cart and leaving the order to the callback." );
+
+		// The transaction id comes from the return URL and is unverified, so it is left out of the note.
+		$order->add_order_note( __( 'The customer returned from Dintero, but the payment could not be verified because Dintero could not be reached. The order will be updated when Dintero sends its callback.', 'dintero-checkout-for-woocommerce' ) );
+
+		// The customer has most likely paid, so the cart and session must not let them pay again.
+		WC()->cart->empty_cart();
+		dintero_unset_sessions();
+
+		wc_add_notice( __( 'Thank you. We are confirming your payment, and you will receive an order confirmation by email once it is done.', 'dintero-checkout-for-woocommerce' ), 'notice' );
+		wp_safe_redirect( wc_get_cart_url() );
 		exit;
 	}
 
