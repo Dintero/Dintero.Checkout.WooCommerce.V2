@@ -305,6 +305,61 @@ function dintero_process_authorized_order( $order, $settings, $transaction_id ) 
 }
 
 /**
+ * Whether a Dintero transaction has been paid, or is awaiting authorization, and can confirm an order.
+ *
+ * @param array $dintero_order The transaction from Dintero.
+ * @return bool
+ */
+function dintero_is_payable_transaction( $dintero_order ) {
+	return in_array( $dintero_order['status'] ?? '', array( 'AUTHORIZED', 'CAPTURED', 'ON_HOLD' ), true );
+}
+
+/**
+ * Add an order note about a transaction that was rejected by dintero_verify_transaction_for_order.
+ *
+ * @param WC_Order $order The WooCommerce order.
+ * @param array    $dintero_order The transaction from Dintero.
+ * @param WP_Error $error The reason the transaction was rejected.
+ * @return void
+ */
+function dintero_add_rejected_transaction_note( $order, $dintero_order, $error ) {
+	// The requested id differs from the transaction, so there is no trustworthy id to show.
+	if ( 'requested_id_mismatch' === $error->get_error_code() ) {
+		return;
+	}
+
+	// translators: 1: The Dintero transaction id. 2: The reason the transaction was rejected.
+	$order->add_order_note( sprintf( __( 'The Dintero transaction %1$s was not applied to this order. %2$s', 'dintero-checkout-for-woocommerce' ), $dintero_order['id'], $error->get_error_message() ) );
+}
+
+/**
+ * Verify that a Dintero transaction belongs to the WooCommerce order before it is applied to it.
+ *
+ * @param WC_Order $order The WooCommerce order.
+ * @param array    $dintero_order The transaction from Dintero.
+ * @param string   $transaction_id The transaction id it was requested by.
+ * @return true|WP_Error
+ */
+function dintero_verify_transaction_for_order( $order, $dintero_order, $transaction_id ) {
+	// The id comes from the request, so make sure Dintero returned that exact transaction.
+	if ( ( $dintero_order['id'] ?? '' ) !== $transaction_id ) {
+		return new WP_Error( 'requested_id_mismatch', 'The requested transaction id does not match the transaction.' );
+	}
+
+	$merchant_reference = $order->get_meta( '_dintero_merchant_reference' );
+	if ( empty( $merchant_reference ) || ( $dintero_order['merchant_reference'] ?? '' ) !== $merchant_reference ) {
+		return new WP_Error( 'merchant_reference_mismatch', 'The merchant reference of the transaction does not match the order.' );
+	}
+
+	$stored_transaction_id = $order->get_meta( '_dintero_transaction_id' );
+	if ( ! empty( $stored_transaction_id ) && ( $dintero_order['id'] ?? '' ) !== $stored_transaction_id ) {
+		return new WP_Error( 'transaction_id_mismatch', 'The order is already linked to another transaction.' );
+	}
+
+	return true;
+}
+
+/**
  * Confirms the Dintero Order.
  *
  * @param WC_Order $order The Woo order.

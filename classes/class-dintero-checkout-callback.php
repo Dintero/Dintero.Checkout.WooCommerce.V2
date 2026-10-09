@@ -171,6 +171,13 @@ class Dintero_Checkout_Callback {
 			return;
 		}
 
+		$verified = dintero_verify_transaction_for_order( $order, $dintero_order, $transaction_id );
+		if ( is_wp_error( $verified ) ) {
+			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR [transaction]: %s WC order id: %s (transaction ID: %s).', $verified->get_error_message(), $order->get_id(), $transaction_id ) );
+			dintero_add_rejected_transaction_note( $order, $dintero_order, $verified );
+			return;
+		}
+
 		switch ( $dintero_order['status'] ) {
 			case 'AUTHORIZED':
 				Dintero_Checkout_Logger::log( sprintf( 'CALLBACK: Handling AUTHORIZED order status. Maybe triggering payment_complete. WC order id: %s (transaction ID: %s).', $order->get_id(), $transaction_id ) );
