@@ -1,0 +1,4 @@
+Type: Fix
+Needs Documentation: no
+
+Fixed a customer who had already paid being sent back to the checkout when Dintero could not be reached to confirm the payment.

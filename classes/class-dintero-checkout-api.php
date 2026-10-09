@@ -34,9 +34,10 @@ class Dintero_Checkout_API {
 	 *
 	 * @param string $dintero_id The Dintero transaction id.
 	 * @param array  $params Additional URL query parameters.
+	 * @param bool   $suppress_error_notice Whether to keep the error from the customer. Set by callers that redirect afterwards, since printing sends the headers. Default false.
 	 * @return array|WP_Error
 	 */
-	public function get_order( $dintero_id, $params = array() ) {
+	public function get_order( $dintero_id, $params = array(), $suppress_error_notice = false ) {
 		$request = new Dintero_Checkout_Get_Order(
 			array(
 				'params'     => $params,
@@ -45,7 +46,7 @@ class Dintero_Checkout_API {
 		);
 
 		$response = $request->request();
-		return $this->check_for_api_error( $response );
+		return $suppress_error_notice ? $response : $this->check_for_api_error( $response );
 	}
 
 	/**
