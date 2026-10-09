@@ -15,6 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Dintero_Checkout_Callback {
 
 	/**
+	 * Minutes to wait before each retry of a callback that could not reach Dintero. Kept within WooCommerce's default 60 minute hold, after which an unpaid order is cancelled.
+	 *
+	 * @var int[]
+	 */
+	const RETRY_DELAYS = array( 5, 10, 20 );
+
+	/**
 	 * Register callback action.
 	 */
 	public function __construct() {
@@ -83,6 +90,12 @@ class Dintero_Checkout_Callback {
 		 */
 		foreach ( $scheduled_actions as $action ) {
 			$action_args = $action->get_args();
+
+			// A pending retry must not swallow a new callback from Dintero, which will not resend it.
+			if ( ! empty( $action_args['attempt'] ) ) {
+				continue;
+			}
+
 			if ( $merchant_reference === $action_args['merchant_reference'] && $transaction_id === $action_args['transaction_id'] ) {
 				Dintero_Checkout_Logger::log( "CALLBACK [action_scheduler]: The merchant reference $merchant_reference and transaction id $transaction_id has already been scheduled for processing." );
 				return true;
@@ -152,15 +165,14 @@ class Dintero_Checkout_Callback {
 	 * @return void
 	 */
 	private function retry_callback( $transaction_id, $merchant_reference, $attempt, $order ) {
-		$delays = array( 5, 15, 60 ); // Minutes.
-		if ( ! isset( $delays[ $attempt ] ) ) {
+		if ( ! isset( self::RETRY_DELAYS[ $attempt ] ) ) {
 			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR [retry]: Giving up after %d retries. WC order id: %s (transaction ID: %s).', $attempt, $order->get_id(), $transaction_id ) );
 			$order->add_order_note( __( 'Dintero could not be reached to confirm the payment, and no further attempts will be made. Check the payment in the Dintero Backoffice.', 'dintero-checkout-for-woocommerce' ) );
 			return;
 		}
 
-		as_schedule_single_action(
-			time() + $delays[ $attempt ] * MINUTE_IN_SECONDS,
+		$scheduled_action = as_schedule_single_action(
+			time() + self::RETRY_DELAYS[ $attempt ] * MINUTE_IN_SECONDS,
 			'dintero_scheduled_callback',
 			array(
 				'transaction_id'     => $transaction_id,
@@ -169,7 +181,13 @@ class Dintero_Checkout_Callback {
 				'attempt'            => $attempt + 1,
 			)
 		);
-		Dintero_Checkout_Logger::log( sprintf( 'CALLBACK [retry]: Dintero could not be reached, retrying in %d minutes. WC order id: %s (transaction ID: %s).', $delays[ $attempt ], $order->get_id(), $transaction_id ) );
+
+		if ( empty( $scheduled_action ) ) {
+			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR [retry]: Failed to schedule a retry. WC order id: %s (transaction ID: %s).', $order->get_id(), $transaction_id ) );
+			return;
+		}
+
+		Dintero_Checkout_Logger::log( sprintf( 'CALLBACK [retry]: Dintero could not be reached, retrying in %d minutes. WC order id: %s (transaction ID: %s).', self::RETRY_DELAYS[ $attempt ], $order->get_id(), $transaction_id ) );
 	}
 
 	/**

@@ -412,7 +412,7 @@ function dintero_confirm_order( $order, $transaction_id ) {
 
 		// Get the order from Dintero to ensure the merchant reference was set, get any potential card tokens and other data we need to store.
 		$params        = array( 'includes' => 'card.payment_token' );
-		$dintero_order = Dintero()->api->get_order( $transaction_id, $params );
+		$dintero_order = Dintero()->api->get_order( $transaction_id, $params, true );
 		if ( is_wp_error( $dintero_order ) ) {
 			$order->add_order_note(
 				sprintf(
