@@ -19,7 +19,7 @@ class Dintero_Checkout_Callback {
 	 */
 	public function __construct() {
 		add_action( 'woocommerce_api_dintero_callback', array( $this, 'callback' ) );
-		add_action( 'dintero_scheduled_callback', array( $this, 'handle_callback' ), 10, 3 );
+		add_action( 'dintero_scheduled_callback', array( $this, 'handle_callback' ), 10, 4 );
 	}
 
 	/**
@@ -143,14 +143,45 @@ class Dintero_Checkout_Callback {
 	}
 
 	/**
+	 * Schedule the callback again when Dintero could not be reached, so a paid order is not left pending.
+	 *
+	 * @param string   $transaction_id The Transaction id from Dintero.
+	 * @param string   $merchant_reference The Merchant Reference from Dintero.
+	 * @param int      $attempt How many times the callback has been retried already.
+	 * @param WC_Order $order The WooCommerce order.
+	 * @return void
+	 */
+	private function retry_callback( $transaction_id, $merchant_reference, $attempt, $order ) {
+		$delays = array( 5, 15, 60 ); // Minutes.
+		if ( ! isset( $delays[ $attempt ] ) ) {
+			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR [retry]: Giving up after %d retries. WC order id: %s (transaction ID: %s).', $attempt, $order->get_id(), $transaction_id ) );
+			$order->add_order_note( __( 'Dintero could not be reached to confirm the payment, and no further attempts will be made. Check the payment in the Dintero Backoffice.', 'dintero-checkout-for-woocommerce' ) );
+			return;
+		}
+
+		as_schedule_single_action(
+			time() + $delays[ $attempt ] * MINUTE_IN_SECONDS,
+			'dintero_scheduled_callback',
+			array(
+				'transaction_id'     => $transaction_id,
+				'merchant_reference' => $merchant_reference,
+				'error'              => '',
+				'attempt'            => $attempt + 1,
+			)
+		);
+		Dintero_Checkout_Logger::log( sprintf( 'CALLBACK [retry]: Dintero could not be reached, retrying in %d minutes. WC order id: %s (transaction ID: %s).', $delays[ $attempt ], $order->get_id(), $transaction_id ) );
+	}
+
+	/**
 	 * Handle normal callbacks from Dintero.
 	 *
 	 * @param string $transaction_id The Transaction id from Dintero.
 	 * @param string $merchant_reference The Merchant Reference from Dintero.
 	 * @param string $error Any error message from Dintero.
+	 * @param int    $attempt How many times the callback has been retried because Dintero could not be reached.
 	 * @return void
 	 */
-	public function handle_callback( $transaction_id, $merchant_reference, $error ) {
+	public function handle_callback( $transaction_id, $merchant_reference, $error, $attempt = 0 ) {
 		// Get the order relevant for the callback.
 		$order = $this->get_order_from_reference( $merchant_reference );
 		if ( empty( $order ) ) {
@@ -168,6 +199,9 @@ class Dintero_Checkout_Callback {
 		$dintero_order = Dintero()->api->get_order( $transaction_id );
 		if ( is_wp_error( $dintero_order ) ) {
 			Dintero_Checkout_Logger::log( sprintf( 'CALLBACK ERROR [dintero_order]: Failed to retrieve the order from Dintero. WC order id: %s (transaction ID: %s).', $order->get_id(), $transaction_id ) );
+			if ( dintero_is_transient_error( $dintero_order ) ) {
+				$this->retry_callback( $transaction_id, $merchant_reference, absint( $attempt ), $order );
+			}
 			return;
 		}
 

@@ -99,8 +99,7 @@ function dintero_is_transient_error( $response ) {
 		return true;
 	}
 
-	// A 401 follows a failed access token request, which is not caused by the request itself.
-	return $code >= 500 || in_array( $code, array( 401, 408, 429 ), true );
+	return $code >= 500 || in_array( $code, array( 408, 429 ), true );
 }
 
 /**

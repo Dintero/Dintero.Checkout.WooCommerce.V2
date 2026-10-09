@@ -67,11 +67,11 @@ class Dintero_Checkout_Redirect {
 	 */
 	public function handle_success( $transaction_id, $order ) {
 		// The return URL can be edited by the customer, so the transaction must be shown to belong to this order.
-		$dintero_order = Dintero()->api->get_order( $transaction_id );
+		$dintero_order = Dintero()->api->get_order( $transaction_id, array(), false );
 
 		// The customer has usually paid by now, so retry a momentary failure once before giving up.
 		if ( dintero_is_transient_error( $dintero_order ) ) {
-			$dintero_order = Dintero()->api->get_order( $transaction_id );
+			$dintero_order = Dintero()->api->get_order( $transaction_id, array(), false );
 		}
 
 		if ( dintero_is_transient_error( $dintero_order ) ) {

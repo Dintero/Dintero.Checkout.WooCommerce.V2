@@ -1,4 +1,4 @@
 Type: Fix
 Needs Documentation: no
 
-A customer who has paid is no longer sent back to the checkout when Dintero cannot be reached to confirm the payment on the redirect. The request is retried once, and if it still fails the cart is emptied and the order is confirmed by the callback.
+Fixed a customer who had already paid being sent back to the checkout when Dintero could not be reached to confirm the payment.
