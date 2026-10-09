@@ -516,7 +516,7 @@ function dintero_get_order_id_by_merchant_reference( $merchant_reference ) {
 		array(
 			'meta_key'     => $key,
 			'meta_value'   => $merchant_reference,
-			'limit'        => 1,
+			'limit'        => 2,
 			'orderby'      => 'date',
 			'order'        => 'DESC',
 			'meta_compare' => '=',
@@ -524,6 +524,12 @@ function dintero_get_order_id_by_merchant_reference( $merchant_reference ) {
 	);
 
 	$order = reset( $orders );
+
+	// Orders placed before the reference was made unique per order can still share one.
+	if ( count( $orders ) > 1 ) {
+		Dintero_Checkout_Logger::log( "MERCHANT REFERENCE [duplicate]: More than one WC order has the merchant reference $merchant_reference. Using the newest, order id {$order->get_id()}." );
+	}
+
 	if ( empty( $order ) || $merchant_reference !== $order->get_meta( $key ) ) {
 		return 0;
 	}

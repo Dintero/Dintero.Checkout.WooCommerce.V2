@@ -307,9 +307,12 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 *
 		 * @param WC_Order $order The Woo Order.
 		 * @return array
-		 * @throws Exception If the merchant reference is not found in the session or if the API call fails.
+		 * @throws Exception If the API call fails.
 		 */
 		public function process_redirect_payment( $order ) {
+			// Stored before the session is created, since the request sends the stored reference.
+			Dintero_Checkout_Order::maybe_set_merchant_reference( $order );
+
 			if ( 0.0 === floatval( $order->get_total() ) ) {
 				$session = Dintero()->api->create_payment_token( $order->get_id() );
 			} else {
@@ -318,17 +321,6 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 
 			// The line id was not yet in the session when process_payment() ran, since the session is created above.
 			$this->save_shipping_line_id( $order );
-
-			$reference = WC()->session->get( 'dintero_merchant_reference' );
-
-			if ( empty( $reference ) ) {
-				$session_id = WC()->session->get( 'dintero_checkout_session_id' );
-				Dintero_Checkout_Logger::log( 'PROCESS PAYMENT REDIRECT ERROR [reference]: Could not get a merchant reference from the session for order id: ' . $order->get_id() . ' session id: ' . $session_id );
-				throw new Exception();
-			}
-
-			$order->update_meta_data( '_dintero_merchant_reference', $reference );
-			$order->save();
 
 			if ( is_wp_error( $session ) ) {
 				Dintero_Checkout_Logger::log(

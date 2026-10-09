@@ -1,0 +1,4 @@
+Type: Fix
+Needs Documentation: no
+
+Fixed an issue where orders placed in the same session could share a merchant reference in Dintero. Each order, including subscription renewals, now gets its own reference.

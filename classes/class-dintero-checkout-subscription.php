@@ -87,6 +87,9 @@ class Dintero_Checkout_Subscription {
 			return;
 		}
 
+		// Renewals do not inherit the reference, and without it a callback for the renewal cannot find the order.
+		Dintero_Checkout_Order::maybe_set_merchant_reference( $renewal_order );
+
 		$initiate_payment = Dintero()->api->sessions_pay( $renewal_order->get_id() );
 		if ( is_wp_error( $initiate_payment ) ) {
 			$renewal_order->add_order_note( dintero_retrieve_error_message( $initiate_payment ) );
