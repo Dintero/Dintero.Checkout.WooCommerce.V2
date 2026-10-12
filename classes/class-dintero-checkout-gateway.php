@@ -335,6 +335,11 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				throw new Exception();
 			}
 
+			// The order is the subscription here, and its return only accepts a transaction from this session.
+			if ( Dintero_Checkout_Subscription::is_change_payment_method() ) {
+				$order->update_meta_data( Dintero_Checkout_Subscription::CHANGE_PAYMENT_SESSION, $session['id'] );
+			}
+
 			$order->add_order_note( __( 'Customer redirected to Dintero payment page.', 'dintero-checkout-for-woocommerce' ) );
 			$order->save();
 

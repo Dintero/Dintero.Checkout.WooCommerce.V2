@@ -14,11 +14,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class for handling subscriptions.
  */
 class Dintero_Checkout_Subscription {
-	private const GATEWAY_ID          = 'dintero_checkout';
-	public const RECURRING_TOKEN      = '_' . self::GATEWAY_ID . '_recurring_token';
-	public const PAYMENT_TOKEN        = '_' . self::GATEWAY_ID . '_payment_token';
-	public const PAYMENT_PRODUCT_TYPE = '_' . self::GATEWAY_ID . '_payment_product_type';
-	public const DO_NOT_RETRY         = '_' . self::GATEWAY_ID . '_do_not_retry';
+	private const GATEWAY_ID            = 'dintero_checkout';
+	public const RECURRING_TOKEN        = '_' . self::GATEWAY_ID . '_recurring_token';
+	public const PAYMENT_TOKEN          = '_' . self::GATEWAY_ID . '_payment_token';
+	public const PAYMENT_PRODUCT_TYPE   = '_' . self::GATEWAY_ID . '_payment_product_type';
+	public const DO_NOT_RETRY           = '_' . self::GATEWAY_ID . '_do_not_retry';
+	public const CHANGE_PAYMENT_SESSION = '_' . self::GATEWAY_ID . '_change_payment_session_id';
 
 	/**
 	 * Register hooks.
@@ -320,7 +321,13 @@ class Dintero_Checkout_Subscription {
 			);
 		} else {
 			// The return URL can be edited by the customer, so the transaction must be shown to belong to this subscription.
-			$verified = dintero_verify_transaction_for_order( $subscription, $response, $transaction_id );
+			$verified   = dintero_verify_transaction_for_order( $subscription, $response, $transaction_id );
+			$session_id = $subscription->get_meta( self::CHANGE_PAYMENT_SESSION );
+			if ( ! is_wp_error( $verified ) && ( empty( $session_id ) || ( $response['session_id'] ?? '' ) !== $session_id ) ) {
+				// The reference is kept across changes, so only the session proves this is the current change and not a replayed one.
+				$verified = new WP_Error( 'session_mismatch', 'The transaction is not from the current payment method change.' );
+			}
+
 			if ( is_wp_error( $verified ) ) {
 				Dintero_Checkout_Logger::log( "CHANGE PAYMENT METHOD ERROR [transaction]: {$verified->get_error_message()} Subscription id: {$subscription->get_id()} (transaction ID: $transaction_id). The payment token was not changed." );
 
@@ -337,6 +344,10 @@ class Dintero_Checkout_Subscription {
 			$payment_product_type = self::get_payment_product_type_from_response( $response );
 			$message              = __( 'Payment token created.', 'dintero-checkout-for-woocommerce' );
 			self::save_subscription_metadata( $subscription, $payment_product_type, $payment_token, 'payment' );
+
+			// Single use, so the return URL cannot be replayed once the token is saved.
+			$subscription->delete_meta_data( self::CHANGE_PAYMENT_SESSION );
+			$subscription->save_meta_data();
 		}
 
 		$subscription->add_order_note( $message );
