@@ -319,13 +319,23 @@ class Dintero_Checkout_Subscription {
 				$response->get_error_message()
 			);
 		} else {
+			// The return URL can be edited by the customer, so the transaction must be shown to belong to this subscription.
+			$verified = dintero_verify_transaction_for_order( $subscription, $response, $transaction_id );
+			if ( is_wp_error( $verified ) ) {
+				Dintero_Checkout_Logger::log( "CHANGE PAYMENT METHOD ERROR [transaction]: {$verified->get_error_message()} Subscription id: {$subscription->get_id()} (transaction ID: $transaction_id). The payment token was not changed." );
+
+				$message = __( 'Change payment method to Dintero for subscription failed. The Dintero transaction does not belong to this subscription.', 'dintero-checkout-for-woocommerce' );
+				if ( function_exists( 'wc_print_notice' ) ) {
+					wc_print_notice( $message, 'error' );
+				}
+
+				$subscription->add_order_note( $message );
+				return;
+			}
+
 			$payment_token        = self::get_payment_token_from_response( $response );
 			$payment_product_type = self::get_payment_product_type_from_response( $response );
-			$message              = sprintf(
-			/* translators: Payment token. */
-				__( 'Payment token created: %s', 'dintero-checkout-for-woocommerce' ),
-				$payment_token
-			);
+			$message              = __( 'Payment token created.', 'dintero-checkout-for-woocommerce' );
 			self::save_subscription_metadata( $subscription, $payment_product_type, $payment_token, 'payment' );
 		}
 
