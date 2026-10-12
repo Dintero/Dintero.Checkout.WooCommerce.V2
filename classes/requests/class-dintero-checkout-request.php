@@ -54,6 +54,13 @@ abstract class Dintero_Checkout_Request {
 	 */
 	protected $request_filter = 'dintero_checkout_request_args';
 
+	/**
+	 * The error from fetching the access token, if that failed.
+	 *
+	 * @var WP_Error|null
+	 */
+	private $access_token_error = null;
+
 
 	/**
 	 * Class constructor.
@@ -129,9 +136,11 @@ abstract class Dintero_Checkout_Request {
 			return $access_token;
 		}
 
-		$response = Dintero()->api->get_access_token();
+		// Not through the API wrapper, so the error is shown once, by the caller of the original request.
+		$response = ( new Dintero_Checkout_Get_Access_Token( array() ) )->request();
 
 		if ( is_wp_error( $response ) ) {
+			$this->access_token_error = $response;
 			return '';
 		}
 
@@ -176,8 +185,14 @@ abstract class Dintero_Checkout_Request {
 	 * @return array|WP_Error
 	 */
 	public function request() {
-		$url      = $this->get_request_url();
-		$args     = $this->get_request_args();
+		$url  = $this->get_request_url();
+		$args = $this->get_request_args();
+
+		// Without a token Dintero answers 401, which would hide that it could not be reached.
+		if ( is_wp_error( $this->access_token_error ) ) {
+			return $this->access_token_error;
+		}
+
 		$response = wp_remote_request( $url, $args );
 		return $this->process_response( $response, $args, $url );
 	}

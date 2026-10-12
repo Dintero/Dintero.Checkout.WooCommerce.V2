@@ -81,6 +81,28 @@ function dintero_is_stale_session_error( $response ) {
 }
 
 /**
+ * Whether a WP_Error from an API call is a temporary failure rather than Dintero rejecting the request.
+ *
+ * @see Dintero_Checkout_Request::process_response() for how the status becomes the WP_Error code.
+ *
+ * @param mixed $response The value returned from an API call.
+ * @return bool
+ */
+function dintero_is_transient_error( $response ) {
+	if ( ! is_wp_error( $response ) ) {
+		return false;
+	}
+
+	// Transport errors (timeout, no connection) have a string code; API errors carry the HTTP status.
+	$code = $response->get_error_code();
+	if ( ! is_int( $code ) ) {
+		return true;
+	}
+
+	return $code >= 500 || in_array( $code, array( 408, 429 ), true );
+}
+
+/**
  * Unsets all sessions set by Dintero.
  *
  * @return void
@@ -390,7 +412,7 @@ function dintero_confirm_order( $order, $transaction_id ) {
 
 		// Get the order from Dintero to ensure the merchant reference was set, get any potential card tokens and other data we need to store.
 		$params        = array( 'includes' => 'card.payment_token' );
-		$dintero_order = Dintero()->api->get_order( $transaction_id, $params );
+		$dintero_order = Dintero()->api->get_order( $transaction_id, $params, true );
 		if ( is_wp_error( $dintero_order ) ) {
 			$order->add_order_note(
 				sprintf(
