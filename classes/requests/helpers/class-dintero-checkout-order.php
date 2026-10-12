@@ -133,8 +133,18 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	 * @return bool
 	 */
 	private static function is_reference_shared( $merchant_reference, $order ) {
+		// A payment method change creates a session with the subscription's reference, but subscriptions and their statuses are not in the default query.
+		$types    = wc_get_order_types( 'view-orders' );
+		$statuses = array_keys( wc_get_order_statuses() );
+		if ( function_exists( 'wcs_get_subscription_statuses' ) ) {
+			$types[]  = 'shop_subscription';
+			$statuses = array_merge( $statuses, array_keys( wcs_get_subscription_statuses() ) );
+		}
+
 		$order_ids = wc_get_orders(
 			array(
+				'type'         => $types,
+				'status'       => array_unique( $statuses ),
 				'meta_key'     => '_dintero_merchant_reference', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 				'meta_value'   => $merchant_reference, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 				'meta_compare' => '=',
