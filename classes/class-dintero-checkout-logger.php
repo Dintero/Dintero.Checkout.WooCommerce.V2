@@ -9,6 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Krokedil\Dintero\Logging\LogMasking;
+
 /**
  * Logger class.
  */
@@ -30,16 +32,24 @@ class Dintero_Checkout_Logger {
 	public static function log( $data ) {
 		$settings = get_option( 'woocommerce_dintero_checkout_settings', array() );
 
-		if ( 'yes' === $settings['logging'] ) {
-			$message = self::format_data( $data );
+		$log_to_file = wc_string_to_bool( $settings['logging'] ?? 'no' );
+		$log_to_db   = isset( $data['response']['code'] ) && ( $data['response']['code'] < 200 || $data['response']['code'] > 299 );
+		if ( ! $log_to_file && ! $log_to_db ) {
+			return;
+		}
+
+		// Masked once, so the log file and the copy kept in the database get the same entry.
+		$message = LogMasking::mask( self::format_data( $data ) );
+
+		if ( $log_to_file ) {
 			if ( empty( self::$log ) ) {
 				self::$log = new WC_Logger();
 			}
 			self::$log->add( 'dintero-checkout-for-woocommerce', wp_json_encode( $message, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) );
 		}
 
-		if ( isset( $data['response']['code'] ) && ( $data['response']['code'] < 200 || $data['response']['code'] > 299 ) ) {
-			self::log_to_db( $data );
+		if ( $log_to_db ) {
+			self::log_to_db( $message );
 		}
 	}
 
@@ -50,16 +60,12 @@ class Dintero_Checkout_Logger {
 	 * @return array|string
 	 */
 	public static function format_data( $data ) {
-		if ( isset( $data['request']['headers']['authorization'] ) ) {
-			$data['request']['headers']['authorization'] = '[redacted]';
-		}
-
-		if ( isset( $data['request']['body'] ) ) {
+		if ( isset( $data['request']['body'] ) && is_string( $data['request']['body'] ) ) {
 			$request_body            = json_decode( $data['request']['body'], true );
 			$data['request']['body'] = ( ! empty( $request_body ) ) ? $request_body : $data['request']['body'];
 		}
 
-		if ( isset( $data['response']['body']['body'] ) ) {
+		if ( isset( $data['response']['body']['body'] ) && is_string( $data['response']['body']['body'] ) ) {
 			$response_body                    = json_decode( $data['response']['body']['body'], true );
 			$data['response']['body']['body'] = ( ! empty( $response_body ) ) ? $response_body : $data['response']['body']['body'];
 		}

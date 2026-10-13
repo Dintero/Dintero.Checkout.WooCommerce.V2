@@ -5,13 +5,13 @@
  * Description: Dintero offers a complete payment solution. Simplifying the payment process for you and the customer.
  * Author: Dintero, Krokedil
  * Author URI: https://krokedil.com/
- * Version: 1.15.0
+ * Version: 1.15.1
  * Text Domain: dintero-checkout-for-woocommerce
  * Domain Path: /languages
  * Requires Plugins: woocommerce
  *
  * WC requires at least: 6.1.0
- * WC tested up to: 11.1.0
+ * WC tested up to: 11.2.1
  *
  * Copyright (c) 2026 Krokedil
  *
@@ -27,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'DINTERO_CHECKOUT_VERSION', '1.15.0' );
+define( 'DINTERO_CHECKOUT_VERSION', '1.15.1' );
 define( 'DINTERO_CHECKOUT_URL', untrailingslashit( plugin_dir_url( __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
 define( 'DINTERO_CHECKOUT_MAIN_FILE', __FILE__ );
@@ -158,11 +158,13 @@ if ( ! class_exists( 'Dintero' ) ) {
 		 * @return bool Whether it was successfully initialized.
 		 */
 		public function init_composer() {
+			$autoloader              = __DIR__ . '/vendor/autoload.php';
 			$autoloader_dependencies = __DIR__ . '/dependencies/scoper-autoload.php';
 
 			// Check if the autoloaders was read.
+			$autoloader_result              = is_readable( $autoloader ) && require $autoloader;
 			$autoloader_dependencies_result = is_readable( $autoloader_dependencies ) && require $autoloader_dependencies;
-			if ( ! $autoloader_dependencies_result ) {
+			if ( ! $autoloader_result || ! $autoloader_dependencies_result ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					error_log( //phpcs:ignore
 						sprintf(
