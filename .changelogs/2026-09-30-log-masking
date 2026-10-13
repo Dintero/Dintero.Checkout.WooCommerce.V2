@@ -1,0 +1,4 @@
+Type: Tweak
+Needs Documentation: no
+
+Customer personal data, payment links and API credentials are no longer written to the plugin log or to the stored copy of failed requests. Postal code, city, country, order lines, amounts and Dintero IDs stay readable.
