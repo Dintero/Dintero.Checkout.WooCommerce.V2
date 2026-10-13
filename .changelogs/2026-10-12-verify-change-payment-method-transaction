@@ -1,4 +1,0 @@
-Type: Fix
-Needs Documentation: no
-
-Improved the validation of a subscription's payment method change before the new card is saved to the subscription.

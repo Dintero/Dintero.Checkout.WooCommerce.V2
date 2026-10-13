@@ -5,8 +5,8 @@ Requires at least: 5.8.3
 Tested up to: 7.1
 Requires PHP: 7.4
 WC requires at least: 6.1.0
-WC tested up to: 11.1.0
-Stable tag: 1.15.0
+WC tested up to: 11.2.1
+Stable tag: 1.15.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -135,6 +135,13 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us?ut
 6. Gift cards and Discount cards available.
 7. Remove headaches and manage your reconciliation, reports, transactions, refunds (transaction level), Gift Cards, payment methods, and more in the Dintero backoffice.
 == Changelog ==
+= 2026.10.13    - version 1.15.1 =
+* Fix           - Fixed an issue where orders placed in the same session could share a merchant reference in Dintero. Each order, including subscription renewals, now gets its own reference.
+* Fix           - Improved the validation of callbacks and redirects from Dintero before an order is confirmed. Thanks to kta1kri for the contribution!
+* Fix           - Fixed a customer who had already paid being sent back to the checkout when Dintero could not be reached to confirm the payment.
+* Fix           - Improved the validation of a subscription's payment method change before the new card is saved to the subscription.
+* Tweak         - Customer personal data, payment links and API credentials are no longer written to the plugin log or to the stored copy of failed requests. Postal code, city, country, order lines, amounts and Dintero IDs stay readable.
+
 = 2026.09.16    - version 1.15.0 =
 * Feature       - Added support for Apple Pay and Google Pay in the embedded checkout through Dintero's new 'onAddressCallback' event. The address the customer enters in the wallet popup is now applied to the cart, and the updated shipping options and order lines are sent back to Dintero before the payment is completed.
 * Enhancement   - Added a new 'Enable SDK debug mode' setting that logs the activity of the Dintero checkout SDK to the browser console. This previously required the 'dintero_checkout_sdk_debug' filter, which still works and takes precedence over the setting.
