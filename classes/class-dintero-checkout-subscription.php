@@ -191,8 +191,17 @@ class Dintero_Checkout_Subscription {
 			return $is_available;
 		}
 
-		// Mixed checkout not allowed.
-		if ( class_exists( 'WC_Subscriptions_Product' ) ) {
+		/**
+		 * Filters whether a cart may mix subscriptions with regular products.
+		 *
+		 * A mixed cart is paid in full with the subscription profile.
+		 *
+		 * @since 1.16.0
+		 *
+		 * @param bool $allow_mixed_cart Whether mixed carts are allowed. Default true.
+		 */
+		$allow_mixed_cart = wc_string_to_bool( apply_filters( 'dintero_checkout_allow_mixed_cart', true ) );
+		if ( ! $allow_mixed_cart && class_exists( 'WC_Subscriptions_Product' ) ) {
 			foreach ( WC()->cart->cart_contents as $key => $item ) {
 				if ( ! WC_Subscriptions_Product::is_subscription( $item['data'] ) ) {
 					return false;
@@ -220,7 +229,8 @@ class Dintero_Checkout_Subscription {
 			return $needs_payment;
 		}
 
-		return $this->is_available( $needs_payment );
+		// Only turn payment on for free trials. Turning it off would let an unavailable cart, e.g. a blocked mixed cart, be placed unpaid.
+		return $needs_payment || $this->is_available( $needs_payment );
 	}
 
 	/**
