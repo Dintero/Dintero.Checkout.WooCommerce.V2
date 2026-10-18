@@ -146,11 +146,23 @@ class Dintero_Checkout_Subscription {
 	 * @return WC_Order
 	 */
 	public function copy_meta_fields_to_renewal_order( $renewal_order, $subscription ) {
-		$parent_order = $subscription->get_parent();
-		if ( $parent_order->get_meta( '_wc_dintero_shipping_id' ) ) {
-			$renewal_order->update_meta_data( '_wc_dintero_shipping_id', $parent_order->get_meta( '_wc_dintero_shipping_id' ) );
-			$renewal_order->save_meta_data();
+		$shipping_lines = $renewal_order->get_shipping_methods();
+		if ( empty( $shipping_lines ) ) {
+			return $renewal_order;
 		}
+
+		$shipping_line = reset( $shipping_lines );
+		$shipping_id   = "{$shipping_line->get_method_id()}:{$shipping_line->get_instance_id()}";
+
+		// Reuse the parent's id only if the renewal kept its method, as free shipping may have applied to the parent alone.
+		$parent_order       = $subscription->get_parent();
+		$parent_shipping_id = $parent_order ? $parent_order->get_meta( '_wc_dintero_shipping_id' ) : '';
+		if ( $parent_shipping_id === $shipping_id || 0 === strpos( $parent_shipping_id, "{$shipping_id}:" ) ) {
+			$shipping_id = $parent_shipping_id;
+		}
+
+		$renewal_order->update_meta_data( '_wc_dintero_shipping_id', $shipping_id );
+		$renewal_order->save_meta_data();
 
 		return $renewal_order;
 	}

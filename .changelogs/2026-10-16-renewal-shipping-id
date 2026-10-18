@@ -1,0 +1,4 @@
+Type: Fix
+Needs Documentation: no
+
+Fixed subscription renewals being sent to Dintero with the parent order's shipping method when the renewal uses another one.
