@@ -432,7 +432,7 @@ class Dintero_Checkout_Subscription {
 			}
 
 			$parent_order = $subscription->get_parent();
-			$token        = $parent_order->get_meta( $token_type );
+			$token        = $parent_order ? $parent_order->get_meta( $token_type ) : '';
 
 			if ( ! empty( $token ) ) {
 				break;
