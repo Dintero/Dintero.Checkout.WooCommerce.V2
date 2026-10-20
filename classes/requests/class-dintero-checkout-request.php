@@ -207,6 +207,8 @@ abstract class Dintero_Checkout_Request {
 	 */
 	protected function process_response( $response, $request_args, $request_url ) {
 		if ( is_wp_error( $response ) ) {
+			// Transport failures (e.g., timeouts) never reach log_response(), so they would otherwise leave no trace.
+			Dintero_Checkout_Logger::log( sprintf( '%s %s (%s) failed: %s', $this->method, $this->log_title, $request_url, $response->get_error_message() ) );
 			return $response;
 		}
 

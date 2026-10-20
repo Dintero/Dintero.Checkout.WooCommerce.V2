@@ -1,0 +1,4 @@
+Type: Fix
+Needs Documentation: no
+
+Fixed an already captured order, such as a Swish order, being set to On hold when completed if Dintero could not be reached to check its status first. Failed requests to Dintero are now also logged.
