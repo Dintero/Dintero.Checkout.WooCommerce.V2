@@ -1,0 +1,4 @@
+Type: Fix
+Needs Documentation: no
+
+Fixed a fatal error when renewing a subscription that has no parent order.

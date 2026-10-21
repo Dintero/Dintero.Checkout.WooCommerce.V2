@@ -1,0 +1,4 @@
+Type: Feature
+Needs Documentation: yes
+
+Subscriptions and regular products can now be bought in the same cart with Dintero Checkout. The whole order is paid with the subscription profile, and the saved card is used for the renewals. Merchants can turn this off with the 'dintero_checkout_allow_mixed_cart' filter.
