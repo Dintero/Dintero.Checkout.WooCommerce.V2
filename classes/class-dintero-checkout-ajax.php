@@ -147,6 +147,8 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 			wp_send_json_error( $session->get_error_message() );
 		}
 
+		self::adopt_session_shipping( $id, $session );
+
 		WC()->cart->calculate_totals();
 		$total    = $session['order']['amount'];
 		$wc_total = intval( WC()->cart->total * 100 );
@@ -157,7 +159,31 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 			wp_send_json_success( $diff );
 		}
 
+		Dintero_Checkout_Logger::log( "VERIFY ERROR [total]: The session $id amount ($total) does not match the WooCommerce total ($wc_total), a difference of $diff minor units. The order is not submitted." );
 		wp_send_json_error( $diff );
+	}
+
+	/**
+	 * Apply the shipping option selected in the iframe to WooCommerce.
+	 *
+	 * The selection is forwarded by an async checkout update, which is lost if the customer picks a payment method first.
+	 *
+	 * @param string $session_id The Dintero session id.
+	 * @param array  $session    The Dintero session.
+	 * @return void
+	 */
+	private static function adopt_session_shipping( $session_id, $session ) {
+		$shipping_option = $session['order']['shipping_option'] ?? array();
+		if ( ! dwc_is_shipping_in_iframe() || empty( $shipping_option['id'] ) ) {
+			return;
+		}
+
+		// The id is posted by the client, so only adopt from the customer's own session.
+		if ( WC()->session->get( 'dintero_checkout_session_id' ) !== $session_id ) {
+			return;
+		}
+
+		dintero_update_wc_shipping( $shipping_option );
 	}
 
 	/**
