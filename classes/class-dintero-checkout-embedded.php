@@ -229,9 +229,34 @@ class Dintero_Checkout_Embedded {
 
 		$response = Dintero()->api->update_checkout_session( $session_id, $this->is_address_callback, $this->address_callback_data );
 
-		// If the stored session has expired, Dintero no longer knows the id and the update 404s. Clear the
-		// stale id and reload the checkout so a fresh session is created on the next render.
+		// The update 404s if the session has expired or has already been paid.
 		if ( dintero_is_stale_session_error( $response ) ) {
+			// Discarding a paid session would let the customer pay again, so send them to the confirmation page instead.
+			$redirect_url = dintero_get_paid_session_redirect_url( $session_id );
+			if ( ! is_wp_error( $redirect_url ) ) {
+				Dintero_Checkout_Logger::log( "[UPDATE SESSION]: The session $session_id is already paid. Redirecting customer to the confirmation page." );
+
+				// During an order review update, the reload ends up here again as a page render.
+				if ( wp_doing_ajax() ) {
+					WC()->session->reload_checkout = true;
+					return;
+				}
+
+				if ( ! headers_sent() ) {
+					wp_safe_redirect( $redirect_url );
+					exit;
+				}
+
+				return;
+			}
+
+			// The session may still be paid, so keep it rather than let the customer pay again. The next render or the frontend recovery checks again.
+			if ( 'lookup_failed' === $redirect_url->get_error_code() ) {
+				Dintero_Checkout_Logger::log( "[UPDATE SESSION]: {$redirect_url->get_error_message()} Keeping the session $session_id." );
+				return;
+			}
+
+			// Expired: clear the stale id and reload the checkout so a fresh session is created on the next render.
 			dintero_unset_sessions();
 			WC()->session->reload_checkout = true;
 		}

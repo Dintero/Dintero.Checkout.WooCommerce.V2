@@ -177,41 +177,17 @@ class Dintero_Checkout_Ajax extends WC_AJAX {
 			wp_send_json_error( 'bad_nonce' );
 		}
 
-		// A session can still be read after it has been paid, and then includes the transaction id.
 		$session_id = WC()->session->get( 'dintero_checkout_session_id' );
-		$session    = empty( $session_id ) ? null : Dintero()->api->get_session( $session_id );
-		if ( ! is_array( $session ) || empty( $session['transaction_id'] ) || empty( $session['order']['merchant_reference'] ) ) {
-			wp_send_json_error( 'no_transaction' );
+		$redirect   = dintero_get_paid_session_redirect_url( $session_id );
+		if ( is_wp_error( $redirect ) ) {
+			if ( 'not_verified' === $redirect->get_error_code() ) {
+				Dintero_Checkout_Logger::log( "[RECOVER]: {$redirect->get_error_message()} Resetting the checkout." );
+			}
+			wp_send_json_error( $redirect->get_error_code() );
 		}
 
-		// The redirect flow can only confirm an order it can find. Without this check, a resolvable but order-less reference would bounce the customer between the redirect flow and the checkout page indefinitely (refer to Dintero_Checkout_Redirect::maybe_redirect).
-		$order_id = dintero_get_order_id_by_merchant_reference( $session['order']['merchant_reference'] );
-		if ( empty( $order_id ) ) {
-			wp_send_json_error( 'no_order' );
-		}
+		Dintero_Checkout_Logger::log( "[RECOVER]: The session $session_id is already paid. Redirecting customer to the confirmation page." );
 
-		$dintero_order = Dintero()->api->get_order( $session['transaction_id'] );
-		if ( ! is_array( $dintero_order ) || ! dintero_is_payable_transaction( $dintero_order ) ) {
-			wp_send_json_error( 'not_payable' );
-		}
-
-		// The redirect flow rejects a transaction that does not belong to the order, which would send the customer back here in a loop.
-		$verified = dintero_verify_transaction_for_order( wc_get_order( $order_id ), $dintero_order, $session['transaction_id'] );
-		if ( is_wp_error( $verified ) ) {
-			Dintero_Checkout_Logger::log( "[RECOVER]: {$verified->get_error_message()} WC order id: $order_id (transaction ID: {$session['transaction_id']}). Resetting the checkout." );
-			wp_send_json_error( 'not_verified' );
-		}
-
-		Dintero_Checkout_Logger::log( "[RECOVER]: The session $session_id is already paid (transaction ID: {$session['transaction_id']}). Redirecting customer to the confirmation page." );
-
-		$redirect = add_query_arg(
-			array(
-				'gateway'            => 'dintero',
-				'merchant_reference' => $session['order']['merchant_reference'],
-				'transaction_id'     => $session['transaction_id'],
-			),
-			home_url()
-		);
 		wp_send_json_success( array( 'redirect' => $redirect ) );
 	}
 }

@@ -64,8 +64,8 @@ function dintero_checkout_wc_show_another_gateway_button() {
 /**
  * Whether a WP_Error from a session request means the stored session id is unusable.
  *
- * Only a 404 counts: Dintero no longer knows the id, so the session has expired and must be
- * replaced. Every other status is about the request or the connection, not the session.
+ * Only a 404 counts: the session has either expired or already been paid, so it can no longer be
+ * updated. Every other status is about the request or the connection, not the session.
  *
  * @see Dintero_Checkout_Request::process_response() for how the status becomes the WP_Error code.
  *
@@ -379,6 +379,52 @@ function dintero_verify_transaction_for_order( $order, $dintero_order, $transact
 	}
 
 	return true;
+}
+
+/**
+ * Get the return URL Dintero would have sent the customer to, if the session has already been paid for an order.
+ *
+ * @param string $session_id The Dintero session id.
+ * @return string|WP_Error The return URL, or an error (no_transaction, no_order, not_payable or not_verified) if the session cannot be recovered. lookup_failed if Dintero could not be reached to tell.
+ */
+function dintero_get_paid_session_redirect_url( $session_id ) {
+	$session = empty( $session_id ) ? null : Dintero()->api->get_session( $session_id, true );
+	if ( dintero_is_transient_error( $session ) ) {
+		return new WP_Error( 'lookup_failed', "Dintero could not be reached to check the session: {$session->get_error_message()}" );
+	}
+
+	if ( ! is_array( $session ) || empty( $session['transaction_id'] ) || empty( $session['order']['merchant_reference'] ) ) {
+		return new WP_Error( 'no_transaction', 'The session has no transaction.' );
+	}
+
+	$order_id = dintero_get_order_id_by_merchant_reference( $session['order']['merchant_reference'] );
+	if ( empty( $order_id ) ) {
+		return new WP_Error( 'no_order', 'No order has the merchant reference of the session.' );
+	}
+
+	$dintero_order = Dintero()->api->get_order( $session['transaction_id'], array(), true );
+	if ( dintero_is_transient_error( $dintero_order ) ) {
+		return new WP_Error( 'lookup_failed', "Dintero could not be reached to check the transaction {$session['transaction_id']}: {$dintero_order->get_error_message()}" );
+	}
+
+	if ( ! is_array( $dintero_order ) || ! dintero_is_payable_transaction( $dintero_order ) ) {
+		return new WP_Error( 'not_payable', 'The transaction of the session is not payable.' );
+	}
+
+	// The redirect flow rejects a transaction that does not belong to the order, which would send the customer back to the checkout in a loop.
+	$verified = dintero_verify_transaction_for_order( wc_get_order( $order_id ), $dintero_order, $session['transaction_id'] );
+	if ( is_wp_error( $verified ) ) {
+		return new WP_Error( 'not_verified', "{$verified->get_error_message()} WC order id: $order_id (transaction ID: {$session['transaction_id']})." );
+	}
+
+	return add_query_arg(
+		array(
+			'gateway'            => 'dintero',
+			'merchant_reference' => $session['order']['merchant_reference'],
+			'transaction_id'     => $session['transaction_id'],
+		),
+		home_url()
+	);
 }
 
 /**
