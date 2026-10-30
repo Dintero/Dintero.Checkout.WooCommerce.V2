@@ -53,13 +53,14 @@ class Dintero_Checkout_API {
 	 * Retrieve information about a WooCommerce order from Dintero.
 	 *
 	 * @param string $session_id The Dintero session id.
+	 * @param bool   $suppress_error_notice Whether to keep the error from the customer. Set by callers that handle the error themselves. Default false.
 	 * @return array|WP_Error
 	 */
-	public function get_session( $session_id ) {
+	public function get_session( $session_id, $suppress_error_notice = false ) {
 		$args     = array( 'session_id' => $session_id );
 		$request  = new Dintero_Checkout_Get_session( $args );
 		$response = $request->request();
-		return $this->check_for_api_error( $response );
+		return $suppress_error_notice ? $response : $this->check_for_api_error( $response );
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Type: Fix
+Needs Documentation: no
+
+Fixed customers sometimes being able to pay twice when they returned to the checkout page after paying in the embedded or pop-out checkout. They are now sent to the order confirmation page.
