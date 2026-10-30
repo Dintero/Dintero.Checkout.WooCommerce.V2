@@ -385,10 +385,14 @@ function dintero_verify_transaction_for_order( $order, $dintero_order, $transact
  * Get the return URL Dintero would have sent the customer to, if the session has already been paid for an order.
  *
  * @param string $session_id The Dintero session id.
- * @return string|WP_Error The return URL, or an error (no_transaction, no_order, not_payable or not_verified) if the session cannot be recovered.
+ * @return string|WP_Error The return URL, or an error (no_transaction, no_order, not_payable or not_verified) if the session cannot be recovered. lookup_failed if Dintero could not be reached to tell.
  */
 function dintero_get_paid_session_redirect_url( $session_id ) {
 	$session = empty( $session_id ) ? null : Dintero()->api->get_session( $session_id, true );
+	if ( dintero_is_transient_error( $session ) ) {
+		return new WP_Error( 'lookup_failed', "Dintero could not be reached to check the session: {$session->get_error_message()}" );
+	}
+
 	if ( ! is_array( $session ) || empty( $session['transaction_id'] ) || empty( $session['order']['merchant_reference'] ) ) {
 		return new WP_Error( 'no_transaction', 'The session has no transaction.' );
 	}
@@ -399,6 +403,10 @@ function dintero_get_paid_session_redirect_url( $session_id ) {
 	}
 
 	$dintero_order = Dintero()->api->get_order( $session['transaction_id'], array(), true );
+	if ( dintero_is_transient_error( $dintero_order ) ) {
+		return new WP_Error( 'lookup_failed', "Dintero could not be reached to check the transaction {$session['transaction_id']}: {$dintero_order->get_error_message()}" );
+	}
+
 	if ( ! is_array( $dintero_order ) || ! dintero_is_payable_transaction( $dintero_order ) ) {
 		return new WP_Error( 'not_payable', 'The transaction of the session is not payable.' );
 	}

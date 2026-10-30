@@ -250,6 +250,12 @@ class Dintero_Checkout_Embedded {
 				return;
 			}
 
+			// The session may still be paid, so keep it rather than let the customer pay again. The next render or the frontend recovery checks again.
+			if ( 'lookup_failed' === $redirect_url->get_error_code() ) {
+				Dintero_Checkout_Logger::log( "[UPDATE SESSION]: {$redirect_url->get_error_message()} Keeping the session $session_id." );
+				return;
+			}
+
 			// Expired: clear the stale id and reload the checkout so a fresh session is created on the next render.
 			dintero_unset_sessions();
 			WC()->session->reload_checkout = true;
