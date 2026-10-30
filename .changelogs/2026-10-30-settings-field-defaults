@@ -1,0 +1,4 @@
+Type: Fix
+Needs Documentation: no
+
+Fixed a PHP warning (Undefined array key "default") logged when adding a product to the cart while a shipping method's settings had never been saved.
