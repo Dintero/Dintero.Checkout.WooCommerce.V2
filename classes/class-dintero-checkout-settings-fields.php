@@ -30,8 +30,9 @@ class Dintero_Settings_Fields {
 				'default'     => 'yes',
 			),
 			'account_settings'                        => array(
-				'title' => __( 'Account settings', 'dintero-checkout-for-woocommerce' ),
-				'type'  => 'title',
+				'title'   => __( 'Account settings', 'dintero-checkout-for-woocommerce' ),
+				'type'    => 'title',
+				'default' => '',
 			),
 			'account_id'                              => array(
 				'title'             => __( 'Account ID', 'dintero-checkout-for-woocommerce' ),
@@ -78,8 +79,9 @@ class Dintero_Settings_Fields {
 				'description' => __( 'The profile to apply if the cart or order contain subscriptions. Found under (SETTINGS → Payment windows) in Dintero Backoffice.', 'dintero-checkout-for-woocommerce' ),
 			),
 			'checkout_settings'                       => array(
-				'title' => __( 'Checkout settings', 'dintero-checkout-for-woocommerce' ),
-				'type'  => 'title',
+				'title'   => __( 'Checkout settings', 'dintero-checkout-for-woocommerce' ),
+				'type'    => 'title',
+				'default' => '',
 			),
 			'test_mode'                               => array(
 				'title'       => __( 'Enable test mode:', 'dintero-checkout-for-woocommerce' ),
@@ -160,8 +162,9 @@ class Dintero_Settings_Fields {
 			),
 			/* End of "Redirect box". */
 			'order_statuses_title'                    => array(
-				'title' => __( 'Order statuses', 'dintero-checkout-for-woocommerce' ),
-				'type'  => 'title',
+				'title'   => __( 'Order statuses', 'dintero-checkout-for-woocommerce' ),
+				'type'    => 'title',
+				'default' => '',
 			),
 			'order_status_authorized'                 => array(
 				'title'   => 'Default order status when <u>authorized</u>',
@@ -183,8 +186,9 @@ class Dintero_Settings_Fields {
 			),
 			/* Order Management */
 			'order_management_title'                  => array(
-				'title' => __( 'Order Management', 'dintero-checkout-for-woocommerce' ),
-				'type'  => 'title',
+				'title'   => __( 'Order Management', 'dintero-checkout-for-woocommerce' ),
+				'type'    => 'title',
+				'default' => '',
 			),
 			'order_management_manual_refund'          => array(
 				'title'   => __( 'Refund by changing order status', 'dintero-checkout-for-woocommerce' ),
@@ -194,8 +198,9 @@ class Dintero_Settings_Fields {
 			),
 			/* The Dintero Checkout Express Settings */
 			'dintero_checkout_express_settings_title' => array(
-				'title' => __( 'Dintero Checkout Express Settings', 'dintero-checkout-for-woocommerce' ),
-				'type'  => 'title',
+				'title'   => __( 'Dintero Checkout Express Settings', 'dintero-checkout-for-woocommerce' ),
+				'type'    => 'title',
+				'default' => '',
 			),
 			'express_customer_type'                   => array(
 				'title'   => __( 'Allowed customer types', 'dintero-checkout-for-woocommerce' ),
@@ -254,8 +259,9 @@ class Dintero_Settings_Fields {
 			*/
 			/* End of "Dintero Checkout Express Settings". */
 			'branding_title'                          => array(
-				'title' => __( 'Branding', 'dintero-checkout-for-woocommerce' ),
-				'type'  => 'title',
+				'title'   => __( 'Branding', 'dintero-checkout-for-woocommerce' ),
+				'type'    => 'title',
+				'default' => '',
 			),
 			'branding_logo_color'                     => array(
 				'title'   => __( 'Logo color', 'dintero-checkout-for-woocommerce' ),
@@ -264,8 +270,9 @@ class Dintero_Settings_Fields {
 				'label'   => __( 'Default color', 'dintero-checkout-for-woocommerce' ),
 			),
 			'branding_logo_color_custom'              => array(
-				'title' => __( 'Custom color (HEX)', 'dintero-checkout-for-woocommerce' ),
-				'type'  => 'color',
+				'title'   => __( 'Custom color (HEX)', 'dintero-checkout-for-woocommerce' ),
+				'type'    => 'color',
+				'default' => '',
 			),
 			'branding_logo_color_mode'                => array(
 				'title'   => __( 'Logo variant', 'dintero-checkout-for-woocommerce' ),
