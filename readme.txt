@@ -6,7 +6,7 @@ Tested up to: 7.1
 Requires PHP: 7.4
 WC requires at least: 6.1.0
 WC tested up to: 11.2.1
-Stable tag: 1.15.1
+Stable tag: 1.16.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -135,6 +135,14 @@ Go to [https://www.dintero.com/contact-us](https://www.dintero.com/contact-us?ut
 6. Gift cards and Discount cards available.
 7. Remove headaches and manage your reconciliation, reports, transactions, refunds (transaction level), Gift Cards, payment methods, and more in the Dintero backoffice.
 == Changelog ==
+= 2026.11.04    - version 1.16.0 =
+* Feature       - Subscriptions and regular products can now be bought in the same cart with Dintero Checkout. The whole order is paid with the subscription profile, and the saved card is used for the renewals. Merchants can turn this off with the 'dintero_checkout_allow_mixed_cart' filter.
+* Fix           - Fixed subscription renewals being sent to Dintero with the parent order's shipping method when the renewal uses another one.
+* Fix           - Fixed a fatal error when renewing a subscription that has no parent order.
+* Fix           - Fixed an already captured order, such as a Swish order, being set to On hold when completed if Dintero could not be reached to check its status first. Failed requests to Dintero are now also logged.
+* Fix           - Fixed customers sometimes being able to pay twice when they returned to the checkout page after paying in the embedded or pop-out checkout. They are now sent to the order confirmation page.
+* Fix           - Fixed a PHP warning (Undefined array key "default") logged when adding a product to the cart while a shipping method's settings had never been saved.
+
 = 2026.10.13    - version 1.15.1 =
 * Fix           - Fixed an issue where orders placed in the same session could share a merchant reference in Dintero. Each order, including subscription renewals, now gets its own reference.
 * Fix           - Improved the validation of callbacks and redirects from Dintero before an order is confirmed. Thanks to kta1kri for the contribution!
