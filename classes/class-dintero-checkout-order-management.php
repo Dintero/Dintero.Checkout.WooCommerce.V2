@@ -121,19 +121,22 @@ class Dintero_Checkout_Order_Management {
 			$response = Dintero()->api->capture_order( $order->get_transaction_id(), $order_id );
 
 			if ( is_wp_error( $response ) ) {
-				/**
-				 * Handling of a WP_Error.
-				 *
-				 * @var WP_Error $response The WP_Error response.
-				 */
-				$note = ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.';
+				// The status lookup above may have failed, so ask Dintero again before treating an already captured order as a failure.
+				if ( ! $this->is_captured( $order_id ) ) {
+					/**
+					 * Handling of a WP_Error.
+					 *
+					 * @var WP_Error $response The WP_Error response.
+					 */
+					$note = ucfirst( $response->get_error_message() ) . ': ' . $response->get_error_code() . '.';
 
-				$order->add_order_note( $note );
-				$order->update_status( 'on-hold' );
-				return;
-			}
+					$order->add_order_note( $note );
+					$order->update_status( 'on-hold' );
+					return;
+				}
 
-			if ( $response['amount'] > 0 ) {
+				$note = __( 'The Dintero order had already been captured in Dintero.', 'dintero-checkout-for-woocommerce' );
+			} elseif ( $response['amount'] > 0 ) {
 				// The last capture event is most likely the current capture event.
 				$event = array_filter(
 					array_reverse( $response['events'] ),

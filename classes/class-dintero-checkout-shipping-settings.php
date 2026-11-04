@@ -45,6 +45,7 @@ class Dintero_Shipping_Method_Instance {
 				'title'       => __( 'Dintero Checkout', 'dintero-checkout-for-woocommerce' ),
 				'type'        => 'title',
 				'description' => __( 'These settings apply to the Dintero Checkout only.', 'dintero-checkout-for-woocommerce' ),
+				'default'     => '',
 			),
 			'dintero_description'       => array(
 				'title'       => __( 'Description', 'dintero-checkout-for-woocommerce' ),

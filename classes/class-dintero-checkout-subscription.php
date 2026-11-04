@@ -146,11 +146,23 @@ class Dintero_Checkout_Subscription {
 	 * @return WC_Order
 	 */
 	public function copy_meta_fields_to_renewal_order( $renewal_order, $subscription ) {
-		$parent_order = $subscription->get_parent();
-		if ( $parent_order->get_meta( '_wc_dintero_shipping_id' ) ) {
-			$renewal_order->update_meta_data( '_wc_dintero_shipping_id', $parent_order->get_meta( '_wc_dintero_shipping_id' ) );
-			$renewal_order->save_meta_data();
+		$shipping_lines = $renewal_order->get_shipping_methods();
+		if ( empty( $shipping_lines ) ) {
+			return $renewal_order;
 		}
+
+		$shipping_line = reset( $shipping_lines );
+		$shipping_id   = "{$shipping_line->get_method_id()}:{$shipping_line->get_instance_id()}";
+
+		// Reuse the parent's id only if the renewal kept its method, as free shipping may have applied to the parent alone.
+		$parent_order       = $subscription->get_parent();
+		$parent_shipping_id = $parent_order ? $parent_order->get_meta( '_wc_dintero_shipping_id' ) : '';
+		if ( $parent_shipping_id === $shipping_id || 0 === strpos( $parent_shipping_id, "{$shipping_id}:" ) ) {
+			$shipping_id = $parent_shipping_id;
+		}
+
+		$renewal_order->update_meta_data( '_wc_dintero_shipping_id', $shipping_id );
+		$renewal_order->save_meta_data();
 
 		return $renewal_order;
 	}
@@ -191,8 +203,17 @@ class Dintero_Checkout_Subscription {
 			return $is_available;
 		}
 
-		// Mixed checkout not allowed.
-		if ( class_exists( 'WC_Subscriptions_Product' ) ) {
+		/**
+		 * Filters whether a cart may mix subscriptions with regular products.
+		 *
+		 * A mixed cart is paid in full with the subscription profile.
+		 *
+		 * @since 1.16.0
+		 *
+		 * @param bool $allow_mixed_cart Whether mixed carts are allowed. Default true.
+		 */
+		$allow_mixed_cart = wc_string_to_bool( apply_filters( 'dintero_checkout_allow_mixed_cart', true ) );
+		if ( ! $allow_mixed_cart && class_exists( 'WC_Subscriptions_Product' ) ) {
 			foreach ( WC()->cart->cart_contents as $key => $item ) {
 				if ( ! WC_Subscriptions_Product::is_subscription( $item['data'] ) ) {
 					return false;
@@ -220,7 +241,8 @@ class Dintero_Checkout_Subscription {
 			return $needs_payment;
 		}
 
-		return $this->is_available( $needs_payment );
+		// Only turn payment on for free trials. Turning it off would let an unavailable cart, e.g. a blocked mixed cart, be placed unpaid.
+		return $needs_payment || $this->is_available( $needs_payment );
 	}
 
 	/**
@@ -410,7 +432,7 @@ class Dintero_Checkout_Subscription {
 			}
 
 			$parent_order = $subscription->get_parent();
-			$token        = $parent_order->get_meta( $token_type );
+			$token        = $parent_order ? $parent_order->get_meta( $token_type ) : '';
 
 			if ( ! empty( $token ) ) {
 				break;
