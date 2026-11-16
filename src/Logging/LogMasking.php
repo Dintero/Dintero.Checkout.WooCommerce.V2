@@ -9,6 +9,7 @@ namespace Krokedil\Dintero\Logging;
 
 use KrokedilDinteroCheckoutDeps\Krokedil\WpApi\FieldMasker;
 use KrokedilDinteroCheckoutDeps\Krokedil\WpApi\KeyMasker;
+use KrokedilDinteroCheckoutDeps\Krokedil\WpApi\Masking;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -19,6 +20,11 @@ defined( 'ABSPATH' ) || exit;
  * for every other shape that reaches a log entry, including the stack trace.
  */
 class LogMasking {
+	/**
+	 * The plugin slug passed to the krokedil_wp_api_mask_log_data filter.
+	 */
+	const SLUG = 'dintero-checkout-for-woocommerce';
+
 	/**
 	 * The address fields kept readable, since none of them identify a person on their own.
 	 */
@@ -104,9 +110,13 @@ class LogMasking {
 	 * Mask a formatted log entry, or a plain log message.
 	 *
 	 * @param array|string $data The log entry.
-	 * @return array|string The masked entry, or the failure marker in place of it.
+	 * @return array|string The masked entry, the entry as it was if masking is off, or the failure marker.
 	 */
 	public static function mask( $data ) {
+		if ( ! Masking::is_enabled( self::SLUG ) ) {
+			return $data;
+		}
+
 		// A failure here costs the entry, it never lets an unmasked one through.
 		try {
 			self::register();
