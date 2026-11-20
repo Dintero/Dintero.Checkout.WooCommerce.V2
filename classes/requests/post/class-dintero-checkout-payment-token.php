@@ -72,7 +72,7 @@ class Dintero_Checkout_Payment_Token extends Dintero_Checkout_Request_Post {
 
 		// Set if express or not. For order-pay, we default to redirect flow.
 		if ( ! is_wc_endpoint_url( 'order-pay' ) && $this->is_express() && $this->is_embedded() ) {
-			$customer_types = $this->settings['express_customer_type'];
+			$customer_types = $this->settings['express_customer_type'] ?? 'b2bc';
 			switch ( $customer_types ) {
 				case 'b2c':
 					$body['session']['express']['customer_types'] = array( 'b2c' );

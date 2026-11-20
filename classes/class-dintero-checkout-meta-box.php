@@ -78,7 +78,7 @@ class Dintero_Checkout_Meta_Box {
 		$order       = wc_get_order( dintero_get_the_ID() );
 		$environment = ! empty( $order->get_meta( '_wc_dintero_checkout_environment' ) ) ? $order->get_meta( '_wc_dintero_checkout_environment' ) : '';
 
-		$account_id     = trim( get_option( 'woocommerce_dintero_checkout_settings', array( 'account_id' => '' ) )['account_id'] );
+		$account_id     = trim( get_option( 'woocommerce_dintero_checkout_settings', array() )['account_id'] ?? '' );
 		$transaction_id = $order->get_meta( '_dintero_transaction_id' );
 
 		$payment_method = $order->get_meta( '_dintero_payment_method' );
