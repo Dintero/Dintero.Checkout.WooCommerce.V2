@@ -31,7 +31,8 @@ class Dintero_Checkout_Get_Access_Token extends Dintero_Checkout_Request_Post {
 	 * @return string
 	 */
 	protected function get_request_url() {
-		return "{$this->get_api_url_base()}accounts/{$this->environment()}{$this->settings['account_id']}/auth/token";
+		$account_id = $this->settings['account_id'] ?? '';
+		return "{$this->get_api_url_base()}accounts/{$this->environment()}{$account_id}/auth/token";
 	}
 
 	/**
@@ -53,9 +54,10 @@ class Dintero_Checkout_Get_Access_Token extends Dintero_Checkout_Request_Post {
 	 * @return array
 	 */
 	protected function get_body() {
+		$account_id = $this->settings['account_id'] ?? '';
 		return array(
 			'grant_type' => 'client_credentials',
-			'audience'   => "https://api.dintero.com/v1/accounts/{$this->environment()}{$this->settings['account_id']}",
+			'audience'   => "https://api.dintero.com/v1/accounts/{$this->environment()}{$account_id}",
 		);
 	}
 
@@ -65,6 +67,6 @@ class Dintero_Checkout_Get_Access_Token extends Dintero_Checkout_Request_Post {
 	 * @return string Basic authorization parameter.
 	 */
 	private function calculate_auth() {
-		return 'Basic ' . base64_encode( $this->settings['client_id'] . ':' . $this->settings['client_secret'] ); // phpcs:ignore
+		return 'Basic ' . base64_encode( ( $this->settings['client_id'] ?? '' ) . ':' . ( $this->settings['client_secret'] ?? '' ) ); // phpcs:ignore
 	}
 }

@@ -127,7 +127,7 @@ class Dintero_Checkout_Update_Checkout_Session extends Dintero_Checkout_Request_
 	 */
 	public function add_express_object( &$body ) {
 		// Set allowed customer types.
-		$customer_types = $this->settings['express_customer_type'];
+		$customer_types = $this->settings['express_customer_type'] ?? 'b2bc';
 		switch ( $customer_types ) {
 			case 'b2c':
 				$body['express']['customer_types'] = array( 'b2c' );

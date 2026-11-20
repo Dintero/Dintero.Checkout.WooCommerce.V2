@@ -57,7 +57,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 					'id' => preg_replace( '/(https?:\/\/|www.|\/\s*$)/i', '', get_home_url() ),
 				),
 			),
-			'profile_id' => $this->settings['profile_id'],
+			'profile_id' => $this->settings['profile_id'] ?? 'default',
 		);
 
 		// Set if express or not. For order-pay, we default to redirect flow.
@@ -103,7 +103,7 @@ class Dintero_Checkout_Create_Session extends Dintero_Checkout_Request_Post {
 	 */
 	public function add_express_object( &$body ) {
 		// Set allowed customer types.
-		$customer_types = $this->settings['express_customer_type'];
+		$customer_types = $this->settings['express_customer_type'] ?? 'b2bc';
 		switch ( $customer_types ) {
 			case 'b2c':
 				$body['express']['customer_types'] = array( 'b2c' );
