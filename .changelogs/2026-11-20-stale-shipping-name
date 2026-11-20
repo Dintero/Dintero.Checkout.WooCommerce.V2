@@ -1,0 +1,4 @@
+Type: Fix
+Needs Documentation: no
+
+Fixed the delivery name and phone from an earlier "Ship to a different address" order being sent to Dintero on a later order shipped to the billing address, which made the delivery address in Dintero differ from the WooCommerce order.
