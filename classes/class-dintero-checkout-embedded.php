@@ -95,6 +95,16 @@ class Dintero_Checkout_Embedded {
 			if ( method_exists( WC()->customer, 'set_shipping_phone' ) && isset( $post_data['shipping_phone'] ) ) {
 				WC()->customer->set_shipping_phone( $post_data['shipping_phone'] );
 			}
+		} else {
+			// WooCommerce only copies the billing location to shipping, so names, company and phone from an earlier different address would reach Dintero.
+			// Mirror billing onto them, as WooCommerce does when creating the order.
+			WC()->customer->set_shipping_first_name( $post_data['billing_first_name'] ?? '' );
+			WC()->customer->set_shipping_last_name( $post_data['billing_last_name'] ?? '' );
+			WC()->customer->set_shipping_company( $post_data['billing_company'] ?? '' );
+
+			if ( method_exists( WC()->customer, 'set_shipping_phone' ) ) {
+				WC()->customer->set_shipping_phone( $post_data['billing_phone'] ?? '' );
+			}
 		}
 
 		$this->is_address_callback = ! empty( $post_data['dintero_address_callback'] );
