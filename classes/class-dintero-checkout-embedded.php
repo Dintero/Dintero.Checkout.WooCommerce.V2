@@ -48,7 +48,7 @@ class Dintero_Checkout_Embedded {
 	}
 
 	/**
-	 * Stop the checkout when the Dintero session amount or shipping differs from the posted checkout.
+	 * Stop the checkout when the Dintero session amount, shipping or address differs from the posted checkout.
 	 *
 	 * The frontend total check runs before WooCommerce reads the posted address, so it misses shipping added at submit.
 	 *
@@ -81,16 +81,19 @@ class Dintero_Checkout_Embedded {
 		$has_shipping     = ! empty( $session['order']['shipping_option'] );
 		$amount_differs   = $max_diff <= abs( intval( $session['order']['amount'] ) - $cart_amount );
 		$missing_shipping = WC()->cart->needs_shipping() && ! $has_shipping;
-		if ( ! $amount_differs && ! $missing_shipping ) {
+		$has_address      = ! empty( $session['order']['billing_address']['address_line'] );
+		$missing_address  = ! empty( $data['billing_address_1'] ) && ! $has_address;
+		if ( ! $amount_differs && ! $missing_shipping && ! $missing_address ) {
 			return;
 		}
 
 		$shipping_option = $has_shipping ? 'yes' : 'no';
-		Dintero_Checkout_Logger::log( "[VERIFY SESSION]: The session $session_id does not match the cart. Session amount: {$session['order']['amount']}, cart amount: $cart_amount, session has shipping_option: $shipping_option." );
+		$address         = $has_address ? 'yes' : 'no';
+		Dintero_Checkout_Logger::log( "[VERIFY SESSION]: The session $session_id does not match the cart. Session amount: {$session['order']['amount']}, cart amount: $cart_amount, session has shipping_option: $shipping_option, session has address: $address." );
 
 		// Makes the failure response carry refresh, so the frontend sends the posted address and shipping to Dintero.
 		WC()->session->set( 'refresh_totals', true );
-		$errors->add( 'dintero_checkout_session', __( 'Your order total has been updated. Please check it and try again.', 'dintero-checkout-for-woocommerce' ) );
+		$errors->add( 'dintero_checkout_session', __( 'Your order has been updated. Please check it and try again.', 'dintero-checkout-for-woocommerce' ) );
 	}
 
 	/**
