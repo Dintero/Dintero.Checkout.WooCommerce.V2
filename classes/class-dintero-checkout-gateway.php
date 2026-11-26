@@ -375,7 +375,14 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 */
 		private function get_paid_transaction_redirect_url( $order ) {
 			$merchant_reference = strval( $order->get_meta( '_dintero_merchant_reference' ) );
-			$transactions       = Dintero()->api->get_transactions( array( 'merchant_reference' => $merchant_reference ), true );
+			// Dintero returns 10 transactions by default and rejects a limit above 100.
+			$transactions = Dintero()->api->get_transactions(
+				array(
+					'merchant_reference' => $merchant_reference,
+					'limit'              => 100,
+				),
+				true
+			);
 
 			// Failing open keeps order-pay working when the lookup fails, as it did before the lookup existed.
 			if ( is_wp_error( $transactions ) ) {
