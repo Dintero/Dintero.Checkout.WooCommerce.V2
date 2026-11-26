@@ -1,0 +1,4 @@
+Type: Fix
+Needs Documentation: no
+
+Fixed orders sometimes being paid without shipping and address on embedded and pop-out checkout, mainly from the Facebook in-app browser on iPhone. The customer is now asked to check the updated total and try again.
