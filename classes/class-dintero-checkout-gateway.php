@@ -384,8 +384,12 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			}
 
 			foreach ( (array) $transactions as $transaction ) {
+				if ( ! is_array( $transaction ) ) {
+					continue;
+				}
+
 				$transaction_id = $transaction['id'] ?? '';
-				if ( ! is_array( $transaction ) || ! dintero_is_payable_transaction( $transaction ) || true !== dintero_verify_transaction_for_order( $order, $transaction, $transaction_id ) ) {
+				if ( ! dintero_is_payable_transaction( $transaction ) || ! $this->is_transaction_for_this_payment( $order, $transaction ) || true !== dintero_verify_transaction_for_order( $order, $transaction, $transaction_id ) ) {
 					continue;
 				}
 
@@ -401,6 +405,30 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			}
 
 			return '';
+		}
+
+		/**
+		 * Whether a transaction matches the order's amount and currency, and was made after the order was created.
+		 *
+		 * Another store on the same Dintero account can use the same order number as merchant reference.
+		 *
+		 * @param WC_Order $order The WC order.
+		 * @param array    $transaction The transaction from Dintero.
+		 * @return bool
+		 */
+		private function is_transaction_for_this_payment( $order, $transaction ) {
+			if ( intval( $transaction['amount'] ?? -1 ) !== Dintero_Checkout_Helper_Base::format_number( $order->get_total() ) ) {
+				return false;
+			}
+
+			if ( strtoupper( strval( $transaction['currency'] ?? '' ) ) !== strtoupper( $order->get_currency() ) ) {
+				return false;
+			}
+
+			// The margin allows for clock drift between the store and Dintero.
+			$created_at    = strtotime( strval( $transaction['created_at'] ?? '' ) );
+			$order_created = $order->get_date_created();
+			return false !== $created_at && null !== $order_created && $created_at >= $order_created->getTimestamp() - 10 * MINUTE_IN_SECONDS;
 		}
 
 		/**
