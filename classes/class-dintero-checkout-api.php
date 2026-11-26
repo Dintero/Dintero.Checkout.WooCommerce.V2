@@ -50,6 +50,19 @@ class Dintero_Checkout_API {
 	}
 
 	/**
+	 * List the Dintero transactions that match the query parameters, such as merchant_reference.
+	 *
+	 * @param array $params The URL query parameters.
+	 * @param bool  $suppress_error_notice Whether to keep the error from the customer. Default false.
+	 * @return array|WP_Error
+	 */
+	public function get_transactions( $params, $suppress_error_notice = false ) {
+		$request  = new Krokedil\Dintero\Requests\GetTransactions( array( 'params' => $params ) );
+		$response = $request->request();
+		return $suppress_error_notice ? $response : $this->check_for_api_error( $response );
+	}
+
+	/**
 	 * Retrieve information about a WooCommerce order from Dintero.
 	 *
 	 * @param string $session_id The Dintero session id.
