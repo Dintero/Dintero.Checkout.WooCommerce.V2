@@ -40,7 +40,60 @@ class Dintero_Checkout_Embedded {
 			add_action( 'woocommerce_after_calculate_totals', array( $this, 'update_dintero_checkout_session' ), 9999 );
 			add_action( 'woocommerce_checkout_update_order_review', array( $this, 'update_wc_customer' ) );
 			add_filter( 'woocommerce_shipping_packages', array( $this, 'maybe_set_selected_pickup_point' ) );
+
+			if ( ! dwc_is_express( $settings ) ) {
+				add_action( 'woocommerce_after_checkout_validation', array( $this, 'verify_session_matches_cart' ), 10, 2 );
+			}
 		}
+	}
+
+	/**
+	 * Stop the checkout when the Dintero session amount, shipping or address differs from the posted checkout.
+	 *
+	 * The frontend total check runs before WooCommerce reads the posted address, so it misses shipping added at submit.
+	 *
+	 * @param array    $data The posted checkout data.
+	 * @param WP_Error $errors The checkout validation errors.
+	 * @return void
+	 */
+	public function verify_session_matches_cart( $data, $errors ) {
+		// Skipped when the checkout already fails, since the customer must correct the form first.
+		if ( 'dintero_checkout' !== ( $data['payment_method'] ?? '' ) || $errors->has_errors() ) {
+			return;
+		}
+
+		// A zero total (e.g., a free trial) uses a payment token session, which has no amount.
+		$cart_amount = Dintero_Checkout_Helper_Base::format_number( WC()->cart->get_total( 'edit' ) );
+		if ( 0 === $cart_amount ) {
+			return;
+		}
+
+		$session_id = WC()->session->get( 'dintero_checkout_session_id' );
+		$session    = empty( $session_id ) ? null : Dintero()->api->get_session( $session_id, true );
+		if ( is_wp_error( $session ) || ! isset( $session['order']['amount'] ) ) {
+			$reason = is_wp_error( $session ) ? $session->get_error_message() : 'no amount in the session';
+			Dintero_Checkout_Logger::log( "[VERIFY SESSION]: Could not get the session $session_id to compare with the cart ($reason)." );
+			$errors->add( 'dintero_checkout_session', __( 'An error occurred while processing the payment. Please try again.', 'dintero-checkout-for-woocommerce' ) );
+			return;
+		}
+
+		$max_diff         = 10; // Minor units, same as Dintero_Checkout_Ajax::dintero_verify_order_total().
+		$has_shipping     = ! empty( $session['order']['shipping_option'] );
+		$amount_differs   = $max_diff <= abs( intval( $session['order']['amount'] ) - $cart_amount );
+		$missing_shipping = WC()->cart->needs_shipping() && ! $has_shipping;
+		$has_address      = ! empty( $session['order']['billing_address']['address_line'] );
+		$missing_address  = ! empty( $data['billing_address_1'] ) && ! $has_address;
+		if ( ! $amount_differs && ! $missing_shipping && ! $missing_address ) {
+			return;
+		}
+
+		$shipping_option = $has_shipping ? 'yes' : 'no';
+		$address         = $has_address ? 'yes' : 'no';
+		Dintero_Checkout_Logger::log( "[VERIFY SESSION]: The session $session_id does not match the cart. Session amount: {$session['order']['amount']}, cart amount: $cart_amount, session has shipping_option: $shipping_option, session has address: $address." );
+
+		// Makes the failure response carry refresh, so the frontend sends the posted address and shipping to Dintero.
+		WC()->session->set( 'refresh_totals', true );
+		$errors->add( 'dintero_checkout_session', __( 'Your order has been updated. Please check it and try again.', 'dintero-checkout-for-woocommerce' ) );
 	}
 
 	/**

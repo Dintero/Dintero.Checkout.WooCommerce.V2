@@ -820,6 +820,12 @@ jQuery( function ( $ ) {
                                         dinteroCheckoutParams.SID + " | Checkout error | " + messages,
                                     );
                                     dinteroCheckoutForWooCommerce.failOrder( "submission", messages, callback );
+
+                                    // The session no longer matches the posted checkout (e.g., autofill skipped update_checkout). Send the posted address and shipping to Dintero.
+                                    if ( data.refresh ) {
+                                        dinteroCheckoutForWooCommerce.delayUpdateCheckout();
+                                        return;
+                                    }
                                 } else {
                                     dinteroCheckoutForWooCommerce.logToFile(
                                         dinteroCheckoutParams.SID + " | Checkout error | No message",
