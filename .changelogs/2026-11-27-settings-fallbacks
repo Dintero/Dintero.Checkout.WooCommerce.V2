@@ -1,0 +1,4 @@
+Type: Fix
+Needs Documentation: no
+
+Fixed PHP warnings (Undefined array key) logged when some of the plugin's settings had never been saved.
