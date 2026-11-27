@@ -1,0 +1,4 @@
+Type: Fix
+Needs Documentation: no
+
+Fixed customers sometimes being able to pay twice from the "Pay for order" page when their first payment had not yet been registered on the order. They are now sent to the order confirmation page.

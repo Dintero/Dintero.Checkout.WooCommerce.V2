@@ -310,8 +310,23 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @throws Exception If the API call fails.
 		 */
 		public function process_redirect_payment( $order ) {
+			$previous_reference = strval( $order->get_meta( '_dintero_merchant_reference' ) );
+
 			// Stored before the session is created, since the request sends the stored reference.
 			Dintero_Checkout_Order::maybe_set_merchant_reference( $order );
+
+			// An earlier attempt may already be paid while its callback is still pending, so do not let the customer pay twice.
+			$is_same_reference = ! empty( $previous_reference ) && $previous_reference === $order->get_meta( '_dintero_merchant_reference' );
+			if ( $is_same_reference && ! Dintero_Checkout_Subscription::is_change_payment_method() ) {
+				$paid_redirect_url = $this->get_paid_transaction_redirect_url( $order );
+				if ( ! empty( $paid_redirect_url ) ) {
+					return array(
+						'result'   => 'success',
+						'redirect' => $paid_redirect_url,
+						'order_id' => $order->get_id(),
+					);
+				}
+			}
 
 			if ( 0.0 === floatval( $order->get_total() ) ) {
 				$session = Dintero()->api->create_payment_token( $order->get_id() );
@@ -348,6 +363,79 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				'redirect' => $session['url'],
 				'order_id' => $order->get_id(),
 			);
+		}
+
+		/**
+		 * Get the return URL for a transaction that has already paid the order under its merchant reference.
+		 *
+		 * The return URL confirms the order the same way as when Dintero redirects the customer back.
+		 *
+		 * @param WC_Order $order The WC order.
+		 * @return string The return URL, or an empty string if no paid transaction was found.
+		 */
+		private function get_paid_transaction_redirect_url( $order ) {
+			$merchant_reference = strval( $order->get_meta( '_dintero_merchant_reference' ) );
+			// Dintero returns 10 transactions by default and rejects a limit above 100.
+			$transactions = Dintero()->api->get_transactions(
+				array(
+					'merchant_reference' => $merchant_reference,
+					'limit'              => 100,
+				),
+				true
+			);
+
+			// Failing open keeps order-pay working when the lookup fails, as it did before the lookup existed.
+			if ( is_wp_error( $transactions ) ) {
+				Dintero_Checkout_Logger::log( "[PROCESS_PAYMENT]: Could not check for an earlier paid transaction for order id: {$order->get_id()}. Error: {$transactions->get_error_message()}" );
+				return '';
+			}
+
+			foreach ( (array) $transactions as $transaction ) {
+				if ( ! is_array( $transaction ) ) {
+					continue;
+				}
+
+				$transaction_id = $transaction['id'] ?? '';
+				if ( ! dintero_is_payable_transaction( $transaction ) || ! $this->is_transaction_for_this_payment( $order, $transaction ) || true !== dintero_verify_transaction_for_order( $order, $transaction, $transaction_id ) ) {
+					continue;
+				}
+
+				Dintero_Checkout_Logger::log( "[PROCESS_PAYMENT]: Order id: {$order->get_id()} is already paid by transaction ID: $transaction_id. Confirming it instead of creating a new session." );
+				return add_query_arg(
+					array(
+						'gateway'            => 'dintero',
+						'merchant_reference' => $merchant_reference,
+						'transaction_id'     => $transaction_id,
+					),
+					home_url()
+				);
+			}
+
+			return '';
+		}
+
+		/**
+		 * Whether a transaction matches the order's amount and currency, and was made after the order was created.
+		 *
+		 * Another store on the same Dintero account can use the same order number as merchant reference.
+		 *
+		 * @param WC_Order $order The WC order.
+		 * @param array    $transaction The transaction from Dintero.
+		 * @return bool
+		 */
+		private function is_transaction_for_this_payment( $order, $transaction ) {
+			if ( intval( $transaction['amount'] ?? -1 ) !== Dintero_Checkout_Helper_Base::format_number( $order->get_total() ) ) {
+				return false;
+			}
+
+			if ( strtoupper( strval( $transaction['currency'] ?? '' ) ) !== strtoupper( $order->get_currency() ) ) {
+				return false;
+			}
+
+			// The margin allows for clock drift between the store and Dintero.
+			$created_at    = strtotime( strval( $transaction['created_at'] ?? '' ) );
+			$order_created = $order->get_date_created();
+			return false !== $created_at && null !== $order_created && $created_at >= $order_created->getTimestamp() - 10 * MINUTE_IN_SECONDS;
 		}
 
 		/**
