@@ -90,7 +90,11 @@ class Dintero_Checkout_Redirect {
 			if ( 'transaction_id_mismatch' === $verified->get_error_code() && dintero_is_payable_transaction( $dintero_order ) && ! $order->needs_payment() ) {
 				Dintero_Checkout_Logger::log( "REDIRECT [already_paid]: The WC order id: {$order->get_id()} is already paid by another transaction. Redirecting customer to thank-you page." );
 				dintero_unset_sessions();
-				wp_safe_redirect( $order->get_checkout_order_received_url() );
+
+				// The transaction was not verified, so only the logged-in owner gets the order key. WooCommerce shows others a generic page.
+				$is_owner     = $order->get_customer_id() && get_current_user_id() === $order->get_customer_id();
+				$received_url = $is_owner ? $order->get_checkout_order_received_url() : wc_get_endpoint_url( 'order-received', $order->get_id(), wc_get_checkout_url() );
+				wp_safe_redirect( $received_url );
 				exit;
 			}
 
