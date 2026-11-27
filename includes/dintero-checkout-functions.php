@@ -451,8 +451,12 @@ function dintero_maybe_hold_mismatched_order( $order, $dintero_order, $transacti
 
 	Dintero_Checkout_Logger::log( "CONFIRM ORDER ERROR [amount]: The transaction is for $amount $currency but the order total is $order_amount {$order->get_currency()}. Putting the order on hold. WC order id: {$order->get_id()} (transaction ID: $transaction_id)." );
 
+	// Order management captures, voids and refunds by this id, so the merchant can act on the held order.
+	$order->set_transaction_id( $transaction_id );
+
 	// Already held by an earlier confirmation (e.g., the return URL before the callback).
 	if ( $order->has_status( 'on-hold' ) ) {
+		$order->save();
 		return true;
 	}
 
