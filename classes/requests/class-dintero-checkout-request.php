@@ -96,7 +96,7 @@ abstract class Dintero_Checkout_Request {
 	 * @return string T for test mode or P for production mode.
 	 */
 	protected function environment() {
-		return ( 'yes' === $this->settings['test_mode'] ) ? 'T' : 'P';
+		return ( 'yes' === ( $this->settings['test_mode'] ?? 'no' ) ) ? 'T' : 'P';
 	}
 
 	/**

@@ -450,7 +450,7 @@ function dintero_confirm_order( $order, $transaction_id ) {
 		$settings = get_option( 'woocommerce_dintero_checkout_settings' );
 
 		// Save the environment mode for use in the meta box.
-		$order->update_meta_data( '_wc_dintero_checkout_environment', 'yes' === $settings['test_mode'] ? 'Test' : 'Production' );
+		$order->update_meta_data( '_wc_dintero_checkout_environment', 'yes' === ( $settings['test_mode'] ?? 'no' ) ? 'Test' : 'Production' );
 		$order->update_meta_data( '_dintero_transaction_id', $transaction_id );
 
 		// Set the merchant_reference_2 for the Dintero order if it was not set before, or it does not match the order number.
@@ -504,12 +504,12 @@ function dintero_get_brand_image_url( $settings, $icon_color = 'cecece' ) {
 	$color    = str_replace( '#', '', $icon_color );
 	$width    = 'logomark' === $variant ? 300 : 600;
 	$template = 'logomark' === $variant ? 'logos' : 'dintero_top_frame';
-	$account  = ( ( 'yes' === $settings['test_mode'] ) ? 'T' : 'P' ) . $settings['account_id'];
-	$profile  = $settings['profile_id'];
+	$account  = ( ( 'yes' === ( $settings['test_mode'] ?? 'no' ) ) ? 'T' : 'P' ) . ( $settings['account_id'] ?? '' );
+	$profile  = $settings['profile_id'] ?? 'default';
 
-	if ( 'yes' !== $settings['branding_logo_color'] ) {
+	if ( 'yes' !== ( $settings['branding_logo_color'] ?? 'yes' ) ) {
 		$variant = 'mono';
-		$color   = str_replace( '#', '', $settings['branding_logo_color_custom'] );
+		$color   = str_replace( '#', '', $settings['branding_logo_color_custom'] ?? '' );
 	}
 
 	return "https://checkout.dintero.com/v1/branding/accounts/{$account}/profiles/{$profile}/variant/{$variant}/color/{$color}/width/{$width}/{$template}.svg";
@@ -654,7 +654,7 @@ function dwc_is_express( $settings ) {
 		return strpos( $settings['checkout_flow'], 'express' ) !== false;
 	}
 
-	return 'express' === $settings['checkout_type'];
+	return 'express' === ( $settings['checkout_type'] ?? '' );
 }
 
 /**
@@ -668,7 +668,7 @@ function dwc_is_embedded( $settings ) {
 		return strpos( $settings['checkout_flow'], 'embedded' ) !== false || dwc_is_popout( $settings );
 	}
 
-	return 'embedded' === $settings['form_factor'];
+	return 'embedded' === ( $settings['form_factor'] ?? '' );
 }
 
 /**
@@ -682,7 +682,7 @@ function dwc_is_redirect( $settings ) {
 		return strpos( $settings['checkout_flow'], 'redirect' ) !== false;
 	}
 
-	return 'redirect' === $settings['form_factor'];
+	return 'redirect' === ( $settings['form_factor'] ?? '' );
 }
 
 /**
@@ -696,7 +696,7 @@ function dwc_is_popout( $settings ) {
 		return strpos( $settings['checkout_flow'], 'popout' ) !== false;
 	}
 
-	return 'yes' === $settings['checkout_popout'] && 'embedded' === $settings['form_factor'];
+	return 'yes' === ( $settings['checkout_popout'] ?? '' ) && 'embedded' === ( $settings['form_factor'] ?? '' );
 }
 
 /**
