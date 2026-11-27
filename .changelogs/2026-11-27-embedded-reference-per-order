@@ -1,0 +1,4 @@
+Type: Fix
+Needs Documentation: no
+
+Improved how orders are matched to their Dintero payment. An order whose payment does not match its total is now put on hold.

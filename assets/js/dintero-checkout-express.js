@@ -812,6 +812,14 @@ jQuery( function ( $ ) {
                             } catch ( err ) {
                                 console.log( "catch error" );
                                 console.error( err );
+
+                                // The session was reset, so the page needs a new Dintero session.
+                                if ( data.reload ) {
+                                    dinteroCheckoutForWooCommerce.failOrder( "submission", "Checkout reload", callback );
+                                    window.location.reload();
+                                    return;
+                                }
+
                                 if ( data.messages ) {
                                     // Strip HTML code from messages.
                                     const messages = data.messages.replace( /<\/?[^>]+(>|$)\s+/g, "" );

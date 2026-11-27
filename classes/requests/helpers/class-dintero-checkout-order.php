@@ -126,17 +126,31 @@ class Dintero_Checkout_Order extends Dintero_Checkout_Helper_Base {
 	}
 
 	/**
-	 * Whether another order already has the merchant reference.
+	 * Whether another order, not counting subscriptions, already has the merchant reference.
+	 *
+	 * Subscriptions are skipped because they copy the reference from their own parent order.
 	 *
 	 * @param string   $merchant_reference The merchant reference.
 	 * @param WC_Order $order The order the reference is for.
 	 * @return bool
 	 */
-	private static function is_reference_shared( $merchant_reference, $order ) {
+	public static function is_reference_used_by_other_order( $merchant_reference, $order ) {
+		return self::is_reference_shared( $merchant_reference, $order, false );
+	}
+
+	/**
+	 * Whether another order already has the merchant reference.
+	 *
+	 * @param string   $merchant_reference The merchant reference.
+	 * @param WC_Order $order The order the reference is for.
+	 * @param bool     $include_subscriptions Whether a subscription with the reference counts.
+	 * @return bool
+	 */
+	private static function is_reference_shared( $merchant_reference, $order, $include_subscriptions = true ) {
 		// A payment method change creates a session with the subscription's reference, but subscriptions and their statuses are not in the default query.
 		$types    = wc_get_order_types( 'view-orders' );
 		$statuses = array_keys( wc_get_order_statuses() );
-		if ( function_exists( 'wcs_get_subscription_statuses' ) ) {
+		if ( $include_subscriptions && function_exists( 'wcs_get_subscription_statuses' ) ) {
 			$types[]  = 'shop_subscription';
 			$statuses = array_merge( $statuses, array_keys( wcs_get_subscription_statuses() ) );
 		}

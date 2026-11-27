@@ -294,6 +294,14 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				throw new Exception();
 			}
 
+			// An earlier order in this session still has the reference, so start a new Dintero session.
+			if ( Dintero_Checkout_Order::is_reference_used_by_other_order( $reference, $order ) ) {
+				Dintero_Checkout_Logger::log( 'PROCESS PAYMENT EMBEDDED ERROR [reference]: Another order already has the merchant reference from the session for order id: ' . $order->get_id() . ' reference: ' . $reference );
+				dintero_unset_sessions();
+				WC()->session->reload_checkout = true;
+				throw new Exception();
+			}
+
 			$order->update_meta_data( '_dintero_merchant_reference', $reference );
 			$order->save();
 
