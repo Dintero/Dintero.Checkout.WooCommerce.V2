@@ -428,6 +428,53 @@ function dintero_get_paid_session_redirect_url( $session_id ) {
 }
 
 /**
+ * Put the order on hold instead of completing it when the paid amount or currency differs from the order.
+ *
+ * @param WC_Order $order The WooCommerce order.
+ * @param array    $dintero_order The transaction from Dintero.
+ * @param string   $transaction_id The Dintero transaction id.
+ * @return bool Whether the order was held.
+ */
+function dintero_maybe_hold_mismatched_order( $order, $dintero_order, $transaction_id ) {
+	// A paid order was checked when it was confirmed, and its total may since have been edited or partly captured.
+	if ( ! empty( $order->get_date_paid() ) ) {
+		return false;
+	}
+
+	$max_diff     = 10; // Minor units, same as Dintero_Checkout_Ajax::dintero_verify_order_total().
+	$order_amount = Dintero_Checkout_Helper_Base::format_number( $order->get_total() );
+	$amount       = intval( $dintero_order['amount'] ?? 0 );
+	$currency     = strval( $dintero_order['currency'] ?? '' );
+	if ( $currency === $order->get_currency() && $max_diff > abs( $amount - $order_amount ) ) {
+		return false;
+	}
+
+	Dintero_Checkout_Logger::log( "CONFIRM ORDER ERROR [amount]: The transaction is for $amount $currency but the order total is $order_amount {$order->get_currency()}. Putting the order on hold. WC order id: {$order->get_id()} (transaction ID: $transaction_id)." );
+
+	// Order management captures, voids and refunds by this id, so the merchant can act on the held order.
+	$order->set_transaction_id( $transaction_id );
+
+	// Already held by an earlier confirmation (e.g., the return URL before the callback).
+	if ( $order->has_status( 'on-hold' ) ) {
+		$order->save();
+		return true;
+	}
+
+	$order->update_status(
+		'on-hold',
+		sprintf(
+			// translators: 1: The Dintero transaction id. 2: The paid amount. 3: The paid currency.
+			__( 'The Dintero transaction %1$s is for %2$s %3$s, which does not match the order total. Check the payment in Dintero before fulfilling the order.', 'dintero-checkout-for-woocommerce' ),
+			$transaction_id,
+			wc_format_decimal( $amount / 100, 2 ),
+			$currency
+		)
+	);
+
+	return true;
+}
+
+/**
  * Confirms the Dintero Order.
  *
  * @param WC_Order $order The Woo order.
@@ -476,6 +523,10 @@ function dintero_confirm_order( $order, $transaction_id ) {
 
 		// Get the order from the database again to prevent any concurrency issues if the page loads twice at the same time.
 		$order = wc_get_order( $order_id );
+
+		if ( dintero_maybe_hold_mismatched_order( $order, $dintero_order, $transaction_id ) ) {
+			return;
+		}
 
 		$require_authorization = ( ! is_wp_error( $dintero_order ) && 'ON_HOLD' === $dintero_order['status'] );
 		if ( $require_authorization ) { // If the order needs to be authenticated.
